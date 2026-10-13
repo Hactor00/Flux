@@ -17,7 +17,7 @@
 
 <p align="center">
   <a href="README.md">English</a> · <strong>Türkçe</strong><br>
-  <a href="#indir">İndir</a> · <a href="#22deki-yenilikler">Yenilikler</a> · <a href="#özellikler">Özellikler</a> · <a href="#kurulum">Kurulum</a> · <a href="#doğrulama">Doğrulama</a> · <a href="#geliştirme">Geliştirme</a>
+  <a href="#i%CC%87ndir">İndir</a> · <a href="#22deki-yenilikler">Yenilikler</a> · <a href="#özellikler">Özellikler</a> · <a href="#kurulum">Kurulum</a> · <a href="#doğrulama">Doğrulama</a> · <a href="#geliştirme">Geliştirme</a>
 </p>
 
 Flux; çok bağlantılı HTTP indirmelerini, erişilebilir video/ses yakalamayı, yerleşik BitTorrent motorlarını, kalıcı yerel geçmişi ve ayrı masaüstü onay pencerelerini birleştirir. Tauri 2, React 19, Tokio ve SQLite WAL üzerine kuruludur. Adı “akış” fikrinden gelir: tarayıcıdaki dosya ve medyanın indirme kuyruğuna akması.

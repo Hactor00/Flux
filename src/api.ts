@@ -17,10 +17,22 @@ export interface Input {
   torrent?: TorrentOptions | null;
 }
 export interface TorrentOptions {
+  seeding?: SeedingRule | null;
   upload_limit: number;
   peer_limit: number;
   only_files: number[];
   initial_peers: string[];
+}
+export type HostProvider = "real_debrid" | "all_debrid" | "premiumize";
+export type SeedingRule =
+  | { mode: "disabled" | "infinite" }
+  | { mode: "ratio"; ratio_milli: number }
+  | { mode: "duration"; minutes: number }
+  | { mode: "either"; ratio_milli: number; minutes: number };
+export interface HostAccount {
+  provider: HostProvider;
+  enabled: boolean;
+  configured: boolean;
 }
 export interface TorrentFile {
   index: number;
@@ -30,6 +42,7 @@ export interface TorrentFile {
   sha256: string | null;
 }
 export interface TorrentSnapshot {
+  seeded_seconds?: number;
   file_count?: number;
   info_hash: string;
   state: string;
@@ -39,6 +52,8 @@ export interface TorrentSnapshot {
   files: TorrentFile[];
 }
 export interface MediaOptions {
+  manifest_video_id?: string | null;
+  manifest_audio_id?: string | null;
   kind?: "file" | "hls" | "dash" | null;
   provider?: {
     url: string;
@@ -85,6 +100,8 @@ export interface MediaInfo {
   chapters?: MediaChapter[];
 }
 export interface Settings {
+  seeding: SeedingRule;
+  torrent_upload_limit: number;
   // Application preferences are shared by every native window.
   concurrent_tasks: number;
   connections: number;
@@ -112,6 +129,9 @@ export interface PendingPower {
   deadline: number;
 }
 export interface ResolvedFormat {
+  kind?: "hls" | "dash" | null;
+  manifest_video_id?: string | null;
+  manifest_audio_id?: string | null;
   id: string;
   url: string;
   audio_url: string | null;
@@ -152,6 +172,8 @@ export interface ResolvedCollection {
   total: number | null;
 }
 export const defaultSettings: Settings = {
+  seeding: { mode: "ratio", ratio_milli: 1000 },
+  torrent_upload_limit: 0,
   concurrent_tasks: 3,
   connections: 0,
   speed_limit: 0,
@@ -280,10 +302,19 @@ export const api = {
       : Promise.resolve(defaultSettings),
   saveSettings: (input: Settings) =>
     invoke<Settings>("save_settings", { input }),
+  hostAccounts: () =>
+    desktop ? invoke<HostAccount[]>("host_accounts") : Promise.resolve([]),
+  saveHostAccount: (
+    provider: HostProvider,
+    enabled: boolean,
+    key: string | null,
+  ) => invoke<HostAccount[]>("save_host_account", { provider, enabled, key }),
   remove: (id: string) => invoke<void>("remove_task", { id }),
   priority: (id: string, priority: number) =>
     invoke<Task>("set_priority", { id, priority }),
   pauseAll: () => invoke<void>("pause_all"),
+  prepareUpdate: () => invoke<void>("prepare_update"),
+  abortUpdate: () => invoke<void>("abort_update"),
   startQueue: () => invoke<void>("start_queue"),
   open: (id: string, reveal = false) =>
     invoke<void>("open_task", { id, reveal }),

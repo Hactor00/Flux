@@ -203,7 +203,7 @@ async fn magnet_resolves_metadata_from_embedded_peer_and_verifies_file() {
     assert_eq!(task.status, Status::Complete, "{:?}", task.error);
     assert_eq!(task.sha256.as_deref(), Some(seeder.expected.as_str()));
     assert_eq!(task.torrent.as_ref().unwrap().info_hash.len(), 40);
-    assert_eq!(task.torrent.as_ref().unwrap().state, "complete");
+    assert_eq!(task.torrent.as_ref().unwrap().state, "seeding");
     engine.shutdown().await.unwrap();
     seeder.session.stop().await;
 }

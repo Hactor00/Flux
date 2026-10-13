@@ -128,5 +128,6 @@
   "originalAudio": "Original audio",
   "noSubtitles": "No subtitles",
   "queueCollection": "Put collection for queue",
-  "collectionHint": "Send up to 500 playlist or channel items go Flux download queue."
+  "collectionHint": "Send up to 500 playlist or channel items go Flux download queue.",
+  "showMediaButtons": "Show video download buttons"
 }

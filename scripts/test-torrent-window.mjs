@@ -69,6 +69,27 @@ const info = {
 const infoHash = createHash("sha1").update(encode(info)).digest();
 const metainfo = join(root, "fixture.torrent");
 await writeFile(metainfo, encode({ info }));
+const v2Metainfo = join(root, "fixture-v2.torrent");
+await writeFile(
+  v2Metainfo,
+  encode({
+    info: {
+      name: "native-v2.bin",
+      "meta version": 2,
+      "piece length": 16384,
+      "file tree": {
+        "native-v2.bin": {
+          "": {
+            length: 128,
+            "pieces root": createHash("sha256")
+              .update(payload.subarray(0, 128))
+              .digest(),
+          },
+        },
+      },
+    },
+  }),
+);
 const sockets = new Set();
 let requests = 0;
 const peer = netServer((socket) => {
@@ -165,6 +186,22 @@ const invoke = (page, command, args = {}) =>
 let report;
 try {
   const main = await driver.connect("main");
+  const v2 = await invoke(main, "import_torrent", {
+    path: v2Metainfo,
+    filename: "Native v2 Runtime Test",
+    directory: output,
+    start: false,
+    options: {
+      upload_limit: 0,
+      peer_limit: 8,
+      only_files: [],
+      initial_peers: [],
+    },
+    transfer: { speed_limit: 0 },
+  });
+  assert.equal(v2.status, "paused");
+  assert.match(v2.request.url, /^torrent:/);
+  await invoke(main, "remove_task", { id: v2.id });
   await invoke(main, "open_surface", { view: "download" });
   const download = await driver.connect("download");
   await until(() =>
@@ -250,7 +287,7 @@ try {
   );
   await until(() =>
     details.evaluate(
-      `[...document.querySelectorAll('.torrent-details dd')].some(value=>value.textContent.trim()===${JSON.stringify(labels.complete)})`,
+      `[...document.querySelectorAll('.torrent-details dd')].some(value=>value.textContent.trim()===${JSON.stringify(labels.seeding)})`,
     ),
   );
   await details.evaluate(
@@ -270,13 +307,17 @@ try {
     format: "png",
   });
   await writeFile(
-    "docs/images/torrent-2.0.png",
+    `docs/images/torrent-${JSON.parse(await readFile("package.json"))
+      .version.split(".")
+      .slice(0, 2)
+      .join(".")}.png`,
     Buffer.from(screenshot.data, "base64"),
   );
   report = {
     version: JSON.parse(await readFile("package.json")).version,
     passed: true,
     native_local_import: true,
+    native_v2_runtime_import: true,
     real_peer_wire: true,
     graceful_pause_resume: true,
     details_close_reopen: true,

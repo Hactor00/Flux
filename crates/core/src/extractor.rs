@@ -17,6 +17,12 @@ pub struct ResolvedMedia {
 }
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ResolvedFormat {
+    #[serde(default)]
+    pub kind: Option<String>,
+    #[serde(default)]
+    pub manifest_video_id: Option<String>,
+    #[serde(default)]
+    pub manifest_audio_id: Option<String>,
     pub id: String,
     #[serde(default)]
     pub alternative_ids: Vec<String>,
@@ -32,6 +38,8 @@ pub struct ResolvedFormat {
 }
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ResolvedAudio {
+    #[serde(default)]
+    pub manifest_id: Option<String>,
     pub id: String,
     pub url: String,
     pub codec: String,
@@ -414,6 +422,9 @@ fn parse(info: &Value) -> Result<ResolvedMedia> {
             (
                 rank,
                 ResolvedFormat {
+                    kind: None,
+                    manifest_video_id: None,
+                    manifest_audio_id: None,
                     id,
                     alternative_ids: Vec::new(),
                     url: url.into(),
@@ -456,6 +467,9 @@ fn parse(info: &Value) -> Result<ResolvedMedia> {
     if formats.is_empty() {
         if let Some(item) = audio {
             formats.push(ResolvedFormat {
+                kind: None,
+                manifest_video_id: None,
+                manifest_audio_id: None,
                 id: text(&item["format_id"], "audio", 128),
                 alternative_ids: Vec::new(),
                 url: item["url"].as_str().context("Missing audio URL")?.into(),
@@ -482,6 +496,7 @@ fn parse(info: &Value) -> Result<ResolvedMedia> {
             .rev()
             .take(32)
             .map(|item| ResolvedAudio {
+                manifest_id: None,
                 id: text(&item["format_id"], "", 128),
                 url: item["url"].as_str().unwrap_or_default().into(),
                 codec: text(&item["acodec"], "", 128),

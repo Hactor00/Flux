@@ -76,6 +76,14 @@ async fn forward(data: &Path, request: Request, startup: &Mutex<()>) -> Result<R
             }
         }
     };
+    #[cfg(windows)]
+    if matches!(request.command, protocol::Command::Propose(_)) {
+        if let Some(process_id) = discovery.process_id {
+            unsafe {
+                windows_sys::Win32::UI::WindowsAndMessaging::AllowSetForegroundWindow(process_id);
+            }
+        }
+    }
     protocol::write_frame(
         &mut stream,
         &AuthenticatedRequest {

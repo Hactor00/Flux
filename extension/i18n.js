@@ -1,11 +1,13 @@
 import { getBrowserApi } from "./browser-api.js";
+import { preferredLocale } from "./locale.js";
 const api = getBrowserApi();
 export let dictionary = {};
 export const t = (key) => dictionary[key] || api.i18n.getMessage(key) || key;
 export async function localize() {
   const response = await api.runtime.sendMessage({ type: "dictionary" });
   dictionary = response.result || {};
-  const { locale = "en-US" } = await api.storage.local.get("locale");
+  const stored = await api.storage.local.get("locale");
+  const locale = preferredLocale(api, stored.locale);
   document.documentElement.lang = locale;
   document.documentElement.dir = /^(ar|ur)-/.test(locale) ? "rtl" : "ltr";
   for (const element of document.querySelectorAll("[data-i18n]"))

@@ -1,26 +1,48 @@
 {
-  "version": "2.0.0",
-  "time": "2026-10-13T14:04:13.672Z",
+  "version": "2.2.0",
+  "time": "2026-10-13T23:50:13.542Z",
   "platform": "Windows x64",
   "environment": "Local Windows validation",
-  "rust_tests": 100,
-  "extension_tests": 51,
-  "ui_data_tests": 12,
-  "automated_tests": 163,
+  "rust_tests": 115,
+  "extension_tests": 59,
+  "ui_data_tests": 14,
+  "automated_tests": 188,
+  "browser_interception": {
+    "version": "2.2.0",
+    "passed": true,
+    "browser": "Chrome/155.0.8059.40",
+    "browser_prompt_for_download": true,
+    "attachment_navigation": true,
+    "browser_transfer_cancelled": true,
+    "browser_directory_empty": true,
+    "native_approval_created": true,
+    "no_browser_file_chooser": true,
+    "native_approval_foreground": true,
+    "external_download_manager_isolated": true,
+    "task_id": "79bfdee1-3e27-468e-b8a3-3c5d1acf77e7"
+  },
   "test_evidence": {
-    "core_log_updated": "2026-10-13T13:21:13.318Z",
-    "frontend_log_updated": "2026-10-13T13:46:51.926Z",
+    "core_log_updated": "2026-10-13T22:59:52.819Z",
+    "frontend_log_updated": "2026-10-13T22:35:08.579Z",
     "core_engine_changed_in_hud_repair": true,
     "core_scope": "Core tests executed during the current local release validation"
   },
   "locales": 20,
-  "locale_keys": 193,
+  "locale_keys": 220,
   "clippy": "workspace/all-targets/all-features -D warnings passed",
   "format": "passed",
   "frontend_build": "strict TypeScript + Vite production build passed",
   "npm_audit_production_vulnerabilities": 0,
   "scope": [
-    "Embedded BitTorrent v1 engine, magnet and .torrent import, piece verification and SHA-256 outputs",
+    "Embedded BitTorrent v1/v2/hybrid engines, magnet and .torrent import, piece verification and SHA-256 outputs",
+    "Browser download cancellation before filename release, Firefox attachment interception and native approval foreground authorization",
+    "SHA-256 checkpoint replay without ETags or byte-range support, with preserved progress",
+    "System/browser locale detection, direct Settings menu and persistent in-page media-button switch",
+    "Global and per-task seeding rules, pause and restart recovery, disk-flush completion barrier",
+    "Aligned Windows direct writes, stalled-socket replacement from verified offsets",
+    "Encrypted Debrid accounts, provider API contracts and CDN renewal",
+    "Bounded manifest observation and native HLS/DASH extraction",
+    "Signed updater payload verification, version binding and durable update checkpoints",
     "Native torrent window import, real peer transfer and pause/resume",
     "Direct sparse HTTP staging, non-overlapping offsets and legacy checkpoint migration",
     "DOM/network/MSE hints, audio streams, fps and subtitles",
@@ -37,7 +59,7 @@
     "Clean release and SignPath submission workflow"
   ],
   "daily_use": {
-    "version": "2.0.0",
+    "version": "2.2.0",
     "power_os_actions_executed": false,
     "passed": true,
     "startup_registry_verified": true,
@@ -53,27 +75,27 @@
     "window_close_cancels_countdown": true,
     "exit_app_after_countdown_verified": true,
     "startup_registry_restored": true,
-    "time": "2026-10-13T14:04:03.707Z"
+    "time": "2026-10-13T23:49:47.358Z"
   },
   "installer": {
-    "version": "2.0.0",
     "registry_restoration_verified": true,
-    "installer_filename": "Flux_2.0.0_x64-setup.exe",
-    "native_torrent_window_verified": true,
-    "native_windows_verified": true,
-    "uninstall_preserves_data": true,
     "desktop_cold_start": true,
-    "installed_binary_hashes_verified": true,
-    "firefox_registration_verified": true,
-    "native_registration_verified": true,
-    "uninstall_removes_owned_startup": true,
     "passed": true,
-    "time": "2026-10-13T14:00:43.0640064Z",
     "installed_extension_sources_verified": true,
+    "sha256": "a672d397ff8adb02fb57b4dc865e8b93252bfbf860ea305d8754383a2eba0dc2",
+    "native_torrent_window_verified": true,
+    "firefox_registration_verified": true,
+    "version": "2.2.0",
     "native_browser_bindings_verified": 5,
-    "sha256": "805ae9233e703034c066084c33883a6d9ca26a2e1518ec5cffae36fc53cd22a7",
+    "time": "2026-10-13T23:49:08.8126497Z",
+    "native_windows_verified": true,
+    "installer_filename": "Flux_2.2.0_x64-setup.exe",
+    "uninstall_removes_owned_startup": true,
+    "native_registration_verified": true,
+    "installed_binary_hashes_verified": true,
     "idempotent_repair_remove_verified": true,
-    "bundled_runtime_verified": true
+    "bundled_runtime_verified": true,
+    "uninstall_preserves_data": true
   },
   "native_windows": {
     "passed": true,
@@ -84,12 +106,14 @@
     "window_destruction_verified": true,
     "automatic_default_verified": true,
     "settings_window_verified": true,
+    "top_menu_settings_verified": true,
+    "seeding_accounts_updates_panels_verified": true,
     "start_timestamp_verified": true,
     "history_timestamp_verified": true,
     "completion_timestamp_persisted": true,
-    "task": "f6690af0-aec7-4c8b-8a41-d5a5ea329701",
+    "task": "4b417791-6747-4f2d-9159-a66f49a58da9",
     "sha256": "51510ba467b06c4f337190ef80336d0fb6b7ef8b2fd2cfb950147dedcf8a7dc1",
-    "time": "2026-10-13T13:59:53.154Z"
+    "time": "2026-10-13T23:48:19.910Z"
   },
   "native_ipc": {
     "passed": true,
@@ -100,7 +124,7 @@
     "active_shutdown_resume": true,
     "authenticated_requests": 20,
     "sha256": "bb30230b4a79b25f8db24b49b7e3b385d8e9b623a74f7be79fcc6e2a9d44fb3e",
-    "time": "2026-10-13T13:59:43.093Z"
+    "time": "2026-10-13T23:48:09.399Z"
   },
   "native_media_window": {
     "passed": true,
@@ -115,12 +139,13 @@
     "final_size_exact": true,
     "duration": 8.021333,
     "sha256": "3bd5da94c00686e607a7b160f2c2bdb132fbc56ade7b922b0d986146ede593ca",
-    "time": "2026-10-13T14:00:18.305Z"
+    "time": "2026-10-13T23:48:45.309Z"
   },
   "native_torrent_window": {
-    "version": "2.0.0",
+    "version": "2.2.0",
     "passed": true,
     "native_local_import": true,
+    "native_v2_runtime_import": true,
     "real_peer_wire": true,
     "graceful_pause_resume": true,
     "details_close_reopen": true,
@@ -129,45 +154,46 @@
     "piece_requests": 32,
     "render_sample": {
       "frames": 90,
-      "duration_ms": 371.7999999910594,
-      "maximum_interval_ms": 4.399999999999977
+      "duration_ms": 399.500000011921,
+      "maximum_interval_ms": 16.699999999999932
     },
     "webview_cleanup_warning": true
   },
   "browser_store_packages": {
-    "source_hashes_verified": true,
-    "version": "2.0.0",
     "passed": true,
-    "time": "2026-10-13T14:00:37.0893018Z",
-    "runtime_only": true,
+    "source_hashes_verified": true,
     "packages": [
       {
-        "files": 57,
-        "sha256": "007c980a9dcfa2ae3dca39e926f6f5f90ed936c71fafb7c26701d8e3a7c5d692",
+        "files": 59,
+        "sha256": "909043916719159a874c814affeea652584724f0fb4cf22e6c636676e6680fca",
         "name": "chrome"
       },
       {
-        "files": 57,
-        "sha256": "007c980a9dcfa2ae3dca39e926f6f5f90ed936c71fafb7c26701d8e3a7c5d692",
+        "files": 59,
+        "sha256": "909043916719159a874c814affeea652584724f0fb4cf22e6c636676e6680fca",
         "name": "edge"
       },
       {
-        "files": 57,
-        "sha256": "43ebd8e0ce8bd69f2facd87f6e5857fcd07ba4e9cade9f469d0b2879c7e62bdb",
+        "files": 59,
+        "sha256": "1466ebe1fc1a7535ff481e49a6905efcd99677514ba92186c42679d9852e180e",
         "name": "firefox"
       }
-    ]
+    ],
+    "version": "2.2.0",
+    "runtime_only": true,
+    "time": "2026-10-13T22:36:47.4725992Z",
+    "local_paths_and_credentials_removed": true
   },
   "hud_repair": {
-    "version": "2.0.0",
-    "time": "2026-10-13T14:03:34.617Z",
+    "version": "2.2.0",
+    "time": "2026-10-13T23:50:13.131Z",
     "passed": true,
-    "source_sha256": "c5dcea375a615cf2056a86caee0c9607ad4129af137128f9bbea41cceac1ceae",
-    "extension_tests": 51,
-    "ui_data_tests": 12,
+    "source_sha256": "300d5bd3b50849aeda9cec7f25342c94a86b1e3e7ef94c72f5d768080cba0ef2",
+    "extension_tests": 59,
+    "ui_data_tests": 14,
     "frontend_build": "Strict TypeScript and Vite production build passed",
     "locales": 20,
-    "locale_keys": 193,
+    "locale_keys": 220,
     "chrome": {
       "version": "Chrome/155.0.8059.40",
       "scope": "Production HUD source and real native browser layout with an isolated bridge fixture",
@@ -210,7 +236,7 @@
   },
   "firefox": [
     {
-      "version": "2.0.0",
+      "version": "2.2.0",
       "firefox": "120.0",
       "passed": true,
       "installed_extension": true,
@@ -219,6 +245,9 @@
       "sha256_verified": true,
       "interception_approval": true,
       "browser_transfer_cancelled": true,
+      "attachment_intercepted_before_file_chooser": true,
+      "toolbar_hud_toggle": true,
+      "external_download_manager_isolated": true,
       "consent_before_native": true,
       "consent_withdrawal": true,
       "closed_shadow_dom": true,
@@ -235,7 +264,7 @@
       "registry_restoration_verified": true
     },
     {
-      "version": "2.0.0",
+      "version": "2.2.0",
       "firefox": "157.0.1",
       "passed": true,
       "installed_extension": true,
@@ -244,6 +273,9 @@
       "sha256_verified": true,
       "interception_approval": true,
       "browser_transfer_cancelled": true,
+      "attachment_intercepted_before_file_chooser": true,
+      "toolbar_hud_toggle": true,
+      "external_download_manager_isolated": true,
       "consent_before_native": true,
       "consent_withdrawal": true,
       "closed_shadow_dom": true,
@@ -269,15 +301,22 @@
     "warnings": []
   },
   "binary_sha256": {
-    "flux-desktop.exe": "58fe03dac49ecdafe0a54aeef1bd9e61b61e1ca7c947223748fd0ec492c86989",
-    "flux-cli.exe": "fb82c7035c8cd713863c418323f9c2239cb382cd0207d70b91a92d2c63413c27",
-    "flux-native-host.exe": "2d4403a7b2c7103650cd740779488406b0f8807f37dfd74d1f0eed24bfc3e7f8",
+    "flux-desktop.exe": "a592c7d9c05bf2081ec1a1cd1cede740ed3a70c071df9d18f8ac151385a44616",
+    "flux-cli.exe": "0d69621f6189dab1505519a1e910f475c957874a9e764ae2b92e2267da25f45b",
+    "flux-native-host.exe": "4ac5565ca06595fbe8597fa1dcdbb6e33452453ec4885d0a1c3a8cdd763ba24c",
     "ffmpeg.exe": "b7c801e173e83d29c34a8d019abce4b13e54d36199f231a414eaeb5dbb431f23",
     "ffprobe.exe": "b438e6e0fb6d4804dcce24a105fe575d0d2a0ef5344a0bf1a23f4f784e0392d2",
     "yt-dlp.exe": "66674953fe251b89f4d08c5f0e35e0728679bd67ab3d7d05c0562af101dd3e7a",
     "node.exe": "9a4eb5f1c29c6a2e93852ead46b999e284a6a5ca8bab4d4e241d587d025a52de",
     "libunwind.dll": "b0636a4281610124704adb2be2edf5642e830d86c68b7f27dbc9c8154705a780",
-    "WebView2Loader.dll": "86545b66cdb0603bc26b626fb9ad610cb6e71f28d468f5ea66df23b03dda96d5"
+    "WebView2Loader.dll": "86545b66cdb0603bc26b626fb9ad610cb6e71f28d468f5ea66df23b03dda96d5",
+    "FluxTorrentBridge.dll": "58f2cdb71bf32b4ce883c6adbf637d427595428cfa423cfb1d44a25437c43e41",
+    "libtorrent-rasterbar.dll": "c9fae493228aa69affbbb6b32eb95d7d822f03dcf8319123fa0b916cb5f24e08",
+    "libssl-3-x64.dll": "8b71cd694f8edfbddc76674111278db6bcdcde0dcd63b99238420193848e6dbf",
+    "libcrypto-3-x64.dll": "97308feea369b305e562c0098638a1b02a06f52ee9fcc4b8cf3da362ff563cf4",
+    "libstdc++-6.dll": "b70223508ddf99b98bacfb9d1484e729dcb9922982137f842e601a969da7a17c",
+    "libgcc_s_seh-1.dll": "08ab5e874e7ec066a4cbd0edd09d31779d6ee4d857ed84033d6b93b0334856c4",
+    "libwinpthread-1.dll": "76cc52adfcdb8c800813b2ae8da42a908934eb1ee54ce8e9744fc8d703c76ee1"
   },
   "signing": {
     "workflow_configured": true,
@@ -290,7 +329,11 @@
     "Silent clipboard persistence was tested without modifying the user clipboard",
     "Historical external YouTube verification was not repeated",
     "DRM, CAPTCHA, login challenges and opaque renewal APIs are not automatically solved",
-    "Upstream reqwest HTTP/3 interface remains experimental and pinned"
+    "Upstream reqwest HTTP/3 interface remains experimental and pinned",
+    "Linux and macOS CI jobs have not executed for the local branch",
+    "Live Debrid account entitlements were not tested; local provider HTTP contracts were tested",
+    "EV/OV certificate, SignPath and store credentials were not supplied",
+    "A live GitHub update/install round trip was not run; signatures, checkpoints and NSIS installation were tested separately"
   ],
   "local_paths_and_credentials_removed": true
 }

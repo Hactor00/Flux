@@ -128,5 +128,6 @@
   "originalAudio": "Âm thanh gốc",
   "noSubtitles": "Không có phụ đề",
   "queueCollection": "Đưa bộ sưu tập vào hàng đợi",
-  "collectionHint": "Gửi tối đa 500 mục trong danh sách phát hoặc kênh vào hàng đợi tải xuống Flux."
+  "collectionHint": "Gửi tối đa 500 mục trong danh sách phát hoặc kênh vào hàng đợi tải xuống Flux.",
+  "showMediaButtons": "Hiện nút tải video"
 }

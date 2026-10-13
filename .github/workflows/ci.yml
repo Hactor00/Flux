@@ -8,7 +8,7 @@ jobs:
       FLUX_REQUIRE_MEDIA_TESTS: "1"
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -19,9 +19,15 @@ jobs:
         with:
           cache-on-failure: true
       - if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg cmake ninja-build pkg-config libboost-dev libssl-dev
+      - if: runner.os == 'macOS'
+        run: brew install ffmpeg boost openssl@3 cmake ninja pkg-config
+      - if: runner.os != 'Windows'
+        run: bash scripts/bootstrap-torrent-runtime.sh
       - if: runner.os == 'Windows'
         run: ./scripts/prepare-ci-media.ps1
+      - if: runner.os == 'Windows'
+        run: ./scripts/build-torrent-runtime.ps1
       - run: cargo fmt --all -- --check
       - run: cargo test --locked -p flux-core -p flux-cli -p flux-native-host
       - run: cargo clippy --locked -p flux-core -p flux-cli -p flux-native-host --all-targets --all-features -- -D warnings
@@ -38,6 +44,7 @@ jobs:
         with:
           cache-on-failure: true
       - run: ./scripts/prepare-ci-media.ps1
+      - run: ./scripts/build-torrent-runtime.ps1
       - run: npm ci
       - run: npm test
       - run: node scripts/test-chrome-hud.mjs

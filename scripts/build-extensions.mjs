@@ -20,7 +20,8 @@ assert.equal(firefox.background.type, "module");
 assert.deepEqual(firefox.background.scripts, ["background.js"]);
 assert.equal(firefox.background.service_worker, undefined);
 assert.equal(firefox.key, undefined);
-assert.deepEqual(firefox.permissions, chrome.permissions);
+assert.deepEqual(firefox.permissions.filter((permission) => permission !== "webRequestBlocking"), chrome.permissions);
+assert.ok(firefox.permissions.includes("webRequestBlocking"));
 assert.deepEqual(
   firefox.content_scripts,
   chrome.content_scripts.filter((script) => script.world !== "MAIN"),

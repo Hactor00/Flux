@@ -184,6 +184,17 @@ function renderLinks() {
 }
 
 await localize();
+const hudToggle = document.getElementById("show-media-buttons");
+const preferences = await api.storage.local.get("showMediaButtons");
+hudToggle.checked = preferences.showMediaButtons ?? true;
+hudToggle.addEventListener("change", async () => {
+  try {
+    await api.storage.local.set({ showMediaButtons: hudToggle.checked });
+  } catch (error) {
+    hudToggle.checked = !hudToggle.checked;
+    document.getElementById("message").textContent = error.message;
+  }
+});
 
 document
   .getElementById("options")

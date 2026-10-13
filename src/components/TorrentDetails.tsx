@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Task, TorrentOptions } from "../api";
 import { SelectionList } from "./SelectionList";
+import { SeedingRules } from "./SeedingRules";
+import type { SeedingRule } from "../api";
 
 export function TorrentDetails({
   task,
@@ -16,6 +18,9 @@ export function TorrentDetails({
 }) {
   const { t, i18n } = useTranslation();
   const [downloadLimit, setDownloadLimit] = useState(0);
+  const [seeding, setSeeding] = useState<SeedingRule | null>(
+    task.request.torrent?.seeding ?? null,
+  );
   const [uploadLimit, setUploadLimit] = useState(0);
   const [peerLimit, setPeerLimit] = useState(80);
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -52,6 +57,9 @@ export function TorrentDetails({
     paused: "paused",
     verifying: "verifying",
     complete: "complete",
+    seeding: "seeding",
+    seed_paused: "paused",
+    seed_failed: "failed",
     failed: "failed",
   };
   return (
@@ -70,6 +78,14 @@ export function TorrentDetails({
         <dd>{size(snapshot?.uploaded || 0)}</dd>
         <dt>{t("upload_speed")}</dt>
         <dd>{size(snapshot?.upload_bps || 0)}/s</dd>
+        <dt>{t("ratio")}</dt>
+        <dd>
+          {new Intl.NumberFormat(i18n.language, {
+            maximumFractionDigits: 3,
+          }).format((snapshot?.uploaded || 0) / Math.max(1, task.completed))}
+        </dd>
+        <dt>{t("seed_minutes")}</dt>
+        <dd>{Math.floor((snapshot?.seeded_seconds || 0) / 60)}</dd>
       </dl>
       <form
         onSubmit={(event) => {
@@ -82,6 +98,7 @@ export function TorrentDetails({
             : options?.only_files || [];
           void onApply(
             {
+              seeding,
               upload_limit: uploadLimit,
               peer_limit: peerLimit,
               only_files: onlyFiles,
@@ -91,6 +108,7 @@ export function TorrentDetails({
           );
         }}
       >
+        <SeedingRules value={seeding} onChange={setSeeding} inherit />
         <div className="form-grid">
           <label>
             {t("speed_limit")}

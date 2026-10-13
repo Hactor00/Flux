@@ -21,15 +21,19 @@ async function fixture({
   gecko = false,
   html = "<!doctype html><title>Actual Film</title><video></video>",
   inspected,
+  manifestResolved,
+  resolveError,
 } = {}) {
-  const dom = new JSDOM(
-    html,
-    { url, runScripts: "outside-only", pretendToBeVisual: true },
-  );
+  const dom = new JSDOM(html, {
+    url,
+    runScripts: "outside-only",
+    pretendToBeVisual: true,
+  });
   const { window } = dom,
     roots = [],
     calls = [],
     listeners = [],
+    storageListeners = [],
     popovers = new WeakSet();
   const attach = window.Element.prototype.attachShadow,
     matches = window.Element.prototype.matches;
@@ -59,7 +63,14 @@ async function fixture({
     left: 100,
     right: 740,
   });
-  window.HTMLAudioElement.prototype.getBoundingClientRect = () => ({width:320,height:48,left:100,right:420,top:100,bottom:148});
+  window.HTMLAudioElement.prototype.getBoundingClientRect = () => ({
+    width: 320,
+    height: 48,
+    left: 100,
+    right: 420,
+    top: 100,
+    bottom: 148,
+  });
   window.ResizeObserver = class {
     observe() {}
     disconnect() {}
@@ -67,6 +78,11 @@ async function fixture({
   window.document.querySelector("video,audio").src = src;
   window.chrome = {
     storage: {
+      onChanged: {
+        addListener(fn) {
+          storageListeners.push(fn);
+        },
+      },
       local: {
         async get(key) {
           return { [key]: structuredClone(storage[key]) };
@@ -87,10 +103,15 @@ async function fixture({
         calls.push(message);
         let result;
         if (message.type === "dictionary") result = words;
+        else if (message.type === "preferences")
+          result = { showMediaButtons: storage.showMediaButtons ?? true };
         else if (message.type === "candidates") result = candidates;
         else if (message.type === "resolve") {
+          if (resolveError) throw new Error("Provider metadata is unavailable");
           if (resolveWait) await resolveWait;
           result = resolved;
+        } else if (message.type === "resolve-manifest") {
+          result = manifestResolved;
         } else if (message.type === "inspect")
           result = inspected || {
             streams: [
@@ -116,8 +137,37 @@ async function fixture({
   window.eval(script);
   await until(() => roots.length > 0);
   await new Promise((resolve) => setTimeout(resolve, 30));
-  return { window, roots, calls, listeners, close: () => window.close() };
+  return {
+    window,
+    roots,
+    calls,
+    listeners,
+    storageListeners,
+    close: () => window.close(),
+  };
 }
+test("toolbar preference hides and restores existing HUDs in Chromium and Gecko", async () => {
+  for (const gecko of [false, true]) {
+    const f = await fixture({
+      gecko,
+      src: "https://film.test/movie.mp4",
+      storage: { showMediaButtons: false },
+    });
+    try {
+      assert.equal(f.roots[0].host.style.display, "none");
+      for (const listener of f.storageListeners)
+        listener({ showMediaButtons: { newValue: true } }, "local");
+      await until(() => f.roots[0].host.style.display === "block");
+      f.roots[0].querySelector(".main").click();
+      for (const listener of f.storageListeners)
+        listener({ showMediaButtons: { newValue: false } }, "local");
+      await until(() => f.roots[0].host.style.display === "none");
+      assert.equal(f.roots[0].querySelector(".panel").hidden, true);
+    } finally {
+      f.close();
+    }
+  }
+});
 async function until(condition) {
   const deadline = Date.now() + 2000;
   while (!condition()) {
@@ -125,55 +175,105 @@ async function until(condition) {
     await new Promise((resolve) => setTimeout(resolve, 10));
   }
 }
-test("audio DOM sources create a native-sized HUD and select real audio without a blob transfer",async()=>{
-  const f=await fixture({html:'<!doctype html><title>Track</title><audio controls><source src="https://audio.test/track.m4a" type="audio/mp4"></audio>',
-    src:"blob:https://film.test/audio",inspected:{streams:[{codec_type:"audio",codec_name:"aac",index:0}]}});
+test("audio DOM sources create a native-sized HUD and select real audio without a blob transfer", async () => {
+  const f = await fixture({
+    html: '<!doctype html><title>Track</title><audio controls><source src="https://audio.test/track.m4a" type="audio/mp4"></audio>',
+    src: "blob:https://film.test/audio",
+    inspected: {
+      streams: [{ codec_type: "audio", codec_name: "aac", index: 0 }],
+    },
+  });
   try {
-    assert.equal(f.roots[0].host.style.display,"block");
+    assert.equal(f.roots[0].host.style.display, "block");
     f.roots[0].querySelector(".main").click();
-    await until(()=>!f.roots[0].querySelector(".download").disabled);
+    await until(() => !f.roots[0].querySelector(".download").disabled);
     f.roots[0].querySelector(".download").click();
-    await until(()=>f.calls.some((call)=>call.type==="enqueue"));
-    const message=f.calls.find((call)=>call.type==="enqueue");
-    assert.equal(message.url,"https://audio.test/track.m4a");
-    assert.equal(message.options.media.container,"mp3");
-    assert.equal(message.options.media.audio_stream,0);
-    assert.equal(message.options.media.video_stream,null);
-    assert.ok(f.calls.some((call)=>call.type==="dom-source" && call.url===message.url));
-  } finally {f.close();}
+    await until(() => f.calls.some((call) => call.type === "enqueue"));
+    const message = f.calls.find((call) => call.type === "enqueue");
+    assert.equal(message.url, "https://audio.test/track.m4a");
+    assert.equal(message.options.media.container, "mp3");
+    assert.equal(message.options.media.audio_stream, 0);
+    assert.equal(message.options.media.video_stream, null);
+    assert.ok(
+      f.calls.some(
+        (call) => call.type === "dom-source" && call.url === message.url,
+      ),
+    );
+  } finally {
+    f.close();
+  }
 });
 
-test("provider HUD preserves 60fps, audio language selection and an explicitly selected subtitle",async()=>{
-  const f=await fixture({url:"https://vimeo.com/123",src:"blob:https://vimeo.com/playing",resolved:{title:"Film",formats:[{
-    id:"1080",height:1080,fps:60,url:"https://cdn.test/video",container:"mp4",audio_url:"https://cdn.test/default"}],
-    audio_tracks:[{id:"fr",url:"https://cdn.test/fr",codec:"aac",language:"fr",bitrate:128}],
-    subtitles:[{url:"https://cdn.test/en.vtt",index:null,language:"en",title:"English"}]}});
+test("provider HUD preserves 60fps, audio language selection and an explicitly selected subtitle", async () => {
+  const f = await fixture({
+    url: "https://vimeo.com/123",
+    src: "blob:https://vimeo.com/playing",
+    resolved: {
+      title: "Film",
+      formats: [
+        {
+          id: "1080",
+          height: 1080,
+          fps: 60,
+          url: "https://cdn.test/video",
+          container: "mp4",
+          audio_url: "https://cdn.test/default",
+        },
+      ],
+      audio_tracks: [
+        {
+          id: "fr",
+          url: "https://cdn.test/fr",
+          codec: "aac",
+          language: "fr",
+          bitrate: 128,
+        },
+      ],
+      subtitles: [
+        {
+          url: "https://cdn.test/en.vtt",
+          index: null,
+          language: "en",
+          title: "English",
+        },
+      ],
+    },
+  });
   try {
-    const shadow=f.roots[0];shadow.querySelector(".main").click();
-    await until(()=>!shadow.querySelector(".download").disabled);
-    assert.match(shadow.querySelector("select").textContent,/1080p 60fps/);
-    shadow.querySelector(`select[aria-label="${words.audioTrack}"]`).value="0";
-    shadow.querySelector(`select[aria-label="${words.subtitleTrack}"]`).value="0";
+    const shadow = f.roots[0];
+    shadow.querySelector(".main").click();
+    await until(() => !shadow.querySelector(".download").disabled);
+    assert.match(shadow.querySelector("select").textContent, /1080p 60fps/);
+    shadow.querySelector(`select[aria-label="${words.audioTrack}"]`).value =
+      "0";
+    shadow.querySelector(`select[aria-label="${words.subtitleTrack}"]`).value =
+      "0";
     shadow.querySelector(".download").click();
-    await until(()=>f.calls.some((call)=>call.type==="enqueue"));
-    const media=f.calls.find((call)=>call.type==="enqueue").options.media;
-    assert.equal(media.audio_url,"https://cdn.test/fr");
-    assert.equal(media.provider.audio_format_id,"fr");
-    assert.equal(media.subtitle_mode,"embed");
-    assert.equal(media.subtitles[0].language,"en");
-  } finally {f.close();}
+    await until(() => f.calls.some((call) => call.type === "enqueue"));
+    const media = f.calls.find((call) => call.type === "enqueue").options.media;
+    assert.equal(media.audio_url, "https://cdn.test/fr");
+    assert.equal(media.provider.audio_format_id, "fr");
+    assert.equal(media.subtitle_mode, "embed");
+    assert.equal(media.subtitles[0].language, "en");
+  } finally {
+    f.close();
+  }
 });
 
-test("same-frame source snapshot reads DOM and resource URLs without altering playback",async()=>{
-  const f=await fixture({src:"https://film.test/actual.mp4"});
+test("same-frame source snapshot reads DOM and resource URLs without altering playback", async () => {
+  const f = await fixture({ src: "https://film.test/actual.mp4" });
   try {
     let response;
-    const result=f.listeners[0]({type:"source-snapshot"},{},(value)=>{response=value;});
-    assert.equal(result,true);
+    const result = f.listeners[0]({ type: "source-snapshot" }, {}, (value) => {
+      response = value;
+    });
+    assert.equal(result, true);
     assert.ok(response.urls.includes("https://film.test/actual.mp4"));
-    assert.equal(response.page_url,"https://film.test/watch");
-    assert.equal(f.window.document.querySelector("video").currentTime,0);
-  } finally {f.close();}
+    assert.equal(response.page_url, "https://film.test/watch");
+    assert.equal(f.window.document.querySelector("video").currentTime, 0);
+  } finally {
+    f.close();
+  }
 });
 
 test("HUD close persists through layout changes and new players on the same page", async () => {
@@ -289,7 +389,7 @@ test("YouTube HUD uses resolved video and its actual audio when MP3 is selected"
       {
         url: "https://www.youtube.com/watch?v=fixture",
         format_id: "137",
-      audio_format_id:null,
+        audio_format_id: null,
         height: 1080,
       },
     );
@@ -677,14 +777,12 @@ test("a freely placed HUD switches to the newly playing video without overlappin
     second.src = "https://film.test/second.mp4";
     f.window.document.body.append(second);
     await until(() => f.roots.length === 2);
-    f.roots[0]
-      .querySelector(".move")
-      .dispatchEvent(
-        new f.window.KeyboardEvent("keydown", {
-          key: "ArrowLeft",
-          bubbles: true,
-        }),
-      );
+    f.roots[0].querySelector(".move").dispatchEvent(
+      new f.window.KeyboardEvent("keydown", {
+        key: "ArrowLeft",
+        bubbles: true,
+      }),
+    );
     await until(() => f.roots[1].host.style.display === "none");
     second.dispatchEvent(new f.window.Event("play"));
     await until(
@@ -700,6 +798,50 @@ test("a freely placed HUD switches to the newly playing video without overlappin
       f.calls.find((call) => call.type === "enqueue").url,
       "https://film.test/second.mp4",
     );
+  } finally {
+    f.close();
+  }
+});
+
+test("provider failure falls back to captured native manifest choices", async () => {
+  const f = await fixture({
+    url: "https://vimeo.com/123",
+    src: "blob:https://vimeo.com/playing",
+    resolveError: true,
+    candidates: [
+      {
+        url: "https://cdn.test/master.m3u8",
+        kind: "hls",
+        frameId: 0,
+        seenAt: Date.now(),
+      },
+    ],
+    manifestResolved: {
+      title: "Actual Film",
+      formats: [
+        {
+          id: "hls-1080",
+          kind: "hls",
+          height: 1080,
+          fps: 60,
+          url: "https://cdn.test/1080.m3u8",
+          audio_url: "https://cdn.test/audio.m3u8",
+          codec: "avc1",
+          container: "mp4",
+        },
+      ],
+    },
+  });
+  try {
+    f.roots[0].querySelector(".main").click();
+    await until(() => !f.roots[0].querySelector(".download").disabled);
+    f.roots[0].querySelector(".download").click();
+    await until(() => f.calls.some((call) => call.type === "enqueue"));
+    const input = f.calls.find((call) => call.type === "enqueue");
+    assert.equal(input.url, "https://cdn.test/1080.m3u8");
+    assert.equal(input.options.media.audio_url, "https://cdn.test/audio.m3u8");
+    assert.equal(input.options.media.provider, null);
+    assert.equal(input.options.nativeManifest, true);
   } finally {
     f.close();
   }

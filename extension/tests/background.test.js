@@ -263,6 +263,11 @@ async function captureDownload(id, url = "https://media.test/archive.zip") {
     browserCalls.findIndex((call) => call[0] === "pause" && call[1] === id) <
       browserCalls.findIndex((call) => call[0] === "suggest" && call[1] === id),
   );
+  assert.ok(
+    browserCalls.findIndex((call) => call[0] === "cancel" && call[1] === id) <
+      browserCalls.findIndex((call) => call[0] === "suggest" && call[1] === id),
+    "Browser cancellation must finish before the Save As filename gate is released",
+  );
   return { id: request.request_id, input: request.payload, downloadId: id };
 }
 test("browser transfer is cancelled and erased as soon as the durable desktop proposal is accepted", async () => {
@@ -379,5 +384,21 @@ test("startup resumes orphaned browser pauses and preserves durable proposals", 
     [["resume", 90]],
   );
   assert.equal(local.outbox[0].downloadId, 91);
+  local.outbox.push({
+    id: crypto.randomUUID(),
+    downloadId: 92,
+    ready: false,
+    input: {
+      url: "https://example.com/recovered.zip",
+      filename: "recovered.zip",
+    },
+    context: { browserCancelled: true },
+    nextAt: Date.now() + 60000,
+  });
+  await chrome.runtime.onStartup.listeners[0]();
+  assert.ok(
+    browserCalls.some(([action, id]) => action === "cancel" && id === 92),
+  );
+  assert.equal(local.outbox[1].ready, true);
   local.outbox = [];
 });

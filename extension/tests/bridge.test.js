@@ -4,6 +4,28 @@ import { readFileSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { DurableOutbox, NativeBridge } from "../bridge.js";
 import { makeInput, mediaKind, safeFilename } from "../shared.js";
+test("deferred ownership entries remain persisted but cannot reach native messaging before activation", async () => {
+  const data = storage();
+  let delivered = 0;
+  const queue = new DurableOutbox({
+    request: async () => {
+      delivered++;
+      return { status: "awaiting_approval" };
+    },
+  });
+  const id = await queue.enqueue(
+    makeInput("https://example.com/file.zip"),
+    19,
+    { browserCancelled: true },
+    false,
+  );
+  await queue.pump();
+  assert.equal(delivered, 0);
+  assert.equal(data.outbox[0].ready, false);
+  await queue.activate(id);
+  assert.equal(delivered, 1);
+  assert.equal(data.outbox.length, 0);
+});
 
 test("authentication is sealed before durable storage and frozen across retries", async () => {
   const data = storage();

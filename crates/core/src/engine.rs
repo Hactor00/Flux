@@ -22,7 +22,7 @@ use std::{
 };
 use tokio::{
     fs::{self, File, OpenOptions},
-    io::{AsyncReadExt, AsyncWriteExt},
+    io::AsyncReadExt,
     sync::{broadcast, watch, Mutex, Semaphore},
 };
 use tokio_util::sync::CancellationToken;
@@ -67,9 +67,11 @@ struct Inner {
     connections: Arc<Semaphore>,
     events: broadcast::Sender<Progress>,
     closing: AtomicBool,
+    updating: AtomicBool,
     global_limiter: Arc<Limiter>,
     refresh: Arc<crate::healing::RefreshBroker>,
     torrents: crate::torrent::TorrentManager,
+    hosts: Arc<crate::debrid::Resolver>,
     completion: Mutex<crate::preferences::CompletionWatch>,
     _lock: std::fs::File,
 }
@@ -87,6 +89,7 @@ struct WorkerControl {
 }
 #[derive(Clone)]
 struct TransferContext {
+    direct: bool,
     cancel: CancellationToken,
     limiter: Arc<Limiter>,
     progress: Arc<AtomicU64>,
@@ -121,15 +124,27 @@ impl Engine {
         let db_path = data.join("tasks.sqlite");
         let store = tokio::task::spawn_blocking(move || Store::open(&db_path)).await??;
         store.recover().await?;
-        let global_rate = store.settings().await?.speed_limit;
+        store.restore_update_session().await?;
+        let preferences = store.settings().await?;
+        let global_rate = preferences.speed_limit;
         let (events, _) = broadcast::channel(256);
         // TLS/QUIC configuration has a larger stack footprint than a GUI callback.
         // Construct it on a blocking worker, outside the native event-loop stack.
-        let client = tokio::task::spawn_blocking(http::client).await??;
+        let host_store = store.clone();
+        let hosts =
+            tokio::task::spawn_blocking(move || crate::debrid::Resolver::new(host_store)).await??;
+        let client = tokio::task::spawn_blocking(http::client)
+            .await??
+            .with_host_resolver(hosts.clone());
         Ok(Self(Arc::new(Inner {
             store,
             client,
-            torrents: crate::torrent::TorrentManager::new(data.clone(), downloads.clone()),
+            hosts,
+            torrents: crate::torrent::TorrentManager::new(
+                data.clone(),
+                downloads.clone(),
+                preferences.torrent_upload_limit,
+            ),
             data,
             downloads,
             category_root,
@@ -137,6 +152,7 @@ impl Engine {
             connections: Arc::new(Semaphore::new(64)),
             events,
             closing: AtomicBool::new(false),
+            updating: AtomicBool::new(false),
             global_limiter: Arc::new(Limiter::new(global_rate)),
             refresh: Arc::new(crate::healing::RefreshBroker::default()),
             completion: Mutex::new(crate::preferences::CompletionWatch::default()),
@@ -145,6 +161,22 @@ impl Engine {
     }
     pub fn subscribe(&self) -> broadcast::Receiver<Progress> {
         self.0.events.subscribe()
+    }
+    pub async fn host_accounts(&self) -> Result<Vec<crate::debrid::AccountStatus>> {
+        self.0.store.host_accounts().await
+    }
+    pub async fn save_host_account(
+        &self,
+        provider: crate::debrid::Provider,
+        enabled: bool,
+        key: Option<String>,
+    ) -> Result<Vec<crate::debrid::AccountStatus>> {
+        self.0
+            .store
+            .save_host_account(provider, enabled, key)
+            .await?;
+        self.0.hosts.invalidate().await;
+        self.host_accounts().await
     }
     pub async fn poll_completion_action(&self) -> Result<Option<crate::ShutdownAction>> {
         let mut completion = self.0.completion.lock().await;
@@ -243,6 +275,67 @@ impl Engine {
         model::validate(&request)?;
         crate::extractor::resolve_with_session(&request.url, &request.credentials).await
     }
+    pub async fn resolve_manifest(
+        &self,
+        url: String,
+        text: Option<String>,
+        referer: Option<String>,
+        protected_credentials: Option<String>,
+    ) -> Result<crate::extractor::ResolvedMedia> {
+        let mut request = DownloadRequest {
+            url,
+            filename: "inspection.mp4".into(),
+            referer,
+            protected_credentials,
+            ..Default::default()
+        };
+        self.decode_credentials(&mut request)?;
+        model::validate(&request)?;
+        let (url, text) = if let Some(text) = text {
+            ensure!(
+                text.len() <= crate::manifest::MAX_MANIFEST,
+                "Manifest exceeds 512 KiB"
+            );
+            (request.url, text)
+        } else {
+            let mut fetch = http::authenticate(
+                self.0.client.get(&request.url),
+                &request.url,
+                &request.credentials,
+            )?;
+            if let Some(referer) = request.referer {
+                fetch = fetch.header(header::REFERER, referer);
+            }
+            let response = tokio::time::timeout(Duration::from_secs(10), fetch.send())
+                .await
+                .context("Manifest request timed out")??
+                .error_for_status()?;
+            ensure!(
+                response
+                    .content_length()
+                    .is_none_or(|size| size <= crate::manifest::MAX_MANIFEST as u64),
+                "Manifest exceeds 512 KiB"
+            );
+            let url = response.url().as_str().to_owned();
+            let text = tokio::time::timeout(Duration::from_secs(10), async {
+                let mut stream = response.bytes_stream();
+                let mut bytes = Vec::new();
+                while let Some(chunk) = stream.next().await {
+                    let chunk = chunk?;
+                    ensure!(
+                        bytes.len() + chunk.len() <= crate::manifest::MAX_MANIFEST,
+                        "Manifest exceeds 512 KiB"
+                    );
+                    bytes.extend_from_slice(&chunk);
+                }
+                anyhow::Ok(String::from_utf8(bytes)?)
+            })
+            .await
+            .context("Manifest body timed out")??;
+            (url, text)
+        };
+        tokio::task::spawn_blocking(move || crate::manifest::parse(&url, &text)).await?
+    }
     pub async fn resolve_collection_authenticated(
         &self,
         url: &str,
@@ -334,6 +427,10 @@ impl Engine {
         }
         self.apply_global_budget(&*self.0.active.lock().await, settings.speed_limit)
             .await?;
+        self.0
+            .torrents
+            .set_upload_limit(settings.torrent_upload_limit)
+            .await?;
         Ok(settings)
     }
     pub async fn queue(&self, id: &str) -> Result<Task> {
@@ -343,8 +440,14 @@ impl Engine {
             !matches!(task.status, Status::AwaitingApproval | Status::Cancelled),
             "Download requires user approval"
         );
-        if active.contains_key(id) || task.status == Status::Complete {
+        if active.contains_key(id) {
             return Ok(task);
+        }
+        if task.status == Status::Complete {
+            if task.torrent.is_none() {
+                return Ok(task);
+            }
+            self.0.torrents.stop_seed(id, false).await?;
         }
         task.status = Status::Queued;
         task.error = None;
@@ -399,10 +502,50 @@ impl Engine {
             if matches!(
                 task.status,
                 Status::Running | Status::Verifying | Status::Queued
-            ) {
+            ) || task
+                .torrent
+                .as_ref()
+                .is_some_and(|torrent| torrent.state == "seeding")
+            {
                 self.pause(&task.id).await?;
             }
         }
+        Ok(())
+    }
+    pub async fn prepare_update(&self) -> Result<()> {
+        ensure!(
+            !self.0.updating.swap(true, Ordering::SeqCst),
+            "An update is already being installed"
+        );
+        let result = async {
+            let queue = self.settings().await?.queue_enabled;
+            let ids = self
+                .list()
+                .await?
+                .into_iter()
+                .filter(|task| {
+                    matches!(
+                        task.status,
+                        Status::Running | Status::Verifying | Status::Queued
+                    ) || task
+                        .torrent
+                        .as_ref()
+                        .is_some_and(|torrent| torrent.state == "seeding")
+                })
+                .map(|task| task.id)
+                .collect();
+            self.0.store.save_update_session(queue, ids).await?;
+            self.pause_all().await
+        }
+        .await;
+        if result.is_err() {
+            self.abort_update().await?;
+        }
+        result
+    }
+    pub async fn abort_update(&self) -> Result<()> {
+        self.0.store.restore_update_session().await?;
+        self.0.updating.store(false, Ordering::SeqCst);
         Ok(())
     }
     pub async fn run_scheduler(&self, cancel: CancellationToken) -> Result<()> {
@@ -426,6 +569,23 @@ impl Engine {
                 }
             }
             if !settings.queue_enabled {
+                if self.0.updating.load(Ordering::SeqCst) {
+                    continue;
+                }
+                for id in self
+                    .0
+                    .store
+                    .seeds_to_restore(settings.concurrent_tasks)
+                    .await?
+                {
+                    if self.0.active.lock().await.len() >= settings.concurrent_tasks as usize {
+                        break;
+                    }
+                    self.start_impl(&id, true).await?;
+                }
+                continue;
+            }
+            if self.0.updating.load(Ordering::SeqCst) {
                 continue;
             }
             for id in ready {
@@ -518,28 +678,43 @@ impl Engine {
         ensure!(
             !matches!(
                 previous.status,
-                Status::Complete | Status::Cancelled | Status::AwaitingApproval
+                Status::Cancelled | Status::AwaitingApproval
             ),
-            "Torrent options cannot change after completion or before approval"
+            "Torrent options cannot change before approval or after cancellation"
         );
         let speed_limit = speed_limit.unwrap_or(previous.request.speed_limit);
         crate::torrent::validate_options(&options, speed_limit)?;
         if let Some(snapshot) = &previous.torrent {
             ensure!(
+                previous.status != Status::Complete
+                    || previous
+                        .request
+                        .torrent
+                        .as_ref()
+                        .map_or(&[][..], |current| current.only_files.as_slice())
+                        == options.only_files.as_slice(),
+                "Completed torrent file selection cannot change"
+            );
+            ensure!(
                 options
                     .only_files
                     .iter()
-                    .all(|index| *index < snapshot.files.len()),
+                    .all(|index| snapshot.files.iter().any(|file| file.index == *index)),
                 "Torrent file index is out of range"
             );
         }
-        let active = matches!(previous.status, Status::Running | Status::Verifying);
+        let active = matches!(previous.status, Status::Running | Status::Verifying)
+            || previous
+                .torrent
+                .as_ref()
+                .is_some_and(|torrent| torrent.state == "seeding");
         self.pause(id).await?;
         let mut task = self.task(id).await?;
         task.request.torrent = Some(options);
         task.request.speed_limit = speed_limit;
         self.0.store.save(task).await?;
         if active {
+            self.queue(id).await?;
             self.start(id).await?;
         }
         self.task(id).await
@@ -902,6 +1077,10 @@ impl Engine {
         if active.contains_key(id) {
             return Ok(());
         }
+        ensure!(
+            !self.0.updating.load(Ordering::SeqCst),
+            "An application update is being installed"
+        );
         let mut task = match self.task(id).await {
             Ok(task) => task,
             Err(error) if queued_only => {
@@ -1015,6 +1194,9 @@ impl Engine {
         Ok(())
     }
     pub async fn pause(&self, id: &str) -> Result<Task> {
+        if self.0.torrents.stop_seed(id, false).await? {
+            return self.task(id).await;
+        }
         let job = {
             let active = self.0.active.lock().await;
             let job = active.get(id).cloned();
@@ -1494,11 +1676,12 @@ impl Engine {
         let worker_limit =
             effective_connections(task.request.connections, metadata.ranged, metadata.total);
         let mut parts = self.0.store.parts(&task.id).await?;
-        let reusable = metadata.ranged
-            && task.ranged
-            && task.etag == metadata.etag
-            && task.total == metadata.total
-            && !parts.is_empty();
+        ensure!(
+            !task.ranged || metadata.ranged || task.completed == 0,
+            "Server no longer supports byte ranges; saved download bytes have been preserved"
+        );
+        let reusable =
+            task.etag == metadata.etag && task.total == metadata.total && !parts.is_empty();
         let stage = crate::disk::staging_path(&task.destination, &task.id)?;
         let legacy = reusable && !task.direct_write;
         let stage_exists = fs::try_exists(&stage).await?;
@@ -1507,7 +1690,9 @@ impl Engine {
             parts = if metadata.ranged {
                 let size = metadata.total.context("Missing range size")?;
                 // Many bounded pieces let free workers take work from lagging connections.
-                let piece_size = CHUNK.max(size.div_ceil(MAX_PARTS));
+                let piece_size = CHUNK
+                    .max(size.div_ceil(MAX_PARTS))
+                    .next_multiple_of(crate::disk_writer::ALIGNMENT);
                 (0..size.div_ceil(piece_size))
                     .map(|index| Part {
                         index: index as u32,
@@ -1555,13 +1740,35 @@ impl Engine {
             };
             if verified && legacy {
                 let mut input = File::open(&path).await?.take(part.done);
-                let mut output = crate::disk::writer(&stage, part.start).await?;
+                use tokio::io::AsyncSeekExt;
+                let mut output = OpenOptions::new()
+                    .read(true)
+                    .write(true)
+                    .open(&stage)
+                    .await?;
+                output.seek(std::io::SeekFrom::Start(part.start)).await?;
                 tokio::io::copy(&mut input, &mut output).await?;
                 output.sync_data().await?;
             }
             if !verified {
                 part.done = 0;
                 part.digest = None;
+            }
+        }
+        task.ranged = metadata.ranged;
+        let limiter = Arc::new(Limiter::new(task.request.speed_limit));
+        if task.ranged && task.etag.is_none() {
+            for part in parts.iter().filter(|p| p.done > 0 && p.done == p.len()) {
+                self.verify_checkpoint(
+                    &task,
+                    part,
+                    part.digest
+                        .as_deref()
+                        .context("Missing checkpoint digest")?,
+                    &cancel,
+                    &limiter,
+                )
+                .await?;
             }
         }
         task.direct_write = true;
@@ -1593,7 +1800,11 @@ impl Engine {
                 }
             })
         };
-        let limiter = Arc::new(Limiter::new(task.request.speed_limit));
+        let direct = parts.iter().all(|part| {
+            part.start.is_multiple_of(crate::disk_writer::ALIGNMENT)
+                && (part.end + 1 == task.total.unwrap_or(0)
+                    || (part.end + 1).is_multiple_of(crate::disk_writer::ALIGNMENT))
+        });
         let stop = cancel.child_token();
         let mut next_index = parts.iter().map(|p| p.index).max().unwrap_or(0) + 1;
         let mut pending: VecDeque<_> = parts
@@ -1621,6 +1832,7 @@ impl Engine {
                     &task,
                     part,
                     TransferContext {
+                        direct,
                         cancel: worker_cancel,
                         limiter: limiter.clone(),
                         progress: progress.clone(),
@@ -1664,25 +1876,30 @@ impl Engine {
                     failure = result.err();
                     stop.cancel();
                 } else if checkpoint.done < checkpoint.len() {
-                    let tail_start = checkpoint.start
+                    let tail_start = (checkpoint.start
                         + checkpoint.done
-                        + (checkpoint.len() - checkpoint.done).div_ceil(2);
-                    let tail = Part {
-                        index: next_index,
-                        start: tail_start,
-                        end: checkpoint.end,
-                        done: 0,
-                        digest: None,
-                    };
-                    let mut prefix = checkpoint;
-                    prefix.end = tail_start - 1;
-                    self.0
-                        .store
-                        .split(task.id.clone(), prefix.clone(), tail.clone())
-                        .await?;
-                    next_index += 1;
-                    pending.push_back(prefix);
-                    pending.push_back(tail);
+                        + (checkpoint.len() - checkpoint.done).div_ceil(2))
+                    .next_multiple_of(crate::disk_writer::ALIGNMENT);
+                    if tail_start > checkpoint.end {
+                        pending.push_back(checkpoint);
+                    } else {
+                        let tail = Part {
+                            index: next_index,
+                            start: tail_start,
+                            end: checkpoint.end,
+                            done: 0,
+                            digest: None,
+                        };
+                        let mut prefix = checkpoint;
+                        prefix.end = tail_start - 1;
+                        self.0
+                            .store
+                            .split(task.id.clone(), prefix.clone(), tail.clone())
+                            .await?;
+                        next_index += 1;
+                        pending.push_back(prefix);
+                        pending.push_back(tail);
+                    }
                 }
             } else if let Err(error) = result {
                 if failure.is_none() {
@@ -1711,6 +1928,7 @@ impl Engine {
                         &task,
                         part,
                         TransferContext {
+                            direct,
                             cancel: worker_cancel,
                             limiter: limiter.clone(),
                             progress: progress.clone(),
@@ -1887,15 +2105,10 @@ impl Engine {
         async move { (part.index, self.worker(task, part, context).await) }.boxed()
     }
     async fn worker(&self, task: &Task, mut part: Part, context: TransferContext) -> Result<()> {
-        let TransferContext {
-            ref cancel,
-            ref progress,
-            ..
-        } = context;
+        let TransferContext { ref cancel, .. } = context;
         let path = crate::disk::staging_path(&task.destination, &task.id)?;
         let mut hash = crate::disk::range_hasher(&path, part.start, part.done).await?;
-        let mut file = crate::disk::writer(&path, part.start + part.done).await?;
-        use tokio::io::AsyncSeekExt;
+        let mut file = crate::disk::writer(&path, part.start + part.done, context.direct).await?;
         let mut result = Ok(());
         for attempt in 0..=http::MAX_RETRIES {
             result = self
@@ -1906,18 +2119,27 @@ impl Engine {
                 break;
             }
             // Semantic errors (bad ranges, changed objects, disk failures) never retry.
-            if !result.as_ref().err().is_some_and(|e| e.is::<Retryable>())
+            let stalled = result
+                .as_ref()
+                .err()
+                .is_some_and(|e| e.is::<crate::watchdog::Stalled>());
+            if !result
+                .as_ref()
+                .err()
+                .is_some_and(|e| e.is::<Retryable>() || stalled)
                 || attempt == http::MAX_RETRIES
             {
                 break;
             }
-            if !task.ranged {
-                progress.fetch_sub(part.done, Ordering::Relaxed);
-                part.done = 0;
-                context.local.store(0, Ordering::Relaxed);
-                hash = Sha256::new();
-                file.set_len(0).await?;
-                file.seek(std::io::SeekFrom::Start(0)).await?;
+            if stalled && task.ranged {
+                self.0.client.reset_tcp_pool().await?;
+                file.sync_data().await?;
+                part.digest = Some(hex::encode(hash.clone().finalize()));
+                self.0
+                    .store
+                    .checkpoint(task.id.clone(), part.clone())
+                    .await?;
+                continue;
             }
             let seconds = result
                 .as_ref()
@@ -1942,7 +2164,7 @@ impl Engine {
         &self,
         task: &Task,
         part: &mut Part,
-        file: &mut File,
+        file: &mut crate::disk_writer::Writer,
         hash: &mut Sha256,
         context: &TransferContext,
     ) -> Result<()> {
@@ -1952,9 +2174,20 @@ impl Engine {
             progress,
             local,
             streaming,
+            ..
         } = context;
         if task.ranged && part.done == part.len() {
             return Ok(());
+        }
+        if task.ranged && task.etag.is_none() && part.done > 0 {
+            self.verify_checkpoint(
+                task,
+                part,
+                &hex::encode(hash.clone().finalize()),
+                cancel,
+                limiter,
+            )
+            .await?;
         }
         let _permit = tokio::select! { _ = cancel.cancelled() => bail!("Cancelled"), p = self.0.connections.acquire() => p? };
         let mut request = http::authenticate(
@@ -1985,7 +2218,14 @@ impl Engine {
                 format!("bytes={}-{}", part.start + part.done, part.end),
             );
         }
-        let response = tokio::select! { _ = cancel.cancelled() => bail!("Cancelled"), r = request.send() => r.map_err(|e| anyhow::Error::new(Retryable { message: e.to_string(), delay: 0 }))? };
+        let response = tokio::select! {
+            _ = cancel.cancelled() => bail!("Cancelled"),
+            result = request.send() => result.map_err(|error| {
+                if error.is::<reqwest::Error>() {
+                    anyhow::Error::new(Retryable { message: error.to_string(), delay: 0 })
+                } else { error }
+            })?
+        };
         if let Some(error) = http::transient(&response) {
             return Err(error.into());
         }
@@ -2026,17 +2266,49 @@ impl Engine {
         }
         streaming.store(true, Ordering::Relaxed);
         let mut stream = response.bytes_stream();
+        let mut replay_remaining = if task.ranged { 0 } else { part.done };
+        let expected_prefix = hash.clone().finalize();
+        let mut replay_hash = Sha256::new();
+        let mut watchdog = crate::watchdog::Monitor::default();
         loop {
-            let next = tokio::select! { _ = cancel.cancelled() => bail!("Cancelled"), n = stream.next() => n };
+            let waiting = tokio::time::Instant::now();
+            let next = tokio::select! {
+                _ = cancel.cancelled() => bail!("Cancelled"),
+                result = tokio::time::timeout(crate::watchdog::IDLE_TIMEOUT, stream.next()) => {
+                    result.map_err(|_| crate::watchdog::Stalled)?
+                }
+            };
             let Some(bytes) = next else {
                 break;
             };
-            let bytes = bytes.map_err(|e| {
+            let mut bytes = bytes.map_err(|e| {
                 anyhow::Error::new(Retryable {
                     message: e.to_string(),
                     delay: 0,
                 })
             })?;
+            if replay_remaining > 0 {
+                let skipped = replay_remaining.min(bytes.len() as u64) as usize;
+                for slice in bytes[..skipped].chunks(65536) {
+                    limiter.acquire(slice.len(), cancel).await?;
+                    self.0.global_limiter.acquire(slice.len(), cancel).await?;
+                }
+                replay_hash.update(&bytes[..skipped]);
+                replay_remaining -= skipped as u64;
+                bytes = bytes.slice(skipped..);
+                if replay_remaining == 0 {
+                    ensure!(
+                        replay_hash.clone().finalize() == expected_prefix,
+                        "Remote file changed; saved download bytes have been preserved"
+                    );
+                }
+                if bytes.is_empty() {
+                    continue;
+                }
+            }
+            if task.ranged && watchdog.record(bytes.len(), waiting.elapsed()) {
+                return Err(crate::watchdog::Stalled.into());
+            }
             let remaining = if task.ranged {
                 Some(part.len() - part.done)
             } else {
@@ -2046,16 +2318,21 @@ impl Engine {
                 remaining.is_none_or(|n| bytes.len() as u64 <= n),
                 "Server sent too many bytes"
             );
-            for slice in bytes.chunks(65536) {
+            for offset in (0..bytes.len()).step_by(65536) {
+                let slice = bytes.slice(offset..(offset + 65536).min(bytes.len()));
                 limiter.acquire(slice.len(), cancel).await?;
                 self.0.global_limiter.acquire(slice.len(), cancel).await?;
-                file.write_all(slice).await?;
-                hash.update(slice);
+                file.write_bytes(slice.clone()).await?;
+                hash.update(&slice);
                 part.done += slice.len() as u64;
                 local.store(part.done, Ordering::Relaxed);
                 progress.fetch_add(slice.len() as u64, Ordering::Relaxed);
             }
         }
+        ensure!(
+            replay_remaining == 0,
+            "Remote file is shorter than the saved checkpoint"
+        );
         let expected = if task.ranged {
             Some(part.len())
         } else {
@@ -2069,6 +2346,41 @@ impl Engine {
             .into());
         }
         Ok(())
+    }
+    async fn verify_checkpoint(
+        &self,
+        task: &Task,
+        part: &Part,
+        expected: &str,
+        cancel: &CancellationToken,
+        limiter: &Limiter,
+    ) -> Result<()> {
+        let _permit = tokio::select! { _ = cancel.cancelled() => bail!("Cancelled"), permit = self.0.connections.acquire() => permit? };
+        let client = self
+            .0
+            .client
+            .clone()
+            .with_healing(
+                self.0.refresh.clone(),
+                task.request.browser_source.as_ref(),
+                &task.id,
+                cancel,
+            )
+            .with_policy(task.request.transport);
+        http::verify_checkpoint(
+            &client,
+            &task.request,
+            (
+                part.start,
+                part.done,
+                task.total.context("Missing checkpoint total")?,
+            ),
+            expected,
+            cancel,
+            limiter,
+            &self.0.global_limiter,
+        )
+        .await
     }
     async fn probe(
         &self,

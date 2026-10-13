@@ -11,6 +11,33 @@ fn error(error: impl std::fmt::Display) -> String {
     error.to_string()
 }
 #[tauri::command]
+pub async fn prepare_update(state: State<'_, Backend>) -> Result<(), String> {
+    state.engine.prepare_update().await.map_err(error)
+}
+#[tauri::command]
+pub async fn abort_update(state: State<'_, Backend>) -> Result<(), String> {
+    state.engine.abort_update().await.map_err(error)
+}
+#[tauri::command]
+pub async fn host_accounts(
+    state: State<'_, Backend>,
+) -> Result<Vec<flux_core::debrid::AccountStatus>, String> {
+    state.engine.host_accounts().await.map_err(error)
+}
+#[tauri::command]
+pub async fn save_host_account(
+    provider: flux_core::debrid::Provider,
+    enabled: bool,
+    key: Option<String>,
+    state: State<'_, Backend>,
+) -> Result<Vec<flux_core::debrid::AccountStatus>, String> {
+    state
+        .engine
+        .save_host_account(provider, enabled, key)
+        .await
+        .map_err(error)
+}
+#[tauri::command]
 pub async fn import_torrent(
     path: std::path::PathBuf,
     filename: Option<String>,

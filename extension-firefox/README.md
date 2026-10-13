@@ -16,7 +16,9 @@ Enable local Flux data transfer in the extension settings and accept Firefox's s
 
 ## Runtime behavior
 
-Firefox uses a module event background rather than a Chromium service worker. Gecko download creation triggers a pause before proposing a transfer to Flux. A saved desktop proposal owns the transfer; Firefox's transfer is cancelled and erased. If pause or initial native contact fails, the browser retains its transfer. A small transfer can finish before Firefox exposes its creation event; it is then left with Firefox instead of creating a duplicate Flux proposal.
+Flux 2.2 uses a Gecko module event background rather than a Chromium service worker. Its Firefox-only blocking response-header listener intercepts HTTP GET attachment navigation before file selection. Explicit browser API downloads use an early pause, persisted deferred metadata and cancellation before desktop proposal delivery. If Flux is unavailable before ownership changes, the browser keeps its transfer; delivery errors after durable cancellation remain in Flux's outbox.
+
+The toolbar popup controls page media-button visibility across open frames. The initial language follows the browser UI locale, with English for unsupported locales; explicit selections persist.
 
 The HUD uses a closed Shadow DOM and constructed stylesheets. Firefox 120 uses a fixed overlay, including reparenting into fullscreen containers. Firefox 125 and later use the native popover top layer. Position is stored per hostname using normalized, bounded coordinates.
 

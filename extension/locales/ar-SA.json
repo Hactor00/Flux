@@ -128,5 +128,6 @@
   "originalAudio": "الصوت الأصلي",
   "noSubtitles": "بدون ترجمة",
   "queueCollection": "إضافة المجموعة إلى الطابور",
-  "collectionHint": "أرسل حتى 500 عنصر من قائمة تشغيل أو قناة إلى طابور تنزيل Flux."
+  "collectionHint": "أرسل حتى 500 عنصر من قائمة تشغيل أو قناة إلى طابور تنزيل Flux.",
+  "showMediaButtons": "إظهار أزرار تنزيل الفيديو"
 }

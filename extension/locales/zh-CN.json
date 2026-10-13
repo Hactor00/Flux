@@ -128,5 +128,6 @@
   "originalAudio": "原始音频",
   "noSubtitles": "无字幕",
   "queueCollection": "加入合集队列",
-  "collectionHint": "将播放列表或频道中的最多500个项目发送到Flux下载队列。"
+  "collectionHint": "将播放列表或频道中的最多500个项目发送到Flux下载队列。",
+  "showMediaButtons": "显示视频下载按钮"
 }

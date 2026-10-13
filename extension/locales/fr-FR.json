@@ -128,5 +128,6 @@
   "originalAudio": "Audio original",
   "noSubtitles": "Sans sous-titres",
   "queueCollection": "Ajouter la collection à la file",
-  "collectionHint": "Envoyez jusqu’à 500 éléments d’une liste ou d’une chaîne dans la file de téléchargement Flux."
+  "collectionHint": "Envoyez jusqu’à 500 éléments d’une liste ou d’une chaîne dans la file de téléchargement Flux.",
+  "showMediaButtons": "Afficher les boutons de téléchargement vidéo"
 }

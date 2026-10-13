@@ -1,10 +1,15 @@
 mod batch;
+mod bencode_guard;
+pub mod debrid;
 mod disk;
+mod disk_writer;
 mod engine;
 pub mod extractor;
 mod healing;
 mod http;
 mod limiter;
+pub mod locale;
+mod manifest;
 mod media;
 mod media_assets;
 mod media_cache;
@@ -13,18 +18,22 @@ mod model;
 pub mod preferences;
 pub mod protocol;
 mod secrets;
+pub mod seeding;
+pub mod signing;
 mod store;
 mod torrent;
+mod torrent_native;
 mod transport;
+mod watchdog;
 
 pub use batch::expand_batch;
 pub use engine::Engine;
 pub use healing::RefreshRequest;
 pub use media::{inspect_media, MediaInfo, MediaStream};
 pub use model::{
-    BrowserCredentials, BrowserSource, DownloadRequest, MediaChapter, MediaOptions, MediaProgress,
-    MediaProvider, Progress, Settings, Status, SubtitleMode, SubtitleTrack, Task, TorrentFile,
-    TorrentOptions, TorrentSnapshot, TransportPreference,
+    BrowserCredentials, BrowserSource, DownloadRequest, ManifestSnapshot, MediaChapter,
+    MediaOptions, MediaProgress, MediaProvider, Progress, Settings, Status, SubtitleMode,
+    SubtitleTrack, Task, TorrentFile, TorrentOptions, TorrentSnapshot, TransportPreference,
 };
 pub use preferences::{CategoryFolders, ClipboardMode, ShutdownAction};
 pub fn default_data_directory() -> anyhow::Result<std::path::PathBuf> {

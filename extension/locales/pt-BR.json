@@ -128,5 +128,6 @@
   "originalAudio": "Áudio original",
   "noSubtitles": "Sem legendas",
   "queueCollection": "Adicionar coleção à fila",
-  "collectionHint": "Envie até 500 itens de uma playlist ou canal para a fila de downloads do Flux."
+  "collectionHint": "Envie até 500 itens de uma playlist ou canal para a fila de downloads do Flux.",
+  "showMediaButtons": "Mostrar botões de download de vídeo"
 }

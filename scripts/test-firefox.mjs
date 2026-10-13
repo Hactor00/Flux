@@ -154,7 +154,7 @@ async function until(predicate, timeout = 20000) {
   throw Error(
     "Firefox assertion timed out: " +
       JSON.stringify({
-        reports: reports.slice(0, 8),
+        reports: reports.slice(-12),
         controlRequests,
         pending: commands,
       }),
@@ -236,7 +236,7 @@ try {
             prefs: {
               "browser.shell.checkDefaultBrowser": false,
               "browser.startup.page": 0,
-              "browser.download.useDownloadDir": true,
+              "browser.download.useDownloadDir": false,
               "browser.download.folderList": 2,
               "browser.download.dir": join(root, "browser-downloads"),
               "datareporting.policy.dataSubmissionEnabled": false,
@@ -256,6 +256,8 @@ let busy=false;setInterval(async()=>{if(busy)return;busy=true;try{const c=await(
 if(c.action==='denied'){try{await bridge.request('list');throw Error('Native access preceded consent');}catch(e){if(!e.message.includes('Enable local'))throw e;result=true;}}
 if(c.action==='consent'){const deadline=Date.now()+10000;while(Date.now()<deadline){if((await browser.storage.local.get('nativeConsent')).nativeConsent){result=await browser.permissions.contains({origins:['http://*/*','https://*/*']});break;}await new Promise(r=>setTimeout(r,100));}if(!result)throw Error('Site-access consent was not granted');}
 if(c.action==='download'){await browser.storage.local.remove('lastTransfer');const id=await browser.downloads.download({url:base+'/fixture.bin',filename:'firefox.bin',saveAs:false});const deadline=Date.now()+20000;while(Date.now()<deadline){const {lastTransfer}=await browser.storage.local.get('lastTransfer');if(lastTransfer?.ok){const page=await bridge.request('list_page',{offset:0,limit:50});const task=page.tasks.find(t=>t.id===lastTransfer.id);const downloads=await browser.downloads.search({id});result={task,downloads,credentials:await browser.storage.session.get('auth:downloads')};break;}await new Promise(r=>setTimeout(r,100));}if(!result)throw Error('Firefox interception did not finish');}
+if(c.action==='attachment'){const tabs=await browser.tabs.query({});const tab=tabs.find(t=>t.url===base+'/page');const previous=(await browser.storage.local.get('lastTransfer')).lastTransfer?.id;void browser.tabs.update(tab.id,{url:base+'/fixture.bin?navigation=1'}).catch(()=>{});const deadline=Date.now()+20000;while(Date.now()<deadline){const {lastTransfer}=await browser.storage.local.get('lastTransfer');if(lastTransfer?.ok&&lastTransfer.id!==previous){const page=await bridge.request('list_page',{offset:0,limit:50});result={task:page.tasks.find(t=>t.id===lastTransfer.id),downloads:await browser.downloads.search({url:base+'/fixture.bin?navigation=1'})};break;}await new Promise(r=>setTimeout(r,100));}if(!result)throw Error('Attachment navigation was not intercepted before the browser file chooser: '+JSON.stringify(await browser.storage.local.get(['lastTransfer','outbox'])));}
+if(c.action==='hud-toggle'){await browser.storage.local.set({showMediaButtons:c.enabled});const tabs=await browser.tabs.query({});const tab=tabs.find(t=>t.url===base+'/page');await new Promise(r=>setTimeout(r,120));result=await browser.tabs.sendMessage(tab.id,{type:'flux-test-hud',action:'visible'});}
 if(c.action==='native'){const session=(await browser.storage.session.get('auth:downloads'))['auth:downloads']||[];const captured=session.find(entry=>entry.credentials?.origin===base&&entry.credentials.cookie==='session=firefox-fixture');if(!captured?.credentials?.cookie)throw Error('Captured browser credentials are missing');const protected_credentials=await bridge.request('protect',{credentials:[captured.credentials]});const task=await bridge.request('add',{...makeInput(base+'/native.bin',{filename:'verified.bin'}),expected_sha256:c.sha256,protected_credentials});const deadline=Date.now()+20000;while(Date.now()<deadline){const current=await bridge.request('task',{id:task.id});if(current.status==='complete'){result=current;break;}if(current.status==='failed')throw Error(current.error);await new Promise(r=>setTimeout(r,100));}if(!result)throw Error('Native download did not finish');}
 if(c.action==='hud'){const tabs=await browser.tabs.query({});const tab=tabs.find(t=>t.url===base+'/page');result=await browser.tabs.sendMessage(tab.id,{type:'flux-test-hud',action:c.hudAction});}
 if(c.action==='withdraw'){await browser.storage.local.set({nativeConsent:false});try{await bridge.request('list');throw Error('Consent withdrawal failed');}catch(e){if(!e.message.includes('Enable local'))throw e;}result=true;}
@@ -264,6 +266,7 @@ await report({id:c.id,ok:true,result});}catch(e){await report({id:c.id,ok:false,
   const probe = `(()=>{const roots=[];const original=Element.prototype.attachShadow;Element.prototype.attachShadow=function(options){const root=original.call(this,options);if(this.hasAttribute('data-flux-hud'))roots.push(root);return root;};
 browser.runtime.onMessage.addListener(async(message)=>{if(message.type!=='flux-test-hud')return;const deadline=Date.now()+10000;while(!roots.length&&Date.now()<deadline)await new Promise(r=>setTimeout(r,50));const root=roots[0];if(!root)throw Error('HUD was not attached');const host=root.host;const panel=root.querySelector('.panel');const main=root.querySelector('.main');
 if(message.action==='panel'){main.click();const deadline=Date.now()+15000;while(root.querySelector('.download').disabled&&Date.now()<deadline)await new Promise(r=>setTimeout(r,100));await new Promise(r=>setTimeout(r,100));const opened=!panel.hidden,panelBox=panel.getBoundingClientRect(),barBox=root.querySelector('.bar').getBoundingClientRect();const geometry={height:panelBox.height,left:panelBox.left,right:panelBox.right,top:panelBox.top,bottom:panelBox.bottom,barHeight:barBox.height,hostHeight:host.getBoundingClientRect().height,overflow:getComputedStyle(host).overflow,ready:!root.querySelector('.download').disabled};document.body.click();return {opened,closed:panel.hidden,buttonVisible:host.style.display==='block',shadowClosed:host.shadowRoot===null,padding:getComputedStyle(main).paddingTop,position:getComputedStyle(host).position,bodyPadding:getComputedStyle(document.body).paddingTop,popover:typeof host.showPopover==='function',geometry};}
+if(message.action==='visible'){return {visible:host.style.display==='block'};}
 if(message.action==='move'){const grip=root.querySelector('.move');const before=host.style.transform;grip.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true}));await new Promise(r=>setTimeout(r,100));return {before,after:host.style.transform,stored:await browser.storage.local.get('hud-position:'+location.hostname)};}
 if(message.action==='reset'){root.querySelector('.move').dispatchEvent(new KeyboardEvent('keydown',{key:'Home',bubbles:true}));await new Promise(r=>setTimeout(r,100));return true;}
 if(message.action==='geometry'){const box=root.querySelector('.move').getBoundingClientRect(),hud=host.getBoundingClientRect();return {x:Math.round(box.left+box.width/2),y:Math.round(box.top+box.height/2),left:hud.left,top:hud.top,right:hud.right,width:innerWidth,transform:host.style.transform,stored:await browser.storage.local.get('hud-position:'+location.hostname)};}
@@ -398,6 +401,10 @@ if(message.action==='close'){root.querySelector('.close').click();dispatchEvent(
   const close = await command("hud", { hudAction: "close" });
   assert.equal(close.hidden, true);
   assert.equal(close.dismissed, "1");
+  const hiddenHud = await command("hud-toggle", { enabled: false });
+  assert.equal(hiddenHud.visible, false);
+  const restoredHud = await command("hud-toggle", { enabled: true });
+  assert.equal(restoredHud.visible, true);
   const intercepted = await command("download");
   assert.equal(intercepted.task.status, "awaiting_approval");
   assert.equal(
@@ -419,6 +426,9 @@ if(message.action==='close'){root.querySelector('.close').click();dispatchEvent(
       .digest("hex"),
     sha256,
   );
+  const navigation = await command("attachment");
+  assert.equal(navigation.task.status, "awaiting_approval");
+  assert.equal(navigation.downloads.length, 0);
   await command("withdraw");
   const version = JSON.parse(await readFile("package.json")).version;
   validation = {
@@ -431,6 +441,11 @@ if(message.action==='close'){root.querySelector('.close').click();dispatchEvent(
     sha256_verified: true,
     interception_approval: true,
     browser_transfer_cancelled: true,
+    attachment_intercepted_before_file_chooser: true,
+    toolbar_hud_toggle: true,
+    external_download_manager_isolated: firefox
+      .toLowerCase()
+      .includes("flux-gecko-test"),
     consent_before_native: true,
     consent_withdrawal: true,
     closed_shadow_dom: true,

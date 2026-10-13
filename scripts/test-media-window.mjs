@@ -17,6 +17,10 @@ import { DatabaseSync } from "node:sqlite";
 import { DesktopDriver } from "./desktop-driver.mjs";
 
 const binary = resolve(process.argv[2] || "target/release");
+const mediaVersion = JSON.parse(await readFile("package.json"))
+  .version.split(".")
+  .slice(0, 2)
+  .join(".");
 let probeExecutable = process.env.FLUX_FFPROBE;
 if (!probeExecutable) {
   const bundledProbe = join(binary, "ffprobe.exe");
@@ -268,7 +272,7 @@ try {
       format: "png",
     });
     await writeFile(
-      "docs/images/media-suite-1.5.png",
+      `docs/images/media-suite-${mediaVersion}.png`,
       Buffer.from(screenshot.data, "base64"),
     );
   }
@@ -322,8 +326,8 @@ try {
   });
   await writeFile(
     suite
-      ? "docs/images/media-suite-progress-1.5.png"
-      : "docs/images/media-progress-2.0.png",
+      ? `docs/images/media-suite-progress-${mediaVersion}.png`
+      : `docs/images/media-progress-${mediaVersion}.png`,
     Buffer.from(screenshot.data, "base64"),
   );
   const paused = await call("pause", { id: task.id });

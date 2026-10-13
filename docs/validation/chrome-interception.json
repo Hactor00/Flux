@@ -1,0 +1,15 @@
+{
+  "version": "2.2.0",
+  "passed": true,
+  "browser": "Chrome/155.0.8059.40",
+  "browser_prompt_for_download": true,
+  "attachment_navigation": true,
+  "browser_transfer_cancelled": true,
+  "browser_directory_empty": true,
+  "native_approval_created": true,
+  "no_browser_file_chooser": true,
+  "native_approval_foreground": true,
+  "external_download_manager_isolated": true,
+  "task_id": "79bfdee1-3e27-468e-b8a3-3c5d1acf77e7",
+  "local_paths_and_credentials_removed": true
+}

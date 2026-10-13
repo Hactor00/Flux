@@ -1,25 +1,25 @@
 {
-  "source_hashes_verified": true,
-  "version": "2.0.0",
   "passed": true,
-  "time": "2026-10-13T14:00:37.0893018Z",
-  "runtime_only": true,
+  "source_hashes_verified": true,
   "packages": [
     {
-      "files": 57,
-      "sha256": "007c980a9dcfa2ae3dca39e926f6f5f90ed936c71fafb7c26701d8e3a7c5d692",
+      "files": 59,
+      "sha256": "909043916719159a874c814affeea652584724f0fb4cf22e6c636676e6680fca",
       "name": "chrome"
     },
     {
-      "files": 57,
-      "sha256": "007c980a9dcfa2ae3dca39e926f6f5f90ed936c71fafb7c26701d8e3a7c5d692",
+      "files": 59,
+      "sha256": "909043916719159a874c814affeea652584724f0fb4cf22e6c636676e6680fca",
       "name": "edge"
     },
     {
-      "files": 57,
-      "sha256": "43ebd8e0ce8bd69f2facd87f6e5857fcd07ba4e9cade9f469d0b2879c7e62bdb",
+      "files": 59,
+      "sha256": "1466ebe1fc1a7535ff481e49a6905efcd99677514ba92186c42679d9852e180e",
       "name": "firefox"
     }
   ],
+  "version": "2.2.0",
+  "runtime_only": true,
+  "time": "2026-10-13T22:36:47.4725992Z",
   "local_paths_and_credentials_removed": true
 }

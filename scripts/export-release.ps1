@@ -13,6 +13,12 @@ New-Item -ItemType Directory -Force -Path $portable | Out-Null
 foreach ($name in @('flux-desktop.exe','flux-cli.exe','flux-native-host.exe','ffmpeg.exe','ffprobe.exe','yt-dlp.exe','node.exe','libunwind.dll','WebView2Loader.dll')) {
     Copy-Item -LiteralPath "$workspace/target/release/$name" -Destination $portable -Force
 }
+foreach ($name in @('FluxTorrentBridge.dll','libtorrent-rasterbar.dll','libssl-3-x64.dll','libcrypto-3-x64.dll','libstdc++-6.dll','libgcc_s_seh-1.dll','libwinpthread-1.dll')) {
+    Copy-Item -LiteralPath "$workspace/target/release/$name" -Destination $portable -Force
+}
+$nativeLicenseStage = Join-Path $portable 'native-licenses'
+New-Item -ItemType Directory -Force -Path $nativeLicenseStage | Out-Null
+foreach ($entry in Get-ChildItem -LiteralPath "$workspace/.tools/package/native-licenses") { Copy-Item -LiteralPath $entry.FullName -Destination $nativeLicenseStage -Recurse -Force }
 foreach ($name in @('extension','extension-firefox','extension-firefox-modern','licenses','media-source','LICENSE','THIRD-PARTY-NOTICES.md','dependency-inventory.json')) {
     Copy-Item -LiteralPath "$workspace/.tools/package/$name" -Destination $portable -Recurse -Force
 }

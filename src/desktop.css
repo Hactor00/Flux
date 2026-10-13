@@ -831,3 +831,52 @@ button:focus-visible {
   overflow-wrap: anywhere;
   font-family: ui-monospace, monospace;
 }
+.settings-modal .tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.settings-modal .tabs button {
+  min-width: 0;
+  padding: 9px 7px;
+  white-space: normal;
+}
+.host-accounts {
+  max-height: 48vh;
+  overflow-y: auto;
+}
+.host-account {
+  display: grid;
+  gap: 10px;
+  border-bottom: 1px solid #343741;
+  padding-block: 14px;
+}
+.host-account h3 {
+  margin: 0;
+}
+.seeding-rules {
+  display: grid;
+  gap: 14px;
+  margin-block: 12px;
+}
+.updater-modal {
+  width: min(560px, calc(100vw - 32px));
+}
+.update-notes {
+  max-height: 240px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  color: #b6bdcb;
+  line-height: 1.6;
+}
+.updater-modal progress {
+  width: 100%;
+  height: 8px;
+  accent-color: #b5a0f5;
+}
+.updater-panel {
+  display: grid;
+  gap: 16px;
+  padding-block: 12px;
+}

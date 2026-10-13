@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
+  "version": "2.2.0",
   "power_os_actions_executed": false,
   "passed": true,
   "startup_registry_verified": true,
@@ -15,6 +15,6 @@
   "window_close_cancels_countdown": true,
   "exit_app_after_countdown_verified": true,
   "startup_registry_restored": true,
-  "time": "2026-10-13T14:04:03.707Z",
+  "time": "2026-10-13T23:49:47.358Z",
   "local_paths_and_credentials_removed": true
 }

@@ -84,7 +84,7 @@ async fn handler(State(server): State<Server>, headers: HeaderMap) -> Response<B
     if server.mode == "forbidden-range" && headers.contains_key("range") {
         return Response::builder().status(403).body(Body::empty()).unwrap();
     }
-    let tag = if server.changed.load(Ordering::SeqCst) {
+    let tag = if server.changed.load(Ordering::SeqCst) && server.mode != "range-disappears" {
         "\"version-2\""
     } else {
         "\"version-1\""
@@ -105,7 +105,10 @@ async fn handler(State(server): State<Server>, headers: HeaderMap) -> Response<B
             .body(Body::empty())
             .unwrap();
     }
-    let ranged = !range.is_empty() && server.mode != "no-range" && server.mode != "unknown";
+    let ranged = !range.is_empty()
+        && server.mode != "no-range"
+        && server.mode != "unknown"
+        && !(server.mode == "range-disappears" && server.changed.load(Ordering::SeqCst));
     let (start, end) = if ranged {
         let (start, end) = range
             .strip_prefix("bytes=")
@@ -165,14 +168,28 @@ async fn handler(State(server): State<Server>, headers: HeaderMap) -> Response<B
     if probe && ranged {
         return response.body(Body::from(vec![server.bytes[0]])).unwrap();
     }
-    let bytes = server.bytes.clone();
+    let bytes = if server.mode == "no-etag" && server.changed.load(Ordering::SeqCst) {
+        Arc::new(
+            server
+                .bytes
+                .iter()
+                .map(|byte| byte ^ 0xff)
+                .collect::<Vec<_>>(),
+        )
+    } else {
+        server.bytes.clone()
+    };
     let mode = server.mode;
     let fail_stream = mode == "disconnect" && server.failures.fetch_add(1, Ordering::SeqCst) == 0;
+    let stall_stream = mode == "stall" && server.failures.fetch_add(1, Ordering::SeqCst) == 0;
     let stream = futures_util::stream::unfold((start, false), move |(offset, failed)| {
         let bytes = bytes.clone();
         async move {
             if offset > end || failed {
                 return None;
+            }
+            if stall_stream && offset >= start + 65536 {
+                tokio::time::sleep(Duration::from_secs(10)).await;
             }
             if mode == "slow" || (mode == "tail-slow" && start >= 4 * 1024 * 1024) {
                 tokio::time::sleep(Duration::from_millis(3)).await;
@@ -485,19 +502,21 @@ async fn legacy_chunk_checkpoints_migrate_without_losing_verified_prefixes() {
         .any(|request| request.starts_with(&format!("bytes={offset}-")))));
 }
 #[tokio::test]
-async fn no_range_and_no_validator_fall_back_to_safe_single_stream() {
+async fn range_support_does_not_require_an_etag() {
     for mode in ["no-range", "no-etag", "unknown"] {
         let f = Fixture::new(mode, 1024 * 1024 + 3).await;
         let task = f.download().await;
         f.assert_file(&task).await;
-        assert!(!task.ranged);
-        assert!(f
-            .server
-            .requests
-            .lock()
-            .unwrap()
-            .iter()
-            .any(String::is_empty));
+        assert_eq!(task.ranged, mode == "no-etag");
+        assert_eq!(
+            f.server
+                .requests
+                .lock()
+                .unwrap()
+                .iter()
+                .any(String::is_empty),
+            mode != "no-etag"
+        );
     }
 }
 #[tokio::test]
@@ -546,6 +565,74 @@ async fn pause_checkpoints_then_resume_uses_byte_offsets() {
         .unwrap()
         .iter()
         .any(|r| r.starts_with("bytes=") && r != "bytes=0-0" && !r.starts_with("bytes=0-")));
+}
+#[tokio::test]
+async fn pause_resume_preserves_progress_without_etag_or_range_support() {
+    for mode in ["no-etag", "no-range", "unknown"] {
+        let f = Fixture::new(mode, 1024 * 1024).await;
+        let mut settings = f.engine.settings().await.unwrap();
+        settings.speed_limit = 65536;
+        f.engine.save_settings(settings.clone()).await.unwrap();
+        let task = f.engine.enqueue(f.input()).await.unwrap();
+        f.engine.start(&task.id).await.unwrap();
+        wait_for_partial_bytes(&f.engine, &task.id).await;
+        let paused = f.engine.pause(&task.id).await.unwrap();
+        assert!(paused.completed > 0);
+        let mut events = f.engine.subscribe();
+        settings.speed_limit = 0;
+        f.engine.save_settings(settings).await.unwrap();
+        f.engine.start(&task.id).await.unwrap();
+        let result = f.engine.wait(&task.id).await.unwrap();
+        f.assert_file(&result).await;
+        while let Ok(progress) = events.try_recv() {
+            if progress.id == task.id {
+                assert!(progress.completed >= paused.completed);
+            }
+        }
+    }
+}
+#[tokio::test]
+async fn changed_object_without_etag_preserves_checkpoint_and_refuses_mixed_bytes() {
+    let f = Fixture::new("no-etag", 1024 * 1024).await;
+    let mut settings = f.engine.settings().await.unwrap();
+    settings.speed_limit = 65536;
+    f.engine.save_settings(settings.clone()).await.unwrap();
+    let task = f.engine.enqueue(f.input()).await.unwrap();
+    f.engine.start(&task.id).await.unwrap();
+    wait_for_partial_bytes(&f.engine, &task.id).await;
+    let paused = f.engine.pause(&task.id).await.unwrap();
+    f.server.changed.store(true, Ordering::SeqCst);
+    settings.speed_limit = 0;
+    f.engine.save_settings(settings).await.unwrap();
+    f.engine.start(&task.id).await.unwrap();
+    let failed = f.engine.wait(&task.id).await.unwrap();
+    assert_eq!(failed.status, Status::Failed);
+    assert_eq!(failed.completed, paused.completed);
+    assert!(failed.error.unwrap().contains("Remote file changed"));
+    assert!(!failed.destination.exists());
+}
+#[tokio::test]
+async fn lost_range_support_never_replays_whole_files_into_multiple_offsets() {
+    let f = Fixture::new("range-disappears", 1024 * 1024).await;
+    let mut settings = f.engine.settings().await.unwrap();
+    settings.speed_limit = 65536;
+    f.engine.save_settings(settings.clone()).await.unwrap();
+    let task = f.engine.enqueue(f.input()).await.unwrap();
+    f.engine.start(&task.id).await.unwrap();
+    wait_for_partial_bytes(&f.engine, &task.id).await;
+    let paused = f.engine.pause(&task.id).await.unwrap();
+    f.server.changed.store(true, Ordering::SeqCst);
+    settings.speed_limit = 0;
+    f.engine.save_settings(settings).await.unwrap();
+    f.engine.start(&task.id).await.unwrap();
+    let failed = f.engine.wait(&task.id).await.unwrap();
+    assert_eq!(failed.status, Status::Failed);
+    assert_eq!(failed.completed, paused.completed);
+    assert!(failed
+        .error
+        .unwrap()
+        .contains("no longer supports byte ranges"));
+    assert!(!failed.destination.exists());
 }
 #[tokio::test]
 async fn corrupt_checkpoint_is_re_downloaded() {

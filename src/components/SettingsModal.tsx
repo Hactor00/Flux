@@ -7,6 +7,9 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { api, desktop, defaultSettings, type Settings } from "../api";
 import { languages } from "../i18n";
 import { Toggle, Choice } from "./primitives";
+import { HostAccounts } from "./HostAccounts";
+import { Updater } from "./Updater";
+import { SeedingRules } from "./SeedingRules";
 export function SettingsModal({
   visible,
   onClose,
@@ -84,12 +87,41 @@ export function SettingsModal({
                 "downloads",
                 "daily_usage",
                 "browserIntegration",
+                "host_accounts",
+                "updates",
+                "seeding",
               ].map((key) => (
                 <Tabs.Trigger key={key} value={key}>
                   {t(key)}
                 </Tabs.Trigger>
               ))}
             </Tabs.List>
+            <Tabs.Content value="host_accounts">
+              <HostAccounts />
+            </Tabs.Content>
+            <Tabs.Content value="updates">
+              <Updater />
+            </Tabs.Content>
+            <Tabs.Content value="seeding">
+              <SeedingRules
+                value={settings.seeding}
+                onChange={(value) => {
+                  if (value) update("seeding", value);
+                }}
+              />
+              <label>
+                {t("upload_limit")}
+                <input
+                  type="number"
+                  min={0}
+                  max={2147483647}
+                  value={settings.torrent_upload_limit}
+                  onChange={(event) =>
+                    update("torrent_upload_limit", Number(event.target.value))
+                  }
+                />
+              </label>
+            </Tabs.Content>
             <Tabs.Content value="language">
               <div className="language-heading">
                 <Globe2 size={18} />

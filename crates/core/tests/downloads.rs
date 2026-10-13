@@ -260,6 +260,23 @@ impl Drop for Fixture {
     }
 }
 
+async fn wait_for_partial_bytes(data: &std::path::Path, id: &str) {
+    let part = data.join("parts").join(id).join("0.part");
+    tokio::time::timeout(Duration::from_secs(10), async {
+        loop {
+            match tokio::fs::metadata(&part).await {
+                Ok(metadata) if metadata.len() > 0 => break,
+                Ok(_) => {}
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+                Err(error) => panic!("Cannot observe partial download: {error}"),
+            }
+            tokio::time::sleep(Duration::from_millis(10)).await;
+        }
+    })
+    .await
+    .expect("The fixture did not write partial data before the deadline");
+}
+
 #[tokio::test]
 async fn scheduler_obeys_priority_and_does_not_restart_paused_tasks() {
     let fixture = Fixture::new("slow", 4 * 1024 * 1024).await;
@@ -420,7 +437,7 @@ async fn pause_checkpoints_then_resume_uses_byte_offsets() {
     let f = Fixture::new("slow", 10 * 1024 * 1024).await;
     let task = f.engine.enqueue(f.input()).await.unwrap();
     f.engine.start(&task.id).await.unwrap();
-    tokio::time::sleep(Duration::from_millis(100)).await;
+    wait_for_partial_bytes(&f.root.path().join("data"), &task.id).await;
     let paused = f.engine.pause(&task.id).await.unwrap();
     assert_eq!(paused.status, Status::Paused);
     assert!(paused.completed > 0);
@@ -440,7 +457,7 @@ async fn corrupt_checkpoint_is_re_downloaded() {
     let f = Fixture::new("slow", 5 * 1024 * 1024).await;
     let task = f.engine.enqueue(f.input()).await.unwrap();
     f.engine.start(&task.id).await.unwrap();
-    tokio::time::sleep(Duration::from_millis(100)).await;
+    wait_for_partial_bytes(&f.root.path().join("data"), &task.id).await;
     f.engine.pause(&task.id).await.unwrap();
     let part = f
         .root
@@ -468,7 +485,7 @@ async fn new_etag_discards_old_checkpoints() {
     let f = Fixture::new("slow", 5 * 1024 * 1024).await;
     let task = f.engine.enqueue(f.input()).await.unwrap();
     f.engine.start(&task.id).await.unwrap();
-    tokio::time::sleep(Duration::from_millis(100)).await;
+    wait_for_partial_bytes(&f.root.path().join("data"), &task.id).await;
     f.engine.pause(&task.id).await.unwrap();
     f.server.changed.store(true, Ordering::SeqCst);
     f.server.requests.lock().unwrap().clear();
@@ -563,7 +580,7 @@ async fn persisted_task_resumes_after_engine_reopens() {
     assert!(task.created_at.is_some());
     assert!(task.started_at.is_none() && task.finished_at.is_none());
     engine.start(&task.id).await.unwrap();
-    tokio::time::sleep(Duration::from_millis(100)).await;
+    wait_for_partial_bytes(&data, &task.id).await;
     let paused = engine.pause(&task.id).await.unwrap();
     assert!(paused.completed > 0);
     let first_start = paused.started_at.unwrap();

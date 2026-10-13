@@ -1,0 +1,18 @@
+{
+  "native_windows_verified": true,
+  "version": "1.7.0",
+  "native_registration_verified": true,
+  "sha256": "491cbd28fc7d5407425c9459d4120e4a2afff5f0e89ff14fe7ec45b928a588f4",
+  "idempotent_repair_remove_verified": true,
+  "uninstall_preserves_data": true,
+  "installed_extension_sources_verified": true,
+  "registry_restoration_verified": true,
+  "passed": true,
+  "installer_filename": "Flux_1.7.0_x64-setup.exe",
+  "bundled_runtime_verified": true,
+  "uninstall_removes_owned_startup": true,
+  "time": "2026-10-12T23:07:04.2847890Z",
+  "firefox_registration_verified": true,
+  "desktop_cold_start": true,
+  "local_paths_and_credentials_removed": true
+}

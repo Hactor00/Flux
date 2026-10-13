@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "native_ipc": true,
+  "start_with_32_connections": true,
+  "details_open_close_cycles": 4,
+  "distinct_details_windows": 4,
+  "window_destruction_verified": true,
+  "automatic_default_verified": true,
+  "settings_window_verified": true,
+  "start_timestamp_verified": true,
+  "history_timestamp_verified": true,
+  "completion_timestamp_persisted": true,
+  "task": "b26bdf58-dc0a-4c4b-8565-d37eb1d105bd",
+  "sha256": "51510ba467b06c4f337190ef80336d0fb6b7ef8b2fd2cfb950147dedcf8a7dc1",
+  "time": "2026-10-12T23:06:33.187Z",
+  "local_paths_and_credentials_removed": true
+}

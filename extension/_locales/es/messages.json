@@ -1,0 +1,323 @@
+{
+  "workspace": {
+    "message": "Espacio de trabajo"
+  },
+  "all": {
+    "message": "Todas las descargas"
+  },
+  "active": {
+    "message": "Activas"
+  },
+  "complete": {
+    "message": "Completadas"
+  },
+  "settings": {
+    "message": "Configuración"
+  },
+  "engine_ready": {
+    "message": "Motor conectado"
+  },
+  "preview": {
+    "message": "Vista previa del navegador"
+  },
+  "local_first": {
+    "message": "Guardado en tu dispositivo"
+  },
+  "open_source": {
+    "message": "Código abierto"
+  },
+  "control": {
+    "message": "CONTROL DE TRANSFERENCIAS"
+  },
+  "downloads": {
+    "message": "Descargas"
+  },
+  "tagline": {
+    "message": "Cada byte, bajo tu control."
+  },
+  "new_download": {
+    "message": "Nueva descarga"
+  },
+  "desktop_required": {
+    "message": "Abre la aplicación de escritorio para descargar."
+  },
+  "action_failed": {
+    "message": "La acción falló"
+  },
+  "details": {
+    "message": "Detalles técnicos"
+  },
+  "close": {
+    "message": "Cerrar"
+  },
+  "network_speed": {
+    "message": "Velocidad de red"
+  },
+  "live_network": {
+    "message": "Actividad de red en vivo"
+  },
+  "active_transfers": {
+    "message": "Transferencias activas"
+  },
+  "connections_max": {
+    "message": "Hasta 32 conexiones por archivo"
+  },
+  "verified_files": {
+    "message": "Archivos verificados"
+  },
+  "integrity": {
+    "message": "Integridad SHA-256 comprobada"
+  },
+  "transfer_queue": {
+    "message": "Cola de transferencias"
+  },
+  "search_downloads": {
+    "message": "Buscar descargas"
+  },
+  "file": {
+    "message": "Archivo"
+  },
+  "progress": {
+    "message": "Progreso"
+  },
+  "status": {
+    "message": "Estado"
+  },
+  "actions": {
+    "message": "Acciones"
+  },
+  "no_results": {
+    "message": "Sin resultados"
+  },
+  "search_hint": {
+    "message": "Prueba otro nombre de archivo."
+  },
+  "empty_title": {
+    "message": "Tu próxima descarga empieza aquí."
+  },
+  "empty_body": {
+    "message": "Añade un enlace. Flux gestiona las conexiones, la recuperación y la verificación."
+  },
+  "add_first": {
+    "message": "Añadir tu primera descarga"
+  },
+  "unknown_size": {
+    "message": "Tamaño desconocido"
+  },
+  "pause": {
+    "message": "Pausar"
+  },
+  "resume": {
+    "message": "Reanudar"
+  },
+  "add_description": {
+    "message": "Añade un archivo HTTP o HTTPS a tu cola local."
+  },
+  "source_url": {
+    "message": "URL de origen"
+  },
+  "filename": {
+    "message": "Nombre del archivo"
+  },
+  "connections": {
+    "message": "Conexiones"
+  },
+  "speed_limit": {
+    "message": "Límite de velocidad (B/s, 0 = ilimitado)"
+  },
+  "expected_hash": {
+    "message": "SHA-256 esperado (opcional)"
+  },
+  "starting": {
+    "message": "Iniciando…"
+  },
+  "start": {
+    "message": "Iniciar descarga"
+  },
+  "language_description": {
+    "message": "Elige tu idioma preferido."
+  },
+  "language": {
+    "message": "Idioma"
+  },
+  "search_languages": {
+    "message": "Buscar idiomas"
+  },
+  "privacy": {
+    "message": "Almacenamiento local. Tus archivos te pertenecen."
+  },
+  "powered": {
+    "message": "Con Rust · Para la web abierta"
+  },
+  "queued": {
+    "message": "En cola"
+  },
+  "running": {
+    "message": "Descargando"
+  },
+  "paused": {
+    "message": "Pausada"
+  },
+  "verifying": {
+    "message": "Verificando"
+  },
+  "failed": {
+    "message": "Fallida"
+  },
+  "downloadMedia": {
+    "message": "Descargar contenido"
+  },
+  "downloadWith": {
+    "message": "Descargar con Flux"
+  },
+  "captureLinks": {
+    "message": "Capturar enlaces de la página"
+  },
+  "quality": {
+    "message": "Calidad / códec"
+  },
+  "automatic": {
+    "message": "Automático"
+  },
+  "inspecting": {
+    "message": "Analizando contenido…"
+  },
+  "sentToDesktop": {
+    "message": "Guardado en la cola de escritorio"
+  },
+  "retry": {
+    "message": "Reintentar"
+  },
+  "wildcard": {
+    "message": "Filtrar con *.zip"
+  },
+  "downloadSelected": {
+    "message": "Descargar selección"
+  },
+  "interceptDownloads": {
+    "message": "Capturar descargas del navegador"
+  },
+  "interceptExplanation": {
+    "message": "El navegador sigue descargando hasta que Flux confirma la recepción."
+  },
+  "browserIntegration": {
+    "message": "Integración del navegador"
+  },
+  "nativeInstallHelp": {
+    "message": "Abre los ajustes de Flux e instala el enlace con el navegador."
+  },
+  "saved": {
+    "message": "Guardado"
+  },
+  "desktopOffline": {
+    "message": "Escritorio desconectado"
+  },
+  "waitingForDesktop": {
+    "message": "Esperando al escritorio"
+  },
+  "noMedia": {
+    "message": "No se detectó contenido"
+  },
+  "mediaHint": {
+    "message": "Reproduce un vídeo para detectar sus solicitudes."
+  },
+  "batch": {
+    "message": "Descarga por lotes"
+  },
+  "priority": {
+    "message": "Prioridad"
+  },
+  "start_at": {
+    "message": "Iniciar a las"
+  },
+  "stop_at": {
+    "message": "Detener a las"
+  },
+  "media_processing": {
+    "message": "Procesar contenido con FFmpeg"
+  },
+  "audio_url": {
+    "message": "URL de audio separado (opcional)"
+  },
+  "duration_seconds": {
+    "message": "Duración de grabación (segundos, opcional)"
+  },
+  "container": {
+    "message": "Contenedor"
+  },
+  "concurrent_tasks": {
+    "message": "Descargas simultáneas"
+  },
+  "download_directory": {
+    "message": "Carpeta de descargas"
+  },
+  "choose_folder": {
+    "message": "Elegir carpeta"
+  },
+  "queue_enabled": {
+    "message": "Ejecutar cola"
+  },
+  "clipboard_monitor": {
+    "message": "Detectar enlaces del portapapeles"
+  },
+  "minimize_to_tray": {
+    "message": "Minimizar a la bandeja"
+  },
+  "notifications": {
+    "message": "Avisos de finalización"
+  },
+  "save": {
+    "message": "Guardar ajustes"
+  },
+  "open_file": {
+    "message": "Abrir archivo"
+  },
+  "reveal_file": {
+    "message": "Mostrar en carpeta"
+  },
+  "remove": {
+    "message": "Eliminar tarea"
+  },
+  "remove_description": {
+    "message": "¿Eliminar la tarea y sus datos temporales? Se conserva el archivo terminado."
+  },
+  "confirm": {
+    "message": "Eliminar"
+  },
+  "inspect": {
+    "message": "Analizar pistas"
+  },
+  "queue_start": {
+    "message": "Iniciar cola"
+  },
+  "pause_all": {
+    "message": "Pausar todo"
+  },
+  "install_bridge": {
+    "message": "Instalar enlace del navegador"
+  },
+  "installed": {
+    "message": "Enlace del navegador instalado"
+  },
+  "copy_hash": {
+    "message": "Copiar SHA-256"
+  },
+  "apply": {
+    "message": "Aplicar"
+  },
+  "segment_urls": {
+    "message": "URL de segmentos TS (una por línea, opcional)"
+  },
+  "global_speed_limit": {
+    "message": "Límite de velocidad total (bytes/s, 0 = sin límite)"
+  },
+  "appName": {
+    "message": "Flux"
+  },
+  "appDescription": {
+    "message": "Añade un archivo HTTP o HTTPS a tu cola local."
+  },
+  "mediaReady": {
+    "message": "Elige la calidad del vídeo y el formato de salida y envíalo a Flux."
+  }
+}

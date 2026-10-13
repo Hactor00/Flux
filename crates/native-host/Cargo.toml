@@ -1,0 +1,15 @@
+[package]
+name = "flux-native-host"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+flux-core.workspace = true
+uuid.workspace = true
+anyhow.workspace = true
+tokio.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+tempfile = "3"

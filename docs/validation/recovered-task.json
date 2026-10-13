@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "legacy_task_recovered": true,
+  "filename": "index.mp4",
+  "height": 1080,
+  "video_codec": "h264",
+  "audio_codec": "aac",
+  "duration": 1297.531066,
+  "bytes": 302506972,
+  "sha256": "806884889f28ef6917eeae3c8767b490cefff72cbbc1612adecb60123fa3cbbd",
+  "time": "2026-10-11T19:04:37.468Z",
+  "local_paths_and_credentials_removed": true
+}

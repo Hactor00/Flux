@@ -1,0 +1,19 @@
+node_modules/
+dist/
+target/
+.tools/
+*.sqlite*
+*.log
+.flux/
+src-tauri/gen/
+release/
+deliverables/
+public-release/
+signed/
+
+# Firefox runtime assets are generated from the shared extension sources.
+extension-firefox/*
+!extension-firefox/manifest.json
+!extension-firefox/extension-id.txt
+!extension-firefox/README.md
+extension-firefox-modern/

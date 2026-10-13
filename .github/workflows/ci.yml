@@ -1,0 +1,50 @@
+name: Validate Flux
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  core:
+    env:
+      FLUX_REQUIRE_MEDIA_TESTS: "1"
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - if: runner.os == 'Windows'
+        run: ./scripts/prepare-ci-media.ps1
+      - run: cargo fmt --all -- --check
+      - run: cargo test --locked -p flux-core -p flux-cli -p flux-native-host
+      - run: cargo clippy --locked -p flux-core -p flux-cli -p flux-native-host --all-targets --all-features -- -D warnings
+  desktop:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      - run: ./scripts/prepare-ci-media.ps1
+      - run: npm ci
+      - run: npm test
+      - run: node scripts/test-chrome-hud.mjs
+      - run: cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
+      - run: npm run tauri build -- --debug --no-bundle
+      - run: cargo build --locked -p flux-cli -p flux-native-host
+      - run: node scripts/test-native.mjs target/debug
+      - run: node scripts/test-window-session.mjs target/debug --automatic
+      - run: node scripts/test-media-window.mjs target/debug
+      - run: node scripts/test-media-window.mjs target/debug --suite

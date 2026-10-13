@@ -1,0 +1,51 @@
+{
+  "version": "1.7.0",
+  "time": "2026-10-12T23:07:52.607Z",
+  "passed": true,
+  "source_sha256": "ff8cb7a5d7bb64abb3cda8fd442766a2cfe6a626054a0dcc5fc6e45a71d45c6e",
+  "extension_tests": 39,
+  "ui_data_tests": 6,
+  "frontend_build": "Strict TypeScript and Vite production build passed",
+  "locales": 20,
+  "locale_keys": 162,
+  "chrome": {
+    "version": "Chrome/154.0.8037.98",
+    "scope": "Production HUD source and real native browser layout with an isolated bridge fixture",
+    "passed": true,
+    "free_viewport_drag": true,
+    "all_viewport_edges": true,
+    "panel_unclipped": true,
+    "upward_panel": true,
+    "narrow_viewport": true,
+    "outside_click": true,
+    "close_button": true
+  },
+  "firefox": [
+    {
+      "version": "120.0",
+      "installed_extension": true,
+      "passed": true,
+      "native_framing": true,
+      "sha256_verified": true,
+      "free_viewport_drag": true,
+      "panel_unclipped": true,
+      "fullscreen": true,
+      "registry_restoration_verified": true
+    },
+    {
+      "version": "157.0.1",
+      "installed_extension": true,
+      "passed": true,
+      "native_framing": true,
+      "sha256_verified": true,
+      "free_viewport_drag": true,
+      "panel_unclipped": true,
+      "fullscreen": true,
+      "registry_restoration_verified": true
+    }
+  ],
+  "paused_short_resolution": "Regression fixture verifies provider resolution without playback and the localized ready instruction",
+  "stale_selection_guards": "Navigation, source replacement and active-video switching passed",
+  "core_engine_changed": false,
+  "local_paths_and_credentials_removed": true
+}

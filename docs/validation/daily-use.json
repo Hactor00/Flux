@@ -1,0 +1,20 @@
+{
+  "version": "1.7.0",
+  "power_os_actions_executed": false,
+  "passed": true,
+  "startup_registry_verified": true,
+  "startup_disable_verified": true,
+  "daily_settings_visible": true,
+  "native_mime_routing_verified": true,
+  "completed_row_draggable": true,
+  "incomplete_drag_rejected": true,
+  "countdown_event_permission_verified": true,
+  "countdown_deadline_verified": true,
+  "native_cancel_verified": true,
+  "new_work_cancels_countdown": true,
+  "window_close_cancels_countdown": true,
+  "exit_app_after_countdown_verified": true,
+  "startup_registry_restored": true,
+  "time": "2026-10-12T16:41:06.412Z",
+  "local_paths_and_credentials_removed": true
+}

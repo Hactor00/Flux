@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "provider": "YouTube",
+  "title": "Ali Ağaoğlu Nereye Kayboldu? | Para, Kadınlar ve Skandallar",
+  "formats": 6,
+  "height": 1080,
+  "connections": 32,
+  "stale_source_renewed_after_restart": true,
+  "verified_cached_parts_before_restart": 1,
+  "signed_source_changed_on_resume": true,
+  "selected_format": "137",
+  "duration": 8.041667,
+  "video_codec": "h264",
+  "audio_codec": "aac",
+  "sha256": "78bc06fc7da4ce3338996aa44c0a4a8512aafbff851da2e9798664de4695d9a2",
+  "mp3": {
+    "codec": "mp3",
+    "streams": 1,
+    "duration": 8,
+    "sha256": "3708d3b086f2613df18b1c26d477b51c8698363bf67db04b55ac8053f56d2bcc"
+  },
+  "time": "2026-10-11T18:56:40.260Z",
+  "local_paths_and_credentials_removed": true
+}

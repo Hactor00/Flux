@@ -1,0 +1,29 @@
+[package]
+name = "flux-desktop"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-clipboard-manager = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-single-instance = "2"
+flux-core.workspace = true
+tokio.workspace = true
+tokio-util.workspace = true
+serde_json.workspace = true
+fs2 = "0.4"
+uuid.workspace = true
+serde.workspace = true
+url = "2"
+
+[target.'cfg(windows)'.dependencies]
+winreg = "0.55"
+drag = "=2.1.1"
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Security", "Win32_System_Threading", "Win32_System_Power", "Win32_System_Shutdown"] }

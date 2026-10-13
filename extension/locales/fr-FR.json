@@ -122,5 +122,11 @@
   "moveHud": "Déplacer le bouton de téléchargement",
   "nativeConsent": "Autoriser le transfert local vers Flux",
   "nativeConsentExplain": "Envoie les URL choisies, les titres et les cookies ou en-têtes d’autorisation nécessaires à Flux sur cet ordinateur, uniquement pour télécharger le fichier choisi. Aucune analyse n’est envoyée. Retirez cette autorisation ici.",
-  "mediaReady": "Choisissez la qualité vidéo et le format de sortie, puis envoyez la vidéo à Flux."
+  "mediaReady": "Choisissez la qualité vidéo et le format de sortie, puis envoyez la vidéo à Flux.",
+  "audioTrack": "Piste audio",
+  "subtitleTrack": "Sous-titres",
+  "originalAudio": "Audio original",
+  "noSubtitles": "Sans sous-titres",
+  "queueCollection": "Ajouter la collection à la file",
+  "collectionHint": "Envoyez jusqu’à 500 éléments d’une liste ou d’une chaîne dans la file de téléchargement Flux."
 }

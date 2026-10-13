@@ -1,15 +1,15 @@
 {
-  "version": "1.7.0",
-  "time": "2026-10-12T23:07:52.607Z",
+  "version": "2.0.0",
+  "time": "2026-10-13T14:03:34.617Z",
   "passed": true,
-  "source_sha256": "ff8cb7a5d7bb64abb3cda8fd442766a2cfe6a626054a0dcc5fc6e45a71d45c6e",
-  "extension_tests": 39,
-  "ui_data_tests": 6,
+  "source_sha256": "c5dcea375a615cf2056a86caee0c9607ad4129af137128f9bbea41cceac1ceae",
+  "extension_tests": 51,
+  "ui_data_tests": 12,
   "frontend_build": "Strict TypeScript and Vite production build passed",
   "locales": 20,
-  "locale_keys": 162,
+  "locale_keys": 193,
   "chrome": {
-    "version": "Chrome/154.0.8037.98",
+    "version": "Chrome/155.0.8059.40",
     "scope": "Production HUD source and real native browser layout with an isolated bridge fixture",
     "passed": true,
     "free_viewport_drag": true,
@@ -46,6 +46,6 @@
   ],
   "paused_short_resolution": "Regression fixture verifies provider resolution without playback and the localized ready instruction",
   "stale_selection_guards": "Navigation, source replacement and active-video switching passed",
-  "core_engine_changed": false,
+  "core_engine_changed": true,
   "local_paths_and_credentials_removed": true
 }

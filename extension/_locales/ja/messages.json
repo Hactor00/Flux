@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "画質と出力形式を選択して、Flux に送信してください。"
+  },
+  "audioTrack": {
+    "message": "音声トラック"
+  },
+  "subtitleTrack": {
+    "message": "字幕"
+  },
+  "originalAudio": {
+    "message": "元の音声"
+  },
+  "noSubtitles": {
+    "message": "字幕なし"
+  },
+  "queueCollection": {
+    "message": "コレクションをキューへ"
+  },
+  "collectionHint": {
+    "message": "プレイリストやチャンネルの最大500件をFluxのダウンロードキューに送信します。"
   }
 }

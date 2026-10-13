@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "व्हिडिओची गुणवत्ता आणि आउटपुट स्वरूप निवडून Flux कडे पाठवा."
+  },
+  "audioTrack": {
+    "message": "ऑडिओ ट्रॅक"
+  },
+  "subtitleTrack": {
+    "message": "उपशीर्षके"
+  },
+  "originalAudio": {
+    "message": "मूळ ऑडिओ"
+  },
+  "noSubtitles": {
+    "message": "उपशीर्षके नाहीत"
+  },
+  "queueCollection": {
+    "message": "संग्रह रांगेत जोडा"
+  },
+  "collectionHint": {
+    "message": "प्लेलिस्ट किंवा चॅनेलमधील जास्तीत जास्त 500 आयटम Flux डाउनलोड रांगेत पाठवा."
   }
 }

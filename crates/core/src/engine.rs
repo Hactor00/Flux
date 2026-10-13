@@ -69,6 +69,7 @@ struct Inner {
     closing: AtomicBool,
     global_limiter: Arc<Limiter>,
     refresh: Arc<crate::healing::RefreshBroker>,
+    torrents: crate::torrent::TorrentManager,
     completion: Mutex<crate::preferences::CompletionWatch>,
     _lock: std::fs::File,
 }
@@ -76,6 +77,7 @@ struct Inner {
 struct Job {
     cancel: CancellationToken,
     finished: watch::Receiver<bool>,
+    torrent: bool,
 }
 struct WorkerControl {
     part: Part,
@@ -127,6 +129,7 @@ impl Engine {
         Ok(Self(Arc::new(Inner {
             store,
             client,
+            torrents: crate::torrent::TorrentManager::new(data.clone(), downloads.clone()),
             data,
             downloads,
             category_root,
@@ -225,6 +228,44 @@ impl Engine {
         self.decode_credentials(&mut request)?;
         self.inspect_request(request).await
     }
+    pub async fn resolve_media_authenticated(
+        &self,
+        url: &str,
+        protected_credentials: Option<String>,
+    ) -> Result<crate::extractor::ResolvedMedia> {
+        let mut request = DownloadRequest {
+            url: url.into(),
+            filename: "inspection.mp4".into(),
+            protected_credentials,
+            ..Default::default()
+        };
+        self.decode_credentials(&mut request)?;
+        model::validate(&request)?;
+        crate::extractor::resolve_with_session(&request.url, &request.credentials).await
+    }
+    pub async fn resolve_collection_authenticated(
+        &self,
+        url: &str,
+        offset: usize,
+        limit: usize,
+        protected_credentials: Option<String>,
+    ) -> Result<crate::extractor::ResolvedCollection> {
+        let mut request = DownloadRequest {
+            url: url.into(),
+            filename: "collection.mp4".into(),
+            protected_credentials,
+            ..Default::default()
+        };
+        self.decode_credentials(&mut request)?;
+        model::validate(&request)?;
+        crate::extractor::resolve_collection_with_session(
+            &request.url,
+            offset,
+            limit,
+            &request.credentials,
+        )
+        .await
+    }
     pub async fn inspect_task_media(&self, id: &str) -> Result<crate::MediaInfo> {
         let task = self.task(id).await?;
         self.inspect_request(task.request).await
@@ -276,6 +317,12 @@ impl Engine {
     }
     pub async fn save_settings(&self, mut settings: Settings) -> Result<Settings> {
         settings.validate()?;
+        ensure!(
+            settings.speed_limit == 0
+                || settings.speed_limit >= 32768
+                || !self.0.active.lock().await.values().any(|job| job.torrent),
+            "The global limit must be at least 32768 bytes per second while torrents are active"
+        );
         if let Some(directory) = &settings.download_directory {
             fs::create_dir_all(directory).await?;
             settings.download_directory = Some(fs::canonicalize(directory).await?);
@@ -285,7 +332,8 @@ impl Engine {
             self.0.store.save_settings(settings.clone()).await?;
             completion.configure(settings.completion_action);
         }
-        self.0.global_limiter.set_rate(settings.speed_limit).await;
+        self.apply_global_budget(&*self.0.active.lock().await, settings.speed_limit)
+            .await?;
         Ok(settings)
     }
     pub async fn queue(&self, id: &str) -> Result<Task> {
@@ -330,6 +378,9 @@ impl Engine {
         let active = self.0.active.lock().await;
         ensure!(!active.contains_key(id), "Task is still active");
         let task = self.task(id).await?;
+        if crate::torrent::is_torrent(&task.request) {
+            self.0.torrents.remove_metadata(&task).await?;
+        }
         self.0.store.remove(id.to_owned()).await?;
         let dir = self.directory(id);
         if fs::try_exists(&dir).await? {
@@ -402,6 +453,97 @@ impl Engine {
         self.enqueue_id(uuid::Uuid::new_v4().to_string(), request)
             .await
     }
+    pub async fn import_torrent_file(
+        &self,
+        path: PathBuf,
+        filename: Option<String>,
+        directory: Option<PathBuf>,
+        start: bool,
+        options: Option<crate::TorrentOptions>,
+    ) -> Result<Task> {
+        let name = filename.unwrap_or_else(|| {
+            crate::preferences::safe_filename(
+                path.file_stem()
+                    .and_then(|stem| stem.to_str())
+                    .unwrap_or("Torrent"),
+            )
+        });
+        let request = DownloadRequest {
+            filename: name,
+            torrent: Some(options.unwrap_or_default()),
+            auto_rename: true,
+            ..Default::default()
+        };
+        self.import_torrent_request(path, request, directory, start)
+            .await
+    }
+    pub async fn import_torrent_request(
+        &self,
+        path: PathBuf,
+        mut request: DownloadRequest,
+        directory: Option<PathBuf>,
+        start: bool,
+    ) -> Result<Task> {
+        request.url = "https://example.invalid/import.torrent".into();
+        model::validate(&request)?;
+        let source = self.0.torrents.import_file(&path).await?;
+        let id = source
+            .strip_prefix("torrent:")
+            .context("Missing imported torrent ID")?
+            .to_owned();
+        request.url = source;
+        self.insert_request(
+            id,
+            &mut request,
+            if start {
+                Status::Queued
+            } else {
+                Status::Paused
+            },
+            directory,
+        )
+        .await
+    }
+    pub async fn set_torrent_options(
+        &self,
+        id: &str,
+        options: crate::TorrentOptions,
+        speed_limit: Option<u64>,
+    ) -> Result<Task> {
+        let previous = self.task(id).await?;
+        ensure!(
+            crate::torrent::is_torrent(&previous.request),
+            "Task is not a torrent"
+        );
+        ensure!(
+            !matches!(
+                previous.status,
+                Status::Complete | Status::Cancelled | Status::AwaitingApproval
+            ),
+            "Torrent options cannot change after completion or before approval"
+        );
+        let speed_limit = speed_limit.unwrap_or(previous.request.speed_limit);
+        crate::torrent::validate_options(&options, speed_limit)?;
+        if let Some(snapshot) = &previous.torrent {
+            ensure!(
+                options
+                    .only_files
+                    .iter()
+                    .all(|index| *index < snapshot.files.len()),
+                "Torrent file index is out of range"
+            );
+        }
+        let active = matches!(previous.status, Status::Running | Status::Verifying);
+        self.pause(id).await?;
+        let mut task = self.task(id).await?;
+        task.request.torrent = Some(options);
+        task.request.speed_limit = speed_limit;
+        self.0.store.save(task).await?;
+        if active {
+            self.start(id).await?;
+        }
+        self.task(id).await
+    }
     pub async fn enqueue_clipboard(&self, url: &str) -> Result<Task> {
         let mut request =
             crate::preferences::clipboard_request(url, self.settings().await?.connections)?;
@@ -419,6 +561,7 @@ impl Engine {
                     url: url.into(),
                     format_id: Some(format.id.clone()),
                     height: format.height,
+                    audio_format_id: None,
                 }),
                 audio_url: format.audio_url.clone(),
                 ..Default::default()
@@ -512,12 +655,14 @@ impl Engine {
                 total: None,
                 total_estimated: false,
                 media_progress: None,
+                torrent: None,
                 completed: 0,
                 etag: None,
                 ranged: false,
                 source_validated: false,
                 capture_url: None,
                 media_outputs: Vec::new(),
+                direct_write: false,
                 sha256: None,
                 error: None,
             });
@@ -641,6 +786,7 @@ impl Engine {
             .await?;
         let task = Task {
             media_outputs: Vec::new(),
+            direct_write: false,
             id,
             created_at: Some(epoch_seconds()),
             started_at: None,
@@ -656,6 +802,7 @@ impl Engine {
             total: None,
             total_estimated: false,
             media_progress: None,
+            torrent: None,
             completed: 0,
             etag: None,
             ranged: false,
@@ -791,6 +938,14 @@ impl Engine {
             !matches!(task.status, Status::AwaitingApproval | Status::Cancelled),
             "Download requires user approval"
         );
+        let settings = self.settings().await?;
+        ensure!(
+            settings.speed_limit == 0
+                || settings.speed_limit >= 32768
+                || !(crate::torrent::is_torrent(&task.request)
+                    || active.values().any(|job| job.torrent)),
+            "The global limit must be at least 32768 bytes per second while torrents are active"
+        );
         task.status = Status::Running;
         task.started_at.get_or_insert_with(epoch_seconds);
         task.source_validated = false;
@@ -805,14 +960,19 @@ impl Engine {
             Job {
                 cancel: cancel.clone(),
                 finished: receiver,
+                torrent: crate::torrent::is_torrent(&task.request),
             },
         );
+        self.apply_global_budget(&active, settings.speed_limit)
+            .await?;
         let engine = self.clone();
         tokio::spawn(async move {
             let result = engine.run(task.clone(), cancel.clone()).await;
             if let Err(error) = result {
                 task = engine.task(&task.id).await.unwrap_or(task);
-                if !crate::media::is_media(&task.request) {
+                if !crate::media::is_media(&task.request)
+                    && !crate::torrent::is_torrent(&task.request)
+                {
                     task.completed = engine
                         .0
                         .store
@@ -838,7 +998,18 @@ impl Engine {
                     eprintln!("Cannot persist task state: {e}");
                 }
             }
-            engine.0.active.lock().await.remove(&task.id);
+            {
+                let mut active = engine.0.active.lock().await;
+                active.remove(&task.id);
+                if let Ok(settings) = engine.settings().await {
+                    if let Err(error) = engine
+                        .apply_global_budget(&active, settings.speed_limit)
+                        .await
+                    {
+                        eprintln!("Cannot update transfer bandwidth allocation: {error:#}");
+                    }
+                }
+            }
             let _ = finished.send(true);
         });
         Ok(())
@@ -884,6 +1055,33 @@ impl Engine {
         for id in ids {
             self.pause(&id).await?;
         }
+        self.0.torrents.shutdown().await;
+        Ok(())
+    }
+    async fn apply_global_budget(&self, active: &HashMap<String, Job>, limit: u64) -> Result<()> {
+        let torrents = active.values().filter(|job| job.torrent).count() as u64;
+        let http = active.len() as u64 - torrents;
+        let torrent_budget = if limit == 0 || torrents == 0 {
+            0
+        } else if http == 0 {
+            limit.min(u32::MAX as u64)
+        } else {
+            limit
+                .saturating_mul(torrents)
+                .checked_div(torrents + http)
+                .unwrap_or(0)
+                .clamp(16384, limit.saturating_sub(1))
+                .min(u32::MAX as u64)
+        };
+        self.0.torrents.set_global_limit(torrent_budget).await?;
+        self.0
+            .global_limiter
+            .set_rate(if torrents == 0 {
+                limit
+            } else {
+                limit.saturating_sub(torrent_budget)
+            })
+            .await;
         Ok(())
     }
     fn directory(&self, id: &str) -> PathBuf {
@@ -919,16 +1117,57 @@ impl Engine {
             Some(crate::MediaProvider {
                 url: page.clone(),
                 format_id,
+                audio_format_id: None,
                 height: None,
             })
         });
-        let Some(provider) = provider else {
+        let Some(mut provider) = provider else {
             return Ok(false);
         };
-        let resolved = tokio::select! {
+        let mut result = tokio::select! {
             _ = cancel.cancelled() => bail!("Cancelled"),
-            result = crate::extractor::resolve(&provider.url) => result?,
+            result = crate::extractor::resolve_with_session(&provider.url, &task.request.credentials) => result,
         };
+        for _ in 0..2 {
+            let expired = result.as_ref().err().is_some_and(|error| {
+                let message = error.to_string().to_ascii_lowercase();
+                message.contains("expired")
+                    || [
+                        "http error 401",
+                        "http error 403",
+                        "http error 410",
+                        "401 unauthorized",
+                        "403 forbidden",
+                        "410 gone",
+                    ]
+                    .iter()
+                    .any(|status| message.contains(status))
+            });
+            if !expired {
+                break;
+            }
+            let Some(source) = &task.request.browser_source else {
+                break;
+            };
+            let fresh = self
+                .0
+                .refresh
+                .request(&task.id, source, &provider.url, cancel)
+                .await?;
+            provider.url = fresh.url;
+            for credential in fresh.credentials {
+                task.request
+                    .credentials
+                    .retain(|old| old.origin != credential.origin);
+                task.request.credentials.insert(0, credential);
+            }
+            task.request.credentials.truncate(8);
+            result = tokio::select! {
+                _ = cancel.cancelled() => bail!("Cancelled"),
+                result = crate::extractor::resolve_with_session(&provider.url, &task.request.credentials) => result,
+            };
+        }
+        let resolved = result?;
         let format = resolved
             .formats
             .iter()
@@ -958,12 +1197,22 @@ impl Engine {
             .media
             .as_mut()
             .context("Missing media options")?;
-        media.audio_url.clone_from(&format.audio_url);
+        if let Some(id) = &provider.audio_format_id {
+            let audio = resolved
+                .audio_tracks
+                .iter()
+                .find(|audio| &audio.id == id)
+                .context("Selected audio track is unavailable; choose a new audio track")?;
+            media.audio_url = Some(audio.url.clone());
+        } else {
+            media.audio_url.clone_from(&format.audio_url);
+        }
         media.video_stream = None;
         media.audio_stream = None;
         media.provider = Some(crate::MediaProvider {
             url: provider.url,
             format_id: Some(format.id.clone()),
+            audio_format_id: provider.audio_format_id,
             height: format.height,
         });
         task.total = if matches!(media.container.as_str(), "mp3" | "mka") {
@@ -977,6 +1226,19 @@ impl Engine {
     }
 
     async fn run(&self, mut task: Task, cancel: CancellationToken) -> Result<()> {
+        if crate::torrent::is_torrent(&task.request) {
+            let client = self.0.client.clone().with_healing(
+                self.0.refresh.clone(),
+                task.request.browser_source.as_ref(),
+                &task.id,
+                &cancel,
+            );
+            return self
+                .0
+                .torrents
+                .run(&mut task, &client, &self.0.store, &self.0.events, &cancel)
+                .await;
+        }
         let dir = self.directory(&task.id);
         fs::create_dir_all(&dir).await?;
         // Recover a crash between publication and the final database commit.
@@ -1237,6 +1499,10 @@ impl Engine {
             && task.etag == metadata.etag
             && task.total == metadata.total
             && !parts.is_empty();
+        let stage = crate::disk::staging_path(&task.destination, &task.id)?;
+        let legacy = reusable && !task.direct_write;
+        let stage_exists = fs::try_exists(&stage).await?;
+        crate::disk::prepare(&stage, metadata.total, !reusable || legacy || !stage_exists).await?;
         if !reusable {
             parts = if metadata.ranged {
                 let size = metadata.total.context("Missing range size")?;
@@ -1267,30 +1533,39 @@ impl Engine {
             task.ranged = metadata.ranged;
             task.completed = 0;
             task.sha256 = None;
+            task.direct_write = true;
             self.0.store.plan(task.clone(), parts.clone()).await?;
         }
         for part in &mut parts {
-            let path = dir.join(format!("{}.part", part.index));
+            let path = if legacy {
+                dir.join(format!("{}.part", part.index))
+            } else {
+                stage.clone()
+            };
+            let offset = if legacy { 0 } else { part.start };
             let valid = part.done > 0
                 && fs::metadata(&path)
                     .await
-                    .is_ok_and(|m| m.len() >= part.done);
-            if valid {
-                let file = OpenOptions::new().write(true).open(&path).await?;
-                file.set_len(part.done).await?;
-                if part.digest.as_deref() != Some(hash_file(&path).await?.as_str()) {
-                    part.done = 0;
-                    part.digest = None;
-                }
+                    .is_ok_and(|m| m.is_file() && m.len() >= offset + part.done);
+            let verified = if valid {
+                let hash = crate::disk::range_hasher(&path, offset, part.done).await?;
+                part.digest.as_deref() == Some(hex::encode(hash.finalize()).as_str())
             } else {
+                false
+            };
+            if verified && legacy {
+                let mut input = File::open(&path).await?.take(part.done);
+                let mut output = crate::disk::writer(&stage, part.start).await?;
+                tokio::io::copy(&mut input, &mut output).await?;
+                output.sync_data().await?;
+            }
+            if !verified {
                 part.done = 0;
                 part.digest = None;
             }
-            self.0
-                .store
-                .checkpoint(task.id.clone(), part.clone())
-                .await?;
         }
+        task.direct_write = true;
+        self.0.store.plan(task.clone(), parts.clone()).await?;
         let progress = Arc::new(AtomicU64::new(parts.iter().map(|p| p.done).sum()));
         let ticker_cancel = CancellationToken::new();
         let _ticker_guard = ticker_cancel.clone().drop_guard();
@@ -1464,41 +1739,18 @@ impl Engine {
         task.status = Status::Verifying;
         task.source_validated = true;
         self.0.store.save(task.clone()).await?;
-        let stage = dir.join("assembled");
-        let mut output = File::create(&stage).await?;
-        let mut hash = Sha256::new();
-        let mut buffer = vec![0u8; 65536];
-        for part in self.0.store.parts(&task.id).await? {
-            ensure!(!cancel.is_cancelled(), "Cancelled");
-            let path = dir.join(format!("{}.part", part.index));
-            ensure!(
-                part.digest.as_deref() == Some(hash_file(&path).await?.as_str()),
-                "Part integrity check failed"
-            );
-            let mut input = File::open(path).await?;
-            loop {
-                ensure!(!cancel.is_cancelled(), "Cancelled");
-                let n = input.read(&mut buffer).await?;
-                if n == 0 {
-                    break;
-                }
-                output.write_all(&buffer[..n]).await?;
-                hash.update(&buffer[..n]);
-            }
-        }
-        let digest = hex::encode(hash.finalize());
+        let output = OpenOptions::new().write(true).open(&stage).await?;
+        output.set_len(task.completed).await?;
+        output.sync_all().await?;
+        drop(output);
+        let checkpoints = self.0.store.parts(&task.id).await?;
+        let digest = crate::disk::verify(&stage, &checkpoints, task.completed, &cancel).await?;
         if let Some(expected) = &task.request.expected_sha256 {
             ensure!(
                 digest.eq_ignore_ascii_case(expected),
                 "SHA-256 mismatch; file was not published"
             );
         }
-        output.sync_all().await?;
-        drop(output);
-        ensure!(
-            fs::metadata(&stage).await?.len() == task.completed,
-            "Assembled size mismatch"
-        );
         task.sha256 = Some(digest);
         self.0.store.save(task.clone()).await?;
         self.publish(task, &stage, &dir, &cancel).await
@@ -1578,7 +1830,9 @@ impl Engine {
             .parent()
             .context("Missing destination directory")?;
         let publication = parent.join(format!(".flux-{}.staging", task.id));
-        if let Err(error) = fs::hard_link(stage, &task.destination).await {
+        if stage == publication {
+            publish_exclusive(stage, &task.destination).await?;
+        } else if let Err(error) = fs::hard_link(stage, &task.destination).await {
             ensure!(
                 error.kind() != std::io::ErrorKind::AlreadyExists
                     && !fs::try_exists(&task.destination).await?,
@@ -1638,22 +1892,15 @@ impl Engine {
             ref progress,
             ..
         } = context;
-        let path = self
-            .directory(&task.id)
-            .join(format!("{}.part", part.index));
-        let mut file = OpenOptions::new()
-            .create(true)
-            .truncate(false)
-            .write(true)
-            .read(true)
-            .open(&path)
-            .await?;
-        file.set_len(part.done).await?;
+        let path = crate::disk::staging_path(&task.destination, &task.id)?;
+        let mut hash = crate::disk::range_hasher(&path, part.start, part.done).await?;
+        let mut file = crate::disk::writer(&path, part.start + part.done).await?;
         use tokio::io::AsyncSeekExt;
-        file.seek(std::io::SeekFrom::Start(part.done)).await?;
         let mut result = Ok(());
         for attempt in 0..=http::MAX_RETRIES {
-            result = self.transfer(task, &mut part, &mut file, &context).await;
+            result = self
+                .transfer(task, &mut part, &mut file, &mut hash, &context)
+                .await;
             context.streaming.store(false, Ordering::Relaxed);
             if result.is_ok() || cancel.is_cancelled() {
                 break;
@@ -1668,6 +1915,7 @@ impl Engine {
                 progress.fetch_sub(part.done, Ordering::Relaxed);
                 part.done = 0;
                 context.local.store(0, Ordering::Relaxed);
+                hash = Sha256::new();
                 file.set_len(0).await?;
                 file.seek(std::io::SeekFrom::Start(0)).await?;
             }
@@ -1685,7 +1933,7 @@ impl Engine {
         }
         file.sync_all().await?;
         drop(file);
-        part.digest = Some(hash_file(&path).await?);
+        part.digest = Some(hex::encode(hash.finalize()));
         self.0.store.checkpoint(task.id.clone(), part).await?;
         ensure!(!cancel.is_cancelled(), "Cancelled");
         result
@@ -1695,6 +1943,7 @@ impl Engine {
         task: &Task,
         part: &mut Part,
         file: &mut File,
+        hash: &mut Sha256,
         context: &TransferContext,
     ) -> Result<()> {
         let TransferContext {
@@ -1801,6 +2050,7 @@ impl Engine {
                 limiter.acquire(slice.len(), cancel).await?;
                 self.0.global_limiter.acquire(slice.len(), cancel).await?;
                 file.write_all(slice).await?;
+                hash.update(slice);
                 part.done += slice.len() as u64;
                 local.store(part.done, Ordering::Relaxed);
                 progress.fetch_add(slice.len() as u64, Ordering::Relaxed);

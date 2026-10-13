@@ -122,5 +122,11 @@
   "moveHud": "Move download button",
   "nativeConsent": "Allow local data transfer go Flux",
   "nativeConsentExplain": "Send di download links wey you choose, page titles and needed cookies or authorization headers go Flux for dis computer. Na only to download di chosen file; no analytics data dey go anywhere. You fit remove dis permission here.",
-  "mediaReady": "Choose video quality and output format, then send am to Flux."
+  "mediaReady": "Choose video quality and output format, then send am to Flux.",
+  "audioTrack": "Audio track",
+  "subtitleTrack": "Subtitles",
+  "originalAudio": "Original audio",
+  "noSubtitles": "No subtitles",
+  "queueCollection": "Put collection for queue",
+  "collectionHint": "Send up to 500 playlist or channel items go Flux download queue."
 }

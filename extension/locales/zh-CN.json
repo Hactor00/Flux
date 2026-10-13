@@ -122,5 +122,11 @@
   "moveHud": "移动下载按钮",
   "nativeConsent": "允许向本机 Flux 传输数据",
   "nativeConsentExplain": "将所选下载链接、页面标题及必要的 Cookie 或授权标头发送到本机 Flux，仅用于下载所选文件，不发送分析数据。您可在此撤销许可。",
-  "mediaReady": "选择视频画质和输出格式，然后发送到 Flux。"
+  "mediaReady": "选择视频画质和输出格式，然后发送到 Flux。",
+  "audioTrack": "音轨",
+  "subtitleTrack": "字幕",
+  "originalAudio": "原始音频",
+  "noSubtitles": "无字幕",
+  "queueCollection": "加入合集队列",
+  "collectionHint": "将播放列表或频道中的最多500个项目发送到Flux下载队列。"
 }

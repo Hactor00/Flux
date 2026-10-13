@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "Escolha a qualidade do vídeo e o formato de saída e envie para o Flux."
+  },
+  "audioTrack": {
+    "message": "Faixa de áudio"
+  },
+  "subtitleTrack": {
+    "message": "Legendas"
+  },
+  "originalAudio": {
+    "message": "Áudio original"
+  },
+  "noSubtitles": {
+    "message": "Sem legendas"
+  },
+  "queueCollection": {
+    "message": "Adicionar coleção à fila"
+  },
+  "collectionHint": {
+    "message": "Envie até 500 itens de uma playlist ou canal para a fila de downloads do Flux."
   }
 }

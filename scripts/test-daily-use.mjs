@@ -62,6 +62,7 @@ await new Promise((r) => reservation.close(r));
 const env = {
   ...process.env,
   LOCALAPPDATA: root,
+  WEBVIEW2_USER_DATA_FOLDER: join(root, "webview"),
   WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1`,
 };
 const app = spawn(join(binary, "flux-desktop.exe"), [], {

@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "Choose the video quality and output format, then send it to Flux."
+  },
+  "audioTrack": {
+    "message": "Audio track"
+  },
+  "subtitleTrack": {
+    "message": "Subtitles"
+  },
+  "originalAudio": {
+    "message": "Original audio"
+  },
+  "noSubtitles": {
+    "message": "No subtitles"
+  },
+  "queueCollection": {
+    "message": "Queue collection"
+  },
+  "collectionHint": {
+    "message": "Send up to 500 playlist or channel items to the Flux download queue."
   }
 }

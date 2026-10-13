@@ -1,6 +1,6 @@
 //! Versioned, bounded framing shared by the loopback broker and Native Messaging host.
 use crate::{DownloadRequest, Engine};
-use anyhow::{ensure, Result};
+use anyhow::{ensure, Context, Result};
 use serde::{Deserialize, Serialize};
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
@@ -22,6 +22,15 @@ pub enum Command {
     Propose(Box<DownloadRequest>),
     Resolve {
         url: String,
+        #[serde(default)]
+        protected_credentials: Option<String>,
+    },
+    ResolveCollection {
+        url: String,
+        offset: usize,
+        limit: usize,
+        #[serde(default)]
+        protected_credentials: Option<String>,
     },
     List,
     Pause {
@@ -45,6 +54,11 @@ pub enum Command {
     },
     Task {
         id: String,
+    },
+    TorrentFiles {
+        id: String,
+        offset: usize,
+        limit: usize,
     },
     RefreshPoll,
     RefreshSubmit {
@@ -80,18 +94,50 @@ pub async fn dispatch(engine: &Engine, request: Request) -> Response {
         ensure!(request.version == VERSION, "Unsupported protocol version");
         uuid::Uuid::parse_str(&request_id)?;
         let value = match request.command {
-            Command::Resolve { url } => {
-                serde_json::to_value(crate::extractor::resolve(&url).await?)?
-            }
+            Command::Resolve {
+                url,
+                protected_credentials,
+            } => serde_json::to_value(
+                engine
+                    .resolve_media_authenticated(&url, protected_credentials)
+                    .await?,
+            )?,
+            Command::ResolveCollection {
+                url,
+                offset,
+                limit,
+                protected_credentials,
+            } => serde_json::to_value(
+                engine
+                    .resolve_collection_authenticated(&url, offset, limit, protected_credentials)
+                    .await?,
+            )?,
             Command::Propose(input) => {
-                serde_json::to_value(engine.propose_id(request_id.clone(), *input).await?)?
+                serde_json::to_value(engine.propose_id(request_id.clone(), *input).await?.summary())?
             }
             Command::Add(input) => {
                 let task = engine.enqueue_id(request_id.clone(), *input).await?;
-                serde_json::to_value(engine.task(&task.id).await?)?
+                serde_json::to_value(engine.task(&task.id).await?.summary())?
             }
             Command::List => task_page(engine, 0, 50).await?["tasks"].clone(),
-            Command::Task { id } => serde_json::to_value(engine.task(&id).await?)?,
+            Command::Task { id } => serde_json::to_value(engine.task(&id).await?.summary())?,
+            Command::TorrentFiles { id, offset, limit } => {
+                ensure!((1..=50).contains(&limit), "File page size must be between 1 and 50");
+                let task = engine.task(&id).await?;
+                let torrent = task.torrent.context("Task has no torrent metadata")?;
+                let total = torrent.files.len();
+                let mut files = Vec::new();
+                let mut bytes = 2048;
+                for file in torrent.files.into_iter().skip(offset).take(limit) {
+                    let size = serde_json::to_vec(&file)?.len();
+                    if bytes + size > MAX_FRAME - 2048 { break; }
+                    bytes += size;
+                    files.push(file);
+                }
+                ensure!(!files.is_empty() || offset >= total, "Torrent filename exceeds the frame limit");
+                let next = offset.saturating_add(files.len());
+                serde_json::json!({"files":files,"total":total,"next_offset":next,"has_more":next<total})
+            },
             Command::RefreshPoll => serde_json::to_value(engine.refresh_poll().await)?,
             Command::RefreshSubmit {
                 ticket,
@@ -107,8 +153,8 @@ pub async fn dispatch(engine: &Engine, request: Request) -> Response {
             Command::Protect { .. } => {
                 anyhow::bail!("Credential protection is handled by the native host")
             }
-            Command::Pause { id } => serde_json::to_value(engine.pause(&id).await?)?,
-            Command::Resume { id } => serde_json::to_value(engine.queue(&id).await?)?,
+            Command::Pause { id } => serde_json::to_value(engine.pause(&id).await?.summary())?,
+            Command::Resume { id } => serde_json::to_value(engine.queue(&id).await?.summary())?,
             Command::Inspect {
                 url,
                 referer,
@@ -126,6 +172,7 @@ pub async fn dispatch(engine: &Engine, request: Request) -> Response {
                 task_page(engine, offset, limit).await?
             }
         };
+        ensure!(serde_json::to_vec(&value)?.len() <= MAX_FRAME - 1024, "Response metadata exceeds the native frame limit");
         anyhow::Ok(value)
     }
     .await;
@@ -152,6 +199,7 @@ async fn task_page(engine: &Engine, offset: usize, limit: usize) -> Result<serde
     let mut bounded = Vec::new();
     let mut size = 2048usize;
     for task in tasks {
+        let task = task.summary();
         let bytes = serde_json::to_vec(&task)?;
         if size + bytes.len() + 1 > MAX_FRAME {
             break;

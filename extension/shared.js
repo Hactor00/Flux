@@ -1,5 +1,52 @@
 export const HOST = "io.flux.download";
 export const MAX_CANDIDATES = 80;
+export function isProviderUrl(value) {
+  try {
+    const url = new URL(value);
+    if (!/^https?:$/.test(url.protocol) || url.username || url.password)
+      return false;
+    return [
+      "youtube.com",
+      "youtube-nocookie.com",
+      "youtu.be",
+      "vimeo.com",
+      "dailymotion.com",
+      "dai.ly",
+      "twitch.tv",
+      "soundcloud.com",
+      "bandcamp.com",
+      "facebook.com",
+      "fb.watch",
+      "instagram.com",
+      "tiktok.com",
+      "reddit.com",
+      "redd.it",
+      "twitter.com",
+      "x.com",
+      "bilibili.com",
+      "ted.com",
+      "archive.org",
+    ].some(
+      (domain) =>
+        url.hostname === domain || url.hostname.endsWith(`.${domain}`),
+    );
+  } catch {
+    return false;
+  }
+}
+export function isCollectionUrl(value) {
+  if (!isProviderUrl(value)) return false;
+  const url = new URL(value);
+  return (
+    url.searchParams.has("list") ||
+    /^\/(?:playlist|channel\/|c\/|user\/|@[^/]+(?:\/(?:videos|shorts|streams))?\/?$)/.test(
+      url.pathname,
+    ) ||
+    /\/(?:sets|albums?|showcase|videos|collection|playlists)(?:\/|$)/.test(
+      url.pathname,
+    )
+  );
+}
 export function mediaKind(url, contentType = "") {
   let parsed;
   try {
@@ -45,22 +92,39 @@ export function safeFilename(url, suggested, media = false) {
 }
 export function makeInput(url, options = {}) {
   const parsed = new URL(url);
+  const magnet = parsed.protocol === "magnet:";
   if (
-    !/^https?:$/.test(parsed.protocol) ||
+    (!/^https?:$/.test(parsed.protocol) && !magnet) ||
     parsed.username ||
     parsed.password ||
     url.length > 16384
   )
-    throw new Error("Invalid HTTP(S) URL");
+    throw new Error("Invalid download URL");
+  if (
+    magnet &&
+    (parsed.host ||
+      parsed.pathname ||
+      !parsed.searchParams
+        .getAll("xt")
+        .some((value) =>
+          /^urn:btih:(?:[a-f\d]{40}|[a-z2-7]{32})$/i.test(value),
+        ))
+  )
+    throw new Error("Invalid BitTorrent v1 magnet");
   const kind = mediaKind(url);
-  const media =
-    options.media ||
-    (kind === "hls" || kind === "dash" ? { container: "mp4" } : null);
+  const media = magnet
+    ? null
+    : options.media ||
+      (kind === "hls" || kind === "dash" ? { container: "mp4" } : null);
   let referer = options.referer || null;
   if (referer && !/^https?:\/\//i.test(referer)) referer = null;
   return {
     url,
-    filename: safeFilename(url, options.filename, media?.container || false),
+    filename: safeFilename(
+      url,
+      options.filename || (magnet ? parsed.searchParams.get("dn") : null),
+      media?.container || false,
+    ),
     connections: options.connections ?? 0,
     speed_limit: 0,
     expected_sha256: null,
@@ -68,6 +132,16 @@ export function makeInput(url, options = {}) {
     start_at: null,
     stop_at: null,
     media,
+    ...(magnet
+      ? {
+          torrent: {
+            upload_limit: 0,
+            peer_limit: 80,
+            only_files: [],
+            initial_peers: [],
+          },
+        }
+      : {}),
     referer,
     auto_rename: true,
     browser_source: referer ? { page_url: referer } : null,

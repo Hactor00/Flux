@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "Elige la calidad del vídeo y el formato de salida y envíalo a Flux."
+  },
+  "audioTrack": {
+    "message": "Pista de audio"
+  },
+  "subtitleTrack": {
+    "message": "Subtítulos"
+  },
+  "originalAudio": {
+    "message": "Audio original"
+  },
+  "noSubtitles": {
+    "message": "Sin subtítulos"
+  },
+  "queueCollection": {
+    "message": "Añadir colección a la cola"
+  },
+  "collectionHint": {
+    "message": "Envía hasta 500 elementos de una lista o canal a la cola de descargas de Flux."
   }
 }

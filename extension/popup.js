@@ -1,6 +1,7 @@
 import { getBrowserApi } from "./browser-api.js";
 const api = getBrowserApi();
 import { localize, t } from "./i18n.js";
+import { isProviderUrl, isCollectionUrl, mediaKind } from "./shared.js";
 
 let links = [];
 
@@ -28,7 +29,7 @@ function item(name, detail, action) {
 
   if (action) {
     const button = document.createElement("button");
-    button.textContent = "â†“";
+    button.textContent = "↓";
     button.setAttribute("aria-label", t("start"));
     button.addEventListener("click", async () => {
       button.disabled = true;
@@ -81,6 +82,8 @@ async function renderMedia(candidates, tab, parent) {
     (candidate) =>
       candidate.kind === "hls" ||
       candidate.kind === "dash" ||
+      (candidate.source === "dom" &&
+        /^audio\//i.test(candidate.contentType || "")) ||
       (/^video\//i.test(candidate.contentType || "") &&
         !/\.(ts|m4s)(?:\?|$)/i.test(candidate.url) &&
         !/video\/mp2t/i.test(candidate.contentType || "")),
@@ -98,9 +101,16 @@ async function renderMedia(candidates, tab, parent) {
         tabId: tab.id,
         referer: tab.url,
       });
-      return info.streams
-        .filter((stream) => stream.codec_type === "video")
-        .map((stream) => ({ source, stream }));
+      const videos = info.streams.filter(
+        (stream) => stream.codec_type === "video",
+      );
+      return (
+        videos.length
+          ? videos
+          : info.streams
+              .filter((stream) => stream.codec_type === "audio")
+              .slice(0, 1)
+      ).map((stream) => ({ source, stream }));
     }),
   );
   const variants = results
@@ -112,6 +122,7 @@ async function renderMedia(candidates, tab, parent) {
         tab.title || t("downloadMedia"),
         [
           stream.height ? `${stream.height}p` : t("automatic"),
+          stream.fps ? `${stream.fps.toFixed(2).replace(/\.00$/, "")} fps` : "",
           stream.codec_name,
         ]
           .filter(Boolean)
@@ -123,8 +134,16 @@ async function renderMedia(candidates, tab, parent) {
             options: {
               tabId: tab.id,
               referer: tab.url,
-              filename: (tab.title || "Video") + ".mp4",
-              media: { container: "mp4", video_stream: stream.index },
+              filename:
+                (tab.title || "Media") +
+                (stream.codec_type === "audio" ? ".mp3" : ".mp4"),
+              media: {
+                container: stream.codec_type === "audio" ? "mp3" : "mp4",
+                video_stream:
+                  stream.codec_type === "video" ? stream.index : null,
+                audio_stream:
+                  stream.codec_type === "audio" ? stream.index : null,
+              },
             },
           }),
       ),
@@ -151,7 +170,12 @@ function renderLinks() {
     const row = item(url, new URL(url).hostname);
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
-    checkbox.checked = true;
+    checkbox.checked =
+      !!mediaKind(url) ||
+      isProviderUrl(url) ||
+      /\.(zip|7z|rar|exe|msi|apk|iso|pdf|epub|dmg|deb|rpm)(?:[?#]|$)/i.test(
+        url,
+      );
     checkbox.value = url;
     checkbox.setAttribute("aria-label", url);
     row.prepend(checkbox);
@@ -199,13 +223,34 @@ document
     event.target.disabled = true;
 
     try {
-      for (const checkbox of document.querySelectorAll("#links input:checked"))
-        await send({
-          type: "enqueue",
-          url: checkbox.value,
-          options: { tabId: currentTab?.id, referer: currentTab?.url },
-        });
+      await send({
+        type: "enqueue-batch",
+        urls: [...document.querySelectorAll("#links input:checked")].map(
+          (checkbox) => checkbox.value,
+        ),
+        tabId: currentTab?.id,
+        referer: currentTab?.url,
+      });
       document.getElementById("message").textContent = t("sentToDesktop");
+    } catch (error) {
+      document.getElementById("message").textContent = error.message;
+    } finally {
+      event.target.disabled = false;
+    }
+  });
+document
+  .getElementById("download-collection")
+  .addEventListener("click", async (event) => {
+    event.target.disabled = true;
+    document.getElementById("message").textContent = t("inspecting");
+    try {
+      await send({
+        type: "enqueue-collection",
+        url: currentTab.url,
+        tabId: currentTab.id,
+      });
+      document.getElementById("message").textContent = t("sentToDesktop");
+      await refresh();
     } catch (error) {
       document.getElementById("message").textContent = error.message;
     } finally {
@@ -219,15 +264,27 @@ try {
   currentTab = tab;
 
   if (tab) {
+    document.getElementById("collection-section").hidden = !isCollectionUrl(
+      tab.url,
+    );
+    try {
+      await api.tabs.sendMessage(
+        tab.id,
+        { type: "capture-links" },
+        { frameId: 0 },
+      );
+    } catch {}
     const candidates = await send({ type: "candidates", tabId: tab.id });
     const parent = document.getElementById("media");
 
-    if (
-      /youtube(?:-nocookie)?\.com\/(watch|shorts|embed)/.test(tab.url || "")
-    ) {
+    if (isProviderUrl(tab.url) && !isCollectionUrl(tab.url)) {
       parent.append(item(tab.title || t("downloadMedia"), t("inspecting")));
 
-      const resolved = await send({ type: "resolve", url: tab.url });
+      const resolved = await send({
+        type: "resolve",
+        url: tab.url,
+        tabId: tab.id,
+      });
       parent.replaceChildren();
 
       for (const format of resolved.formats)
@@ -247,6 +304,7 @@ try {
                     provider: {
                       url: tab.url,
                       format_id: format.id,
+                      audio_format_id: null,
                       height: format.height,
                     },
                     container: format.container,

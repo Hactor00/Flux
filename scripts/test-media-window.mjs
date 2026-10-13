@@ -2,7 +2,14 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { createServer } from "node:http";
-import { mkdtemp, mkdir, readFile, writeFile, readdir } from "node:fs/promises";
+import {
+  mkdtemp,
+  mkdir,
+  readFile,
+  writeFile,
+  readdir,
+  access,
+} from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
@@ -10,6 +17,17 @@ import { DatabaseSync } from "node:sqlite";
 import { DesktopDriver } from "./desktop-driver.mjs";
 
 const binary = resolve(process.argv[2] || "target/release");
+let probeExecutable = process.env.FLUX_FFPROBE;
+if (!probeExecutable) {
+  const bundledProbe = join(binary, "ffprobe.exe");
+  try {
+    await access(bundledProbe);
+    probeExecutable = bundledProbe;
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+    probeExecutable = "ffprobe";
+  }
+}
 const suite = process.argv.includes("--suite");
 const root = await mkdtemp(join(tmpdir(), "flux-media-window-"));
 const data = join(root, "Flux"),
@@ -80,6 +98,7 @@ const driver = new DesktopDriver(port);
 const env = {
   ...process.env,
   LOCALAPPDATA: root,
+  WEBVIEW2_USER_DATA_FOLDER: join(root, "webview"),
   WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1`,
 };
 const app = spawn(join(binary, "flux-desktop.exe"), [], {
@@ -96,6 +115,18 @@ const host = spawn(join(binary, "flux-native-host.exe"), [origin], {
 });
 let buffer = Buffer.alloc(0);
 const pending = new Map();
+let hostErrors = "";
+host.stderr.on("data", (bytes) => {
+  hostErrors = (hostErrors + bytes.toString("utf8")).slice(-65536);
+});
+host.once("exit", (code) => {
+  for (const callback of pending.values())
+    callback({
+      ok: false,
+      error: `Native host exited with code ${code}: ${hostErrors.replaceAll(root, "<test-profile>")}`,
+    });
+  pending.clear();
+});
 host.stdout.on("data", (chunk) => {
   buffer = Buffer.concat([buffer, chunk]);
   while (buffer.length >= 4 && buffer.length >= buffer.readUInt32LE(0) + 4) {
@@ -109,10 +140,17 @@ host.stdout.on("data", (chunk) => {
 const call = (command, payload) =>
   new Promise((accept, reject) => {
     const request_id = randomUUID(),
-      timer = setTimeout(() => {
-        pending.delete(request_id);
-        reject(Error("Native media test timed out"));
-      }, 15000);
+      timer = setTimeout(
+        () => {
+          pending.delete(request_id);
+          reject(
+            Error(
+              `Native media command ${command} timed out: ${hostErrors.replaceAll(root, "<test-profile>") || "no host stderr output"}`,
+            ),
+          );
+        },
+        command === "inspect" ? 55000 : 15000,
+      );
     pending.set(request_id, (value) => {
       clearTimeout(timer);
       value.ok ? accept(value.result) : reject(Error(value.error));
@@ -126,6 +164,24 @@ const call = (command, payload) =>
   });
 let healingTimer;
 try {
+  const startup = Date.now() + 60000;
+  while (true) {
+    try {
+      JSON.parse(await readFile(join(data, "broker.json"), "utf8"));
+      break;
+    } catch {
+      assert.equal(
+        app.exitCode,
+        null,
+        "The media test desktop exited during startup",
+      );
+      assert.ok(
+        Date.now() < startup,
+        "The media test broker did not become ready",
+      );
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+  }
   const main = await driver.connect("main");
   let renewalCount = 0;
   let healingBusy = false;
@@ -258,13 +314,16 @@ try {
   assert.ok(list.total.includes("≈ "));
   assert.ok(popup.timing.includes("Parçalar:"));
   assert.ok(popup.timing.includes("İndirilen medya süresi:"));
+  await details.evaluate(
+    `(()=>{const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);while(walker.nextNode()){const node=walker.currentNode;if(node.textContent.includes(${JSON.stringify(root)}))node.textContent=node.textContent.replaceAll(${JSON.stringify(root)},'<test-profile>');}return true;})()`,
+  );
   const screenshot = await details.call("Page.captureScreenshot", {
     format: "png",
   });
   await writeFile(
     suite
       ? "docs/images/media-suite-progress-1.5.png"
-      : "docs/images/media-progress-1.4.png",
+      : "docs/images/media-progress-2.0.png",
     Buffer.from(screenshot.data, "base64"),
   );
   const paused = await call("pause", { id: task.id });
@@ -280,7 +339,7 @@ try {
   assert.equal(current.total_estimated, false);
   assert.equal(current.total, current.completed);
   const probe = spawn(
-    join(binary, "ffprobe.exe"),
+    probeExecutable,
     [
       "-v",
       "error",

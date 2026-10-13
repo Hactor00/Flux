@@ -10,7 +10,7 @@
 !macro NSIS_HOOK_POSTINSTALL
   ExecWait '"$INSTDIR\flux-desktop.exe" --register-browser' $0
   ${If} $0 != 0
-    DetailPrint "Chrome, Edge, Chromium and Firefox bridge registration failed ($0). Reconnect from Flux settings."
+    DetailPrint "Chrome, Edge, Brave, Chromium and Firefox bridge registration failed ($0). Reconnect from Flux settings."
   ${EndIf}
 !macroend
 

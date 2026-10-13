@@ -22,6 +22,7 @@ $previousPath = $env:PATH
 $keys = @(
     'HKCU:/Software/Google/Chrome/NativeMessagingHosts/io.flux.download',
     'HKCU:/Software/Microsoft/Edge/NativeMessagingHosts/io.flux.download',
+    'HKCU:/Software/BraveSoftware/Brave-Browser/NativeMessagingHosts/io.flux.download',
     'HKCU:/Software/Chromium/NativeMessagingHosts/io.flux.download',
     'HKCU:/Software/Mozilla/NativeMessagingHosts/io.flux.download'
 )
@@ -35,8 +36,11 @@ try {
     foreach ($name in @('flux-desktop.exe','flux-native-host.exe','flux-cli.exe','ffmpeg.exe','ffprobe.exe','yt-dlp.exe','node.exe','libunwind.dll','WebView2Loader.dll','extension/manifest.json','extension-firefox/manifest.json','extension-firefox-modern/manifest.json')) {
         if (-not (Test-Path -LiteralPath "$installDirectory/$name")) { throw "Installer omitted: $name" }
     }
+    foreach ($name in @('flux-desktop.exe','flux-native-host.exe','flux-cli.exe','ffmpeg.exe','ffprobe.exe','yt-dlp.exe','node.exe','libunwind.dll','WebView2Loader.dll')) {
+        if ((Get-FileHash -LiteralPath "$installDirectory/$name").Hash -ne (Get-FileHash -LiteralPath "$workspace/target/release/$name").Hash) { throw "Installed executable differs from the current build: $name" }
+    }
     foreach ($folder in 'extension','extension-firefox','extension-firefox-modern') {
-        foreach ($name in 'manifest.json','browser-api.js','background.js','bridge.js','content.js','healing.js','locales/en-US.json','locales/tr-TR.json') {
+        foreach ($name in 'manifest.json','browser-api.js','background.js','bridge.js','content.js','media-observer.js','session.js','healing.js','locales/en-US.json','locales/tr-TR.json') {
             if ((Get-FileHash -LiteralPath "$installDirectory/$folder/$name").Hash -ne (Get-FileHash -LiteralPath "$workspace/$folder/$name").Hash) { throw "Installed extension differs from validated source: $folder/$name" }
         }
     }
@@ -66,6 +70,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Installed native window regression failed.' }
     & $nodeExecutable "$workspace/scripts/test-media-window.mjs" $installDirectory
     if ($LASTEXITCODE -ne 0) { throw 'Installed adaptive media progress regression failed.' }
+    & $nodeExecutable "$workspace/scripts/test-torrent-window.mjs" $installDirectory
+    if ($LASTEXITCODE -ne 0) { throw 'Installed native torrent regression failed.' }
     & "$installDirectory/ffmpeg.exe" -version | Select-Object -First 1
     if ($LASTEXITCODE -ne 0) { throw 'Bundled FFmpeg failed.' }
     & "$installDirectory/yt-dlp.exe" --version
@@ -123,5 +129,8 @@ $report.registry_restoration_verified = $true
 $report.firefox_registration_verified = $true
 $report.idempotent_repair_remove_verified = $true
 $report.installed_extension_sources_verified = $true
+$report.installed_binary_hashes_verified = $true
+$report.native_torrent_window_verified = $true
+$report.native_browser_bindings_verified = 5
 $report | ConvertTo-Json | Set-Content -LiteralPath "$workspace/docs/validation/installer.json" -Encoding utf8
 Write-Output ($report | ConvertTo-Json -Compress)

@@ -24,6 +24,8 @@ pub struct MediaStream {
     pub codec_name: String,
     pub width: Option<u32>,
     pub height: Option<u32>,
+    #[serde(default)]
+    pub fps: Option<f64>,
     pub language: Option<String>,
     pub title: Option<String>,
 }
@@ -160,7 +162,7 @@ pub async fn inspect_media(url: &str, referer: Option<&str>) -> Result<MediaInfo
         model::validate_url(referer)?;
     }
     let mut command = command("ffprobe");
-    command.args(["-v", "error", "-print_format", "json", "-show_entries", "stream=index,codec_name,codec_type,width,height:stream_tags=language,title:format=duration,format_name:chapter=start_time,end_time:chapter_tags=title"]);
+    command.args(["-v", "error", "-print_format", "json", "-show_entries", "stream=index,codec_name,codec_type,width,height,avg_frame_rate,r_frame_rate:stream_tags=language,title:format=duration,format_name:chapter=start_time,end_time:chapter_tags=title"]);
     input_options(&mut command, referer);
     hls_options(&mut command, "ffprobe").await?;
     command.arg(url);
@@ -191,6 +193,14 @@ pub async fn inspect_media(url: &str, referer: Option<&str>) -> Result<MediaInfo
                 codec_name: stream["codec_name"].as_str().unwrap_or("unknown").into(),
                 width: stream["width"].as_u64().map(|v| v as u32),
                 height: stream["height"].as_u64().map(|v| v as u32),
+                fps: ["avg_frame_rate", "r_frame_rate"]
+                    .into_iter()
+                    .find_map(|key| {
+                        let (numerator, denominator) = stream[key].as_str()?.split_once('/')?;
+                        let rate =
+                            numerator.parse::<f64>().ok()? / denominator.parse::<f64>().ok()?;
+                        (rate.is_finite() && rate > 0.0 && rate <= 1000.0).then_some(rate)
+                    }),
                 language: stream["tags"]["language"]
                     .as_str()
                     .map(|value| value.chars().take(128).collect()),

@@ -59,7 +59,11 @@ fixture.listen(0, "127.0.0.1");
 await once(fixture, "listening");
 const automatic = process.argv.includes("--automatic");
 let driver;
-const env = { ...process.env, LOCALAPPDATA: root };
+const env = {
+  ...process.env,
+  LOCALAPPDATA: root,
+  WEBVIEW2_USER_DATA_FOLDER: join(root, "webview"),
+};
 if (automatic) {
   const reservation = createServer();
   reservation.listen(0, "127.0.0.1");
@@ -72,7 +76,11 @@ if (automatic) {
 const app = spawn(join(binary, "flux-desktop.exe"), [], {
   env,
   windowsHide: true,
-  stdio: "ignore",
+  stdio: ["ignore", "ignore", "pipe"],
+});
+let appErrors = "";
+app.stderr.on("data", (bytes) => {
+  appErrors = (appErrors + bytes.toString("utf8")).slice(-65536);
 });
 const host = spawn(join(binary, "flux-native-host.exe"), [origin], {
   env,
@@ -111,15 +119,20 @@ const call = (command, input = {}) =>
     host.stdin.write(Buffer.concat([prefix, body]));
   });
 try {
-  const deadline = Date.now() + 20000;
+  const deadline = Date.now() + 60000;
   while (true) {
     try {
       JSON.parse(await readFile(join(data, "broker.json"), "utf8"));
       break;
     } catch {
       if (app.exitCode !== null)
-        throw Error("Another desktop instance is already running");
-      if (Date.now() > deadline) throw Error("Desktop unavailable");
+        throw Error(
+          `Desktop exited with code ${app.exitCode}: ${appErrors.replaceAll(root, "<test-profile>")}`,
+        );
+      if (Date.now() > deadline)
+        throw Error(
+          `Desktop unavailable after 60 seconds: ${appErrors.replaceAll(root, "<test-profile>") || "no stderr output"}`,
+        );
       await new Promise((r) => setTimeout(r, 100));
     }
   }

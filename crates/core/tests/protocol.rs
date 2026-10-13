@@ -2,6 +2,96 @@ use flux_core::protocol::{self, Command, Request, VERSION};
 use tokio::io::AsyncWriteExt;
 
 #[tokio::test]
+async fn large_torrent_lists_use_compact_tasks_and_bounded_file_pages() {
+    let root = tempfile::tempdir().unwrap();
+    let engine = flux_core::Engine::open(root.path().join("data"), root.path().join("out"))
+        .await
+        .unwrap();
+    let task = engine
+        .enqueue(flux_core::DownloadRequest {
+            url: "https://example.invalid/file".into(),
+            filename: "snapshot.bin".into(),
+            ..Default::default()
+        })
+        .await
+        .unwrap();
+    let files: Vec<_> = (0..2500)
+        .map(|index| flux_core::TorrentFile {
+            index,
+            path: format!("directory/{index}-{}.bin", "x".repeat(100)),
+            length: 16384,
+            selected: true,
+            sha256: None,
+        })
+        .collect();
+    let torrent = flux_core::TorrentSnapshot {
+        info_hash: "a".repeat(40),
+        state: "paused".into(),
+        peers: 0,
+        uploaded: 0,
+        upload_bps: 0,
+        file_count: files.len(),
+        files,
+    };
+    let database = rusqlite::Connection::open(root.path().join("data/tasks.sqlite")).unwrap();
+    database
+        .execute(
+            "UPDATE tasks SET body=json_set(body,'$.torrent',json(?2)) WHERE id=?1",
+            rusqlite::params![task.id, serde_json::to_string(&torrent).unwrap()],
+        )
+        .unwrap();
+    drop(database);
+    assert!(
+        serde_json::to_vec(&engine.task(&task.id).await.unwrap())
+            .unwrap()
+            .len()
+            > protocol::MAX_FRAME
+    );
+    let response = protocol::dispatch(
+        &engine,
+        Request {
+            version: VERSION,
+            request_id: uuid::Uuid::new_v4().to_string(),
+            command: Command::Task {
+                id: task.id.clone(),
+            },
+        },
+    )
+    .await;
+    assert!(response.ok, "{:?}", response.error);
+    assert!(serde_json::to_vec(&response).unwrap().len() < protocol::MAX_FRAME);
+    let value = response.result.unwrap();
+    assert_eq!(value["torrent"]["file_count"], 2500);
+    assert!(value["torrent"]["files"].as_array().unwrap().is_empty());
+    let mut offset = 0;
+    while offset < 2500 {
+        let response = protocol::dispatch(
+            &engine,
+            Request {
+                version: VERSION,
+                request_id: uuid::Uuid::new_v4().to_string(),
+                command: Command::TorrentFiles {
+                    id: task.id.clone(),
+                    offset,
+                    limit: 50,
+                },
+            },
+        )
+        .await;
+        assert!(response.ok, "{:?}", response.error);
+        assert!(serde_json::to_vec(&response).unwrap().len() < protocol::MAX_FRAME);
+        let value = response.result.unwrap();
+        let page = value["files"].as_array().unwrap();
+        assert_eq!(page.len(), 50);
+        for (position, file) in page.iter().enumerate() {
+            assert_eq!(file["index"].as_u64().unwrap() as usize, offset + position);
+        }
+        offset = value["next_offset"].as_u64().unwrap() as usize;
+    }
+    engine.shutdown().await.unwrap();
+}
+
+#[tokio::test]
 async fn history_pages_stay_below_native_frame_limit_without_losing_tasks() {
     use flux_core::{DownloadRequest, Engine};
     let root = tempfile::tempdir().unwrap();

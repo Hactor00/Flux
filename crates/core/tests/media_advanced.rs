@@ -335,8 +335,18 @@ async fn media_pause_resumes_verified_cache_ranges_and_obeys_speed_limit() {
             let cache = f.data.join("parts").join(&task.id).join("media-cache");
             let received = std::fs::read_dir(cache).is_ok_and(|entries| {
                 entries.filter_map(Result::ok).any(|entry| {
-                    entry.path().extension().is_some_and(|ext| ext == "cache")
-                        && entry.metadata().is_ok_and(|meta| meta.len() > 4096)
+                    entry.path().extension().is_some_and(|ext| ext == "json")
+                        && std::fs::read(entry.path()).is_ok_and(|bytes| {
+                            serde_json::from_slice::<serde_json::Value>(&bytes).is_ok_and(
+                                |checkpoint| {
+                                    checkpoint["done"].as_u64().is_some_and(|done| done > 4096)
+                                        && checkpoint["complete"].as_bool() == Some(false)
+                                        && checkpoint["digest"]
+                                            .as_str()
+                                            .is_some_and(|digest| digest.len() == 64)
+                                },
+                            )
+                        })
                 })
             });
             if received {

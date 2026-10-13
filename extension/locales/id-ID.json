@@ -122,5 +122,11 @@
   "moveHud": "Pindahkan tombol unduh",
   "nativeConsent": "Izinkan transfer data lokal ke Flux",
   "nativeConsentExplain": "Kirim URL pilihan, judul halaman, serta cookie atau header otorisasi yang diperlukan ke Flux di komputer ini hanya untuk mengunduh berkas pilihan. Tidak ada data analitik yang dikirim. Cabut izin di sini.",
-  "mediaReady": "Pilih kualitas video dan format keluaran, lalu kirim ke Flux."
+  "mediaReady": "Pilih kualitas video dan format keluaran, lalu kirim ke Flux.",
+  "audioTrack": "Trek audio",
+  "subtitleTrack": "Subtitel",
+  "originalAudio": "Audio asli",
+  "noSubtitles": "Tanpa subtitel",
+  "queueCollection": "Antrekan koleksi",
+  "collectionHint": "Kirim hingga 500 item playlist atau kanal ke antrean unduhan Flux."
 }

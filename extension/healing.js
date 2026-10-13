@@ -107,10 +107,58 @@ export async function renewSource(
     throw new Error("Original browser page is no longer open");
   const tab = candidates[0];
   const media = (await storage.get(`media:${tab.id}`))[`media:${tab.id}`] || [];
-  let url = matchResource(
-    ticket.url,
-    media.sort((a, b) => b.seenAt - a.seenAt).map((item) => item.url),
-  );
+  const snapshots = [];
+  if (tabs.sendMessage) {
+    const frames = [
+      ...new Set([
+        0,
+        ...media
+          .filter((item) => Number.isInteger(item.frameId))
+          .map((item) => item.frameId),
+      ]),
+    ].slice(0, 8);
+    await Promise.allSettled(
+      frames.map(async (frameId) => {
+        let timer;
+        try {
+          const snapshot = await Promise.race([
+            tabs.sendMessage(tab.id, { type: "source-snapshot" }, { frameId }),
+            new Promise((_, reject) => {
+              timer = setTimeout(
+                () => reject(new Error("Source snapshot timed out")),
+                2000,
+              );
+            }),
+          ]);
+          if (
+            !snapshot ||
+            typeof snapshot.page_url !== "string" ||
+            !Array.isArray(snapshot.urls)
+          )
+            return;
+          const allowedPage = new URL(ticket.frame_url || ticket.page_url);
+          const actualPage = new URL(snapshot.page_url);
+          allowedPage.hash = actualPage.hash = "";
+          if (
+            actualPage.href !== allowedPage.href &&
+            actualPage.href !== page.href
+          )
+            return;
+          snapshots.push(
+            ...snapshot.urls
+              .filter((url) => typeof url === "string" && url.length <= 16384)
+              .slice(0, 200),
+          );
+        } finally {
+          clearTimeout(timer);
+        }
+      }),
+    );
+  }
+  let url = matchResource(ticket.url, [
+    ...snapshots,
+    ...media.sort((a, b) => b.seenAt - a.seenAt).map((item) => item.url),
+  ]);
   if (!url || url === ticket.url) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 12000);
@@ -130,7 +178,8 @@ export async function renewSource(
       clearTimeout(timer);
     }
   }
-  const credentials = await credentialsFor(tab.id, url);
+  const frameId = media.find((item) => item.url === url)?.frameId || 0;
+  const credentials = await credentialsFor(tab.id, url, frameId);
   const protected_credentials = credentials.length
     ? await bridge.request("protect", { credentials })
     : null;

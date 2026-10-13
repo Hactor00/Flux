@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_appName__",
   "description": "__MSG_appDescription__",
-  "version": "1.7.0",
+  "version": "2.0.0",
   "default_locale": "en",
   "minimum_chrome_version": "120",
   "permissions": [
@@ -12,7 +12,8 @@
     "contextMenus",
     "downloads",
     "webRequest",
-    "activeTab"
+    "activeTab",
+    "cookies"
   ],
   "host_permissions": [
     "http://*/*",
@@ -34,6 +35,18 @@
     "open_in_tab": true
   },
   "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "media-observer.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
     {
       "matches": [
         "http://*/*",

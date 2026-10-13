@@ -167,6 +167,31 @@ async function until(condition) {
     await new Promise((resolve) => setTimeout(resolve, 5));
   }
 }
+test("magnet proposals preserve display names and torrent options", () => {
+  const input = makeInput(
+    "magnet:?xt=urn:btih:cab507494d02ebb1178b38f2e9d7be299c86b862&dn=CON.zip",
+    { referer: "https://example.com/releases" },
+  );
+  assert.equal(input.filename, "_CON.zip");
+  assert.equal(input.media, null);
+  assert.equal(input.torrent.peer_limit, 80);
+  assert.deepEqual(input.torrent.only_files, []);
+  assert.equal(input.browser_source.page_url, "https://example.com/releases");
+  assert.ok(
+    makeInput("magnet:?xt=urn:btih:ABCDEFGHIJKLMNOPQRSTUVWXYZ234567").torrent,
+  );
+});
+
+test("magnet proposals reject malformed hashes, network authorities and v2-only sources", () => {
+  for (const url of [
+    "magnet:?xt=urn:btih:abcd",
+    "magnet://attacker.test/?xt=urn:btih:cab507494d02ebb1178b38f2e9d7be299c86b862",
+    "magnet:?xt=urn:btmh:1220abcd",
+    "file:///private.torrent",
+  ])
+    assert.throws(() => makeInput(url));
+});
+
 test("detects adaptive streams by MIME and rejects non-HTTP blob sources", () => {
   assert.equal(
     mediaKind(

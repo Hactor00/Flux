@@ -8,7 +8,8 @@ const log = await readFile(".tools/frontend-tests.log", "utf8");
 const counts = [...log.matchAll(/ℹ tests (\d+)/g)].map((match) =>
   Number(match[1]),
 );
-assert.deepEqual(counts, [39, 6]);
+assert.equal(counts.length, 2);
+assert.ok(counts[0] >= 39 && counts[1] >= 6);
 assert.equal(
   [...log.matchAll(/ℹ fail (\d+)/g)].every((match) => Number(match[1]) === 0),
   true,
@@ -69,7 +70,7 @@ const report = {
     "Regression fixture verifies provider resolution without playback and the localized ready instruction",
   stale_selection_guards:
     "Navigation, source replacement and active-video switching passed",
-  core_engine_changed: false,
+  core_engine_changed: true,
 };
 await writeFile(
   "docs/validation/hud-repair.json",

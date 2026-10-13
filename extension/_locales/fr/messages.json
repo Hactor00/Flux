@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "Choisissez la qualité vidéo et le format de sortie, puis envoyez la vidéo à Flux."
+  },
+  "audioTrack": {
+    "message": "Piste audio"
+  },
+  "subtitleTrack": {
+    "message": "Sous-titres"
+  },
+  "originalAudio": {
+    "message": "Audio original"
+  },
+  "noSubtitles": {
+    "message": "Sans sous-titres"
+  },
+  "queueCollection": {
+    "message": "Ajouter la collection à la file"
+  },
+  "collectionHint": {
+    "message": "Envoyez jusqu’à 500 éléments d’une liste ou d’une chaîne dans la file de téléchargement Flux."
   }
 }

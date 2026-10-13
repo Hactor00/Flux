@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "வீடியோ தரத்தையும் வெளியீட்டு வடிவத்தையும் தேர்ந்தெடுத்து Flux-க்கு அனுப்பவும்."
+  },
+  "audioTrack": {
+    "message": "ஒலி தடம்"
+  },
+  "subtitleTrack": {
+    "message": "வசன வரிகள்"
+  },
+  "originalAudio": {
+    "message": "அசல் ஒலி"
+  },
+  "noSubtitles": {
+    "message": "வசன வரிகள் இல்லை"
+  },
+  "queueCollection": {
+    "message": "தொகுப்பை வரிசையில் சேர்"
+  },
+  "collectionHint": {
+    "message": "பட்டியல் அல்லது சேனலிலிருந்து அதிகபட்சம் 500 உருப்படிகளை Flux பதிவிறக்க வரிசைக்கு அனுப்பவும்."
   }
 }

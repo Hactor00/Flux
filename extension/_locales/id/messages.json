@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "Pilih kualitas video dan format keluaran, lalu kirim ke Flux."
+  },
+  "audioTrack": {
+    "message": "Trek audio"
+  },
+  "subtitleTrack": {
+    "message": "Subtitel"
+  },
+  "originalAudio": {
+    "message": "Audio asli"
+  },
+  "noSubtitles": {
+    "message": "Tanpa subtitel"
+  },
+  "queueCollection": {
+    "message": "Antrekan koleksi"
+  },
+  "collectionHint": {
+    "message": "Kirim hingga 500 item playlist atau kanal ke antrean unduhan Flux."
   }
 }

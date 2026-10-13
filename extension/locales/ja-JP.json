@@ -122,5 +122,11 @@
   "moveHud": "ダウンロードボタンを移動",
   "nativeConsent": "ローカルの Flux へのデータ転送を許可",
   "nativeConsentExplain": "選択したリンク、ページタイトル、必要な Cookie または認証ヘッダーを、このパソコンの Flux に送信します。選択したファイルのダウンロードにのみ使用し、分析データは送信しません。ここで許可を取り消せます。",
-  "mediaReady": "画質と出力形式を選択して、Flux に送信してください。"
+  "mediaReady": "画質と出力形式を選択して、Flux に送信してください。",
+  "audioTrack": "音声トラック",
+  "subtitleTrack": "字幕",
+  "originalAudio": "元の音声",
+  "noSubtitles": "字幕なし",
+  "queueCollection": "コレクションをキューへ",
+  "collectionHint": "プレイリストやチャンネルの最大500件をFluxのダウンロードキューに送信します。"
 }

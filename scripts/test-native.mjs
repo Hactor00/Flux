@@ -41,7 +41,11 @@ await mkdir(output);
 const id = (await readFile("extension/extension-id.txt", "utf8")).trim();
 const origin = "chrome-extension://" + id + "/";
 await writeFile(join(data, "allowed-origins.json"), JSON.stringify([origin]));
-const environment = { ...process.env, LOCALAPPDATA: root };
+const environment = {
+  ...process.env,
+  LOCALAPPDATA: root,
+  WEBVIEW2_USER_DATA_FOLDER: join(root, "webview"),
+};
 const payload = Buffer.alloc(256 * 1024, 73);
 let authenticated = 0;
 const fixture = createServer((request, response) => {

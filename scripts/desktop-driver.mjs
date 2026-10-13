@@ -26,8 +26,10 @@ export class DesktopDriver {
     } while (Date.now() < deadline);
     throw Error(`Native window ${view} did not close`);
   }
-  async target(view, timeout = 15000) {
+  async target(view, timeout = 60000) {
     const deadline = Date.now() + timeout;
+    let observed = [];
+    let discoveryError;
     do {
       try {
         const list = await (
@@ -35,6 +37,14 @@ export class DesktopDriver {
             signal: AbortSignal.timeout(2000),
           })
         ).json();
+        observed = list.map((item) => {
+          try {
+            const url = new URL(item.url);
+            return `${url.protocol}//${url.host}${url.pathname}?view=${url.searchParams.get("view") || "main"}`;
+          } catch {
+            return "unavailable URL";
+          }
+        });
         const target = list.find((item) => {
           try {
             const url = new URL(item.url);
@@ -47,10 +57,14 @@ export class DesktopDriver {
           }
         });
         if (target) return target;
-      } catch {}
+      } catch (error) {
+        discoveryError = error.message;
+      }
       await new Promise((resolve) => setTimeout(resolve, 100));
     } while (Date.now() < deadline);
-    throw Error(`Native window ${view} did not become available`);
+    throw Error(
+      `Native window ${view} did not become available; observed targets: ${JSON.stringify(observed)}; discovery error: ${discoveryError || "none"}`,
+    );
   }
   async connect(view) {
     const target = await this.target(view);
@@ -99,7 +113,7 @@ export class DesktopDriver {
       }
       return value.result?.value;
     };
-    const ready = Date.now() + 15000;
+    const ready = Date.now() + 30000;
     while (
       !(await evaluate(
         "!!(document.querySelector('#root')?.children.length || document.querySelector('[role=dialog],.surface-loading'))",

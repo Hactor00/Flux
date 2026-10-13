@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "వీడియో నాణ్యతను, అవుట్‌పుట్ ఫార్మాట్‌ను ఎంచుకుని Flux కు పంపండి."
+  },
+  "audioTrack": {
+    "message": "ఆడియో ట్రాక్"
+  },
+  "subtitleTrack": {
+    "message": "ఉపశీర్షికలు"
+  },
+  "originalAudio": {
+    "message": "అసలు ఆడియో"
+  },
+  "noSubtitles": {
+    "message": "ఉపశీర్షికలు లేవు"
+  },
+  "queueCollection": {
+    "message": "సేకరణను క్యూలో చేర్చండి"
+  },
+  "collectionHint": {
+    "message": "ప్లేలిస్ట్ లేదా ఛానల్ నుండి గరిష్టంగా 500 అంశాలను Flux డౌన్‌లోడ్ క్యూకు పంపండి."
   }
 }

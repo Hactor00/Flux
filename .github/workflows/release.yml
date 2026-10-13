@@ -161,4 +161,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           version=$(jq -r .version release/release-info.json)
+          if gh release view "v$version" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release v$version already exists; validated build artifacts remain available from this workflow. Existing published assets are preserved."
+            exit 0
+          fi
           gh release create "v$version" --target "$GITHUB_SHA" --repo "$GITHUB_REPOSITORY" --draft --generate-notes release/*

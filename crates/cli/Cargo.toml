@@ -1,0 +1,18 @@
+[package]
+name = "flux-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+test-harness = ["dep:axum"]
+
+[dependencies]
+uuid.workspace = true
+flux-core.workspace = true
+anyhow.workspace = true
+tokio.workspace = true
+tokio-util.workspace = true
+serde_json.workspace = true
+clap = { version = "4", features = ["derive"] }
+axum = { version = "0.8", optional = true }

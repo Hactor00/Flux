@@ -1,0 +1,27 @@
+{
+  "version": "1.3.0",
+  "passed": true,
+  "rust_tests": 46,
+  "extension_tests": 23,
+  "locales": 20,
+  "locale_keys": 114,
+  "checks": {
+    "early_connection_reset_retries": true,
+    "verified_range_cache_preserved": true,
+    "hls_jpg_segments_inspected_and_muxed": true,
+    "extensionless_hls_supported": true,
+    "start_time_survives_restart": true,
+    "completion_time_persisted": true,
+    "legacy_file_time_marked_estimated": true,
+    "hud_loading_has_no_empty_selector": true,
+    "hud_outside_click_preserves_button": true,
+    "late_inspection_cannot_reopen_panel": true,
+    "hud_prefetch_and_cache": true,
+    "browser_cancelled_on_desktop_proposal": true,
+    "browser_paused_on_created": true,
+    "offline_browser_fallback": true
+  },
+  "extension_test_environment": "Node/jsdom with simulated Chrome API events",
+  "time": "2026-10-11T21:51:30.520253+00:00",
+  "local_paths_and_credentials_removed": true
+}

@@ -1,0 +1,53 @@
+{
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis"
+    ],
+    "icon": [
+      "icons/icon.ico",
+      "icons/icon.png"
+    ],
+    "license": "MIT",
+    "licenseFile": "../LICENSE",
+    "category": "Utility",
+    "shortDescription": "Persistent parallel downloads and adaptive media capture",
+    "resources": {
+      "../.tools/package/flux-cli.exe": "flux-cli.exe",
+      "../.tools/package/flux-native-host.exe": "flux-native-host.exe",
+      "../.tools/package/ffmpeg.exe": "ffmpeg.exe",
+      "../.tools/package/ffprobe.exe": "ffprobe.exe",
+      "../.tools/package/yt-dlp.exe": "yt-dlp.exe",
+      "../.tools/package/node.exe": "node.exe",
+      "../target/release/libunwind.dll": "libunwind.dll",
+      "../.tools/package/extension/": "extension/",
+      "../.tools/package/extension-firefox/": "extension-firefox/",
+      "../.tools/package/extension-firefox-modern/": "extension-firefox-modern/",
+      "../.tools/package/licenses/": "licenses/",
+      "../.tools/package/media-source/": "media-source/",
+      "../.tools/package/LICENSE": "LICENSE",
+      "../.tools/package/THIRD-PARTY-NOTICES.md": "THIRD-PARTY-NOTICES.md",
+      "../.tools/package/dependency-inventory.json": "dependency-inventory.json",
+      "../target/release/WebView2Loader.dll": "WebView2Loader.dll"
+    },
+    "windows": {
+      "allowDowngrades": false,
+      "webviewInstallMode": {
+        "type": "embedBootstrapper",
+        "silent": true
+      },
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": [
+          "English",
+          "Turkish"
+        ],
+        "displayLanguageSelector": false,
+        "sidebarImage": "installer-assets/sidebar.bmp",
+        "headerImage": "installer-assets/header.bmp",
+        "installerIcon": "icons/icon.ico",
+        "installerHooks": "installer-hooks.nsh"
+      }
+    }
+  }
+}

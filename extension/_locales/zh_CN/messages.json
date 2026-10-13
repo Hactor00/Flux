@@ -1,0 +1,323 @@
+{
+  "workspace": {
+    "message": "工作区"
+  },
+  "all": {
+    "message": "所有下载"
+  },
+  "active": {
+    "message": "进行中"
+  },
+  "complete": {
+    "message": "已完成"
+  },
+  "settings": {
+    "message": "设置"
+  },
+  "engine_ready": {
+    "message": "引擎已连接"
+  },
+  "preview": {
+    "message": "浏览器预览"
+  },
+  "local_first": {
+    "message": "存储在您的设备上"
+  },
+  "open_source": {
+    "message": "开源"
+  },
+  "control": {
+    "message": "传输控制"
+  },
+  "downloads": {
+    "message": "下载"
+  },
+  "tagline": {
+    "message": "每个字节，尽在掌控。"
+  },
+  "new_download": {
+    "message": "新建下载"
+  },
+  "desktop_required": {
+    "message": "请运行桌面应用以开始下载。"
+  },
+  "action_failed": {
+    "message": "操作失败"
+  },
+  "details": {
+    "message": "技术详情"
+  },
+  "close": {
+    "message": "关闭"
+  },
+  "network_speed": {
+    "message": "网络速度"
+  },
+  "live_network": {
+    "message": "实时网络活动"
+  },
+  "active_transfers": {
+    "message": "活动传输"
+  },
+  "connections_max": {
+    "message": "每个文件最多32个连接"
+  },
+  "verified_files": {
+    "message": "已验证文件"
+  },
+  "integrity": {
+    "message": "已检查SHA-256完整性"
+  },
+  "transfer_queue": {
+    "message": "传输队列"
+  },
+  "search_downloads": {
+    "message": "搜索下载"
+  },
+  "file": {
+    "message": "文件"
+  },
+  "progress": {
+    "message": "进度"
+  },
+  "status": {
+    "message": "状态"
+  },
+  "actions": {
+    "message": "操作"
+  },
+  "no_results": {
+    "message": "无结果"
+  },
+  "search_hint": {
+    "message": "请尝试其他文件名。"
+  },
+  "empty_title": {
+    "message": "从这里开始您的下一次下载。"
+  },
+  "empty_body": {
+    "message": "添加链接。Flux负责连接、恢复和验证。"
+  },
+  "add_first": {
+    "message": "添加首次下载"
+  },
+  "unknown_size": {
+    "message": "大小未知"
+  },
+  "pause": {
+    "message": "暂停"
+  },
+  "resume": {
+    "message": "继续"
+  },
+  "add_description": {
+    "message": "将HTTP或HTTPS文件添加到本地传输队列。"
+  },
+  "source_url": {
+    "message": "源地址"
+  },
+  "filename": {
+    "message": "文件名"
+  },
+  "connections": {
+    "message": "连接数"
+  },
+  "speed_limit": {
+    "message": "速度限制（字节/秒，0表示不限）"
+  },
+  "expected_hash": {
+    "message": "预期SHA-256（可选）"
+  },
+  "starting": {
+    "message": "正在启动…"
+  },
+  "start": {
+    "message": "开始下载"
+  },
+  "language_description": {
+    "message": "选择您熟悉的语言。"
+  },
+  "language": {
+    "message": "语言"
+  },
+  "search_languages": {
+    "message": "搜索语言"
+  },
+  "privacy": {
+    "message": "本地存储。文件由您掌控。"
+  },
+  "powered": {
+    "message": "Rust驱动 · 为开放网络而生"
+  },
+  "queued": {
+    "message": "排队中"
+  },
+  "running": {
+    "message": "正在下载"
+  },
+  "paused": {
+    "message": "已暂停"
+  },
+  "verifying": {
+    "message": "正在验证"
+  },
+  "failed": {
+    "message": "失败"
+  },
+  "downloadMedia": {
+    "message": "下载媒体"
+  },
+  "downloadWith": {
+    "message": "使用Flux下载"
+  },
+  "captureLinks": {
+    "message": "获取页面链接"
+  },
+  "quality": {
+    "message": "画质 / 编码"
+  },
+  "automatic": {
+    "message": "自动"
+  },
+  "inspecting": {
+    "message": "正在分析媒体…"
+  },
+  "sentToDesktop": {
+    "message": "已保存至桌面队列"
+  },
+  "retry": {
+    "message": "重试"
+  },
+  "wildcard": {
+    "message": "使用*.zip筛选"
+  },
+  "downloadSelected": {
+    "message": "下载所选"
+  },
+  "interceptDownloads": {
+    "message": "接管浏览器下载"
+  },
+  "interceptExplanation": {
+    "message": "Flux确认接收前，浏览器继续下载。"
+  },
+  "browserIntegration": {
+    "message": "浏览器集成"
+  },
+  "nativeInstallHelp": {
+    "message": "打开Flux桌面设置并安装浏览器桥接。"
+  },
+  "saved": {
+    "message": "已保存"
+  },
+  "desktopOffline": {
+    "message": "桌面程序离线"
+  },
+  "waitingForDesktop": {
+    "message": "等待桌面程序"
+  },
+  "noMedia": {
+    "message": "未检测到媒体"
+  },
+  "mediaHint": {
+    "message": "播放视频以检测媒体请求。"
+  },
+  "batch": {
+    "message": "批量下载"
+  },
+  "priority": {
+    "message": "优先级"
+  },
+  "start_at": {
+    "message": "开始时间"
+  },
+  "stop_at": {
+    "message": "停止时间"
+  },
+  "media_processing": {
+    "message": "使用FFmpeg处理媒体"
+  },
+  "audio_url": {
+    "message": "独立音频地址（可选）"
+  },
+  "duration_seconds": {
+    "message": "录制时长（秒，可选）"
+  },
+  "container": {
+    "message": "封装格式"
+  },
+  "concurrent_tasks": {
+    "message": "同时下载数"
+  },
+  "download_directory": {
+    "message": "下载文件夹"
+  },
+  "choose_folder": {
+    "message": "选择文件夹"
+  },
+  "queue_enabled": {
+    "message": "运行队列"
+  },
+  "clipboard_monitor": {
+    "message": "监测剪贴板链接"
+  },
+  "minimize_to_tray": {
+    "message": "最小化到托盘"
+  },
+  "notifications": {
+    "message": "完成通知"
+  },
+  "save": {
+    "message": "保存设置"
+  },
+  "open_file": {
+    "message": "打开文件"
+  },
+  "reveal_file": {
+    "message": "在文件夹中显示"
+  },
+  "remove": {
+    "message": "移除任务"
+  },
+  "remove_description": {
+    "message": "移除任务及临时数据？已完成文件将保留。"
+  },
+  "confirm": {
+    "message": "移除"
+  },
+  "inspect": {
+    "message": "分析媒体流"
+  },
+  "queue_start": {
+    "message": "启动队列"
+  },
+  "pause_all": {
+    "message": "全部暂停"
+  },
+  "install_bridge": {
+    "message": "安装浏览器桥接"
+  },
+  "installed": {
+    "message": "浏览器桥接已安装"
+  },
+  "copy_hash": {
+    "message": "复制SHA-256"
+  },
+  "apply": {
+    "message": "应用"
+  },
+  "segment_urls": {
+    "message": "TS分段地址（每行一个，可选）"
+  },
+  "global_speed_limit": {
+    "message": "总速度限制（字节/秒，0 = 不限）"
+  },
+  "appName": {
+    "message": "Flux"
+  },
+  "appDescription": {
+    "message": "将HTTP或HTTPS文件添加到本地传输队列。"
+  },
+  "mediaReady": {
+    "message": "选择视频画质和输出格式，然后发送到 Flux。"
+  }
+}

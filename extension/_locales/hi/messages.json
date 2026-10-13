@@ -1,0 +1,323 @@
+{
+  "workspace": {
+    "message": "कार्यस्थान"
+  },
+  "all": {
+    "message": "सभी डाउनलोड"
+  },
+  "active": {
+    "message": "सक्रिय"
+  },
+  "complete": {
+    "message": "पूर्ण"
+  },
+  "settings": {
+    "message": "सेटिंग्स"
+  },
+  "engine_ready": {
+    "message": "इंजन जुड़ा है"
+  },
+  "preview": {
+    "message": "ब्राउज़र पूर्वावलोकन"
+  },
+  "local_first": {
+    "message": "आपके उपकरण पर संग्रहीत"
+  },
+  "open_source": {
+    "message": "मुक्त स्रोत"
+  },
+  "control": {
+    "message": "स्थानांतरण नियंत्रण"
+  },
+  "downloads": {
+    "message": "डाउनलोड"
+  },
+  "tagline": {
+    "message": "हर बाइट आपके नियंत्रण में।"
+  },
+  "new_download": {
+    "message": "नया डाउनलोड"
+  },
+  "desktop_required": {
+    "message": "डाउनलोड शुरू करने के लिए डेस्कटॉप ऐप चलाएँ।"
+  },
+  "action_failed": {
+    "message": "कार्रवाई विफल"
+  },
+  "details": {
+    "message": "तकनीकी विवरण"
+  },
+  "close": {
+    "message": "बंद करें"
+  },
+  "network_speed": {
+    "message": "नेटवर्क गति"
+  },
+  "live_network": {
+    "message": "लाइव नेटवर्क गतिविधि"
+  },
+  "active_transfers": {
+    "message": "सक्रिय स्थानांतरण"
+  },
+  "connections_max": {
+    "message": "प्रति फ़ाइल अधिकतम 32 कनेक्शन"
+  },
+  "verified_files": {
+    "message": "सत्यापित फ़ाइलें"
+  },
+  "integrity": {
+    "message": "SHA-256 अखंडता जाँची गई"
+  },
+  "transfer_queue": {
+    "message": "स्थानांतरण कतार"
+  },
+  "search_downloads": {
+    "message": "डाउनलोड खोजें"
+  },
+  "file": {
+    "message": "फ़ाइल"
+  },
+  "progress": {
+    "message": "प्रगति"
+  },
+  "status": {
+    "message": "स्थिति"
+  },
+  "actions": {
+    "message": "कार्रवाइयाँ"
+  },
+  "no_results": {
+    "message": "कोई परिणाम नहीं"
+  },
+  "search_hint": {
+    "message": "दूसरा फ़ाइल नाम आज़माएँ।"
+  },
+  "empty_title": {
+    "message": "आपका अगला डाउनलोड यहाँ से शुरू होता है।"
+  },
+  "empty_body": {
+    "message": "लिंक जोड़ें। Flux कनेक्शन, पुनर्प्राप्ति और सत्यापन संभालता है।"
+  },
+  "add_first": {
+    "message": "अपना पहला डाउनलोड जोड़ें"
+  },
+  "unknown_size": {
+    "message": "अज्ञात आकार"
+  },
+  "pause": {
+    "message": "रोकें"
+  },
+  "resume": {
+    "message": "जारी रखें"
+  },
+  "add_description": {
+    "message": "स्थानीय कतार में HTTP या HTTPS फ़ाइल जोड़ें।"
+  },
+  "source_url": {
+    "message": "स्रोत URL"
+  },
+  "filename": {
+    "message": "फ़ाइल नाम"
+  },
+  "connections": {
+    "message": "कनेक्शन"
+  },
+  "speed_limit": {
+    "message": "गति सीमा (B/s, 0 = असीमित)"
+  },
+  "expected_hash": {
+    "message": "अपेक्षित SHA-256 (वैकल्पिक)"
+  },
+  "starting": {
+    "message": "शुरू हो रहा है…"
+  },
+  "start": {
+    "message": "डाउनलोड शुरू करें"
+  },
+  "language_description": {
+    "message": "अपनी परिचित भाषा चुनें।"
+  },
+  "language": {
+    "message": "भाषा"
+  },
+  "search_languages": {
+    "message": "भाषाएँ खोजें"
+  },
+  "privacy": {
+    "message": "स्थानीय संग्रहण। आपकी फ़ाइलें आपकी हैं।"
+  },
+  "powered": {
+    "message": "Rust द्वारा संचालित · खुले वेब के लिए"
+  },
+  "queued": {
+    "message": "कतार में"
+  },
+  "running": {
+    "message": "डाउनलोड हो रहा है"
+  },
+  "paused": {
+    "message": "रोका गया"
+  },
+  "verifying": {
+    "message": "सत्यापन जारी"
+  },
+  "failed": {
+    "message": "विफल"
+  },
+  "downloadMedia": {
+    "message": "मीडिया डाउनलोड करें"
+  },
+  "downloadWith": {
+    "message": "Flux से डाउनलोड करें"
+  },
+  "captureLinks": {
+    "message": "पृष्ठ के लिंक पकड़ें"
+  },
+  "quality": {
+    "message": "गुणवत्ता / कोडेक"
+  },
+  "automatic": {
+    "message": "स्वचालित"
+  },
+  "inspecting": {
+    "message": "मीडिया जाँच हो रही है…"
+  },
+  "sentToDesktop": {
+    "message": "डेस्कटॉप कतार में सहेजा गया"
+  },
+  "retry": {
+    "message": "फिर कोशिश करें"
+  },
+  "wildcard": {
+    "message": "*.zip से छाँटें"
+  },
+  "downloadSelected": {
+    "message": "चुने हुए डाउनलोड करें"
+  },
+  "interceptDownloads": {
+    "message": "ब्राउज़र डाउनलोड संभालें"
+  },
+  "interceptExplanation": {
+    "message": "Flux की पुष्टि तक ब्राउज़र डाउनलोड जारी रखता है।"
+  },
+  "browserIntegration": {
+    "message": "ब्राउज़र एकीकरण"
+  },
+  "nativeInstallHelp": {
+    "message": "Flux डेस्कटॉप सेटिंग खोलकर ब्राउज़र ब्रिज स्थापित करें।"
+  },
+  "saved": {
+    "message": "सहेजा गया"
+  },
+  "desktopOffline": {
+    "message": "डेस्कटॉप ऑफ़लाइन"
+  },
+  "waitingForDesktop": {
+    "message": "डेस्कटॉप की प्रतीक्षा"
+  },
+  "noMedia": {
+    "message": "मीडिया नहीं मिला"
+  },
+  "mediaHint": {
+    "message": "मीडिया अनुरोध पहचानने के लिए वीडियो चलाएँ।"
+  },
+  "batch": {
+    "message": "समूह डाउनलोड"
+  },
+  "priority": {
+    "message": "प्राथमिकता"
+  },
+  "start_at": {
+    "message": "आरंभ समय"
+  },
+  "stop_at": {
+    "message": "समाप्ति समय"
+  },
+  "media_processing": {
+    "message": "FFmpeg से मीडिया संसाधित करें"
+  },
+  "audio_url": {
+    "message": "अलग ऑडियो URL (वैकल्पिक)"
+  },
+  "duration_seconds": {
+    "message": "रिकॉर्डिंग अवधि (सेकंड, वैकल्पिक)"
+  },
+  "container": {
+    "message": "कंटेनर"
+  },
+  "concurrent_tasks": {
+    "message": "एक साथ डाउनलोड"
+  },
+  "download_directory": {
+    "message": "डाउनलोड फ़ोल्डर"
+  },
+  "choose_folder": {
+    "message": "फ़ोल्डर चुनें"
+  },
+  "queue_enabled": {
+    "message": "कतार चलाएँ"
+  },
+  "clipboard_monitor": {
+    "message": "क्लिपबोर्ड लिंक देखें"
+  },
+  "minimize_to_tray": {
+    "message": "ट्रे में छोटा करें"
+  },
+  "notifications": {
+    "message": "पूर्ण होने की सूचनाएँ"
+  },
+  "save": {
+    "message": "सेटिंग सहेजें"
+  },
+  "open_file": {
+    "message": "फ़ाइल खोलें"
+  },
+  "reveal_file": {
+    "message": "फ़ोल्डर में दिखाएँ"
+  },
+  "remove": {
+    "message": "कार्य हटाएँ"
+  },
+  "remove_description": {
+    "message": "कार्य और अस्थायी डेटा हटाएँ? पूर्ण फ़ाइल सुरक्षित रहेगी।"
+  },
+  "confirm": {
+    "message": "हटाएँ"
+  },
+  "inspect": {
+    "message": "स्ट्रीम जाँचें"
+  },
+  "queue_start": {
+    "message": "कतार शुरू करें"
+  },
+  "pause_all": {
+    "message": "सब रोकें"
+  },
+  "install_bridge": {
+    "message": "ब्राउज़र ब्रिज स्थापित करें"
+  },
+  "installed": {
+    "message": "ब्राउज़र ब्रिज स्थापित हुआ"
+  },
+  "copy_hash": {
+    "message": "SHA-256 कॉपी करें"
+  },
+  "apply": {
+    "message": "लागू करें"
+  },
+  "segment_urls": {
+    "message": "TS खंड URL (प्रति पंक्ति एक, वैकल्पिक)"
+  },
+  "global_speed_limit": {
+    "message": "कुल गति सीमा (बाइट/सेकंड, 0 = असीमित)"
+  },
+  "appName": {
+    "message": "Flux"
+  },
+  "appDescription": {
+    "message": "स्थानीय कतार में HTTP या HTTPS फ़ाइल जोड़ें।"
+  },
+  "mediaReady": {
+    "message": "वीडियो की गुणवत्ता और आउटपुट फ़ॉर्मैट चुनें, फिर उसे Flux में भेजें।"
+  }
+}

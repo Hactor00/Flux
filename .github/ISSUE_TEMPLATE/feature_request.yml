@@ -1,0 +1,18 @@
+name: Feature request
+description: Suggest a specific improvement to Flux
+title: "[Feature] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Describe the daily workflow affected by the missing behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Proposed behavior
+      description: Explain what the user should be able to do.
+    validations:
+      required: true

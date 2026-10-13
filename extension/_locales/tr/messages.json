@@ -1,0 +1,323 @@
+{
+  "workspace": {
+    "message": "Çalışma alanı"
+  },
+  "all": {
+    "message": "Tüm indirmeler"
+  },
+  "active": {
+    "message": "Etkin"
+  },
+  "complete": {
+    "message": "Tamamlanan"
+  },
+  "settings": {
+    "message": "Ayarlar"
+  },
+  "engine_ready": {
+    "message": "Motor bağlı"
+  },
+  "preview": {
+    "message": "Tarayıcı önizlemesi"
+  },
+  "local_first": {
+    "message": "Cihazınızda saklanır"
+  },
+  "open_source": {
+    "message": "Açık kaynak"
+  },
+  "control": {
+    "message": "AKTARIM DENETİMİ"
+  },
+  "downloads": {
+    "message": "İndirmeler"
+  },
+  "tagline": {
+    "message": "Her bayt sizin denetiminizde."
+  },
+  "new_download": {
+    "message": "Yeni indirme"
+  },
+  "desktop_required": {
+    "message": "İndirmeye başlamak için masaüstü uygulamasını çalıştırın."
+  },
+  "action_failed": {
+    "message": "İşlem başarısız"
+  },
+  "details": {
+    "message": "Teknik ayrıntılar"
+  },
+  "close": {
+    "message": "Kapat"
+  },
+  "network_speed": {
+    "message": "Ağ hızı"
+  },
+  "live_network": {
+    "message": "Canlı ağ etkinliği"
+  },
+  "active_transfers": {
+    "message": "Etkin aktarımlar"
+  },
+  "connections_max": {
+    "message": "Dosya başına en fazla 32 bağlantı"
+  },
+  "verified_files": {
+    "message": "Doğrulanan dosyalar"
+  },
+  "integrity": {
+    "message": "SHA-256 bütünlüğü denetlendi"
+  },
+  "transfer_queue": {
+    "message": "Aktarım kuyruğu"
+  },
+  "search_downloads": {
+    "message": "İndirmelerde ara"
+  },
+  "file": {
+    "message": "Dosya"
+  },
+  "progress": {
+    "message": "İlerleme"
+  },
+  "status": {
+    "message": "Durum"
+  },
+  "actions": {
+    "message": "İşlemler"
+  },
+  "no_results": {
+    "message": "Sonuç bulunamadı"
+  },
+  "search_hint": {
+    "message": "Başka bir dosya adı deneyin."
+  },
+  "empty_title": {
+    "message": "Bir sonraki indirmeniz burada başlıyor."
+  },
+  "empty_body": {
+    "message": "Bağlantı ekleyin. Flux bağlantıları, kurtarmayı ve doğrulamayı yönetir."
+  },
+  "add_first": {
+    "message": "İlk indirmenizi ekleyin"
+  },
+  "unknown_size": {
+    "message": "Boyut bilinmiyor"
+  },
+  "pause": {
+    "message": "Duraklat"
+  },
+  "resume": {
+    "message": "Sürdür"
+  },
+  "add_description": {
+    "message": "Yerel aktarım kuyruğunuza HTTP veya HTTPS dosyası ekleyin."
+  },
+  "source_url": {
+    "message": "Kaynak URL"
+  },
+  "filename": {
+    "message": "Dosya adı"
+  },
+  "connections": {
+    "message": "Bağlantı sayısı"
+  },
+  "speed_limit": {
+    "message": "Hız sınırı (B/sn, 0 = sınırsız)"
+  },
+  "expected_hash": {
+    "message": "Beklenen SHA-256 (isteğe bağlı)"
+  },
+  "starting": {
+    "message": "Başlatılıyor…"
+  },
+  "start": {
+    "message": "İndirmeyi başlat"
+  },
+  "language_description": {
+    "message": "Size uygun dili seçin."
+  },
+  "language": {
+    "message": "Dil"
+  },
+  "search_languages": {
+    "message": "Dillerde ara"
+  },
+  "privacy": {
+    "message": "Yerel depolama. Dosyalarınız size ait."
+  },
+  "powered": {
+    "message": "Rust ile çalışır · Açık web için"
+  },
+  "queued": {
+    "message": "Sırada"
+  },
+  "running": {
+    "message": "İndiriliyor"
+  },
+  "paused": {
+    "message": "Duraklatıldı"
+  },
+  "verifying": {
+    "message": "Doğrulanıyor"
+  },
+  "failed": {
+    "message": "Başarısız"
+  },
+  "downloadMedia": {
+    "message": "Medyayı indir"
+  },
+  "downloadWith": {
+    "message": "Flux ile indir"
+  },
+  "captureLinks": {
+    "message": "Sayfa bağlantılarını yakala"
+  },
+  "quality": {
+    "message": "Kalite / kodek"
+  },
+  "automatic": {
+    "message": "Otomatik"
+  },
+  "inspecting": {
+    "message": "Medya inceleniyor…"
+  },
+  "sentToDesktop": {
+    "message": "Masaüstü kuyruğuna kaydedildi"
+  },
+  "retry": {
+    "message": "Yeniden dene"
+  },
+  "wildcard": {
+    "message": "*.zip ile filtrele"
+  },
+  "downloadSelected": {
+    "message": "Seçilenleri indir"
+  },
+  "interceptDownloads": {
+    "message": "Tarayıcı indirmelerini devral"
+  },
+  "interceptExplanation": {
+    "message": "Flux alındığını onaylayana kadar tarayıcı indirmeye devam eder."
+  },
+  "browserIntegration": {
+    "message": "Tarayıcı bütünleşmesi"
+  },
+  "nativeInstallHelp": {
+    "message": "Flux masaüstü ayarlarını açıp tarayıcı köprüsünü kurun."
+  },
+  "saved": {
+    "message": "Kaydedildi"
+  },
+  "desktopOffline": {
+    "message": "Masaüstü çevrimdışı"
+  },
+  "waitingForDesktop": {
+    "message": "Masaüstü bekleniyor"
+  },
+  "noMedia": {
+    "message": "Medya bulunamadı"
+  },
+  "mediaHint": {
+    "message": "Medya isteklerini algılamak için videoyu oynatın."
+  },
+  "batch": {
+    "message": "Toplu indirme"
+  },
+  "priority": {
+    "message": "Öncelik"
+  },
+  "start_at": {
+    "message": "Başlangıç zamanı"
+  },
+  "stop_at": {
+    "message": "Durdurma zamanı"
+  },
+  "media_processing": {
+    "message": "Medyayı FFmpeg ile işle"
+  },
+  "audio_url": {
+    "message": "Ayrı ses URL’si (isteğe bağlı)"
+  },
+  "duration_seconds": {
+    "message": "Kayıt süresi (saniye, isteğe bağlı)"
+  },
+  "container": {
+    "message": "Kapsayıcı"
+  },
+  "concurrent_tasks": {
+    "message": "Eşzamanlı indirmeler"
+  },
+  "download_directory": {
+    "message": "İndirme klasörü"
+  },
+  "choose_folder": {
+    "message": "Klasör seç"
+  },
+  "queue_enabled": {
+    "message": "Kuyruğu çalıştır"
+  },
+  "clipboard_monitor": {
+    "message": "Panodaki bağlantıları izle"
+  },
+  "minimize_to_tray": {
+    "message": "Sistem tepsisine küçült"
+  },
+  "notifications": {
+    "message": "Tamamlanma bildirimleri"
+  },
+  "save": {
+    "message": "Ayarları kaydet"
+  },
+  "open_file": {
+    "message": "Dosyayı aç"
+  },
+  "reveal_file": {
+    "message": "Klasörde göster"
+  },
+  "remove": {
+    "message": "Görevi kaldır"
+  },
+  "remove_description": {
+    "message": "Görev ve geçici verileri kaldırılsın mı? Tamamlanan dosya korunur."
+  },
+  "confirm": {
+    "message": "Kaldır"
+  },
+  "inspect": {
+    "message": "Akışları incele"
+  },
+  "queue_start": {
+    "message": "Kuyruğu başlat"
+  },
+  "pause_all": {
+    "message": "Tümünü duraklat"
+  },
+  "install_bridge": {
+    "message": "Tarayıcı köprüsünü kur"
+  },
+  "installed": {
+    "message": "Tarayıcı köprüsü kuruldu"
+  },
+  "copy_hash": {
+    "message": "SHA-256’yı kopyala"
+  },
+  "apply": {
+    "message": "Uygula"
+  },
+  "segment_urls": {
+    "message": "TS parça adresleri (satır başına bir, isteğe bağlı)"
+  },
+  "global_speed_limit": {
+    "message": "Toplam hız sınırı (bayt/sn, 0 = sınırsız)"
+  },
+  "appName": {
+    "message": "Flux"
+  },
+  "appDescription": {
+    "message": "Yerel aktarım kuyruğunuza HTTP veya HTTPS dosyası ekleyin."
+  },
+  "mediaReady": {
+    "message": "Video kalitesini ve çıktı biçimini seçip Flux'a gönderin."
+  }
+}

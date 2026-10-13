@@ -1,0 +1,25 @@
+{
+  "id": "76c54bbe-d0d6-447d-bc82-130801ce802e",
+  "request": {
+    "url": "https://download.gnome.org/sources/libxml2/2.15/libxml2-2.15.4.tar.xz",
+    "filename": "libxml2-2.15.4.tar.xz",
+    "connections": 8,
+    "speed_limit": 0,
+    "expected_sha256": "98087fd181d9070724f3fbc65c7377db03038eb92bd882374daff44940138821",
+    "priority": 0,
+    "start_at": null,
+    "stop_at": null,
+    "media": null,
+    "referer": null,
+    "auto_rename": false
+  },
+  "status": "complete",
+  "total": 3177444,
+  "completed": 3177444,
+  "etag": "\"6a9af0c7-307be4\"",
+  "ranged": true,
+  "sha256": "98087fd181d9070724f3fbc65c7377db03038eb92bd882374daff44940138821",
+  "error": null,
+  "source_validated": true,
+  "local_paths_and_credentials_removed": true
+}

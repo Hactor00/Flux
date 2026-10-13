@@ -1,0 +1,323 @@
+{
+  "workspace": {
+    "message": "Espace de travail"
+  },
+  "all": {
+    "message": "Tous les téléchargements"
+  },
+  "active": {
+    "message": "Actifs"
+  },
+  "complete": {
+    "message": "Terminés"
+  },
+  "settings": {
+    "message": "Paramètres"
+  },
+  "engine_ready": {
+    "message": "Moteur connecté"
+  },
+  "preview": {
+    "message": "Aperçu du navigateur"
+  },
+  "local_first": {
+    "message": "Stocké sur votre appareil"
+  },
+  "open_source": {
+    "message": "Code source ouvert"
+  },
+  "control": {
+    "message": "CONTRÔLE DES TRANSFERTS"
+  },
+  "downloads": {
+    "message": "Téléchargements"
+  },
+  "tagline": {
+    "message": "Chaque octet, sous votre contrôle."
+  },
+  "new_download": {
+    "message": "Nouveau téléchargement"
+  },
+  "desktop_required": {
+    "message": "Lancez l’application de bureau pour télécharger."
+  },
+  "action_failed": {
+    "message": "Échec de l’action"
+  },
+  "details": {
+    "message": "Détails techniques"
+  },
+  "close": {
+    "message": "Fermer"
+  },
+  "network_speed": {
+    "message": "Débit réseau"
+  },
+  "live_network": {
+    "message": "Activité réseau en direct"
+  },
+  "active_transfers": {
+    "message": "Transferts actifs"
+  },
+  "connections_max": {
+    "message": "Jusqu’à 32 connexions par fichier"
+  },
+  "verified_files": {
+    "message": "Fichiers vérifiés"
+  },
+  "integrity": {
+    "message": "Intégrité SHA-256 vérifiée"
+  },
+  "transfer_queue": {
+    "message": "File de transferts"
+  },
+  "search_downloads": {
+    "message": "Rechercher un téléchargement"
+  },
+  "file": {
+    "message": "Fichier"
+  },
+  "progress": {
+    "message": "Progression"
+  },
+  "status": {
+    "message": "État"
+  },
+  "actions": {
+    "message": "Actions"
+  },
+  "no_results": {
+    "message": "Aucun résultat"
+  },
+  "search_hint": {
+    "message": "Essayez un autre nom de fichier."
+  },
+  "empty_title": {
+    "message": "Votre prochain téléchargement commence ici."
+  },
+  "empty_body": {
+    "message": "Ajoutez un lien. Flux gère les connexions, la reprise et la vérification."
+  },
+  "add_first": {
+    "message": "Ajouter votre premier téléchargement"
+  },
+  "unknown_size": {
+    "message": "Taille inconnue"
+  },
+  "pause": {
+    "message": "Suspendre"
+  },
+  "resume": {
+    "message": "Reprendre"
+  },
+  "add_description": {
+    "message": "Ajoutez un fichier HTTP ou HTTPS à la file locale."
+  },
+  "source_url": {
+    "message": "URL source"
+  },
+  "filename": {
+    "message": "Nom du fichier"
+  },
+  "connections": {
+    "message": "Connexions"
+  },
+  "speed_limit": {
+    "message": "Débit maximal (o/s, 0 = illimité)"
+  },
+  "expected_hash": {
+    "message": "SHA-256 attendu (facultatif)"
+  },
+  "starting": {
+    "message": "Démarrage…"
+  },
+  "start": {
+    "message": "Démarrer"
+  },
+  "language_description": {
+    "message": "Choisissez votre langue préférée."
+  },
+  "language": {
+    "message": "Langue"
+  },
+  "search_languages": {
+    "message": "Rechercher une langue"
+  },
+  "privacy": {
+    "message": "Stockage local. Vos fichiers vous appartiennent."
+  },
+  "powered": {
+    "message": "Avec Rust · Pour le Web ouvert"
+  },
+  "queued": {
+    "message": "En attente"
+  },
+  "running": {
+    "message": "Téléchargement"
+  },
+  "paused": {
+    "message": "Suspendu"
+  },
+  "verifying": {
+    "message": "Vérification"
+  },
+  "failed": {
+    "message": "Échec"
+  },
+  "downloadMedia": {
+    "message": "Télécharger le média"
+  },
+  "downloadWith": {
+    "message": "Télécharger avec Flux"
+  },
+  "captureLinks": {
+    "message": "Capturer les liens de la page"
+  },
+  "quality": {
+    "message": "Qualité / codec"
+  },
+  "automatic": {
+    "message": "Automatique"
+  },
+  "inspecting": {
+    "message": "Analyse du média…"
+  },
+  "sentToDesktop": {
+    "message": "Enregistré dans la file de bureau"
+  },
+  "retry": {
+    "message": "Réessayer"
+  },
+  "wildcard": {
+    "message": "Filtrer avec *.zip"
+  },
+  "downloadSelected": {
+    "message": "Télécharger la sélection"
+  },
+  "interceptDownloads": {
+    "message": "Intercepter les téléchargements"
+  },
+  "interceptExplanation": {
+    "message": "Le navigateur continue jusqu’à la confirmation de Flux."
+  },
+  "browserIntegration": {
+    "message": "Intégration du navigateur"
+  },
+  "nativeInstallHelp": {
+    "message": "Ouvrez les paramètres de Flux et installez le relais du navigateur."
+  },
+  "saved": {
+    "message": "Enregistré"
+  },
+  "desktopOffline": {
+    "message": "Application hors ligne"
+  },
+  "waitingForDesktop": {
+    "message": "En attente du bureau"
+  },
+  "noMedia": {
+    "message": "Aucun média détecté"
+  },
+  "mediaHint": {
+    "message": "Lancez une vidéo pour détecter ses requêtes."
+  },
+  "batch": {
+    "message": "Téléchargement par lot"
+  },
+  "priority": {
+    "message": "Priorité"
+  },
+  "start_at": {
+    "message": "Démarrer à"
+  },
+  "stop_at": {
+    "message": "Arrêter à"
+  },
+  "media_processing": {
+    "message": "Traiter le média avec FFmpeg"
+  },
+  "audio_url": {
+    "message": "URL audio distincte (facultatif)"
+  },
+  "duration_seconds": {
+    "message": "Durée d’enregistrement (secondes, facultatif)"
+  },
+  "container": {
+    "message": "Conteneur"
+  },
+  "concurrent_tasks": {
+    "message": "Téléchargements simultanés"
+  },
+  "download_directory": {
+    "message": "Dossier de téléchargement"
+  },
+  "choose_folder": {
+    "message": "Choisir un dossier"
+  },
+  "queue_enabled": {
+    "message": "Exécuter la file"
+  },
+  "clipboard_monitor": {
+    "message": "Surveiller les liens du presse-papiers"
+  },
+  "minimize_to_tray": {
+    "message": "Réduire dans la zone de notification"
+  },
+  "notifications": {
+    "message": "Notifications de fin"
+  },
+  "save": {
+    "message": "Enregistrer les paramètres"
+  },
+  "open_file": {
+    "message": "Ouvrir le fichier"
+  },
+  "reveal_file": {
+    "message": "Afficher dans le dossier"
+  },
+  "remove": {
+    "message": "Supprimer la tâche"
+  },
+  "remove_description": {
+    "message": "Supprimer la tâche et ses données temporaires ? Le fichier terminé est conservé."
+  },
+  "confirm": {
+    "message": "Supprimer"
+  },
+  "inspect": {
+    "message": "Analyser les pistes"
+  },
+  "queue_start": {
+    "message": "Démarrer la file"
+  },
+  "pause_all": {
+    "message": "Tout suspendre"
+  },
+  "install_bridge": {
+    "message": "Installer le relais du navigateur"
+  },
+  "installed": {
+    "message": "Relais du navigateur installé"
+  },
+  "copy_hash": {
+    "message": "Copier SHA-256"
+  },
+  "apply": {
+    "message": "Appliquer"
+  },
+  "segment_urls": {
+    "message": "URL des segments TS (une par ligne, facultatif)"
+  },
+  "global_speed_limit": {
+    "message": "Limite de débit total (octets/s, 0 = illimité)"
+  },
+  "appName": {
+    "message": "Flux"
+  },
+  "appDescription": {
+    "message": "Ajoutez un fichier HTTP ou HTTPS à la file locale."
+  },
+  "mediaReady": {
+    "message": "Choisissez la qualité vidéo et le format de sortie, puis envoyez la vidéo à Flux."
+  }
+}

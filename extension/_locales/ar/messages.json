@@ -1,0 +1,323 @@
+{
+  "workspace": {
+    "message": "مساحة العمل"
+  },
+  "all": {
+    "message": "كل التنزيلات"
+  },
+  "active": {
+    "message": "النشطة"
+  },
+  "complete": {
+    "message": "المكتملة"
+  },
+  "settings": {
+    "message": "الإعدادات"
+  },
+  "engine_ready": {
+    "message": "المحرك متصل"
+  },
+  "preview": {
+    "message": "معاينة المتصفح"
+  },
+  "local_first": {
+    "message": "محفوظ على جهازك"
+  },
+  "open_source": {
+    "message": "مفتوح المصدر"
+  },
+  "control": {
+    "message": "التحكم بالنقل"
+  },
+  "downloads": {
+    "message": "التنزيلات"
+  },
+  "tagline": {
+    "message": "كل بايت تحت سيطرتك."
+  },
+  "new_download": {
+    "message": "تنزيل جديد"
+  },
+  "desktop_required": {
+    "message": "شغّل تطبيق سطح المكتب لبدء التنزيل."
+  },
+  "action_failed": {
+    "message": "فشل الإجراء"
+  },
+  "details": {
+    "message": "التفاصيل التقنية"
+  },
+  "close": {
+    "message": "إغلاق"
+  },
+  "network_speed": {
+    "message": "سرعة الشبكة"
+  },
+  "live_network": {
+    "message": "نشاط الشبكة المباشر"
+  },
+  "active_transfers": {
+    "message": "عمليات النقل النشطة"
+  },
+  "connections_max": {
+    "message": "حتى 32 اتصالاً لكل ملف"
+  },
+  "verified_files": {
+    "message": "الملفات المتحقق منها"
+  },
+  "integrity": {
+    "message": "تم فحص سلامة SHA-256"
+  },
+  "transfer_queue": {
+    "message": "قائمة انتظار النقل"
+  },
+  "search_downloads": {
+    "message": "البحث في التنزيلات"
+  },
+  "file": {
+    "message": "الملف"
+  },
+  "progress": {
+    "message": "التقدم"
+  },
+  "status": {
+    "message": "الحالة"
+  },
+  "actions": {
+    "message": "الإجراءات"
+  },
+  "no_results": {
+    "message": "لا توجد نتائج"
+  },
+  "search_hint": {
+    "message": "جرّب اسماً آخر للملف."
+  },
+  "empty_title": {
+    "message": "تنزيلك التالي يبدأ هنا."
+  },
+  "empty_body": {
+    "message": "أضف رابطاً. يتولى Flux الاتصالات والاستعادة والتحقق."
+  },
+  "add_first": {
+    "message": "أضف أول تنزيل"
+  },
+  "unknown_size": {
+    "message": "حجم غير معروف"
+  },
+  "pause": {
+    "message": "إيقاف مؤقت"
+  },
+  "resume": {
+    "message": "استئناف"
+  },
+  "add_description": {
+    "message": "أضف ملف HTTP أو HTTPS إلى قائمة الانتظار المحلية."
+  },
+  "source_url": {
+    "message": "رابط المصدر"
+  },
+  "filename": {
+    "message": "اسم الملف"
+  },
+  "connections": {
+    "message": "الاتصالات"
+  },
+  "speed_limit": {
+    "message": "حد السرعة (بايت/ث، 0 = غير محدود)"
+  },
+  "expected_hash": {
+    "message": "SHA-256 المتوقع (اختياري)"
+  },
+  "starting": {
+    "message": "جارٍ البدء…"
+  },
+  "start": {
+    "message": "بدء التنزيل"
+  },
+  "language_description": {
+    "message": "اختر اللغة المناسبة لك."
+  },
+  "language": {
+    "message": "اللغة"
+  },
+  "search_languages": {
+    "message": "البحث عن اللغات"
+  },
+  "privacy": {
+    "message": "تخزين محلي. ملفاتك ملكك."
+  },
+  "powered": {
+    "message": "مدعوم بـ Rust · للويب المفتوح"
+  },
+  "queued": {
+    "message": "في الانتظار"
+  },
+  "running": {
+    "message": "جارٍ التنزيل"
+  },
+  "paused": {
+    "message": "متوقف مؤقتاً"
+  },
+  "verifying": {
+    "message": "جارٍ التحقق"
+  },
+  "failed": {
+    "message": "فشل"
+  },
+  "downloadMedia": {
+    "message": "تنزيل الوسائط"
+  },
+  "downloadWith": {
+    "message": "تنزيل باستخدام Flux"
+  },
+  "captureLinks": {
+    "message": "التقاط روابط الصفحة"
+  },
+  "quality": {
+    "message": "الجودة / الترميز"
+  },
+  "automatic": {
+    "message": "تلقائي"
+  },
+  "inspecting": {
+    "message": "جارٍ فحص الوسائط…"
+  },
+  "sentToDesktop": {
+    "message": "تم الحفظ في قائمة سطح المكتب"
+  },
+  "retry": {
+    "message": "إعادة المحاولة"
+  },
+  "wildcard": {
+    "message": "تصفية باستخدام *.zip"
+  },
+  "downloadSelected": {
+    "message": "تنزيل المحدد"
+  },
+  "interceptDownloads": {
+    "message": "التقاط تنزيلات المتصفح"
+  },
+  "interceptExplanation": {
+    "message": "يواصل المتصفح التنزيل حتى يؤكد Flux الاستلام."
+  },
+  "browserIntegration": {
+    "message": "تكامل المتصفح"
+  },
+  "nativeInstallHelp": {
+    "message": "افتح إعدادات Flux على سطح المكتب وثبّت جسر المتصفح."
+  },
+  "saved": {
+    "message": "تم الحفظ"
+  },
+  "desktopOffline": {
+    "message": "سطح المكتب غير متصل"
+  },
+  "waitingForDesktop": {
+    "message": "بانتظار سطح المكتب"
+  },
+  "noMedia": {
+    "message": "لم تُكتشف وسائط"
+  },
+  "mediaHint": {
+    "message": "شغّل فيديو لاكتشاف طلبات الوسائط."
+  },
+  "batch": {
+    "message": "تنزيل جماعي"
+  },
+  "priority": {
+    "message": "الأولوية"
+  },
+  "start_at": {
+    "message": "وقت البدء"
+  },
+  "stop_at": {
+    "message": "وقت الإيقاف"
+  },
+  "media_processing": {
+    "message": "معالجة الوسائط باستخدام FFmpeg"
+  },
+  "audio_url": {
+    "message": "رابط صوت منفصل (اختياري)"
+  },
+  "duration_seconds": {
+    "message": "مدة التسجيل (بالثواني، اختياري)"
+  },
+  "container": {
+    "message": "الحاوية"
+  },
+  "concurrent_tasks": {
+    "message": "التنزيلات المتزامنة"
+  },
+  "download_directory": {
+    "message": "مجلد التنزيلات"
+  },
+  "choose_folder": {
+    "message": "اختيار مجلد"
+  },
+  "queue_enabled": {
+    "message": "تشغيل القائمة"
+  },
+  "clipboard_monitor": {
+    "message": "مراقبة روابط الحافظة"
+  },
+  "minimize_to_tray": {
+    "message": "تصغير إلى شريط النظام"
+  },
+  "notifications": {
+    "message": "إشعارات الاكتمال"
+  },
+  "save": {
+    "message": "حفظ الإعدادات"
+  },
+  "open_file": {
+    "message": "فتح الملف"
+  },
+  "reveal_file": {
+    "message": "عرض في المجلد"
+  },
+  "remove": {
+    "message": "إزالة المهمة"
+  },
+  "remove_description": {
+    "message": "إزالة المهمة وبياناتها المؤقتة؟ يُحتفظ بالملف المكتمل."
+  },
+  "confirm": {
+    "message": "إزالة"
+  },
+  "inspect": {
+    "message": "فحص المسارات"
+  },
+  "queue_start": {
+    "message": "بدء القائمة"
+  },
+  "pause_all": {
+    "message": "إيقاف الكل مؤقتاً"
+  },
+  "install_bridge": {
+    "message": "تثبيت جسر المتصفح"
+  },
+  "installed": {
+    "message": "تم تثبيت جسر المتصفح"
+  },
+  "copy_hash": {
+    "message": "نسخ SHA-256"
+  },
+  "apply": {
+    "message": "تطبيق"
+  },
+  "segment_urls": {
+    "message": "روابط مقاطع TS (رابط لكل سطر، اختياري)"
+  },
+  "global_speed_limit": {
+    "message": "حد السرعة الإجمالي (بايت/ثانية، 0 = بلا حد)"
+  },
+  "appName": {
+    "message": "Flux"
+  },
+  "appDescription": {
+    "message": "أضف ملف HTTP أو HTTPS إلى قائمة الانتظار المحلية."
+  },
+  "mediaReady": {
+    "message": "اختر جودة الفيديو وتنسيق الإخراج، ثم أرسله إلى Flux."
+  }
+}

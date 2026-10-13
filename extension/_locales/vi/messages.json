@@ -1,0 +1,323 @@
+{
+  "workspace": {
+    "message": "Không gian làm việc"
+  },
+  "all": {
+    "message": "Tất cả lượt tải"
+  },
+  "active": {
+    "message": "Đang hoạt động"
+  },
+  "complete": {
+    "message": "Đã hoàn tất"
+  },
+  "settings": {
+    "message": "Cài đặt"
+  },
+  "engine_ready": {
+    "message": "Đã kết nối bộ máy"
+  },
+  "preview": {
+    "message": "Xem trước trên trình duyệt"
+  },
+  "local_first": {
+    "message": "Lưu trên thiết bị của bạn"
+  },
+  "open_source": {
+    "message": "Mã nguồn mở"
+  },
+  "control": {
+    "message": "ĐIỀU KHIỂN TRUYỀN TẢI"
+  },
+  "downloads": {
+    "message": "Tải xuống"
+  },
+  "tagline": {
+    "message": "Mỗi byte trong tầm kiểm soát."
+  },
+  "new_download": {
+    "message": "Tải xuống mới"
+  },
+  "desktop_required": {
+    "message": "Chạy ứng dụng máy tính để tải xuống."
+  },
+  "action_failed": {
+    "message": "Thao tác thất bại"
+  },
+  "details": {
+    "message": "Chi tiết kỹ thuật"
+  },
+  "close": {
+    "message": "Đóng"
+  },
+  "network_speed": {
+    "message": "Tốc độ mạng"
+  },
+  "live_network": {
+    "message": "Hoạt động mạng trực tiếp"
+  },
+  "active_transfers": {
+    "message": "Truyền tải đang hoạt động"
+  },
+  "connections_max": {
+    "message": "Tối đa 32 kết nối mỗi tệp"
+  },
+  "verified_files": {
+    "message": "Tệp đã xác minh"
+  },
+  "integrity": {
+    "message": "Đã kiểm tra tính toàn vẹn SHA-256"
+  },
+  "transfer_queue": {
+    "message": "Hàng đợi truyền tải"
+  },
+  "search_downloads": {
+    "message": "Tìm lượt tải"
+  },
+  "file": {
+    "message": "Tệp"
+  },
+  "progress": {
+    "message": "Tiến độ"
+  },
+  "status": {
+    "message": "Trạng thái"
+  },
+  "actions": {
+    "message": "Thao tác"
+  },
+  "no_results": {
+    "message": "Không có kết quả"
+  },
+  "search_hint": {
+    "message": "Thử tên tệp khác."
+  },
+  "empty_title": {
+    "message": "Lượt tải tiếp theo bắt đầu tại đây."
+  },
+  "empty_body": {
+    "message": "Thêm liên kết. Flux xử lý kết nối, khôi phục và xác minh."
+  },
+  "add_first": {
+    "message": "Thêm lượt tải đầu tiên"
+  },
+  "unknown_size": {
+    "message": "Chưa rõ kích thước"
+  },
+  "pause": {
+    "message": "Tạm dừng"
+  },
+  "resume": {
+    "message": "Tiếp tục"
+  },
+  "add_description": {
+    "message": "Thêm tệp HTTP hoặc HTTPS vào hàng đợi cục bộ."
+  },
+  "source_url": {
+    "message": "URL nguồn"
+  },
+  "filename": {
+    "message": "Tên tệp"
+  },
+  "connections": {
+    "message": "Kết nối"
+  },
+  "speed_limit": {
+    "message": "Giới hạn tốc độ (B/s, 0 = không giới hạn)"
+  },
+  "expected_hash": {
+    "message": "SHA-256 mong đợi (tùy chọn)"
+  },
+  "starting": {
+    "message": "Đang bắt đầu…"
+  },
+  "start": {
+    "message": "Bắt đầu tải"
+  },
+  "language_description": {
+    "message": "Chọn ngôn ngữ bạn yêu thích."
+  },
+  "language": {
+    "message": "Ngôn ngữ"
+  },
+  "search_languages": {
+    "message": "Tìm ngôn ngữ"
+  },
+  "privacy": {
+    "message": "Lưu trữ cục bộ. Tệp luôn thuộc về bạn."
+  },
+  "powered": {
+    "message": "Dùng Rust · Cho web mở"
+  },
+  "queued": {
+    "message": "Đang chờ"
+  },
+  "running": {
+    "message": "Đang tải"
+  },
+  "paused": {
+    "message": "Đã tạm dừng"
+  },
+  "verifying": {
+    "message": "Đang xác minh"
+  },
+  "failed": {
+    "message": "Thất bại"
+  },
+  "downloadMedia": {
+    "message": "Tải nội dung đa phương tiện"
+  },
+  "downloadWith": {
+    "message": "Tải bằng Flux"
+  },
+  "captureLinks": {
+    "message": "Thu thập liên kết trang"
+  },
+  "quality": {
+    "message": "Chất lượng / codec"
+  },
+  "automatic": {
+    "message": "Tự động"
+  },
+  "inspecting": {
+    "message": "Đang kiểm tra nội dung…"
+  },
+  "sentToDesktop": {
+    "message": "Đã lưu vào hàng đợi máy tính"
+  },
+  "retry": {
+    "message": "Thử lại"
+  },
+  "wildcard": {
+    "message": "Lọc bằng *.zip"
+  },
+  "downloadSelected": {
+    "message": "Tải mục đã chọn"
+  },
+  "interceptDownloads": {
+    "message": "Tiếp nhận tải xuống trình duyệt"
+  },
+  "interceptExplanation": {
+    "message": "Trình duyệt tiếp tục tải đến khi Flux xác nhận đã nhận."
+  },
+  "browserIntegration": {
+    "message": "Tích hợp trình duyệt"
+  },
+  "nativeInstallHelp": {
+    "message": "Mở cài đặt Flux và cài cầu nối trình duyệt."
+  },
+  "saved": {
+    "message": "Đã lưu"
+  },
+  "desktopOffline": {
+    "message": "Ứng dụng ngoại tuyến"
+  },
+  "waitingForDesktop": {
+    "message": "Đang chờ ứng dụng"
+  },
+  "noMedia": {
+    "message": "Không tìm thấy nội dung"
+  },
+  "mediaHint": {
+    "message": "Phát video để phát hiện yêu cầu nội dung."
+  },
+  "batch": {
+    "message": "Tải hàng loạt"
+  },
+  "priority": {
+    "message": "Ưu tiên"
+  },
+  "start_at": {
+    "message": "Thời gian bắt đầu"
+  },
+  "stop_at": {
+    "message": "Thời gian dừng"
+  },
+  "media_processing": {
+    "message": "Xử lý nội dung bằng FFmpeg"
+  },
+  "audio_url": {
+    "message": "URL âm thanh riêng (tùy chọn)"
+  },
+  "duration_seconds": {
+    "message": "Thời lượng ghi (giây, tùy chọn)"
+  },
+  "container": {
+    "message": "Định dạng chứa"
+  },
+  "concurrent_tasks": {
+    "message": "Tải xuống đồng thời"
+  },
+  "download_directory": {
+    "message": "Thư mục tải xuống"
+  },
+  "choose_folder": {
+    "message": "Chọn thư mục"
+  },
+  "queue_enabled": {
+    "message": "Chạy hàng đợi"
+  },
+  "clipboard_monitor": {
+    "message": "Theo dõi liên kết bộ nhớ tạm"
+  },
+  "minimize_to_tray": {
+    "message": "Thu nhỏ vào khay"
+  },
+  "notifications": {
+    "message": "Thông báo hoàn tất"
+  },
+  "save": {
+    "message": "Lưu cài đặt"
+  },
+  "open_file": {
+    "message": "Mở tệp"
+  },
+  "reveal_file": {
+    "message": "Hiện trong thư mục"
+  },
+  "remove": {
+    "message": "Xóa tác vụ"
+  },
+  "remove_description": {
+    "message": "Xóa tác vụ và dữ liệu tạm? Tệp hoàn tất được giữ lại."
+  },
+  "confirm": {
+    "message": "Xóa"
+  },
+  "inspect": {
+    "message": "Kiểm tra luồng"
+  },
+  "queue_start": {
+    "message": "Bắt đầu hàng đợi"
+  },
+  "pause_all": {
+    "message": "Tạm dừng tất cả"
+  },
+  "install_bridge": {
+    "message": "Cài cầu nối trình duyệt"
+  },
+  "installed": {
+    "message": "Đã cài cầu nối trình duyệt"
+  },
+  "copy_hash": {
+    "message": "Sao chép SHA-256"
+  },
+  "apply": {
+    "message": "Áp dụng"
+  },
+  "segment_urls": {
+    "message": "URL đoạn TS (mỗi dòng một URL, tùy chọn)"
+  },
+  "global_speed_limit": {
+    "message": "Giới hạn tốc độ tổng (byte/giây, 0 = không giới hạn)"
+  },
+  "appName": {
+    "message": "Flux"
+  },
+  "appDescription": {
+    "message": "Thêm tệp HTTP hoặc HTTPS vào hàng đợi cục bộ."
+  },
+  "mediaReady": {
+    "message": "Chọn chất lượng video và định dạng đầu ra, rồi gửi đến Flux."
+  }
+}

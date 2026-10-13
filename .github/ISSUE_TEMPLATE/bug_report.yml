@@ -1,0 +1,29 @@
+name: Bug report
+description: Report a reproducible problem with Flux
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Flux version
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Windows and browser versions
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include the expected behavior and what actually happened.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: Remove cookies, authorization headers, signed URL parameters and personal file paths before attaching logs.

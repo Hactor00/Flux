@@ -1,0 +1,45 @@
+name: Prepare browser store packages
+on:
+  workflow_dispatch:
+    inputs:
+      sign_firefox:
+        description: Request a Mozilla signed XPI for self-distribution
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.18.0"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Validate Gecko production manifest
+        run: npx --yes web-ext@10.7.0 lint --source-dir extension-firefox-modern --warnings-as-errors
+      - name: Package Chromium and Gecko extensions
+        run: ./scripts/package-browser-stores.ps1
+      - name: Verify runtime-only package contents
+        run: ./scripts/verify-browser-stores.ps1
+      - name: Sign Firefox for self-distribution
+        if: inputs.sign_firefox
+        env:
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        shell: pwsh
+        run: |
+          if (-not $env:AMO_JWT_ISSUER -or -not $env:AMO_JWT_SECRET) { throw 'Mozilla signing credentials are required for the requested signing operation.' }
+          npx --yes web-ext@10.7.0 sign --source-dir extension-firefox-modern --channel unlisted --api-key "$env:AMO_JWT_ISSUER" --api-secret "$env:AMO_JWT_SECRET" --artifacts-dir .tools/browser-stores
+          if ($LASTEXITCODE -ne 0) { throw 'Mozilla signing failed.' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: browser-store-packages
+          path: |
+            .tools/browser-stores/*.zip
+            .tools/browser-stores/*.xpi
+            .tools/browser-stores/SHA256SUMS.txt
+          if-no-files-found: error

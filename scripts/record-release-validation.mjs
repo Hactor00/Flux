@@ -12,6 +12,8 @@ const records = Object.fromEntries(
       "windows",
       "desktop-integration",
       "media-window",
+      "torrent-window",
+      "browser-stores",
       "hud-repair",
       "firefox-120.0",
       "firefox-157.0.1",
@@ -20,9 +22,20 @@ const records = Object.fromEntries(
 );
 for (const [name, record] of Object.entries(records)) {
   if (!record.passed) throw Error(`${name} did not pass`);
-  if (name.startsWith("firefox-") && record.version !== version)
-    throw Error("Firefox validation version mismatch");
+  if (
+    (name.startsWith("firefox-") ||
+      ["torrent-window", "browser-stores"].includes(name)) &&
+    record.version !== version
+  )
+    throw Error(`${name} validation version mismatch`);
 }
+if (
+  !records.installer.installed_binary_hashes_verified ||
+  !records["torrent-window"].torrent_file_row_visible
+)
+  throw Error(
+    "Current package identity or torrent row visibility was not verified",
+  );
 if (
   records.installer.version !== version ||
   records["daily-use"].version !== version ||
@@ -65,7 +78,7 @@ for (const name of [
 const audit = await json(".tools/production-audit.json");
 const translations = await json("src/locales/en-US.json");
 const firefoxLint = await json(".tools/firefox-lint-modern.json");
-if (firefoxLint.summary.errors !== 0)
+if (firefoxLint.summary.errors !== 0 || firefoxLint.summary.warnings !== 0)
   throw Error("Firefox manifest validation failed");
 const report = {
   version,
@@ -89,7 +102,7 @@ const report = {
     core_scope:
       process.env.GITHUB_ACTIONS === "true"
         ? "Core tests executed during the current GitHub Actions release build"
-        : "Retained v1.7 core test baseline; the HUD repair did not modify the download engine",
+        : "Core tests executed during the current local release validation",
   },
   locales: 20,
   locale_keys: Object.keys(translations).length,
@@ -98,6 +111,12 @@ const report = {
   frontend_build: "strict TypeScript + Vite production build passed",
   npm_audit_production_vulnerabilities: audit.metadata.vulnerabilities.total,
   scope: [
+    "Embedded BitTorrent v1 engine, magnet and .torrent import, piece verification and SHA-256 outputs",
+    "Native torrent window import, real peer transfer and pause/resume",
+    "Direct sparse HTTP staging, non-overlapping offsets and legacy checkpoint migration",
+    "DOM/network/MSE hints, audio streams, fps and subtitles",
+    "Durable playlist/channel/page batch queue and origin-scoped session renewal",
+    "Brave registry binding and reviewed browser store packaging workflow",
     "Firefox Gecko MV3 extension, native caller verification and browser interception",
     "Firefox 120 fixed HUD and Firefox 140+ popover/native data declarations",
     "Cancellable completion actions",
@@ -113,6 +132,8 @@ const report = {
   native_windows: records.windows,
   native_ipc: records["desktop-integration"],
   native_media_window: records["media-window"],
+  native_torrent_window: records["torrent-window"],
+  browser_store_packages: records["browser-stores"],
   hud_repair: records["hud-repair"],
   firefox: [records["firefox-120.0"], records["firefox-157.0.1"]],
   firefox_lint: {

@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "Wähle Videoqualität und Ausgabeformat und sende das Video an Flux."
+  },
+  "audioTrack": {
+    "message": "Audiospur"
+  },
+  "subtitleTrack": {
+    "message": "Untertitel"
+  },
+  "originalAudio": {
+    "message": "Originalton"
+  },
+  "noSubtitles": {
+    "message": "Keine Untertitel"
+  },
+  "queueCollection": {
+    "message": "Sammlung einreihen"
+  },
+  "collectionHint": {
+    "message": "Sende bis zu 500 Einträge einer Wiedergabeliste oder eines Kanals an die Flux-Downloadwarteschlange."
   }
 }

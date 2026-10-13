@@ -14,6 +14,29 @@ export interface Input {
   browser_source?: { page_url: string; frame_url?: string | null } | null;
   transport?: "auto" | "tcp" | "http3";
   content_type?: string | null;
+  torrent?: TorrentOptions | null;
+}
+export interface TorrentOptions {
+  upload_limit: number;
+  peer_limit: number;
+  only_files: number[];
+  initial_peers: string[];
+}
+export interface TorrentFile {
+  index: number;
+  path: string;
+  length: number;
+  selected: boolean;
+  sha256: string | null;
+}
+export interface TorrentSnapshot {
+  file_count?: number;
+  info_hash: string;
+  state: string;
+  peers: number;
+  uploaded: number;
+  upload_bps: number;
+  files: TorrentFile[];
 }
 export interface MediaOptions {
   kind?: "file" | "hls" | "dash" | null;
@@ -45,6 +68,7 @@ export interface MediaChapter {
   title: string;
 }
 export interface MediaStream {
+  fps?: number | null;
   index: number;
   codec_type: string;
   codec_name: string;
@@ -95,6 +119,9 @@ export interface ResolvedFormat {
   codec: string;
   size: number | null;
   container: "mp4" | "mkv" | "mp3";
+  fps?: number | null;
+  audio_only?: boolean;
+  audio_codec?: string | null;
 }
 export interface ResolvedMedia {
   title: string;
@@ -102,6 +129,27 @@ export interface ResolvedMedia {
   formats: ResolvedFormat[];
   subtitles?: SubtitleTrack[];
   chapters?: MediaChapter[];
+  audio_tracks?: ResolvedAudioTrack[];
+}
+export interface ResolvedAudioTrack {
+  id: string;
+  url: string;
+  codec: string;
+  language: string | null;
+  bitrate: number | null;
+  size: number | null;
+}
+export interface CollectionEntry {
+  url: string;
+  title: string;
+  duration: number | null;
+}
+export interface ResolvedCollection {
+  title: string;
+  entries: CollectionEntry[];
+  next_offset: number;
+  has_more: boolean;
+  total: number | null;
 }
 export const defaultSettings: Settings = {
   concurrent_tasks: 3,
@@ -149,6 +197,7 @@ export interface Task {
   sha256: string | null;
   error: string | null;
   destination: string;
+  torrent?: TorrentSnapshot | null;
 }
 export const taskFilename = (task: Task) =>
   task.destination.split(/[\\/]/).pop() || task.request.filename;
@@ -243,7 +292,31 @@ export const api = {
     referer: string | null = null,
     taskId: string | null = null,
   ) => invoke<MediaInfo>("inspect_media", { url, referer, taskId }),
-  resolve: (url: string) => invoke<ResolvedMedia>("resolve_media", { url }),
+  resolve: (url: string, taskId?: string) =>
+    invoke<ResolvedMedia>("resolve_media", { url, taskId }),
+  inspectCollection: (url: string, offset = 0, limit = 50) =>
+    invoke<ResolvedCollection>("inspect_collection", { url, offset, limit }),
+  importTorrent: (
+    path: string,
+    filename: string,
+    directory: string | null,
+    start: boolean,
+    options: TorrentOptions,
+    transfer: Pick<
+      Input,
+      "speed_limit" | "priority" | "start_at" | "stop_at" | "expected_sha256"
+    >,
+  ) =>
+    invoke<Task>("import_torrent", {
+      path,
+      filename,
+      directory,
+      start,
+      options,
+      transfer,
+    }),
+  torrentOptions: (id: string, options: TorrentOptions, speedLimit: number) =>
+    invoke<Task>("set_torrent_options", { id, options, speedLimit }),
   expand: (input: string) => invoke<string[]>("expand_batch", { input }),
   registerBrowser: () => invoke<string>("register_browser"),
   suggestDirectory: (filename: string, contentType: string | null = null) =>

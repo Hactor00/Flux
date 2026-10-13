@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "选择视频画质和输出格式，然后发送到 Flux。"
+  },
+  "audioTrack": {
+    "message": "音轨"
+  },
+  "subtitleTrack": {
+    "message": "字幕"
+  },
+  "originalAudio": {
+    "message": "原始音频"
+  },
+  "noSubtitles": {
+    "message": "无字幕"
+  },
+  "queueCollection": {
+    "message": "加入合集队列"
+  },
+  "collectionHint": {
+    "message": "将播放列表或频道中的最多500个项目发送到Flux下载队列。"
   }
 }

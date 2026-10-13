@@ -18,9 +18,13 @@ import {
   Film,
   Music,
   Archive,
+  Network,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { isTauri } from "@tauri-apps/api/core";
+import { getVersion } from "@tauri-apps/api/app";
+import packageInfo from "../package.json";
+import { isTorrentTask } from "./downloads";
 import * as Menu from "@radix-ui/react-dropdown-menu";
 import * as Context from "@radix-ui/react-context-menu";
 import * as Alert from "@radix-ui/react-alert-dialog";
@@ -51,6 +55,7 @@ function bytes(value: number, locale: string) {
   return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(value / 1024 ** exponent)} ${units[exponent]}`;
 }
 function FileIcon({ task }: { task: Task }) {
+  if (isTorrentTask(task)) return <Network size={16} />;
   const name = taskFilename(task);
   return /\.(mp4|mkv|webm|mov)$/i.test(name) ? (
     <Film size={16} />
@@ -82,6 +87,13 @@ export default function App() {
       "file" | "status" | "total" | "download_time" | null
     >(null),
     [ascending, setAscending] = useState(true);
+  const [version, setVersion] = useState(packageInfo.version);
+  useEffect(() => {
+    if (isTauri())
+      void getVersion()
+        .then(setVersion)
+        .catch(() => {});
+  }, []);
   const [addOpen, setAddOpen] = useState(false),
     [settingsOpen, setSettingsOpen] = useState(false),
     [details, setDetails] = useState<Task | null>(null),
@@ -177,6 +189,7 @@ export default function App() {
           .toLocaleLowerCase()
           .includes(search.toLocaleLowerCase()) &&
         (filter === "all" ||
+          (filter === "torrent" && isTorrentTask(task)) ||
           (filter === "active" &&
             ["running", "queued", "verifying"].includes(task.status)) ||
           task.status === filter),
@@ -276,9 +289,11 @@ export default function App() {
     tasks.filter((task) =>
       key === "all"
         ? task.status !== "cancelled"
-        : key === "active"
-          ? ["running", "verifying", "queued"].includes(task.status)
-          : task.status === key,
+        : key === "torrent"
+          ? task.status !== "cancelled" && isTorrentTask(task)
+          : key === "active"
+            ? ["running", "verifying", "queued"].includes(task.status)
+            : task.status === key,
     ).length;
   const menuItem = (text: string, action: () => void, disabled = false) => (
     <Menu.Item
@@ -326,7 +341,7 @@ export default function App() {
             </Menu.Content>
           </Menu.Portal>
         </Menu.Root>
-        <span className="desktop-version">1.5.0</span>
+        <span className="desktop-version">{version}</span>
       </div>
       <div className="desktop-toolbar">
         <button className="primary" onClick={openAdd} disabled={!desktop}>
@@ -376,6 +391,7 @@ export default function App() {
             "paused",
             "failed",
             "awaiting_approval",
+            "torrent",
           ].map((key, index) => (
             <button
               key={key}
@@ -390,6 +406,7 @@ export default function App() {
                   <Pause size={16} />,
                   <AlertCircle size={16} />,
                   <Clock size={16} />,
+                  <Network size={16} />,
                 ][index]
               }
               <span>{t(key)}</span>
@@ -549,7 +566,7 @@ export default function App() {
                               aria-valuenow={
                                 percent == null
                                   ? undefined
-                                  : Math.round(percent)
+                                  : Math.floor(percent)
                               }
                               aria-valuemin={0}
                               aria-valuemax={100}
@@ -648,7 +665,7 @@ export default function App() {
                             disabled={task.status !== "complete"}
                             onSelect={() => void run(() => api.open(task.id))}
                           >
-                            {t("open_file")}
+                            {t(isTorrentTask(task) ? "open_folder" : "open_file")}
                           </Context.Item>
                           <Context.Item
                             className="desktop-menu-item"

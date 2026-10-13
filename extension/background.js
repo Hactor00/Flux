@@ -1,10 +1,20 @@
 import { getBrowserApi, isGecko, nativeAllowed } from "./browser-api.js";
 const api = getBrowserApi();
 import { NativeBridge, DurableOutbox } from "./bridge.js";
-import { makeInput, mediaKind, MAX_CANDIDATES } from "./shared.js";
+import {
+  makeInput,
+  mediaKind,
+  MAX_CANDIDATES,
+  isProviderUrl,
+} from "./shared.js";
 import { renewSource } from "./healing.js";
+import { refreshCredentials } from "./session.js";
 
 const bridge = new NativeBridge();
+async function resolverCredentials(tabId, url, frameId = 0) {
+  const credentials = await credentialsFor(tabId, url, frameId);
+  return credentials.length ? bridge.request("protect", { credentials }) : null;
+}
 let healingTimer;
 let healingBusy = false;
 const refreshInFlight = new Set();
@@ -49,13 +59,12 @@ bridge.onConnected = () => {
   }, 2000);
   healingTimer.unref?.();
 };
-async function credentialsFor(tabId, url) {
+async function credentialsFor(tabId, url, frameId = 0) {
+  if (!/^https?:$/.test(new URL(url).protocol)) return [];
   await authGate;
   const downloadCredentials = (
     (await api.storage.session.get("auth:downloads"))["auth:downloads"] || []
   ).find((item) => item.url === url && Date.now() - item.seenAt < 120000);
-  if (!Number.isInteger(tabId))
-    return downloadCredentials ? [downloadCredentials.credentials] : [];
   const key = `auth:${tabId}`;
   const origin = new URL(url).origin;
   const origins = ((await api.storage.session.get(key))[key] || [])
@@ -63,12 +72,17 @@ async function credentialsFor(tabId, url) {
     .sort((a, b) => Number(b.origin === origin) - Number(a.origin === origin))
     .slice(0, 8)
     .map(({ seenAt, ...credentials }) => credentials);
-  return downloadCredentials
+  const captured = downloadCredentials
     ? [
         downloadCredentials.credentials,
         ...origins.filter((item) => item.origin !== origin),
       ].slice(0, 8)
     : origins;
+  const keyMedia = `media:${tabId}`;
+  const media = Number.isInteger(tabId)
+    ? (await api.storage.session.get(keyMedia))[keyMedia] || []
+    : [];
+  return refreshCredentials(api, tabId, url, captured, media, frameId);
 }
 const outbox = new DurableOutbox(
   bridge,
@@ -123,6 +137,7 @@ const outbox = new DurableOutbox(
 let mediaGate = Promise.resolve();
 let authGate = Promise.resolve();
 let interceptionGate = Promise.resolve();
+let linksGate = Promise.resolve();
 let interceptEnabled = true;
 let nativeEnabled = !isGecko(api);
 const preferencesReady = api.storage.local
@@ -253,16 +268,16 @@ api.webRequest.onBeforeSendHeaders.addListener(
   { urls: ["http://*/*", "https://*/*"] },
   isGecko(api) ? ["requestHeaders"] : ["requestHeaders", "extraHeaders"],
 );
-function capture(tabId, url, contentType, referer, frameId) {
+function capture(
+  tabId,
+  url,
+  contentType,
+  referer,
+  frameId,
+  source = "network",
+) {
   const kind = mediaKind(url, contentType);
-  if (
-    tabId < 0 ||
-    !kind ||
-    (kind === "file" &&
-      !/^video\//i.test(contentType) &&
-      /\.(mp3|wav|ogg|aac|flac)(?:\?|$)/i.test(url))
-  )
-    return;
+  if (tabId < 0 || !kind) return;
   mediaGate = mediaGate
     .catch(() => {})
     .then(async () => {
@@ -276,6 +291,7 @@ function capture(tabId, url, contentType, referer, frameId) {
         contentType,
         referer,
         frameId,
+        source,
         seenAt: Date.now(),
       };
       if (found) Object.assign(found, item);
@@ -319,12 +335,17 @@ api.tabs.onRemoved.addListener((tabId) => {
     `media:${tabId}`,
     `auth:${tabId}`,
     `links:${tabId}`,
+    `link-frames:${tabId}`,
     `request:${tabId}`,
   ]);
 });
 api.tabs.onUpdated.addListener((tabId, change) => {
   if (change.status === "loading")
-    void api.storage.session.remove(`media:${tabId}`);
+    void api.storage.session.remove([
+      `media:${tabId}`,
+      `links:${tabId}`,
+      `link-frames:${tabId}`,
+    ]);
 });
 async function dictionary() {
   const { locale = "en-US" } = await api.storage.local.get("locale");
@@ -505,7 +526,126 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
     }
     if (message.type === "dictionary") return dictionary();
     if (message.type === "resolve")
-      return bridge.request("resolve", { url: message.url });
+      return bridge.request("resolve", {
+        url: message.url,
+        protected_credentials: await resolverCredentials(
+          sender.tab?.id ?? message.tabId,
+          message.url,
+          sender.frameId ?? 0,
+        ),
+      });
+    if (message.type === "resolve-collection") {
+      if (sender.tab)
+        throw new Error("Collection resolution requires extension UI");
+      return bridge.request("resolve_collection", {
+        url: message.url,
+        offset: message.offset ?? 0,
+        limit: message.limit ?? 50,
+        protected_credentials: await resolverCredentials(
+          message.tabId,
+          message.url,
+        ),
+      });
+    }
+    if (message.type === "enqueue-batch") {
+      if (sender.tab) throw new Error("Batch queueing requires extension UI");
+      if (!Number.isInteger(message.tabId))
+        throw new Error("Missing tab identifier");
+      const stored = await api.storage.session.get(`links:${message.tabId}`);
+      const captured = new Set(stored[`links:${message.tabId}`] || []);
+      if (
+        !Array.isArray(message.urls) ||
+        !message.urls.length ||
+        message.urls.length > 500
+      )
+        throw new Error("Batch must contain 1 to 500 links");
+      const inputs = message.urls.map((url) => {
+        if (!captured.has(url))
+          throw new Error("Link does not belong to the captured page");
+        return makeInput(url, {
+          referer: message.referer,
+          media: isProviderUrl(url)
+            ? {
+                container: "mp4",
+                provider: {
+                  url,
+                  format_id: null,
+                  audio_format_id: null,
+                  height: null,
+                },
+              }
+            : null,
+        });
+      });
+      return {
+        ids: await outbox.enqueueBatch(inputs, { tabId: message.tabId }),
+      };
+    }
+    if (message.type === "enqueue-collection") {
+      if (sender.tab || !isProviderUrl(message.url))
+        throw new Error(
+          "Collection queueing requires a supported extension UI source",
+        );
+      const inputs = [],
+        urls = new Set();
+      let offset = 0;
+      const protected_credentials = await resolverCredentials(
+        message.tabId,
+        message.url,
+      );
+      while (offset < 500) {
+        const page = await bridge.request("resolve_collection", {
+          url: message.url,
+          offset,
+          limit: Math.min(50, 500 - offset),
+          protected_credentials,
+        });
+        for (const entry of page.entries || []) {
+          if (!isProviderUrl(entry.url) || urls.has(entry.url)) continue;
+          urls.add(entry.url);
+          inputs.push(
+            makeInput(entry.url, {
+              filename: entry.title,
+              referer: message.url,
+              media: {
+                container: "mp4",
+                provider: {
+                  url: entry.url,
+                  format_id: null,
+                  audio_format_id: null,
+                  height: null,
+                },
+              },
+            }),
+          );
+        }
+        if (!page.has_more) break;
+        if (!Number.isInteger(page.next_offset) || page.next_offset <= offset)
+          throw new Error("Invalid collection pagination");
+        offset = page.next_offset;
+      }
+      return {
+        ids: await outbox.enqueueBatch(inputs, { tabId: message.tabId }),
+      };
+    }
+    if (message.type === "dom-source" && sender.tab) {
+      if (
+        !nativeEnabled ||
+        typeof message.url !== "string" ||
+        message.url.length > 16384
+      )
+        throw new Error("Invalid DOM media source");
+      const url = new URL(message.url);
+      if (!/^https?:$/.test(url.protocol) || url.username || url.password)
+        throw new Error("Invalid DOM media URL");
+      const type =
+        typeof message.contentType === "string" &&
+        /^(video|audio)\//i.test(message.contentType)
+          ? message.contentType.slice(0, 128)
+          : "";
+      capture(sender.tab.id, url.href, type, sender.url, sender.frameId, "dom");
+      return true;
+    }
     if (message.type === "enqueue")
       return {
         id: await outbox.enqueue(
@@ -552,8 +692,25 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
             )
             .slice(0, 500)
         : [];
-      await api.storage.session.set({ [`links:${sender.tab.id}`]: links });
-      return { count: links.length };
+      const next = linksGate
+        .catch(() => {})
+        .then(async () => {
+          const key = `link-frames:${sender.tab.id}`;
+          const frames = (await api.storage.session.get(key))[key] || {};
+          frames[String(sender.frameId ?? 0)] = links;
+          const bounded = Object.fromEntries(Object.entries(frames).slice(-16));
+          const merged = [...new Set(Object.values(bounded).flat())].slice(
+            0,
+            500,
+          );
+          await api.storage.session.set({
+            [key]: bounded,
+            [`links:${sender.tab.id}`]: merged,
+          });
+          return { count: merged.length };
+        });
+      linksGate = next;
+      return next;
     }
     if (message.type === "retry") {
       void outbox

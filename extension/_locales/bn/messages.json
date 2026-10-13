@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "ভিডিওর মান ও আউটপুট ফরম্যাট বেছে নিয়ে Flux-এ পাঠান।"
+  },
+  "audioTrack": {
+    "message": "অডিও ট্র্যাক"
+  },
+  "subtitleTrack": {
+    "message": "সাবটাইটেল"
+  },
+  "originalAudio": {
+    "message": "মূল অডিও"
+  },
+  "noSubtitles": {
+    "message": "সাবটাইটেল নেই"
+  },
+  "queueCollection": {
+    "message": "সংগ্রহ সারিতে যোগ করুন"
+  },
+  "collectionHint": {
+    "message": "প্লেলিস্ট বা চ্যানেলের সর্বোচ্চ ৫০০টি আইটেম Flux ডাউনলোড সারিতে পাঠান।"
   }
 }

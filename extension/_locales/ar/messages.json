@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "اختر جودة الفيديو وتنسيق الإخراج، ثم أرسله إلى Flux."
+  },
+  "audioTrack": {
+    "message": "المسار الصوتي"
+  },
+  "subtitleTrack": {
+    "message": "الترجمة"
+  },
+  "originalAudio": {
+    "message": "الصوت الأصلي"
+  },
+  "noSubtitles": {
+    "message": "بدون ترجمة"
+  },
+  "queueCollection": {
+    "message": "إضافة المجموعة إلى الطابور"
+  },
+  "collectionHint": {
+    "message": "أرسل حتى 500 عنصر من قائمة تشغيل أو قناة إلى طابور تنزيل Flux."
   }
 }

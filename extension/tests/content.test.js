@@ -19,9 +19,11 @@ async function fixture({
   storage = {},
   popover = true,
   gecko = false,
+  html = "<!doctype html><title>Actual Film</title><video></video>",
+  inspected,
 } = {}) {
   const dom = new JSDOM(
-    "<!doctype html><title>Actual Film</title><video></video>",
+    html,
     { url, runScripts: "outside-only", pretendToBeVisual: true },
   );
   const { window } = dom,
@@ -57,11 +59,12 @@ async function fixture({
     left: 100,
     right: 740,
   });
+  window.HTMLAudioElement.prototype.getBoundingClientRect = () => ({width:320,height:48,left:100,right:420,top:100,bottom:148});
   window.ResizeObserver = class {
     observe() {}
     disconnect() {}
   };
-  window.document.querySelector("video").src = src;
+  window.document.querySelector("video,audio").src = src;
   window.chrome = {
     storage: {
       local: {
@@ -89,7 +92,7 @@ async function fixture({
           if (resolveWait) await resolveWait;
           result = resolved;
         } else if (message.type === "inspect")
-          result = {
+          result = inspected || {
             streams: [
               {
                 codec_type: "video",
@@ -122,6 +125,56 @@ async function until(condition) {
     await new Promise((resolve) => setTimeout(resolve, 10));
   }
 }
+test("audio DOM sources create a native-sized HUD and select real audio without a blob transfer",async()=>{
+  const f=await fixture({html:'<!doctype html><title>Track</title><audio controls><source src="https://audio.test/track.m4a" type="audio/mp4"></audio>',
+    src:"blob:https://film.test/audio",inspected:{streams:[{codec_type:"audio",codec_name:"aac",index:0}]}});
+  try {
+    assert.equal(f.roots[0].host.style.display,"block");
+    f.roots[0].querySelector(".main").click();
+    await until(()=>!f.roots[0].querySelector(".download").disabled);
+    f.roots[0].querySelector(".download").click();
+    await until(()=>f.calls.some((call)=>call.type==="enqueue"));
+    const message=f.calls.find((call)=>call.type==="enqueue");
+    assert.equal(message.url,"https://audio.test/track.m4a");
+    assert.equal(message.options.media.container,"mp3");
+    assert.equal(message.options.media.audio_stream,0);
+    assert.equal(message.options.media.video_stream,null);
+    assert.ok(f.calls.some((call)=>call.type==="dom-source" && call.url===message.url));
+  } finally {f.close();}
+});
+
+test("provider HUD preserves 60fps, audio language selection and an explicitly selected subtitle",async()=>{
+  const f=await fixture({url:"https://vimeo.com/123",src:"blob:https://vimeo.com/playing",resolved:{title:"Film",formats:[{
+    id:"1080",height:1080,fps:60,url:"https://cdn.test/video",container:"mp4",audio_url:"https://cdn.test/default"}],
+    audio_tracks:[{id:"fr",url:"https://cdn.test/fr",codec:"aac",language:"fr",bitrate:128}],
+    subtitles:[{url:"https://cdn.test/en.vtt",index:null,language:"en",title:"English"}]}});
+  try {
+    const shadow=f.roots[0];shadow.querySelector(".main").click();
+    await until(()=>!shadow.querySelector(".download").disabled);
+    assert.match(shadow.querySelector("select").textContent,/1080p 60fps/);
+    shadow.querySelector(`select[aria-label="${words.audioTrack}"]`).value="0";
+    shadow.querySelector(`select[aria-label="${words.subtitleTrack}"]`).value="0";
+    shadow.querySelector(".download").click();
+    await until(()=>f.calls.some((call)=>call.type==="enqueue"));
+    const media=f.calls.find((call)=>call.type==="enqueue").options.media;
+    assert.equal(media.audio_url,"https://cdn.test/fr");
+    assert.equal(media.provider.audio_format_id,"fr");
+    assert.equal(media.subtitle_mode,"embed");
+    assert.equal(media.subtitles[0].language,"en");
+  } finally {f.close();}
+});
+
+test("same-frame source snapshot reads DOM and resource URLs without altering playback",async()=>{
+  const f=await fixture({src:"https://film.test/actual.mp4"});
+  try {
+    let response;
+    const result=f.listeners[0]({type:"source-snapshot"},{},(value)=>{response=value;});
+    assert.equal(result,true);
+    assert.ok(response.urls.includes("https://film.test/actual.mp4"));
+    assert.equal(response.page_url,"https://film.test/watch");
+    assert.equal(f.window.document.querySelector("video").currentTime,0);
+  } finally {f.close();}
+});
 
 test("HUD close persists through layout changes and new players on the same page", async () => {
   const f = await fixture({ src: "https://film.test/actual.mp4" });
@@ -236,6 +289,7 @@ test("YouTube HUD uses resolved video and its actual audio when MP3 is selected"
       {
         url: "https://www.youtube.com/watch?v=fixture",
         format_id: "137",
+      audio_format_id:null,
         height: 1080,
       },
     );

@@ -1,9 +1,10 @@
-param([switch]$Signed)
+param([switch]$Signed, [string]$OutputDirectory)
 $ErrorActionPreference = 'Stop'
 $workspace = Split-Path -Parent $PSScriptRoot
 $version = (Get-Content (Join-Path $workspace 'package.json') -Raw | ConvertFrom-Json).version
 $source = Join-Path $workspace $(if ($Signed) {'signed'} else {'release'})
-$destination = Join-Path $workspace 'public-release'
+$destination = if ($OutputDirectory) { [IO.Path]::GetFullPath((Join-Path $workspace $OutputDirectory)) } else { Join-Path $workspace 'public-release' }
+if (-not $destination.StartsWith($workspace + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) { throw 'Release destination must stay inside the workspace.' }
 New-Item -ItemType Directory -Force -Path $destination | Out-Null
 $names = @("Flux_${version}_x64-setup.exe","Flux-$version-windows-x64.zip","Flux-$version-chrome.zip","Flux-$version-firefox.zip","Flux-$version-firefox-120.zip","Flux-$version-source.zip")
 foreach ($name in $names) {

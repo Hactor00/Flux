@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "ویڈیو کا معیار اور آؤٹ پٹ فارمیٹ منتخب کرکے Flux کو بھیجیں۔"
+  },
+  "audioTrack": {
+    "message": "آڈیو ٹریک"
+  },
+  "subtitleTrack": {
+    "message": "ذیلی عنوانات"
+  },
+  "originalAudio": {
+    "message": "اصل آڈیو"
+  },
+  "noSubtitles": {
+    "message": "ذیلی عنوانات نہیں"
+  },
+  "queueCollection": {
+    "message": "مجموعہ قطار میں شامل کریں"
+  },
+  "collectionHint": {
+    "message": "پلے لسٹ یا چینل کے زیادہ سے زیادہ 500 آئٹمز Flux کی ڈاؤن لوڈ قطار میں بھیجیں۔"
   }
 }

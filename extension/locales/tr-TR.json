@@ -122,5 +122,11 @@
   "moveHud": "İndirme düğmesini taşı",
   "nativeConsent": "Yerel Flux veri aktarımına izin ver",
   "nativeConsentExplain": "Seçilen indirme bağlantıları, sayfa başlıkları ve gerekli çerezler veya yetkilendirme başlıkları bu bilgisayardaki Flux’a gönderilir. Yalnızca seçilen dosyayı indirmek için kullanılır; analiz verisi gönderilmez. Bu izni buradan geri alabilirsiniz.",
-  "mediaReady": "Video kalitesini ve çıktı biçimini seçip Flux'a gönderin."
+  "mediaReady": "Video kalitesini ve çıktı biçimini seçip Flux'a gönderin.",
+  "audioTrack": "Ses parçası",
+  "subtitleTrack": "Altyazılar",
+  "originalAudio": "Özgün ses",
+  "noSubtitles": "Altyazı yok",
+  "queueCollection": "Koleksiyonu kuyruğa ekle",
+  "collectionHint": "Oynatma listesindeki veya kanaldaki en fazla 500 öğeyi Flux indirme kuyruğuna gönderin."
 }

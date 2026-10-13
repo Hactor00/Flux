@@ -260,17 +260,15 @@ impl Drop for Fixture {
     }
 }
 
-async fn wait_for_partial_bytes(data: &std::path::Path, id: &str) {
-    let part = data.join("parts").join(id).join("0.part");
+async fn wait_for_partial_bytes(engine: &Engine, id: &str) {
+    let mut events = engine.subscribe();
     tokio::time::timeout(Duration::from_secs(10), async {
         loop {
-            match tokio::fs::metadata(&part).await {
-                Ok(metadata) if metadata.len() > 0 => break,
-                Ok(_) => {}
-                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            match events.recv().await {
+                Ok(event) if event.id == id && event.completed > 0 => break,
+                Ok(_) | Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {}
                 Err(error) => panic!("Cannot observe partial download: {error}"),
             }
-            tokio::time::sleep(Duration::from_millis(10)).await;
         }
     })
     .await
@@ -381,13 +379,110 @@ async fn batch_expands_ranges_deduplicates_and_rejects_credentials() {
 }
 
 #[tokio::test]
-async fn parallel_ranges_merge_and_verify_exact_bytes() {
+async fn parallel_ranges_write_and_verify_exact_bytes() {
     let f = Fixture::new("normal", 10 * 1024 * 1024 + 17).await;
     let task = f.download().await;
     f.assert_file(&task).await;
     let requests = f.server.requests.lock().unwrap();
     assert!(requests.iter().any(|r| r == "bytes=0-4194303"));
     assert!(requests.iter().any(|r| r == "bytes=4194304-8388607"));
+}
+
+#[tokio::test]
+async fn direct_staging_is_preallocated_and_never_creates_chunk_files() {
+    let f = Fixture::new("slow", 64 * 1024 * 1024).await;
+    let mut input = f.input();
+    input.connections = 32;
+    let task = f.engine.enqueue(input).await.unwrap();
+    f.engine.start(&task.id).await.unwrap();
+    wait_for_partial_bytes(&f.engine, &task.id).await;
+    let paused = f.engine.pause(&task.id).await.unwrap();
+    assert!(paused.completed > 0 && paused.completed < 64 * 1024 * 1024);
+    assert!(paused.direct_write);
+    let stage = task
+        .destination
+        .parent()
+        .unwrap()
+        .join(format!(".flux-{}.staging", task.id));
+    assert_eq!(
+        tokio::fs::metadata(&stage).await.unwrap().len(),
+        64 * 1024 * 1024
+    );
+    let mut entries = tokio::fs::read_dir(f.root.path().join("data/parts").join(&task.id))
+        .await
+        .unwrap();
+    assert!(entries.next_entry().await.unwrap().is_none());
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::MetadataExt;
+        assert_ne!(
+            std::fs::metadata(&stage).unwrap().file_attributes()
+                & windows_sys::Win32::Storage::FileSystem::FILE_ATTRIBUTE_SPARSE_FILE,
+            0
+        );
+    }
+    f.engine.start(&task.id).await.unwrap();
+    f.assert_file(&f.engine.wait(&task.id).await.unwrap()).await;
+    assert!(!stage.exists());
+}
+
+#[tokio::test]
+async fn legacy_chunk_checkpoints_migrate_without_losing_verified_prefixes() {
+    let f = Fixture::new("slow", 10 * 1024 * 1024).await;
+    let task = f.engine.enqueue(f.input()).await.unwrap();
+    f.engine.start(&task.id).await.unwrap();
+    wait_for_partial_bytes(&f.engine, &task.id).await;
+    let paused = f.engine.pause(&task.id).await.unwrap();
+    assert!(paused.completed > 0);
+    let stage = task
+        .destination
+        .parent()
+        .unwrap()
+        .join(format!(".flux-{}.staging", task.id));
+    let staged = tokio::fs::read(&stage).await.unwrap();
+    let db = rusqlite::Connection::open(f.root.path().join("data/tasks.sqlite")).unwrap();
+    let checkpoint_bodies = db
+        .prepare("SELECT body FROM parts WHERE task_id=?1 ORDER BY idx")
+        .unwrap()
+        .query_map([&task.id], |row| row.get::<_, String>(0))
+        .unwrap()
+        .collect::<rusqlite::Result<Vec<_>>>()
+        .unwrap();
+    let mut resumed_offsets = Vec::new();
+    for body in checkpoint_bodies {
+        let part: serde_json::Value = serde_json::from_str(&body).unwrap();
+        let start = part["start"].as_u64().unwrap() as usize;
+        let done = part["done"].as_u64().unwrap() as usize;
+        let path = f
+            .root
+            .path()
+            .join("data/parts")
+            .join(&task.id)
+            .join(format!("{}.part", part["index"].as_u64().unwrap()));
+        tokio::fs::write(path, &staged[start..start + done])
+            .await
+            .unwrap();
+        if done > 0 && done < part["end"].as_u64().unwrap() as usize - start + 1 {
+            resumed_offsets.push(start + done);
+        }
+    }
+    assert!(!resumed_offsets.is_empty());
+    db.execute(
+        "UPDATE tasks SET body=json_set(body,'$.direct_write',json('false')) WHERE id=?1",
+        [&task.id],
+    )
+    .unwrap();
+    drop(db);
+    tokio::fs::remove_file(&stage).await.unwrap();
+    f.server.requests.lock().unwrap().clear();
+    f.engine.start(&task.id).await.unwrap();
+    let complete = f.engine.wait(&task.id).await.unwrap();
+    f.assert_file(&complete).await;
+    assert!(complete.direct_write);
+    let requests = f.server.requests.lock().unwrap();
+    assert!(resumed_offsets.iter().any(|offset| requests
+        .iter()
+        .any(|request| request.starts_with(&format!("bytes={offset}-")))));
 }
 #[tokio::test]
 async fn no_range_and_no_validator_fall_back_to_safe_single_stream() {
@@ -437,7 +532,7 @@ async fn pause_checkpoints_then_resume_uses_byte_offsets() {
     let f = Fixture::new("slow", 10 * 1024 * 1024).await;
     let task = f.engine.enqueue(f.input()).await.unwrap();
     f.engine.start(&task.id).await.unwrap();
-    wait_for_partial_bytes(&f.root.path().join("data"), &task.id).await;
+    wait_for_partial_bytes(&f.engine, &task.id).await;
     let paused = f.engine.pause(&task.id).await.unwrap();
     assert_eq!(paused.status, Status::Paused);
     assert!(paused.completed > 0);
@@ -457,14 +552,13 @@ async fn corrupt_checkpoint_is_re_downloaded() {
     let f = Fixture::new("slow", 5 * 1024 * 1024).await;
     let task = f.engine.enqueue(f.input()).await.unwrap();
     f.engine.start(&task.id).await.unwrap();
-    wait_for_partial_bytes(&f.root.path().join("data"), &task.id).await;
+    wait_for_partial_bytes(&f.engine, &task.id).await;
     f.engine.pause(&task.id).await.unwrap();
-    let part = f
-        .root
-        .path()
-        .join("data/parts")
-        .join(&task.id)
-        .join("0.part");
+    let part = task
+        .destination
+        .parent()
+        .unwrap()
+        .join(format!(".flux-{}.staging", task.id));
     let mut bytes = tokio::fs::read(&part).await.unwrap();
     assert!(!bytes.is_empty());
     bytes[0] ^= 0xff;
@@ -485,7 +579,7 @@ async fn new_etag_discards_old_checkpoints() {
     let f = Fixture::new("slow", 5 * 1024 * 1024).await;
     let task = f.engine.enqueue(f.input()).await.unwrap();
     f.engine.start(&task.id).await.unwrap();
-    wait_for_partial_bytes(&f.root.path().join("data"), &task.id).await;
+    wait_for_partial_bytes(&f.engine, &task.id).await;
     f.engine.pause(&task.id).await.unwrap();
     f.server.changed.store(true, Ordering::SeqCst);
     f.server.requests.lock().unwrap().clear();
@@ -580,7 +674,7 @@ async fn persisted_task_resumes_after_engine_reopens() {
     assert!(task.created_at.is_some());
     assert!(task.started_at.is_none() && task.finished_at.is_none());
     engine.start(&task.id).await.unwrap();
-    wait_for_partial_bytes(&data, &task.id).await;
+    wait_for_partial_bytes(&engine, &task.id).await;
     let paused = engine.pause(&task.id).await.unwrap();
     assert!(paused.completed > 0);
     let first_start = paused.started_at.unwrap();

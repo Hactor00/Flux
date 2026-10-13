@@ -314,13 +314,16 @@ try {
   assert.ok(list.total.includes("≈ "));
   assert.ok(popup.timing.includes("Parçalar:"));
   assert.ok(popup.timing.includes("İndirilen medya süresi:"));
+  await details.evaluate(
+    `(()=>{const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);while(walker.nextNode()){const node=walker.currentNode;if(node.textContent.includes(${JSON.stringify(root)}))node.textContent=node.textContent.replaceAll(${JSON.stringify(root)},'<test-profile>');}return true;})()`,
+  );
   const screenshot = await details.call("Page.captureScreenshot", {
     format: "png",
   });
   await writeFile(
     suite
       ? "docs/images/media-suite-progress-1.5.png"
-      : "docs/images/media-progress-1.4.png",
+      : "docs/images/media-progress-2.0.png",
     Buffer.from(screenshot.data, "base64"),
   );
   const paused = await call("pause", { id: task.id });

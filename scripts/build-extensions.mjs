@@ -21,7 +21,10 @@ assert.deepEqual(firefox.background.scripts, ["background.js"]);
 assert.equal(firefox.background.service_worker, undefined);
 assert.equal(firefox.key, undefined);
 assert.deepEqual(firefox.permissions, chrome.permissions);
-assert.deepEqual(firefox.content_scripts, chrome.content_scripts);
+assert.deepEqual(
+  firefox.content_scripts,
+  chrome.content_scripts.filter((script) => script.world !== "MAIN"),
+);
 assert.deepEqual(
   firefox.content_security_policy,
   chrome.content_security_policy,
@@ -47,7 +50,11 @@ for (const file of files) {
   });
 }
 const modern = structuredClone(firefox);
+modern.content_scripts = structuredClone(chrome.content_scripts);
 modern.browser_specific_settings.gecko.strict_min_version = "140.0";
+modern.browser_specific_settings.gecko_android = {
+  strict_min_version: "142.0",
+};
 modern.browser_specific_settings.gecko.data_collection_permissions = {
   required: ["browsingActivity", "authenticationInfo", "websiteContent"],
 };

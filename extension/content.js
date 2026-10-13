@@ -3,6 +3,8 @@
   const hasPopover = typeof HTMLElement.prototype.showPopover === "function";
   const overlays = new Map();
   const mediaResults = new Map();
+  const blobHints = new Map();
+  const reportedSources = new Set();
   const placementKey = `hud-position:${location.hostname}`;
   let placement = { x: 1, y: 0, space: "video" };
   let activeVideo;
@@ -40,12 +42,38 @@
     )
       .replace(/\s*[-|]\s*YouTube\s*$/, "")
       .trim();
-  const provider = () =>
-    /(^|\.)youtube(?:-nocookie)?\.com$/.test(location.hostname) &&
-    /^\/(watch|shorts\/|embed\/)/.test(location.pathname);
+  const provider = () => {
+    const host = location.hostname;
+    if (/(^|\.)youtube(?:-nocookie)?\.com$/.test(host))
+      return /^\/(watch|shorts\/|embed\/)/.test(location.pathname);
+    return [
+      "youtu.be",
+      "vimeo.com",
+      "dailymotion.com",
+      "dai.ly",
+      "twitch.tv",
+      "soundcloud.com",
+      "bandcamp.com",
+      "facebook.com",
+      "fb.watch",
+      "instagram.com",
+      "tiktok.com",
+      "reddit.com",
+      "redd.it",
+      "twitter.com",
+      "x.com",
+      "bilibili.com",
+      "ted.com",
+      "archive.org",
+    ].some((domain) => host === domain || host.endsWith(`.${domain}`));
+  };
   const label = (item) =>
     [
-      item.height ? `${item.height}p` : item.kind?.toUpperCase(),
+      item.height
+        ? `${item.height}p${item.fps >= 50 ? ` ${Math.round(item.fps)}fps` : ""}`
+        : item.audio_only
+          ? t("audioTrack")
+          : item.kind?.toUpperCase(),
       item.container?.toUpperCase() || item.codec,
       item.size ? `${(item.size / 1048576).toFixed(1)} MB` : "",
     ]
@@ -67,24 +95,40 @@
   }
   function sources(video) {
     const current = video.currentSrc || video.src;
-    if (/^https?:\/\//i.test(current))
-      return [
-        {
-          url: current,
-          kind: /\.m3u8(?:\?|$)/i.test(current)
-            ? "hls"
-            : /\.mpd(?:\?|$)/i.test(current)
-              ? "dash"
-              : "file",
-          height: video.videoHeight || null,
-        },
-      ];
+    const declared = [
+      current,
+      ...Array.from(video.querySelectorAll("source[src]")).map(
+        (source) => source.src,
+      ),
+    ].filter(
+      (url, index, values) =>
+        /^https?:\/\//i.test(url) && values.indexOf(url) === index,
+    );
+    const audio = video.tagName === "AUDIO";
+    if (declared.length)
+      return declared.slice(0, 4).map((url) => ({
+        url,
+        kind: /\.m3u8(?:\?|$)/i.test(url)
+          ? "hls"
+          : /\.mpd(?:\?|$)/i.test(url)
+            ? "dash"
+            : "file",
+        height: video.videoHeight || null,
+        audio_only: audio,
+      }));
+    const hint = blobHints.get(current);
+    const hintAudio =
+      audio ||
+      (/^audio\//i.test(hint?.mime || "") &&
+        !/^video\//i.test(hint?.mime || ""));
     return candidates
       .filter(
         (item) =>
           item.kind === "hls" ||
           item.kind === "dash" ||
-          (/^video\//i.test(item.contentType || "") &&
+          ((hintAudio ? /^audio\//i : /^video\//i).test(
+            item.contentType || "",
+          ) &&
             !/googlevideo\.com/.test(item.url) &&
             !/\.(ts|m4s)(?:\?|$)/i.test(item.url) &&
             !/video\/mp2t/i.test(item.contentType || "")),
@@ -121,12 +165,30 @@
           videoSource,
           choices: resolved.formats.map((format) => ({
             ...format,
+            audio_tracks: resolved.audio_tracks || [],
             subtitles: resolved.subtitles || [],
             chapters: resolved.chapters || [],
           })),
         };
       }
       if (!inputs.length) throw new Error(t("noMedia"));
+      const domSubtitles = Array.from(
+        video.querySelectorAll(
+          'track[src][kind="subtitles"],track[src][kind="captions"]',
+        ),
+      )
+        .filter(
+          (track) =>
+            /^https?:\/\//i.test(track.src) &&
+            /^[a-zA-Z0-9-]{1,32}$/.test(track.srclang || ""),
+        )
+        .slice(0, 32)
+        .map((track) => ({
+          url: track.src,
+          index: null,
+          language: track.srclang,
+          title: track.label || track.srclang,
+        }));
       const inspected = await Promise.allSettled(
         inputs.map(async (selected) => {
           const info = await send({
@@ -134,17 +196,30 @@
             url: selected.url,
             referer: sourcePage,
           });
-          return info.streams
-            .filter((stream) => stream.codec_type === "video")
-            .map((stream) => ({
+          const videos = info.streams.filter(
+            (stream) => stream.codec_type === "video",
+          );
+          const audioTracks = info.streams.filter(
+            (stream) => stream.codec_type === "audio",
+          );
+          return (videos.length ? videos : audioTracks.slice(0, 1)).map(
+            (stream) => ({
               ...selected,
               height: stream.height,
+              fps: stream.fps || null,
               codec: stream.codec_name,
-              video_stream: stream.index,
-              container: "mp4",
-              subtitles: info.subtitles || [],
+              video_stream: stream.codec_type === "video" ? stream.index : null,
+              audio_stream: stream.codec_type === "audio" ? stream.index : null,
+              audio_only: stream.codec_type === "audio",
+              audio_tracks: audioTracks,
+              container: stream.codec_type === "audio" ? "mp3" : "mp4",
+              subtitles: [...(info.subtitles || []), ...domSubtitles].slice(
+                0,
+                32,
+              ),
               chapters: info.chapters || [],
-            }));
+            }),
+          );
         }),
       );
       const choices = inspected
@@ -179,6 +254,8 @@
       frame = 0;
       if (pageUrl !== location.href) {
         pageUrl = location.href;
+        mediaResults.clear();
+        reportedSources.clear();
         for (const overlay of overlays.values()) overlay.closePanel();
       }
       const positions = [...overlays].map(([video, overlay]) => ({
@@ -192,8 +269,8 @@
         ({ video, box }) =>
           video.isConnected &&
           !closed() &&
-          box.width >= 200 &&
-          box.height >= 100 &&
+          box.width >= (video.tagName === "AUDIO" ? 160 : 200) &&
+          box.height >= (video.tagName === "AUDIO" ? 24 : 100) &&
           box.bottom > 0 &&
           box.top < innerHeight &&
           box.right > 0 &&
@@ -268,6 +345,7 @@
   }
   function attach(video) {
     if (overlays.has(video) || overlays.size >= 24) return;
+    reportSources(video);
     const host = document.createElement("div");
     host.setAttribute("data-flux-hud", "");
     if (hasPopover) host.popover = "manual";
@@ -398,6 +476,10 @@
     output.setAttribute("aria-label", t("container"));
     for (const format of ["mp4", "mkv", "mp3"])
       output.add(new Option(format.toUpperCase(), format));
+    const audioChoice = document.createElement("select");
+    audioChoice.setAttribute("aria-label", t("audioTrack"));
+    const subtitleChoice = document.createElement("select");
+    subtitleChoice.setAttribute("aria-label", t("subtitleTrack"));
     const status = document.createElement("p");
     status.setAttribute("role", "status");
     const download = document.createElement("button");
@@ -439,7 +521,12 @@
       mediaTitle = title();
       heading.textContent = mediaTitle;
       quality.replaceChildren();
-      quality.hidden = output.hidden = download.hidden = true;
+      quality.hidden =
+        output.hidden =
+        download.hidden =
+        audioChoice.hidden =
+        subtitleChoice.hidden =
+          true;
       download.disabled = true;
       status.textContent = t("inspecting");
       schedule();
@@ -464,6 +551,7 @@
           ),
         );
         quality.hidden = output.hidden = download.hidden = false;
+        refreshTracks();
         status.textContent = t("mediaReady");
         download.disabled = false;
       } catch (error) {
@@ -473,6 +561,44 @@
         schedule();
       }
     });
+    function refreshTracks() {
+      const selected = choices[Number(quality.value)];
+      if (!selected) return;
+      if (selected.audio_only) output.value = "mp3";
+      for (const option of output.options)
+        option.disabled = selected.audio_only && option.value !== "mp3";
+      audioChoice.replaceChildren(
+        new Option(t("originalAudio"), ""),
+        ...(selected.audio_tracks || []).map(
+          (track, index) =>
+            new Option(
+              [
+                track.language,
+                track.title,
+                track.codec || track.codec_name,
+                track.bitrate ? `${Math.round(track.bitrate)} kb/s` : "",
+              ]
+                .filter(Boolean)
+                .join(" · ") || t("audioTrack"),
+              String(index),
+            ),
+        ),
+      );
+      audioChoice.hidden =
+        selected.audio_only || !selected.audio_tracks?.length;
+      subtitleChoice.replaceChildren(
+        new Option(t("noSubtitles"), ""),
+        ...(selected.subtitles || []).map(
+          (track, index) =>
+            new Option(track.title || track.language, String(index)),
+        ),
+      );
+      subtitleChoice.hidden =
+        output.value === "mp3" || !selected.subtitles?.length;
+      schedule();
+    }
+    quality.addEventListener("change", refreshTracks);
+    output.addEventListener("change", refreshTracks);
     download.addEventListener("click", async () => {
       const selected = choices[Number(quality.value)];
       if (!selected || !mediaContext) return;
@@ -488,6 +614,14 @@
       download.disabled = true;
       try {
         const container = output.value;
+        const audioTrack =
+          audioChoice.value === ""
+            ? null
+            : selected.audio_tracks?.[Number(audioChoice.value)];
+        const subtitles =
+          container === "mp3" || subtitleChoice.value === ""
+            ? []
+            : [selected.subtitles[Number(subtitleChoice.value)]];
         const filename =
           mediaTitle.replace(/[<>:"/\\|?*\x00-\x1f]/g, "_").slice(0, 120) +
           "." +
@@ -504,12 +638,15 @@
                 ? {
                     url: sourceContext.pageUrl,
                     format_id: selected.id,
+                    audio_format_id: audioTrack?.id || null,
                     height: selected.height || null,
                   }
                 : null,
               container,
-              audio_url: selected.audio_url || null,
-              subtitles: selected.subtitles || [],
+              audio_url: audioTrack?.url || selected.audio_url || null,
+              audio_stream: audioTrack?.index ?? selected.audio_stream ?? null,
+              subtitles,
+              subtitle_mode: subtitles.length ? "embed" : "none",
               chapters: selected.chapters || [],
               video_stream: selected.video_stream ?? null,
             },
@@ -531,7 +668,15 @@
         closePanel();
       }
     });
-    panel.append(heading, quality, output, download, status);
+    panel.append(
+      heading,
+      quality,
+      output,
+      audioChoice,
+      subtitleChoice,
+      download,
+      status,
+    );
     try {
       const sheet = new CSSStyleSheet();
       sheet.replaceSync(style.textContent);
@@ -546,7 +691,10 @@
     observer.observe(bar);
     observer.observe(panel);
     for (const event of ["loadedmetadata", "play", "emptied"])
-      video.addEventListener(event, schedule);
+      video.addEventListener(event, () => {
+        reportSources(video);
+        schedule();
+      });
     for (const event of ["loadedmetadata", "play"])
       video.addEventListener(event, warm);
     video.addEventListener("play", () => {
@@ -566,23 +714,83 @@
     if (!video.paused) warm();
     schedule();
   }
+  function reportSources(element) {
+    const values = [
+      {
+        url: element.currentSrc || element.src,
+        contentType:
+          element.tagName === "AUDIO" ? "audio/unknown" : "video/unknown",
+      },
+      ...Array.from(element.querySelectorAll("source[src]")).map((source) => ({
+        url: source.src,
+        contentType:
+          source.type ||
+          (element.tagName === "AUDIO" ? "audio/unknown" : "video/unknown"),
+      })),
+    ];
+    for (const value of values.slice(0, 8)) {
+      if (
+        !/^https?:\/\//i.test(value.url) ||
+        value.url.length > 16384 ||
+        reportedSources.has(value.url)
+      )
+        continue;
+      reportedSources.add(value.url);
+      if (reportedSources.size > 80)
+        reportedSources.delete(reportedSources.values().next().value);
+      void send({ type: "dom-source", ...value }).catch(() => {});
+    }
+  }
+  function snapshotSources() {
+    const urls = [];
+    for (const element of document.querySelectorAll("video,audio")) {
+      urls.push(element.currentSrc || element.src);
+      for (const source of element.querySelectorAll("source[src]"))
+        urls.push(source.src);
+    }
+    for (const entry of performance
+      .getEntriesByType?.("resource")
+      ?.slice(-200) || [])
+      urls.push(entry.name);
+    return [
+      ...new Set(
+        urls.filter(
+          (url) =>
+            typeof url === "string" &&
+            /^https?:\/\//i.test(url) &&
+            url.length <= 16384,
+        ),
+      ),
+    ].slice(0, 200);
+  }
   const observer = new MutationObserver((records) => {
-    for (const record of records)
+    for (const record of records) {
+      const parentMedia = record.target.closest?.("video,audio");
+      if (parentMedia) reportSources(parentMedia);
+      if (record.type === "attributes") {
+        const media = record.target.closest?.("video,audio");
+        if (media) reportSources(media);
+      }
       for (const node of record.addedNodes) {
         if (
           node.nodeType !== Node.ELEMENT_NODE ||
           node.hasAttribute("data-flux-hud")
         )
           continue;
-        if (node.matches("video")) attach(node);
-        for (const video of node.querySelectorAll("video")) attach(video);
+        if (node.matches("video,audio")) attach(node);
+        for (const video of node.querySelectorAll("video,audio")) attach(video);
       }
+    }
     schedule();
   });
-  api.runtime.onMessage.addListener((message) => {
+  api.runtime.onMessage.addListener((message, _sender, respond) => {
     if (message.type === "candidates") {
       candidates = message.candidates;
       schedule();
+    }
+    if (message.type === "source-snapshot") {
+      respond?.({ page_url: location.href, urls: snapshotSources() });
+      return true;
     }
     if (message.type === "capture-links") {
       const links = [
@@ -592,7 +800,11 @@
             .filter((url) => /^https?:\/\//i.test(url)),
         ),
       ].slice(0, 500);
-      void send({ type: "page-links", links });
+      void send({ type: "page-links", links }).then(
+        () => respond?.({ links }),
+        () => respond?.({ links: [] }),
+      );
+      return true;
     }
   });
   Promise.all([
@@ -603,10 +815,33 @@
     .then(([words, items]) => {
       dictionary = words;
       candidates = items;
-      for (const video of document.querySelectorAll("video")) attach(video);
+      for (const video of document.querySelectorAll("video,audio"))
+        attach(video);
       observer.observe(document.documentElement, {
         childList: true,
         subtree: true,
+        attributes: true,
+        attributeFilter: ["src", "type"],
+      });
+      addEventListener("message", (event) => {
+        const hint = event.data;
+        if (
+          event.source !== window ||
+          event.origin !== location.origin ||
+          !hint ||
+          hint.channel !== "flux-media-hint-v2" ||
+          !["blob", "media_source"].includes(hint.kind) ||
+          typeof hint.url !== "string" ||
+          !hint.url.startsWith(`blob:${location.origin}/`) ||
+          hint.url.length > 16384 ||
+          typeof hint.mime !== "string" ||
+          hint.mime.length > 256
+        )
+          return;
+        blobHints.set(hint.url, { mime: hint.mime, seenAt: Date.now() });
+        if (blobHints.size > 80)
+          blobHints.delete(blobHints.keys().next().value);
+        schedule();
       });
       addEventListener("scroll", schedule, { passive: true, capture: true });
       addEventListener("resize", schedule, { passive: true });

@@ -21,7 +21,12 @@ struct Backend {
 }
 #[tauri::command]
 async fn list_tasks(state: State<'_, Backend>) -> Result<Vec<Task>, String> {
-    state.engine.list().await.map_err(|e| format!("{e:#}"))
+    state
+        .engine
+        .list()
+        .await
+        .map(|tasks| tasks.into_iter().map(Task::summary).collect())
+        .map_err(|e| format!("{e:#}"))
 }
 #[tauri::command]
 async fn add_download(input: DownloadRequest, state: State<'_, Backend>) -> Result<Task, String> {
@@ -111,6 +116,9 @@ fn main() {
             resume_download,
             desktop::get_settings,
             desktop::add_batch,
+            desktop::import_torrent,
+            desktop::set_torrent_options,
+            desktop::inspect_collection,
             desktop::save_settings,
             desktop::pause_all,
             desktop::start_queue,

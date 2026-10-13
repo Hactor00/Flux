@@ -16,7 +16,7 @@ Range negotiation validates a real 206 response, Content-Range, identity encodin
 
 Transient disconnects, truncated bodies, 429 and server errors use bounded retries. Retry-After supports seconds and dates. Disk, protocol and validator failures are not treated as transient network errors. Separate per-task and global token buckets enforce speed limits and wake waiting workers when settings change.
 
-Each durable prefix records its byte count and SHA-256 after fsync. Recovery truncates uncommitted bytes and verifies recorded prefixes. Changed validators invalidate stale plans; unverifiable streams restart safely. Assembly follows byte offsets and checks hashes before publication. Publication does not overwrite existing files, handles cross-volume destinations and recovers from a crash between file publication and the database commit.
+Each durable prefix records its byte count and SHA-256 after fsync. Recovery verifies recorded ranges and overwrites uncommitted bytes rather than trusting them. Changed validators invalidate stale plans; unverifiable streams restart safely. HTTP staging stays on the destination volume, checks hashes in a single final read and publishes exclusively. Media publication retains its cross-volume fallback and recovers from a crash between publication and the database commit.
 
 ## Media pipeline
 
@@ -36,7 +36,7 @@ Completion tracking arms only after observed work. It requires successful comple
 
 Category routing prefers a recognized extension, then MIME. Explicit destinations bypass automatic routing. Unknown names may be rerouted on HTTP metadata before transfer bytes are written. Category directories, clipboard mode and completion preferences persist in SQLite. Silent clipboard resolution runs independently of GUI polling and inserts into the persistent queue without an approval window.
 
-Completed-file drag-out validates task IDs and existing regular files, then uses native OLE CF_HDROP with copy semantics. Windows startup writes only the current-user Flux Run value with a quoted executable and `--background`. Failed preference writes restore the exact previous registry value. Uninstallation removes only the startup entry owned by that executable.
+Completed-file drag-out validates task IDs and existing regular files or torrent directories, then uses native OLE CF_HDROP with copy semantics. Windows startup writes only the current-user Flux Run value with a quoted executable and `--background`. Failed preference writes restore the exact previous registry value. Uninstallation removes only the startup entry owned by that executable.
 
 ## Browser integration, security and localization
 
@@ -44,7 +44,13 @@ The extension persists interception drafts across MV3 worker restarts. Accepted 
 
 Broker discovery uses Windows user SID ACLs or Unix private permissions. Credentials use Windows DPAPI or a user-private encrypted store; public task serialization omits secrets, and listing tasks does not decrypt credentials. The same local user and administrators are outside this isolation boundary.
 
-Twenty independent JSON catalogs provide 159 shared desktop keys, an English fallback and Arabic/Urdu RTL layout. The extension maintains its own localized catalog and language preference. Live speeds emit at 250 ms; task refreshes run at one second. Fixed row heights and bounded chart history keep rendering costs predictable.
+Twenty independent JSON catalogs provide all desktop labels, an English fallback and Arabic/Urdu RTL layout. The extension maintains its own localized catalog and language preference. Live speeds emit at 250 ms; task refreshes run at one second. Fixed row heights and bounded chart history keep rendering costs predictable.
+
+Flux 2.0 HTTP workers open independent handles to a task-owned destination-volume staging file. Strong validators and checked Content-Range bounds gate reuse; persisted byte ranges are verified before resume. Windows sparse allocation and Linux fallocate avoid concatenation. Bounded buffered I/O writes network bytes to disjoint offsets; no kernel-level zero-copy claim is made. A single sequential verification pass checks range hashes and calculates the final SHA-256 before exclusive publication. Legacy chunk tasks migrate their verified prefixes.
+
+Torrent tasks lazily initialize an embedded Tokio librqbit session. SQLite remains the queue authority; bounded metainfo and destination ownership records permit restart without a daemon. The engine rechecks native pieces, applies per-task upload/download quotas and peer limits, and hashes selected outputs. HTTP and torrent budgets partition the shared cap. Task list responses omit torrent file arrays; native torrent_files pages stay below the frame limit and desktop detail views virtualize selection.
+
+Provider resolution uses a two-process semaphore, bounded output and explicit cancellation cleanup. Exact-origin cookies enter a private Netscape jar removed after the process stops. Authentication failures can request a page-bound refresh capability and retry with current origin credentials. HTTP refresh retains range validators and offsets; changed content does not silently replace a downloaded prefix.
 
 ## Release boundaries
 

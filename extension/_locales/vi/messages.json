@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "Chọn chất lượng video và định dạng đầu ra, rồi gửi đến Flux."
+  },
+  "audioTrack": {
+    "message": "Bản âm thanh"
+  },
+  "subtitleTrack": {
+    "message": "Phụ đề"
+  },
+  "originalAudio": {
+    "message": "Âm thanh gốc"
+  },
+  "noSubtitles": {
+    "message": "Không có phụ đề"
+  },
+  "queueCollection": {
+    "message": "Đưa bộ sưu tập vào hàng đợi"
+  },
+  "collectionHint": {
+    "message": "Gửi tối đa 500 mục trong danh sách phát hoặc kênh vào hàng đợi tải xuống Flux."
   }
 }

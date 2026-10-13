@@ -741,3 +741,93 @@ button:focus-visible {
   display: inline-flex;
   justify-content: center;
 }
+.form-hint {
+  color: #8491a7;
+  line-height: 1.6;
+  font-size: 12px;
+}
+.collection-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 16px;
+  font-size: 12px;
+}
+.collection-heading strong {
+  flex: 1;
+  min-width: 120px;
+  color: #d6deed;
+  font-weight: 500;
+}
+.collection-heading > span {
+  color: #a5aec0;
+  font-variant-numeric: tabular-nums;
+}
+.collection-entries,
+.torrent-files {
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid #343a47;
+  border-radius: 5px;
+  margin: 10px 0;
+  background: #151820;
+  contain: layout;
+}
+.modal .collection-entry,
+.surface-window .modal .collection-entry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 9px 10px;
+  border-bottom: 1px solid #ffffff07;
+  font-size: 12px;
+}
+.collection-entry > input {
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  margin: 0;
+}
+.collection-entry > span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.collection-entry > small {
+  flex-shrink: 0;
+  color: #8996ac;
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+}
+.collection-entry > .selection-integrity {
+  flex: 0;
+  min-width: 14px;
+  color: #80c7b3;
+}
+.text-button {
+  background: transparent;
+  border: 0;
+  color: #c2acf2;
+  font-size: 12px;
+  cursor: pointer;
+}
+.torrent-details {
+  margin: 16px 0;
+  padding: 14px 0;
+  border-block: 1px solid #ffffff12;
+}
+.torrent-details > h3 {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: #d4dbeb;
+  font-weight: 600;
+}
+.torrent-info-hash {
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, monospace;
+}

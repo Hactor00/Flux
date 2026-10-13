@@ -122,5 +122,11 @@
   "moveHud": "Di chuyển nút tải xuống",
   "nativeConsent": "Cho phép chuyển dữ liệu tới Flux cục bộ",
   "nativeConsentExplain": "Gửi liên kết đã chọn, tiêu đề trang và cookie hoặc tiêu đề xác thực cần thiết tới Flux trên máy này chỉ để tải tệp đã chọn. Không gửi dữ liệu phân tích. Bạn có thể thu hồi quyền tại đây.",
-  "mediaReady": "Chọn chất lượng video và định dạng đầu ra, rồi gửi đến Flux."
+  "mediaReady": "Chọn chất lượng video và định dạng đầu ra, rồi gửi đến Flux.",
+  "audioTrack": "Bản âm thanh",
+  "subtitleTrack": "Phụ đề",
+  "originalAudio": "Âm thanh gốc",
+  "noSubtitles": "Không có phụ đề",
+  "queueCollection": "Đưa bộ sưu tập vào hàng đợi",
+  "collectionHint": "Gửi tối đa 500 mục trong danh sách phát hoặc kênh vào hàng đợi tải xuống Flux."
 }

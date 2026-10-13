@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "Video kalitesini ve çıktı biçimini seçip Flux'a gönderin."
+  },
+  "audioTrack": {
+    "message": "Ses parçası"
+  },
+  "subtitleTrack": {
+    "message": "Altyazılar"
+  },
+  "originalAudio": {
+    "message": "Özgün ses"
+  },
+  "noSubtitles": {
+    "message": "Altyazı yok"
+  },
+  "queueCollection": {
+    "message": "Koleksiyonu kuyruğa ekle"
+  },
+  "collectionHint": {
+    "message": "Oynatma listesindeki veya kanaldaki en fazla 500 öğeyi Flux indirme kuyruğuna gönderin."
   }
 }

@@ -34,6 +34,8 @@ pub struct DownloadRequest {
     #[serde(default)]
     pub media: Option<MediaOptions>,
     #[serde(default)]
+    pub torrent: Option<TorrentOptions>,
+    #[serde(default)]
     pub referer: Option<String>,
     #[serde(default)]
     pub auto_rename: bool,
@@ -64,6 +66,7 @@ impl Default for DownloadRequest {
             start_at: None,
             stop_at: None,
             media: None,
+            torrent: None,
             referer: None,
             auto_rename: false,
             credentials: Vec::new(),
@@ -165,6 +168,45 @@ pub struct MediaProvider {
     pub url: String,
     pub format_id: Option<String>,
     pub height: Option<u64>,
+    #[serde(default)]
+    pub audio_format_id: Option<String>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(default, deny_unknown_fields)]
+pub struct TorrentOptions {
+    pub upload_limit: u64,
+    pub peer_limit: u16,
+    pub only_files: Vec<usize>,
+    pub initial_peers: Vec<std::net::SocketAddr>,
+}
+impl Default for TorrentOptions {
+    fn default() -> Self {
+        Self {
+            upload_limit: 0,
+            peer_limit: 80,
+            only_files: Vec::new(),
+            initial_peers: Vec::new(),
+        }
+    }
+}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TorrentFile {
+    pub index: usize,
+    pub path: String,
+    pub length: u64,
+    pub selected: bool,
+    pub sha256: Option<String>,
+}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TorrentSnapshot {
+    pub info_hash: String,
+    pub state: String,
+    pub peers: u32,
+    pub uploaded: u64,
+    pub upload_bps: u64,
+    pub files: Vec<TorrentFile>,
+    #[serde(default)]
+    pub file_count: usize,
 }
 #[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
@@ -302,11 +344,24 @@ pub struct Task {
     pub capture_url: Option<String>,
     #[serde(default)]
     pub media_outputs: Vec<MediaOutput>,
+    #[serde(default)]
+    pub direct_write: bool,
+    #[serde(default)]
+    pub torrent: Option<TorrentSnapshot>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MediaOutput {
     pub destination: PathBuf,
     pub sha256: String,
+}
+impl Task {
+    pub fn summary(mut self) -> Self {
+        if let Some(torrent) = &mut self.torrent {
+            torrent.file_count = torrent.file_count.max(torrent.files.len());
+            torrent.files.clear();
+        }
+        self
+    }
 }
 fn redact_request<S: serde::Serializer>(
     request: &DownloadRequest,
@@ -365,7 +420,11 @@ pub(crate) fn validate(request: &DownloadRequest) -> anyhow::Result<()> {
         serde_json::to_vec(request)?.len() <= crate::protocol::MAX_FRAME - 48 * 1024,
         "Download request exceeds the protocol size limit"
     );
-    validate_url(&request.url)?;
+    if crate::torrent::is_torrent(request) {
+        crate::torrent::validate_request(request)?;
+    } else {
+        validate_url(&request.url)?;
+    }
     anyhow::ensure!(
         request.credentials.len() <= 8,
         "At most eight authenticated origins are supported"

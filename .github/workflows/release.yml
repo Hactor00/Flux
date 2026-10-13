@@ -76,6 +76,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Production dependency audit failed.' }
           npx --yes web-ext@10.7.0 lint --source-dir extension-firefox-modern --output json > .tools/firefox-lint-modern.json
           if ($LASTEXITCODE -ne 0) { throw 'Firefox extension validation failed.' }
+          ./scripts/package-browser-stores.ps1
+          ./scripts/verify-browser-stores.ps1
       - name: Prepare pinned fixture encoder
         shell: pwsh
         run: ./scripts/prepare-test-runtime.ps1
@@ -94,6 +96,8 @@ jobs:
           cargo test --locked -p flux-core -p flux-cli -p flux-native-host *> .tools/core-tests.log
           Get-Content .tools/core-tests.log
           if ($LASTEXITCODE -ne 0) { throw 'Core tests failed.' }
+          cargo test --locked -p flux-desktop *>> .tools/core-tests.log
+          if ($LASTEXITCODE -ne 0) { throw 'Desktop registration tests failed.' }
           cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
           if ($LASTEXITCODE -ne 0) { throw 'Clippy failed.' }
           ./scripts/prepare-firefox-tests.ps1
@@ -104,6 +108,8 @@ jobs:
           ./scripts/test-installer.ps1
           node ./scripts/test-daily-use.mjs target/release
           if ($LASTEXITCODE -ne 0) { throw 'Native daily-use tests failed.' }
+          node ./scripts/test-torrent-window.mjs target/release
+          if ($LASTEXITCODE -ne 0) { throw 'Native torrent window tests failed.' }
           node ./scripts/test-chrome-hud.mjs
           if ($LASTEXITCODE -ne 0) { throw 'Chromium HUD layout failed.' }
           node ./scripts/record-hud-validation.mjs

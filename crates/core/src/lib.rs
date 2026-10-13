@@ -1,4 +1,5 @@
 mod batch;
+mod disk;
 mod engine;
 pub mod extractor;
 mod healing;
@@ -13,6 +14,7 @@ pub mod preferences;
 pub mod protocol;
 mod secrets;
 mod store;
+mod torrent;
 mod transport;
 
 pub use batch::expand_batch;
@@ -21,8 +23,8 @@ pub use healing::RefreshRequest;
 pub use media::{inspect_media, MediaInfo, MediaStream};
 pub use model::{
     BrowserCredentials, BrowserSource, DownloadRequest, MediaChapter, MediaOptions, MediaProgress,
-    MediaProvider, Progress, Settings, Status, SubtitleMode, SubtitleTrack, Task,
-    TransportPreference,
+    MediaProvider, Progress, Settings, Status, SubtitleMode, SubtitleTrack, Task, TorrentFile,
+    TorrentOptions, TorrentSnapshot, TransportPreference,
 };
 pub use preferences::{CategoryFolders, ClipboardMode, ShutdownAction};
 pub fn default_data_directory() -> anyhow::Result<std::path::PathBuf> {

@@ -1,5 +1,6 @@
 import { getBrowserApi, isGecko, nativeAllowed } from "./browser-api.js";
 import { HOST } from "./shared.js";
+const MAX_OUTBOX_BYTES = 8 * 1024 * 1024;
 
 export class NativeBridge {
   #port;
@@ -58,7 +59,7 @@ export class NativeBridge {
           this.#pending.delete(requestId);
           reject(new Error("Desktop request timed out"));
         },
-        command === "resolve" ? 100000 : command === "inspect" ? 55000 : 15000,
+        command === "resolve" || command === "resolve_collection" ? 125000 : command === "inspect" ? 55000 : 15000,
       );
       this.#pending.set(requestId, { resolve, reject, timer });
       try {
@@ -80,7 +81,7 @@ export class NativeBridge {
 /** Storage writes are serialized. A task UUID is persisted before any native message. */
 export class DurableOutbox {
   #gate = Promise.resolve();
-  #pumping = false;
+  #pumping;
   constructor(
     bridge,
     onResult = async () => {},
@@ -96,6 +97,8 @@ export class DurableOutbox {
     const next = this.#gate.then(async () => {
       const { outbox = [] } = await getBrowserApi().storage.local.get("outbox");
       const result = await callback(outbox);
+      if (new TextEncoder().encode(JSON.stringify(outbox)).byteLength > MAX_OUTBOX_BYTES)
+        throw new Error("Transfer queue metadata exceeds eight MiB");
       await getBrowserApi().storage.local.set({ outbox });
       return result;
     });
@@ -121,10 +124,41 @@ export class DurableOutbox {
     void this.pump();
     return id;
   }
-  async pump() {
-    if (this.#pumping) return;
-    this.#pumping = true;
-    try {
+  async enqueueBatch(inputs, context = {}) {
+    if (!Array.isArray(inputs) || inputs.length < 1 || inputs.length > 500)
+      throw new Error("Batch must contain 1 to 500 transfers");
+    const candidates = new Map();
+    for (const input of inputs) {
+      if (!input || typeof input.url !== "string") throw new Error("Invalid batch input");
+      const clean = structuredClone(input);
+      delete clean.credentials;
+      if (!candidates.has(clean.url)) candidates.set(clean.url, clean);
+    }
+    const ids = await this.mutate((entries) => {
+      const existing = new Map(entries.filter((entry) => entry.command === "add")
+        .map((entry) => [entry.input.url, entry.id]));
+      const additions = [...candidates.values()].filter((input) => !existing.has(input.url));
+      if (entries.length + additions.length > 500) throw new Error("Transfer queue is full");
+      const createdAt = Date.now();
+      for (const input of additions) {
+        const id = crypto.randomUUID();
+        existing.set(input.url, id);
+        entries.push({ id, input, context: structuredClone(context), command: "add",
+          attempts: 0, nextAt: 0, createdAt });
+      }
+      return [...candidates.keys()].map((url) => existing.get(url));
+    });
+    void this.pump();
+    return ids;
+  }
+  pump() {
+    if (this.#pumping) return this.#pumping;
+    this.#pumping = this.#drain().finally(() => {
+      this.#pumping = undefined;
+    });
+    return this.#pumping;
+  }
+  async #drain() {
       for (;;) {
         const entry = await this.mutate((entries) =>
           entries.find((item) => item.nextAt <= Date.now()),
@@ -143,7 +177,7 @@ export class DurableOutbox {
           });
           entry.input = prepared;
           const task = await this.bridge.request(
-            this.command,
+            entry.command === "add" ? "add" : this.command,
             entry.input,
             entry.id,
           );
@@ -179,8 +213,5 @@ export class DurableOutbox {
           if (!terminal) break;
         }
       }
-    } finally {
-      this.#pumping = false;
-    }
   }
 }

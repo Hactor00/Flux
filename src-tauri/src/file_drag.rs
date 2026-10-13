@@ -14,15 +14,14 @@ pub async fn drag_completed(
         if task.status != flux_core::Status::Complete {
             return Err("Only completed files can be dragged".into());
         }
-        let path = tokio::fs::canonicalize(task.destination)
+        let path = tokio::fs::canonicalize(&task.destination)
             .await
             .map_err(|e| e.to_string())?;
-        if !tokio::fs::metadata(&path)
+        let metadata = tokio::fs::metadata(&path)
             .await
-            .map_err(|e| e.to_string())?
-            .is_file()
-        {
-            return Err("Drag source is not a regular file".into());
+            .map_err(|e| e.to_string())?;
+        if !metadata.is_file() && !(task.torrent.is_some() && metadata.is_dir()) {
+            return Err("Drag source is not a completed file or torrent folder".into());
         }
         if !paths.contains(&path) {
             paths.push(path);

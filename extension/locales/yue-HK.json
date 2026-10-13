@@ -122,5 +122,11 @@
   "moveHud": "移動下載按鈕",
   "nativeConsent": "允許向本機 Flux 傳送資料",
   "nativeConsentExplain": "將揀選嘅下載連結、網頁標題同必要嘅 Cookie 或授權標頭傳送到本機 Flux，只用嚟下載揀選嘅檔案，唔會傳送分析資料。你可以喺呢度撤回許可。",
-  "mediaReady": "揀選影片畫質同輸出格式，再傳送到 Flux。"
+  "mediaReady": "揀選影片畫質同輸出格式，再傳送到 Flux。",
+  "audioTrack": "音軌",
+  "subtitleTrack": "字幕",
+  "originalAudio": "原本音訊",
+  "noSubtitles": "冇字幕",
+  "queueCollection": "將合集加入佇列",
+  "collectionHint": "將播放清單或者頻道最多500個項目傳送到Flux下載佇列。"
 }

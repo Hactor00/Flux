@@ -274,7 +274,11 @@ if(message.action==='close'){root.querySelector('.close').click();dispatchEvent(
   await writeFile(join(addon, "test-content.js"), probe);
   const manifest = JSON.parse(await readFile(join(addon, "manifest.json")));
   manifest.background.scripts = ["test-background.js"];
-  manifest.content_scripts[0].js = ["test-content.js", "content.js"];
+  const hudScript = manifest.content_scripts.find(
+    (script) => script.world !== "MAIN" && script.js.includes("content.js"),
+  );
+  assert.ok(hudScript, "The isolated HUD content script is missing");
+  hudScript.js = ["test-content.js", "content.js"];
   await writeFile(join(addon, "manifest.json"), JSON.stringify(manifest));
   assert.equal(
     await wd("POST", prefix + "/moz/addon/install", {
@@ -363,7 +367,10 @@ if(message.action==='close'){root.querySelector('.close').click();dispatchEvent(
   });
   const afterDrag = await command("hud", { hudAction: "geometry" });
   assert.notEqual(afterDrag.transform, beforeDrag.transform);
-  assert.ok(afterDrag.left < 30 && afterDrag.top < 30, JSON.stringify(afterDrag));
+  assert.ok(
+    afterDrag.left < 30 && afterDrag.top < 30,
+    JSON.stringify(afterDrag),
+  );
   assert.equal(afterDrag.stored["hud-position:127.0.0.1"].space, "viewport");
   assert.ok(
     afterDrag.stored["hud-position:127.0.0.1"].x <

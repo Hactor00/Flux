@@ -1,6 +1,6 @@
 # Current validation
 
-See [Flux 1.7 validation](validation-1.7.md), the [latest HUD repair and installer checks](validation-hud-1.7.md) and the [machine-readable release record](validation/release.json) for the current release. The release record combines the unchanged core baseline with the latest frontend, browser and installer results; individual evidence timestamps identify when each check ran. [Flux 1.6 validation](validation-1.6.md) and [Flux 1.5 validation](validation-1.5.md) are retained separately. The report below is a historical Flux 1.4 record.
+See [Flux 2.0 validation](validation-2.0.md) and the [machine-readable release record](validation/release.json) for the current local build. Its core, frontend, browser and installer checks were executed for this upgrade. [Flux 1.7 validation](validation-1.7.md), [HUD repair checks](validation-hud-1.7.md), [Flux 1.6 validation](validation-1.6.md) and [Flux 1.5 validation](validation-1.5.md) are historical records. The report below is a historical Flux 1.4 record.
 
 # Flux 1.4 doğrulama raporu
 

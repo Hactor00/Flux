@@ -1,25 +1,31 @@
 {
-  "version": "1.7.0",
-  "time": "2026-10-13T09:27:27.148Z",
+  "version": "2.0.0",
+  "time": "2026-10-13T14:04:13.672Z",
   "platform": "Windows x64",
   "environment": "Local Windows validation",
-  "rust_tests": 82,
-  "extension_tests": 39,
-  "ui_data_tests": 6,
-  "automated_tests": 127,
+  "rust_tests": 100,
+  "extension_tests": 51,
+  "ui_data_tests": 12,
+  "automated_tests": 163,
   "test_evidence": {
-    "core_log_updated": "2026-10-12T16:06:28.424Z",
-    "frontend_log_updated": "2026-10-12T22:51:53.141Z",
-    "core_engine_changed_in_hud_repair": false,
-    "core_scope": "Retained v1.7 core test baseline; the HUD repair did not modify the download engine"
+    "core_log_updated": "2026-10-13T13:21:13.318Z",
+    "frontend_log_updated": "2026-10-13T13:46:51.926Z",
+    "core_engine_changed_in_hud_repair": true,
+    "core_scope": "Core tests executed during the current local release validation"
   },
   "locales": 20,
-  "locale_keys": 162,
+  "locale_keys": 193,
   "clippy": "workspace/all-targets/all-features -D warnings passed",
   "format": "passed",
   "frontend_build": "strict TypeScript + Vite production build passed",
   "npm_audit_production_vulnerabilities": 0,
   "scope": [
+    "Embedded BitTorrent v1 engine, magnet and .torrent import, piece verification and SHA-256 outputs",
+    "Native torrent window import, real peer transfer and pause/resume",
+    "Direct sparse HTTP staging, non-overlapping offsets and legacy checkpoint migration",
+    "DOM/network/MSE hints, audio streams, fps and subtitles",
+    "Durable playlist/channel/page batch queue and origin-scoped session renewal",
+    "Brave registry binding and reviewed browser store packaging workflow",
     "Firefox Gecko MV3 extension, native caller verification and browser interception",
     "Firefox 120 fixed HUD and Firefox 140+ popover/native data declarations",
     "Cancellable completion actions",
@@ -31,7 +37,7 @@
     "Clean release and SignPath submission workflow"
   ],
   "daily_use": {
-    "version": "1.7.0",
+    "version": "2.0.0",
     "power_os_actions_executed": false,
     "passed": true,
     "startup_registry_verified": true,
@@ -47,26 +53,27 @@
     "window_close_cancels_countdown": true,
     "exit_app_after_countdown_verified": true,
     "startup_registry_restored": true,
-    "time": "2026-10-12T16:41:06.412Z",
-    "local_paths_and_credentials_removed": true
+    "time": "2026-10-13T14:04:03.707Z"
   },
   "installer": {
-    "native_windows_verified": true,
-    "version": "1.7.0",
-    "native_registration_verified": true,
-    "sha256": "491cbd28fc7d5407425c9459d4120e4a2afff5f0e89ff14fe7ec45b928a588f4",
-    "idempotent_repair_remove_verified": true,
-    "uninstall_preserves_data": true,
-    "installed_extension_sources_verified": true,
+    "version": "2.0.0",
     "registry_restoration_verified": true,
-    "passed": true,
-    "installer_filename": "Flux_1.7.0_x64-setup.exe",
-    "bundled_runtime_verified": true,
-    "uninstall_removes_owned_startup": true,
-    "time": "2026-10-12T23:07:04.2847890Z",
-    "firefox_registration_verified": true,
+    "installer_filename": "Flux_2.0.0_x64-setup.exe",
+    "native_torrent_window_verified": true,
+    "native_windows_verified": true,
+    "uninstall_preserves_data": true,
     "desktop_cold_start": true,
-    "local_paths_and_credentials_removed": true
+    "installed_binary_hashes_verified": true,
+    "firefox_registration_verified": true,
+    "native_registration_verified": true,
+    "uninstall_removes_owned_startup": true,
+    "passed": true,
+    "time": "2026-10-13T14:00:43.0640064Z",
+    "installed_extension_sources_verified": true,
+    "native_browser_bindings_verified": 5,
+    "sha256": "805ae9233e703034c066084c33883a6d9ca26a2e1518ec5cffae36fc53cd22a7",
+    "idempotent_repair_remove_verified": true,
+    "bundled_runtime_verified": true
   },
   "native_windows": {
     "passed": true,
@@ -80,10 +87,9 @@
     "start_timestamp_verified": true,
     "history_timestamp_verified": true,
     "completion_timestamp_persisted": true,
-    "task": "b26bdf58-dc0a-4c4b-8565-d37eb1d105bd",
+    "task": "f6690af0-aec7-4c8b-8a41-d5a5ea329701",
     "sha256": "51510ba467b06c4f337190ef80336d0fb6b7ef8b2fd2cfb950147dedcf8a7dc1",
-    "time": "2026-10-12T23:06:33.187Z",
-    "local_paths_and_credentials_removed": true
+    "time": "2026-10-13T13:59:53.154Z"
   },
   "native_ipc": {
     "passed": true,
@@ -94,8 +100,7 @@
     "active_shutdown_resume": true,
     "authenticated_requests": 20,
     "sha256": "bb30230b4a79b25f8db24b49b7e3b385d8e9b623a74f7be79fcc6e2a9d44fb3e",
-    "time": "2026-10-12T23:06:22.328Z",
-    "local_paths_and_credentials_removed": true
+    "time": "2026-10-13T13:59:43.093Z"
   },
   "native_media_window": {
     "passed": true,
@@ -110,21 +115,61 @@
     "final_size_exact": true,
     "duration": 8.021333,
     "sha256": "3bd5da94c00686e607a7b160f2c2bdb132fbc56ade7b922b0d986146ede593ca",
-    "time": "2026-10-12T23:06:58.463Z",
-    "local_paths_and_credentials_removed": true
+    "time": "2026-10-13T14:00:18.305Z"
+  },
+  "native_torrent_window": {
+    "version": "2.0.0",
+    "passed": true,
+    "native_local_import": true,
+    "real_peer_wire": true,
+    "graceful_pause_resume": true,
+    "details_close_reopen": true,
+    "torrent_file_row_visible": true,
+    "sha256": "61d1d9c5745bdaa4fab39240651bc242a5186b15393fd475082fcf6e84f400ab",
+    "piece_requests": 32,
+    "render_sample": {
+      "frames": 90,
+      "duration_ms": 371.7999999910594,
+      "maximum_interval_ms": 4.399999999999977
+    },
+    "webview_cleanup_warning": true
+  },
+  "browser_store_packages": {
+    "source_hashes_verified": true,
+    "version": "2.0.0",
+    "passed": true,
+    "time": "2026-10-13T14:00:37.0893018Z",
+    "runtime_only": true,
+    "packages": [
+      {
+        "files": 57,
+        "sha256": "007c980a9dcfa2ae3dca39e926f6f5f90ed936c71fafb7c26701d8e3a7c5d692",
+        "name": "chrome"
+      },
+      {
+        "files": 57,
+        "sha256": "007c980a9dcfa2ae3dca39e926f6f5f90ed936c71fafb7c26701d8e3a7c5d692",
+        "name": "edge"
+      },
+      {
+        "files": 57,
+        "sha256": "43ebd8e0ce8bd69f2facd87f6e5857fcd07ba4e9cade9f469d0b2879c7e62bdb",
+        "name": "firefox"
+      }
+    ]
   },
   "hud_repair": {
-    "version": "1.7.0",
-    "time": "2026-10-12T23:07:52.607Z",
+    "version": "2.0.0",
+    "time": "2026-10-13T14:03:34.617Z",
     "passed": true,
-    "source_sha256": "ff8cb7a5d7bb64abb3cda8fd442766a2cfe6a626054a0dcc5fc6e45a71d45c6e",
-    "extension_tests": 39,
-    "ui_data_tests": 6,
+    "source_sha256": "c5dcea375a615cf2056a86caee0c9607ad4129af137128f9bbea41cceac1ceae",
+    "extension_tests": 51,
+    "ui_data_tests": 12,
     "frontend_build": "Strict TypeScript and Vite production build passed",
     "locales": 20,
-    "locale_keys": 162,
+    "locale_keys": 193,
     "chrome": {
-      "version": "Chrome/154.0.8037.98",
+      "version": "Chrome/155.0.8059.40",
       "scope": "Production HUD source and real native browser layout with an isolated bridge fixture",
       "passed": true,
       "free_viewport_drag": true,
@@ -161,12 +206,11 @@
     ],
     "paused_short_resolution": "Regression fixture verifies provider resolution without playback and the localized ready instruction",
     "stale_selection_guards": "Navigation, source replacement and active-video switching passed",
-    "core_engine_changed": false,
-    "local_paths_and_credentials_removed": true
+    "core_engine_changed": true
   },
   "firefox": [
     {
-      "version": "1.7.0",
+      "version": "2.0.0",
       "firefox": "120.0",
       "passed": true,
       "installed_extension": true,
@@ -188,11 +232,10 @@
       "fullscreen": true,
       "close_button": true,
       "popover_api": false,
-      "registry_restoration_verified": true,
-      "local_paths_and_credentials_removed": true
+      "registry_restoration_verified": true
     },
     {
-      "version": "1.7.0",
+      "version": "2.0.0",
       "firefox": "157.0.1",
       "passed": true,
       "installed_extension": true,
@@ -214,30 +257,21 @@
       "fullscreen": true,
       "close_button": true,
       "popover_api": true,
-      "registry_restoration_verified": true,
-      "local_paths_and_credentials_removed": true
+      "registry_restoration_verified": true
     }
   ],
   "firefox_lint": {
     "summary": {
       "errors": 0,
       "notices": 0,
-      "warnings": 1
+      "warnings": 0
     },
-    "warnings": [
-      {
-        "_type": "warning",
-        "code": "KEY_FIREFOX_ANDROID_UNSUPPORTED_BY_MIN_VERSION",
-        "message": "Manifest key not supported by the specified minimum Firefox for Android version",
-        "description": "\"strict_min_version\" requires Firefox for Android 140, which was released before version 142 introduced support for \"browser_specific_settings.gecko.data_collection_permissions\".",
-        "file": "manifest.json"
-      }
-    ]
+    "warnings": []
   },
   "binary_sha256": {
-    "flux-desktop.exe": "8488480b069a95e4dba82069d4a047e0143b3f23bcd7f67e26789c41010387cb",
-    "flux-cli.exe": "d5f38b1ce1d731c72e1d4f2d5c9fb28f50518d4277c091f9e99286cf2996733d",
-    "flux-native-host.exe": "c3e12d8ee5d520f5253c38e6863cc061defb85e96b5b4754321e4aaad6938684",
+    "flux-desktop.exe": "58fe03dac49ecdafe0a54aeef1bd9e61b61e1ca7c947223748fd0ec492c86989",
+    "flux-cli.exe": "fb82c7035c8cd713863c418323f9c2239cb382cd0207d70b91a92d2c63413c27",
+    "flux-native-host.exe": "2d4403a7b2c7103650cd740779488406b0f8807f37dfd74d1f0eed24bfc3e7f8",
     "ffmpeg.exe": "b7c801e173e83d29c34a8d019abce4b13e54d36199f231a414eaeb5dbb431f23",
     "ffprobe.exe": "b438e6e0fb6d4804dcce24a105fe575d0d2a0ef5344a0bf1a23f4f784e0392d2",
     "yt-dlp.exe": "66674953fe251b89f4d08c5f0e35e0728679bd67ab3d7d05c0562af101dd3e7a",

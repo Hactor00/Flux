@@ -78,3 +78,23 @@ test("unknown file size is indeterminate rather than stuck at zero percent", () 
   );
   assert.equal(formatDuration(3723.8), "01:02:03");
 });
+test("verified completion is required before media or torrent progress reaches 100 percent", () => {
+  const mediaView = transferView({
+    ...task,
+    status: "verifying",
+    media_progress: { ...media, percent: 100 },
+  });
+  assert.equal(mediaView.percent, 99.9);
+  assert.equal(mediaView.phase, "processing");
+  const torrentView = transferView({
+    ...task,
+    status: "verifying",
+    request: { torrent: {} },
+    completed: 100,
+    total: 100,
+  });
+  assert.equal(torrentView.percent, 99.9);
+  assert.equal(torrentView.phase, "verifying");
+  assert.equal(torrentView.eta, null);
+  assert.equal(transferView({ ...task, status: "complete" }).percent, 100);
+});

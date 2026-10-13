@@ -122,5 +122,11 @@
   "moveHud": "Mover botão de download",
   "nativeConsent": "Permitir transferência local para o Flux",
   "nativeConsentExplain": "Envia URLs escolhidas, títulos e cookies ou cabeçalhos de autorização necessários ao Flux neste computador, apenas para baixar o arquivo escolhido. Nenhum dado analítico é enviado. Revogue a permissão aqui.",
-  "mediaReady": "Escolha a qualidade do vídeo e o formato de saída e envie para o Flux."
+  "mediaReady": "Escolha a qualidade do vídeo e o formato de saída e envie para o Flux.",
+  "audioTrack": "Faixa de áudio",
+  "subtitleTrack": "Legendas",
+  "originalAudio": "Áudio original",
+  "noSubtitles": "Sem legendas",
+  "queueCollection": "Adicionar coleção à fila",
+  "collectionHint": "Envie até 500 itens de uma playlist ou canal para a fila de downloads do Flux."
 }

@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "Выберите качество видео и выходной формат, затем отправьте в Flux."
+  },
+  "audioTrack": {
+    "message": "Аудиодорожка"
+  },
+  "subtitleTrack": {
+    "message": "Субтитры"
+  },
+  "originalAudio": {
+    "message": "Исходный звук"
+  },
+  "noSubtitles": {
+    "message": "Без субтитров"
+  },
+  "queueCollection": {
+    "message": "Добавить коллекцию в очередь"
+  },
+  "collectionHint": {
+    "message": "Отправьте до 500 элементов плейлиста или канала в очередь загрузок Flux."
   }
 }

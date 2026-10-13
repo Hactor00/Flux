@@ -319,5 +319,23 @@
   },
   "mediaReady": {
     "message": "揀選影片畫質同輸出格式，再傳送到 Flux。"
+  },
+  "audioTrack": {
+    "message": "音軌"
+  },
+  "subtitleTrack": {
+    "message": "字幕"
+  },
+  "originalAudio": {
+    "message": "原本音訊"
+  },
+  "noSubtitles": {
+    "message": "冇字幕"
+  },
+  "queueCollection": {
+    "message": "將合集加入佇列"
+  },
+  "collectionHint": {
+    "message": "將播放清單或者頻道最多500個項目傳送到Flux下載佇列。"
   }
 }

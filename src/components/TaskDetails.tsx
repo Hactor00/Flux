@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { api, desktop, type Task, type Progress, taskFilename } from "../api";
 import { transferView, formatDuration } from "../transfer";
+import { isTorrentTask } from "../downloads";
+import { TorrentDetails } from "./TorrentDetails";
 export function TaskDetails({
   task,
   progress,
@@ -124,13 +126,15 @@ export function TaskDetails({
                     <strong>
                       {view?.phase === "processing"
                         ? t("media_finalizing")
-                        : view?.phase === "live"
-                          ? t("live_stream")
-                          : view?.eta != null
-                            ? `≈ ${formatDuration(view.eta)}`
-                            : task.status === "running"
-                              ? t("calculating_time")
-                              : "—"}
+                        : view?.phase === "verifying"
+                          ? t("verifying")
+                          : view?.phase === "live"
+                            ? t("live_stream")
+                            : view?.eta != null
+                              ? `≈ ${formatDuration(view.eta)}`
+                              : task.status === "running"
+                                ? t("calculating_time")
+                                : "—"}
                     </strong>
                   </span>
                   {view?.media && (
@@ -159,8 +163,22 @@ export function TaskDetails({
                 </dd>
                 <dt>{t("download_directory")}</dt>
                 <dd>{task.destination}</dd>
-                <dt>{t("connections")}</dt>
-                <dd>{task.request.connections || t("automatic")}</dd>
+                <dt>{t("source_type")}</dt>
+                <dd>
+                  {t(
+                    isTorrentTask(task)
+                      ? "torrent"
+                      : task.request.media
+                        ? "downloadMedia"
+                        : "file",
+                  )}
+                </dd>
+                {!isTorrentTask(task) && (
+                  <>
+                    <dt>{t("connections")}</dt>
+                    <dd>{task.request.connections || t("automatic")}</dd>
+                  </>
+                )}
                 <dt>{t("created_at")}</dt>
                 <dd>{date(task.created_at)}</dd>
                 <dt>{t("started_at")}</dt>
@@ -205,6 +223,18 @@ export function TaskDetails({
                   )}
                 </dd>
               </dl>
+              {isTorrentTask(task) && (
+                <TorrentDetails
+                  task={task}
+                  busy={busy || !desktop}
+                  size={size}
+                  onApply={(options, speedLimit) =>
+                    action(() =>
+                      api.torrentOptions(task.id, options, speedLimit),
+                    )
+                  }
+                />
+              )}
               {task.error && (
                 <p className="form-error" role="alert">
                   {task.error}
@@ -271,7 +301,7 @@ export function TaskDetails({
                       className="secondary"
                       onClick={() => void action(() => api.open(task.id))}
                     >
-                      {t("open_file")}
+                      {t(isTorrentTask(task) ? "open_folder" : "open_file")}
                     </button>
                     <button
                       className="secondary"

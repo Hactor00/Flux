@@ -1,0 +1,25 @@
+{
+  "source_hashes_verified": true,
+  "version": "2.0.0",
+  "passed": true,
+  "time": "2026-10-13T14:00:37.0893018Z",
+  "runtime_only": true,
+  "packages": [
+    {
+      "files": 57,
+      "sha256": "007c980a9dcfa2ae3dca39e926f6f5f90ed936c71fafb7c26701d8e3a7c5d692",
+      "name": "chrome"
+    },
+    {
+      "files": 57,
+      "sha256": "007c980a9dcfa2ae3dca39e926f6f5f90ed936c71fafb7c26701d8e3a7c5d692",
+      "name": "edge"
+    },
+    {
+      "files": 57,
+      "sha256": "43ebd8e0ce8bd69f2facd87f6e5857fcd07ba4e9cade9f469d0b2879c7e62bdb",
+      "name": "firefox"
+    }
+  ],
+  "local_paths_and_credentials_removed": true
+}

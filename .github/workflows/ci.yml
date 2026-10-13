@@ -42,9 +42,11 @@ jobs:
       - run: npm test
       - run: node scripts/test-chrome-hud.mjs
       - run: cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
+      - run: cargo test --locked -p flux-desktop
       - run: npm run tauri build -- --debug --no-bundle
       - run: cargo build --locked -p flux-cli -p flux-native-host
       - run: node scripts/test-native.mjs target/debug
       - run: node scripts/test-window-session.mjs target/debug --automatic
       - run: node scripts/test-media-window.mjs target/debug
       - run: node scripts/test-media-window.mjs target/debug --suite
+      - run: node scripts/test-torrent-window.mjs target/debug

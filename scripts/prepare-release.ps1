@@ -1,9 +1,23 @@
-param([string]$MediaRuntime, [switch]$SkipCompile, [switch]$UseLocalToolchain)
+param([string]$MediaRuntime, [switch]$SkipCompile, [switch]$UseLocalToolchain, [string]$RuntimePackage)
 $ErrorActionPreference = 'Stop'
 $workspace = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $workspace
 & "$PSScriptRoot/prepare-extractor.ps1"
 if ($UseLocalToolchain) { . "$PSScriptRoot/use-local-rust.ps1" }
+if ($RuntimePackage) {
+    $RuntimePackage = (Resolve-Path -LiteralPath $RuntimePackage).Path
+    $MediaRuntime = $RuntimePackage
+    $sourceHashes = @{
+        'ffmpeg-9.0.2.tar.xz'='8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e'
+        'libxml2-2.15.4.tar.xz'='98087fd181d9070724f3fbc65c7377db03038eb92bd882374daff44940138821'
+        'lame-3.100.tar.gz'='ddfe36cab873794038ae2c1210557ad34857a4b6bdc515785d1da9e175b1da1e'
+    }
+    foreach ($name in $sourceHashes.Keys) {
+        if ((Get-FileHash -LiteralPath (Join-Path $RuntimePackage "media-source/$name")).Hash.ToLowerInvariant() -ne $sourceHashes[$name]) { throw "Reused media source checksum mismatch: $name" }
+    }
+    $configuration = & (Join-Path $RuntimePackage 'ffmpeg.exe') -version 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0 -or $configuration -notmatch 'ffmpeg version 9\.0\.2' -or $configuration -match '--enable-(gpl|nonfree)') { throw 'Reused media runtime must be the pinned LGPL build.' }
+}
 if (-not $MediaRuntime) {
     if (-not (Test-Path -LiteralPath "$workspace/.tools/media-build-path.txt")) { throw 'Build the media runtime with scripts/bootstrap-media-toolchain.ps1 or provide -MediaRuntime.' }
     $mediaWork = Get-Content "$workspace/.tools/media-build-path.txt"
@@ -33,6 +47,12 @@ foreach ($name in 'extension','extension-firefox','extension-firefox-modern') { 
 Copy-Item -LiteralPath "$workspace/LICENSE" -Destination $stage -Force
 $sourceDirectory = Join-Path $stage 'media-source'
 New-Item -ItemType Directory -Force -Path $sourceDirectory | Out-Null
+if ($RuntimePackage) {
+    foreach ($name in @('ffmpeg-9.0.2.tar.xz','libxml2-2.15.4.tar.xz','lame-3.100.tar.gz','FFmpeg-LICENSE.txt','libxml2-LICENSE.txt','LAME-LICENSE.txt','LLVM-runtime-LICENSE.txt')) {
+        Copy-Item -LiteralPath (Join-Path $RuntimePackage "media-source/$name") -Destination $sourceDirectory -Force
+    }
+    Copy-Item -LiteralPath "$PSScriptRoot/build-media-runtime.sh" -Destination $sourceDirectory -Force
+} else {
 Copy-Item -LiteralPath "$workspace/.tools/media-sources/ffmpeg-9.0.2.tar.xz" -Destination $sourceDirectory -Force
 Copy-Item -LiteralPath "$workspace/.tools/media-sources/libxml2-2.15.4.tar.xz" -Destination $sourceDirectory -Force
 Copy-Item -LiteralPath "$workspace/.tools/media-sources/lame-3.100.tar.gz" -Destination $sourceDirectory -Force
@@ -43,6 +63,7 @@ Copy-Item -LiteralPath "$mediaWork/libxml2-2.15.4/Copyright" -Destination "$sour
 Copy-Item -LiteralPath "$mediaWork/lame-3.100/COPYING" -Destination "$sourceDirectory/LAME-LICENSE.txt" -Force
 $llvm = Get-ChildItem "$workspace/.tools/mingw" -Directory | Select-Object -First 1
 Copy-Item -LiteralPath "$($llvm.FullName)/LICENSE.TXT" -Destination "$sourceDirectory/LLVM-runtime-LICENSE.txt" -Force
+}
 node "$PSScriptRoot/third-party-notices.mjs" $stage
 if ($LASTEXITCODE -ne 0) { throw 'License collection failed.' }
 $extractorLicense = Join-Path $stage 'licenses/Media-Extractor'

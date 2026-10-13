@@ -27,9 +27,14 @@ regex = "1"
 dirs = "7"
 time = { version = "0.3", features = ["parsing"] }
 percent-encoding = "2"
+librqbit = { version = "=9.0.1", default-features = false, features = ["rust-tls"] }
+bytes = "1"
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.61", features = ["Win32_Storage_FileSystem", "Win32_Security_Cryptography", "Win32_Foundation"] }
+windows-sys = { version = "0.61", features = ["Win32_Storage_FileSystem", "Win32_Security_Cryptography", "Win32_Foundation", "Win32_System_IO", "Win32_System_Ioctl"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+libc = "0.2"
 
 [target.'cfg(not(windows))'.dependencies]
 chacha20poly1305 = "0.10"

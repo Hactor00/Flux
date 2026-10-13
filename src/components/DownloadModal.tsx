@@ -12,27 +12,20 @@ import {
   type MediaInfo,
   type Task,
   type ResolvedMedia,
+  type CollectionEntry,
+  type TorrentOptions,
 } from "../api";
+import {
+  collectionInputs,
+  sanitizeFilename,
+  suggestedFilename as filename,
+  torrentSource,
+  providerSource,
+  isTorrentTask,
+} from "../downloads";
+import { CollectionPicker } from "./CollectionPicker";
 import { Choice } from "./primitives";
 import { MediaExtras, type MediaExtrasValue } from "./MediaExtras";
-function filename(url: string, media: boolean) {
-  let name = "download";
-  try {
-    name = decodeURIComponent(new URL(url).pathname.split("/").pop() || name);
-  } catch {}
-  name = sanitizeFilename(name);
-  return media ? name.replace(/\.(m3u8|mpd|mp4|mkv)$/i, "") + ".mp4" : name;
-}
-function sanitizeFilename(name: string) {
-  name =
-    name.replace(/[<>:"/\\|?*\x00-\x1f]/g, "_").replace(/[. ]+$/g, "") ||
-    "download";
-  while (new TextEncoder().encode(name).length > 175)
-    name = [...name].slice(0, -1).join("");
-  if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(name))
-    name = `_${name}`;
-  return name;
-}
 function proposalDirectory(proposal?: Task) {
   return (
     proposal?.destination
@@ -83,10 +76,19 @@ export function DownloadModal({
   );
   const connectionsEdited = useRef(false);
   const [transport, setTransport] = useState("auto");
-  const provider = /(?:youtube(?:-nocookie)?\.com|youtu\.be)\//i.test(url);
+  const [torrentPath, setTorrentPath] = useState("");
+  const [collectionEntries, setCollectionEntries] = useState<CollectionEntry[]>(
+    [],
+  );
+  const [collectionBusy, setCollectionBusy] = useState(false);
+  const [audioTrack, setAudioTrack] = useState("auto");
+  const inspectionGeneration = useRef(0);
+  const providerUrl = proposal?.request.media?.provider?.url || url;
+  const provider = providerSource(providerUrl);
   useEffect(() => {
     if (visible) {
       let active = true;
+      inspectionGeneration.current++;
       connectionsEdited.current = false;
       if (proposal) {
         setConnections(String(proposal.request.connections));
@@ -95,8 +97,21 @@ export function DownloadModal({
       setDirectoryEdited(false);
       const source = proposal?.request.url || initialUrl;
       const adaptive =
-        !!proposal?.request.media || /\.(m3u8|mpd)(?:\?|$)/i.test(source);
-      setMode(adaptive ? "media" : "single");
+        !!proposal?.request.media ||
+        providerSource(source) ||
+        /\.(m3u8|mpd)(?:\?|$)/i.test(source);
+      setMode(
+        (proposal && isTorrentTask(proposal)) || torrentSource(source)
+          ? "torrent"
+          : adaptive
+            ? "media"
+            : "single",
+      );
+      setTorrentPath("");
+      setCollectionEntries([]);
+      setCollectionBusy(false);
+      setInspecting(false);
+      setAudioTrack("auto");
       setContainer("mp4");
       setTransport(proposal?.request.transport || "auto");
       setSegments("");
@@ -138,6 +153,7 @@ export function DownloadModal({
         });
       return () => {
         active = false;
+        inspectionGeneration.current++;
       };
     }
   }, [visible, initialUrl, onError, proposal]);
@@ -164,14 +180,37 @@ export function DownloadModal({
       return value ? Math.floor(new Date(value).getTime() / 1000) : null;
     };
     try {
-      if (provider && !resolved) throw new Error(t("inspect"));
-      const selected = resolved?.formats[Number(format)];
+      if (["single", "media"].includes(mode) && provider && !resolved)
+        throw new Error(t("inspect"));
+      if (mode === "collection" && !collectionEntries.length)
+        throw new Error(t("collection_empty"));
+      if (mode === "torrent" && !torrentPath && !url.trim())
+        throw new Error(t("torrent_source_hint"));
+      const selected =
+        mode === "media" ? resolved?.formats[Number(format)] : undefined;
+      const torrentOptions: TorrentOptions = {
+        upload_limit: Number(form.get("upload_limit") || 0),
+        peer_limit: Number(form.get("peer_limit") || 80),
+        only_files: proposal?.request.torrent?.only_files || [],
+        initial_peers: String(form.get("initial_peers") || "")
+          .split(/\r?\n/)
+          .map((value) => value.trim())
+          .filter(Boolean),
+      };
+      if (
+        mode === "torrent" &&
+        [Number(form.get("limit")), torrentOptions.upload_limit].some(
+          (value) => value > 0 && value < 16384,
+        )
+      )
+        throw new Error(t("torrent_min_limit", { count: 16384 }));
       const urls =
         mode === "batch"
           ? await api.expand(String(form.get("batch")))
           : [selected?.url || url || segments.trim().split(/\r?\n/)[0]];
+      if (!urls.length) throw new Error(t("no_results"));
       const names = new Set<string>();
-      const inputs: Input[] = urls.map((source, index) => {
+      let inputs: Input[] = urls.map((source, index) => {
         let target = mode === "batch" ? filename(source, false) : name;
         if (names.has(target)) {
           const dot = target.lastIndexOf(".");
@@ -195,12 +234,19 @@ export function DownloadModal({
           browser_source: proposal?.request.browser_source || null,
           transport: transport as "auto" | "tcp" | "http3",
           content_type: proposal?.request.content_type || null,
+          torrent: mode === "torrent" ? torrentOptions : null,
           media:
             mode === "media"
               ? {
                   provider:
-                    selected && provider
-                      ? { url, format_id: selected.id, height: selected.height }
+                    selected && resolved
+                      ? {
+                          url: providerUrl,
+                          format_id: selected.id,
+                          height: selected.height,
+                          audio_format_id:
+                            audioTrack === "auto" ? null : audioTrack,
+                        }
                       : proposal?.request.media?.provider || null,
                   segment_urls: segments
                     .split(/\r?\n/)
@@ -236,6 +282,9 @@ export function DownloadModal({
                         ? "dash"
                         : "file"),
                   audio_url:
+                    resolved?.audio_tracks?.find(
+                      (track) => track.id === audioTrack,
+                    )?.url ||
                     selected?.audio_url ||
                     String(form.get("audio_url") || "").trim() ||
                     proposal?.request.media?.audio_url ||
@@ -247,8 +296,25 @@ export function DownloadModal({
               : null,
         };
       });
+      if (mode === "collection")
+        inputs = collectionInputs(collectionEntries, inputs[0]);
       let added: Task | undefined;
-      if (proposal)
+      if (mode === "torrent" && torrentPath)
+        added = await api.importTorrent(
+          torrentPath,
+          name,
+          directoryEdited ? directory : null,
+          !later,
+          torrentOptions,
+          {
+            speed_limit: inputs[0].speed_limit,
+            priority: inputs[0].priority,
+            start_at: inputs[0].start_at,
+            stop_at: inputs[0].stop_at,
+            expected_sha256: null,
+          },
+        );
+      else if (proposal)
         added = await api.approve(proposal.id, inputs[0], directory, !later);
       else if (inputs.length === 1)
         added = await api.addTo(
@@ -276,10 +342,15 @@ export function DownloadModal({
     }
   }
   async function inspect() {
+    const current = ++inspectionGeneration.current;
     setInspecting(true);
+    setLocalError("");
     try {
-      if (provider) {
-        const metadata = await api.resolve(url);
+      const direct = /\.(m3u8|mpd|mp4|mkv|mp3|mka|webm|ts)(?:\?|$)/i.test(url);
+      if (provider || !direct) {
+        const metadata = await api.resolve(providerUrl.trim(), proposal?.id);
+        if (current !== inspectionGeneration.current) return;
+        if (!metadata.formats.length) throw new Error(t("noMedia"));
         setResolved(metadata);
         setMode("media");
         setFormat("0");
@@ -289,15 +360,21 @@ export function DownloadModal({
             "." +
             metadata.formats[0].container,
         );
-      } else
-        setStreams(
-          await api.inspect(url, proposal?.request.referer, proposal?.id),
+      } else {
+        const metadata = await api.inspect(
+          url,
+          proposal?.request.referer,
+          proposal?.id,
         );
+        if (current !== inspectionGeneration.current) return;
+        setStreams(metadata);
+      }
       setExtras((value) => ({ ...value, selected: [] }));
     } catch (error) {
-      setLocalError(String(error));
+      if (current === inspectionGeneration.current)
+        setLocalError(String(error));
     } finally {
-      setInspecting(false);
+      if (current === inspectionGeneration.current) setInspecting(false);
     }
   }
   return (
@@ -318,6 +395,8 @@ export function DownloadModal({
               value={mode}
               onValueChange={(value) => {
                 setMode(value);
+                inspectionGeneration.current++;
+                setInspecting(false);
                 if (value === "media" && name)
                   setName(
                     name.replace(/\.(m3u8|mpd|mp4|mkv|mp3|mka)$/i, "") +
@@ -327,11 +406,25 @@ export function DownloadModal({
               }}
             >
               <Tabs.List className="tabs" aria-label={t("downloads")}>
-                <Tabs.Trigger value="single">{t("file")}</Tabs.Trigger>
+                <Tabs.Trigger value="single" disabled={busy}>
+                  {t("file")}
+                </Tabs.Trigger>
                 {!proposal && (
-                  <Tabs.Trigger value="batch">{t("batch")}</Tabs.Trigger>
+                  <Tabs.Trigger value="batch" disabled={busy}>
+                    {t("batch")}
+                  </Tabs.Trigger>
                 )}
-                <Tabs.Trigger value="media">{t("downloadMedia")}</Tabs.Trigger>
+                {!proposal && (
+                  <Tabs.Trigger value="collection" disabled={busy}>
+                    {t("collection")}
+                  </Tabs.Trigger>
+                )}
+                <Tabs.Trigger value="media" disabled={busy}>
+                  {t("downloadMedia")}
+                </Tabs.Trigger>
+                <Tabs.Trigger value="torrent" disabled={busy}>
+                  {t("torrent")}
+                </Tabs.Trigger>
               </Tabs.List>
               <Tabs.Content value="batch">
                 <label>
@@ -341,6 +434,82 @@ export function DownloadModal({
                     required={mode === "batch"}
                     rows={5}
                     placeholder="https://example.com/file[001-010].zip"
+                  />
+                </label>
+              </Tabs.Content>
+              <Tabs.Content value="collection">
+                <CollectionPicker
+                  onChange={setCollectionEntries}
+                  onBusy={setCollectionBusy}
+                />
+              </Tabs.Content>
+              <Tabs.Content value="torrent">
+                <label>
+                  {t("torrent_source")}
+                  <div className="folder-field">
+                    <input
+                      value={torrentPath || url}
+                      readOnly={!!torrentPath || !!proposal}
+                      required={mode === "torrent"}
+                      onChange={(event) => {
+                        setUrl(event.target.value);
+                        setName(filename(event.target.value, false));
+                      }}
+                      placeholder="magnet:?xt=urn:btih:"
+                    />
+                    {!proposal && (
+                      <button
+                        type="button"
+                        aria-label={t("choose_torrent")}
+                        onClick={async () => {
+                          try {
+                            const path = await open({
+                              multiple: false,
+                              filters: [
+                                { name: "BitTorrent", extensions: ["torrent"] },
+                              ],
+                            });
+                            if (typeof path === "string") {
+                              setTorrentPath(path);
+                              setName(
+                                sanitizeFilename(
+                                  path
+                                    .split(/[\\/]/)
+                                    .pop()
+                                    ?.replace(/\.torrent$/i, "") || "torrent",
+                                ),
+                              );
+                            }
+                          } catch (error) {
+                            setLocalError(String(error));
+                          }
+                        }}
+                      >
+                        <FolderOpen size={17} />
+                      </button>
+                    )}
+                  </div>
+                </label>
+                {torrentPath && (
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={() => {
+                      setTorrentPath("");
+                      setUrl("");
+                    }}
+                  >
+                    {t("reset")}
+                  </button>
+                )}
+                <p className="form-hint">{t("torrent_source_hint")}</p>
+                <label>
+                  {t("torrent_folder")}
+                  <input
+                    required
+                    value={name}
+                    maxLength={200}
+                    onChange={(event) => setName(event.target.value)}
                   />
                 </label>
               </Tabs.Content>
@@ -356,14 +525,20 @@ export function DownloadModal({
                       readOnly={!!proposal}
                       onChange={(event) => {
                         setUrl(event.target.value);
+                        inspectionGeneration.current++;
+                        setInspecting(false);
                         setName(filename(event.target.value, mode === "media"));
                         setStreams(null);
                         setResolved(null);
                         setVideo("auto");
                         setAudio("auto");
+                        setAudioTrack("auto");
+                        if (torrentSource(event.target.value))
+                          setMode("torrent");
                         if (
                           mode === "single" &&
-                          /\.(m3u8|mpd)(?:\?|$)/i.test(event.target.value)
+                          (providerSource(event.target.value) ||
+                            /\.(m3u8|mpd)(?:\?|$)/i.test(event.target.value))
                         ) {
                           setMode("media");
                           setName(filename(event.target.value, true));
@@ -411,8 +586,25 @@ export function DownloadModal({
                         }}
                         options={resolved.formats.map((value, index) => ({
                           value: String(index),
-                          label: `${value.height || ""}p · ${value.container.toUpperCase()}${value.size ? ` · ${(value.size / 1048576).toFixed(1)} MB` : ""}`,
+                          label: `${value.audio_only ? t("audio_only") : value.height ? `${value.height}p` : t("automatic")}${value.fps ? ` · ${value.fps} fps` : ""} · ${value.container.toUpperCase()}${value.size ? ` · ${(value.size / 1048576).toFixed(1)} MB` : ""}`,
                         }))}
+                      />
+                    </label>
+                  )}
+                  {!!resolved?.audio_tracks?.length && (
+                    <label>
+                      {t("audio_track")}
+                      <Choice
+                        label={t("audio_track")}
+                        value={audioTrack}
+                        onChange={setAudioTrack}
+                        options={[
+                          { value: "auto", label: t("automatic") },
+                          ...resolved.audio_tracks.map((track) => ({
+                            value: track.id,
+                            label: `${track.language || t("audio_only")} · ${track.codec}${track.bitrate ? ` · ${Math.round(track.bitrate)} kb/s` : ""}`,
+                          })),
+                        ]}
                       />
                     </label>
                   )}
@@ -582,14 +774,18 @@ export function DownloadModal({
                   type="button"
                   aria-label={t("choose_folder")}
                   onClick={async () => {
-                    const path = await open({
-                      directory: true,
-                      multiple: false,
-                      defaultPath: directory || undefined,
-                    });
-                    if (typeof path === "string") {
-                      setDirectoryEdited(true);
-                      setDirectory(path);
+                    try {
+                      const path = await open({
+                        directory: true,
+                        multiple: false,
+                        defaultPath: directory || undefined,
+                      });
+                      if (typeof path === "string") {
+                        setDirectoryEdited(true);
+                        setDirectory(path);
+                      }
+                    } catch (error) {
+                      setLocalError(String(error));
                     }
                   }}
                 >
@@ -598,24 +794,26 @@ export function DownloadModal({
               </div>
             </label>
             <div className="form-grid">
-              <label>
-                {t("connections")}
-                <Choice
-                  label={t("connections")}
-                  value={connections}
-                  onChange={(value) => {
-                    connectionsEdited.current = true;
-                    setConnections(value);
-                  }}
-                  options={[
-                    { value: "0", label: t("automatic") },
-                    ...Array.from({ length: 32 }, (_, index) => ({
-                      value: String(index + 1),
-                      label: String(index + 1),
-                    })),
-                  ]}
-                />
-              </label>
+              {mode !== "torrent" && (
+                <label>
+                  {t("connections")}
+                  <Choice
+                    label={t("connections")}
+                    value={connections}
+                    onChange={(value) => {
+                      connectionsEdited.current = true;
+                      setConnections(value);
+                    }}
+                    options={[
+                      { value: "0", label: t("automatic") },
+                      ...Array.from({ length: 32 }, (_, index) => ({
+                        value: String(index + 1),
+                        label: String(index + 1),
+                      })),
+                    ]}
+                  />
+                </label>
+              )}
               <label>
                 {t("speed_limit")}
                 <input
@@ -627,21 +825,61 @@ export function DownloadModal({
                 />
               </label>
             </div>
+            {mode === "torrent" && (
+              <div className="form-grid">
+                <label>
+                  {t("upload_limit")}
+                  <input
+                    name="upload_limit"
+                    type="number"
+                    min={0}
+                    defaultValue={proposal?.request.torrent?.upload_limit || 0}
+                    required
+                  />
+                </label>
+                <label>
+                  {t("peer_limit")}
+                  <input
+                    name="peer_limit"
+                    type="number"
+                    min={1}
+                    max={500}
+                    defaultValue={proposal?.request.torrent?.peer_limit || 80}
+                    required
+                  />
+                </label>
+              </div>
+            )}
             <details className="download-advanced">
               <summary>{t("details")}</summary>
-              <label>
-                {t("network_transport")}
-                <Choice
-                  label={t("network_transport")}
-                  value={transport}
-                  onChange={setTransport}
-                  options={[
-                    { value: "auto", label: t("transport_auto") },
-                    { value: "http3", label: t("transport_quic") },
-                    { value: "tcp", label: t("transport_tcp") },
-                  ]}
-                />
-              </label>
+              {mode !== "torrent" && (
+                <label>
+                  {t("network_transport")}
+                  <Choice
+                    label={t("network_transport")}
+                    value={transport}
+                    onChange={setTransport}
+                    options={[
+                      { value: "auto", label: t("transport_auto") },
+                      { value: "http3", label: t("transport_quic") },
+                      { value: "tcp", label: t("transport_tcp") },
+                    ]}
+                  />
+                </label>
+              )}
+              {mode === "torrent" && (
+                <label>
+                  {t("initial_peers")}
+                  <textarea
+                    name="initial_peers"
+                    rows={2}
+                    defaultValue={
+                      proposal?.request.torrent?.initial_peers.join("\n") || ""
+                    }
+                    placeholder="127.0.0.1:6881"
+                  />
+                </label>
+              )}
               <div className="form-grid">
                 <label>
                   {t("start_at")}
@@ -669,7 +907,7 @@ export function DownloadModal({
                   <input
                     name="hash"
                     pattern="[a-fA-F0-9]{64}"
-                    disabled={mode === "batch"}
+                    disabled={["batch", "collection", "torrent"].includes(mode)}
                   />
                 </label>
               </div>
@@ -681,7 +919,13 @@ export function DownloadModal({
             )}
             <button
               className="primary"
-              disabled={busy || !desktop || (provider && !resolved)}
+              disabled={
+                busy ||
+                collectionBusy ||
+                !desktop ||
+                (["single", "media"].includes(mode) && provider && !resolved) ||
+                (mode === "collection" && !collectionEntries.length)
+              }
               type="submit"
             >
               <Download size={16} />

@@ -16,8 +16,8 @@ pub fn register() -> InstallResult<String> {
     }
     let data = flux_core::default_data_directory()?;
     std::fs::create_dir_all(&data)?;
-    let origin = format!("chrome-extension://{id}/");
-    let manifest = serde_json::json!({"name":"io.flux.download","description":"Flux download bridge","path":host,"type":"stdio","allowed_origins":[origin]});
+    let origins = chromium_origins()?;
+    let manifest = serde_json::json!({"name":"io.flux.download","description":"Flux download bridge","path":host,"type":"stdio","allowed_origins":origins});
     let manifest_path = data.join("native-host.json");
     std::fs::write(&manifest_path, serde_json::to_vec_pretty(&manifest)?)?;
     let firefox_manifest_path = data.join("io.flux.download.firefox.json");
@@ -31,7 +31,7 @@ pub fn register() -> InstallResult<String> {
     std::fs::write(&firefox_manifest_path, serde_json::to_vec_pretty(&firefox)?)?;
     std::fs::write(
         data.join("allowed-origins.json"),
-        serde_json::to_vec(&vec![origin])?,
+        serde_json::to_vec(&origins)?,
     )?;
     #[cfg(windows)]
     {
@@ -115,8 +115,32 @@ fn remove(path: &Path) -> InstallResult<()> {
         Err(error) => Err(error.into()),
     }
 }
+fn chromium_origins() -> InstallResult<Vec<String>> {
+    let mut ids: Vec<String> = serde_json::from_str(include_str!(
+        "../../native-host/chromium-extension-ids.json"
+    ))?;
+    ids.push(
+        include_str!("../../extension/extension-id.txt")
+            .trim()
+            .to_owned(),
+    );
+    ids.sort_unstable();
+    ids.dedup();
+    if ids.len() > 8
+        || ids
+            .iter()
+            .any(|id| id.len() != 32 || !id.bytes().all(|byte| (b'a'..=b'p').contains(&byte)))
+    {
+        return Err("Invalid packaged Chromium extension IDs".into());
+    }
+    Ok(ids
+        .into_iter()
+        .map(|id| format!("chrome-extension://{id}/"))
+        .collect())
+}
+
 #[cfg(windows)]
-fn registry_paths() -> [(&'static str, &'static str); 4] {
+fn registry_paths() -> [(&'static str, &'static str); 5] {
     [
         (
             "Software\\Google\\Chrome\\NativeMessagingHosts\\io.flux.download",
@@ -128,6 +152,10 @@ fn registry_paths() -> [(&'static str, &'static str); 4] {
         ),
         (
             "Software\\Chromium\\NativeMessagingHosts\\io.flux.download",
+            "native-host.json",
+        ),
+        (
+            "Software\\BraveSoftware\\Brave-Browser\\NativeMessagingHosts\\io.flux.download",
             "native-host.json",
         ),
         (
@@ -154,6 +182,10 @@ fn native_directories() -> InstallResult<Vec<(std::path::PathBuf, &'static str)>
             "native-host.json",
         ),
         (
+            home.join(".config/BraveSoftware/Brave-Browser/NativeMessagingHosts"),
+            "native-host.json",
+        ),
+        (
             home.join(".mozilla/native-messaging-hosts"),
             "io.flux.download.firefox.json",
         ),
@@ -173,9 +205,54 @@ fn native_directories() -> InstallResult<Vec<(std::path::PathBuf, &'static str)>
             "native-host.json",
         ),
         (
+            home.join(
+                "Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts",
+            ),
+            "native-host.json",
+        ),
+        (
             home.join("Library/Application Support/Mozilla/NativeMessagingHosts"),
             "io.flux.download.firefox.json",
         ),
     ];
     Ok(paths)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn packaged_origins_include_the_shared_extension_and_are_unique() {
+        let origins = chromium_origins().unwrap();
+        let expected = format!(
+            "chrome-extension://{}/",
+            include_str!("../../extension/extension-id.txt").trim()
+        );
+        assert!(origins.contains(&expected));
+        let unique: std::collections::HashSet<_> = origins.iter().collect();
+        assert_eq!(unique.len(), origins.len());
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn every_supported_browser_has_an_explicit_native_host_binding() {
+        let paths = registry_paths();
+        for browser in [
+            "Google\\Chrome",
+            "Microsoft\\Edge",
+            "BraveSoftware\\Brave-Browser",
+            "Chromium",
+            "Mozilla",
+        ] {
+            assert!(paths.iter().any(|(path, _)| path.contains(browser)));
+        }
+        assert_eq!(
+            paths
+                .iter()
+                .filter(|(_, file)| *file == "io.flux.download.firefox.json")
+                .count(),
+            1
+        );
+    }
 }

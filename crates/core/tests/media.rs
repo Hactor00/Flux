@@ -110,10 +110,9 @@ async fn exercise(format: &str) {
         if format == "hls" { "m3u8" } else { "mpd" }
     );
     let info = flux_core::inspect_media(&url, None).await.unwrap();
-    assert!(info
-        .streams
-        .iter()
-        .any(|s| s.codec_type == "video" && s.width == Some(160)));
+    assert!(info.streams.iter().any(|s| s.codec_type == "video"
+        && s.width == Some(160)
+        && s.fps.is_some_and(|fps| (fps - 12.0).abs() < 0.001)));
     assert!(info.streams.iter().any(|s| s.codec_type == "audio"));
     let data = TempDir::new().unwrap();
     let downloads = TempDir::new().unwrap();

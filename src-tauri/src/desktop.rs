@@ -11,6 +11,72 @@ fn error(error: impl std::fmt::Display) -> String {
     error.to_string()
 }
 #[tauri::command]
+pub async fn import_torrent(
+    path: std::path::PathBuf,
+    filename: Option<String>,
+    directory: Option<std::path::PathBuf>,
+    start: bool,
+    options: Option<flux_core::TorrentOptions>,
+    transfer: Option<TorrentTransferOptions>,
+    state: State<'_, Backend>,
+) -> Result<Task, String> {
+    let transfer = transfer.unwrap_or_default();
+    let input = flux_core::DownloadRequest {
+        filename: filename.unwrap_or_else(|| {
+            flux_core::preferences::safe_filename(
+                path.file_stem()
+                    .and_then(|stem| stem.to_str())
+                    .unwrap_or("Torrent"),
+            )
+        }),
+        torrent: Some(options.unwrap_or_default()),
+        speed_limit: transfer.speed_limit,
+        priority: transfer.priority,
+        start_at: transfer.start_at,
+        stop_at: transfer.stop_at,
+        expected_sha256: transfer.expected_sha256,
+        auto_rename: true,
+        ..Default::default()
+    };
+    state
+        .engine
+        .import_torrent_request(path, input, directory, start)
+        .await
+        .map_err(error)
+}
+#[derive(Default, serde::Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct TorrentTransferOptions {
+    speed_limit: u64,
+    priority: i8,
+    start_at: Option<u64>,
+    stop_at: Option<u64>,
+    expected_sha256: Option<String>,
+}
+#[tauri::command]
+pub async fn set_torrent_options(
+    id: String,
+    options: flux_core::TorrentOptions,
+    speed_limit: Option<u64>,
+    state: State<'_, Backend>,
+) -> Result<Task, String> {
+    state
+        .engine
+        .set_torrent_options(&id, options, speed_limit)
+        .await
+        .map_err(error)
+}
+#[tauri::command]
+pub async fn inspect_collection(
+    url: String,
+    offset: Option<usize>,
+    limit: Option<usize>,
+) -> Result<flux_core::extractor::ResolvedCollection, String> {
+    flux_core::extractor::resolve_collection(&url, offset.unwrap_or(0), limit.unwrap_or(50))
+        .await
+        .map_err(error)
+}
+#[tauri::command]
 pub async fn add_batch(
     inputs: Vec<flux_core::DownloadRequest>,
     directory: Option<std::path::PathBuf>,
@@ -186,7 +252,17 @@ pub async fn open_task(
     }
 }
 #[tauri::command]
-pub async fn resolve_media(url: String) -> Result<flux_core::extractor::ResolvedMedia, String> {
+pub async fn resolve_media(
+    url: String,
+    task_id: Option<String>,
+    state: State<'_, Backend>,
+) -> Result<flux_core::extractor::ResolvedMedia, String> {
+    if let Some(id) = task_id {
+        let task = state.engine.task(&id).await.map_err(error)?;
+        return flux_core::extractor::resolve_with_session(&url, &task.request.credentials)
+            .await
+            .map_err(error);
+    }
     flux_core::extractor::resolve(&url).await.map_err(error)
 }
 #[tauri::command]

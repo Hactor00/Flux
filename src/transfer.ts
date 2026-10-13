@@ -15,14 +15,22 @@ export function transferView(task: Task, progress?: Progress) {
       ? media?.phase
       : task.status === "verifying" && task.request.media
         ? "processing"
-        : undefined;
-  const percent =
+        : task.status === "verifying"
+          ? "verifying"
+          : undefined;
+  const candidate =
     task.status === "complete"
       ? 100
       : (media?.percent ??
         (total != null && total > 0
           ? Math.min(99.9, (100 * done) / total)
           : null));
+  const percent =
+    candidate == null || !Number.isFinite(candidate)
+      ? null
+      : task.status === "complete"
+        ? 100
+        : Math.max(0, Math.min(99.9, candidate));
   const eta =
     task.status !== "running" || phase === "processing" || phase === "live"
       ? null

@@ -1,0 +1,323 @@
+{
+  "workspace": {
+    "message": "工作區"
+  },
+  "all": {
+    "message": "所有下載"
+  },
+  "active": {
+    "message": "進行中"
+  },
+  "complete": {
+    "message": "已完成"
+  },
+  "settings": {
+    "message": "設定"
+  },
+  "engine_ready": {
+    "message": "引擎已連接"
+  },
+  "preview": {
+    "message": "瀏覽器預覽"
+  },
+  "local_first": {
+    "message": "儲存喺你嘅裝置"
+  },
+  "open_source": {
+    "message": "開放原始碼"
+  },
+  "control": {
+    "message": "傳輸控制"
+  },
+  "downloads": {
+    "message": "下載"
+  },
+  "tagline": {
+    "message": "每個位元組，由你掌控。"
+  },
+  "new_download": {
+    "message": "新增下載"
+  },
+  "desktop_required": {
+    "message": "請開啟桌面程式開始下載。"
+  },
+  "action_failed": {
+    "message": "操作失敗"
+  },
+  "details": {
+    "message": "技術詳情"
+  },
+  "close": {
+    "message": "關閉"
+  },
+  "network_speed": {
+    "message": "網絡速度"
+  },
+  "live_network": {
+    "message": "即時網絡活動"
+  },
+  "active_transfers": {
+    "message": "進行中嘅傳輸"
+  },
+  "connections_max": {
+    "message": "每個檔案最多32個連線"
+  },
+  "verified_files": {
+    "message": "已驗證檔案"
+  },
+  "integrity": {
+    "message": "已檢查SHA-256完整性"
+  },
+  "transfer_queue": {
+    "message": "傳輸佇列"
+  },
+  "search_downloads": {
+    "message": "搜尋下載"
+  },
+  "file": {
+    "message": "檔案"
+  },
+  "progress": {
+    "message": "進度"
+  },
+  "status": {
+    "message": "狀態"
+  },
+  "actions": {
+    "message": "操作"
+  },
+  "no_results": {
+    "message": "冇結果"
+  },
+  "search_hint": {
+    "message": "試吓另一個檔案名。"
+  },
+  "empty_title": {
+    "message": "你嘅下一個下載由呢度開始。"
+  },
+  "empty_body": {
+    "message": "加入連結。Flux會處理連線、復原同驗證。"
+  },
+  "add_first": {
+    "message": "加入第一個下載"
+  },
+  "unknown_size": {
+    "message": "大小未知"
+  },
+  "pause": {
+    "message": "暫停"
+  },
+  "resume": {
+    "message": "繼續"
+  },
+  "add_description": {
+    "message": "將HTTP或HTTPS檔案加入本機佇列。"
+  },
+  "source_url": {
+    "message": "來源網址"
+  },
+  "filename": {
+    "message": "檔案名"
+  },
+  "connections": {
+    "message": "連線數目"
+  },
+  "speed_limit": {
+    "message": "速度限制（B/s，0＝無限制）"
+  },
+  "expected_hash": {
+    "message": "預期SHA-256（可選）"
+  },
+  "starting": {
+    "message": "啟動中…"
+  },
+  "start": {
+    "message": "開始下載"
+  },
+  "language_description": {
+    "message": "揀你鍾意嘅語言。"
+  },
+  "language": {
+    "message": "語言"
+  },
+  "search_languages": {
+    "message": "搜尋語言"
+  },
+  "privacy": {
+    "message": "本機儲存。檔案由你掌控。"
+  },
+  "powered": {
+    "message": "Rust驅動 · 為開放網絡而設"
+  },
+  "queued": {
+    "message": "等候中"
+  },
+  "running": {
+    "message": "下載緊"
+  },
+  "paused": {
+    "message": "已暫停"
+  },
+  "verifying": {
+    "message": "驗證緊"
+  },
+  "failed": {
+    "message": "失敗"
+  },
+  "downloadMedia": {
+    "message": "下載媒體"
+  },
+  "downloadWith": {
+    "message": "用Flux下載"
+  },
+  "captureLinks": {
+    "message": "擷取網頁連結"
+  },
+  "quality": {
+    "message": "畫質 / 編碼"
+  },
+  "automatic": {
+    "message": "自動"
+  },
+  "inspecting": {
+    "message": "檢查媒體中…"
+  },
+  "sentToDesktop": {
+    "message": "已儲存至桌面佇列"
+  },
+  "retry": {
+    "message": "再試"
+  },
+  "wildcard": {
+    "message": "用*.zip篩選"
+  },
+  "downloadSelected": {
+    "message": "下載所選項目"
+  },
+  "interceptDownloads": {
+    "message": "接管瀏覽器下載"
+  },
+  "interceptExplanation": {
+    "message": "Flux確認收到之前，瀏覽器會繼續下載。"
+  },
+  "browserIntegration": {
+    "message": "瀏覽器整合"
+  },
+  "nativeInstallHelp": {
+    "message": "開啟Flux桌面設定，再安裝瀏覽器橋接。"
+  },
+  "saved": {
+    "message": "已儲存"
+  },
+  "desktopOffline": {
+    "message": "桌面程式離線"
+  },
+  "waitingForDesktop": {
+    "message": "等候桌面程式"
+  },
+  "noMedia": {
+    "message": "搵唔到媒體"
+  },
+  "mediaHint": {
+    "message": "播放影片以偵測媒體請求。"
+  },
+  "batch": {
+    "message": "批次下載"
+  },
+  "priority": {
+    "message": "優先次序"
+  },
+  "start_at": {
+    "message": "開始時間"
+  },
+  "stop_at": {
+    "message": "停止時間"
+  },
+  "media_processing": {
+    "message": "用FFmpeg處理媒體"
+  },
+  "audio_url": {
+    "message": "獨立音訊網址（可選）"
+  },
+  "duration_seconds": {
+    "message": "錄影時間（秒，可選）"
+  },
+  "container": {
+    "message": "封裝格式"
+  },
+  "concurrent_tasks": {
+    "message": "同時下載數目"
+  },
+  "download_directory": {
+    "message": "下載資料夾"
+  },
+  "choose_folder": {
+    "message": "揀資料夾"
+  },
+  "queue_enabled": {
+    "message": "執行佇列"
+  },
+  "clipboard_monitor": {
+    "message": "監察剪貼簿連結"
+  },
+  "minimize_to_tray": {
+    "message": "縮小至系統匣"
+  },
+  "notifications": {
+    "message": "完成通知"
+  },
+  "save": {
+    "message": "儲存設定"
+  },
+  "open_file": {
+    "message": "開啟檔案"
+  },
+  "reveal_file": {
+    "message": "喺資料夾顯示"
+  },
+  "remove": {
+    "message": "移除工作"
+  },
+  "remove_description": {
+    "message": "移除工作同暫存資料？已完成檔案會保留。"
+  },
+  "confirm": {
+    "message": "移除"
+  },
+  "inspect": {
+    "message": "檢查串流"
+  },
+  "queue_start": {
+    "message": "啟動佇列"
+  },
+  "pause_all": {
+    "message": "全部暫停"
+  },
+  "install_bridge": {
+    "message": "安裝瀏覽器橋接"
+  },
+  "installed": {
+    "message": "瀏覽器橋接已安裝"
+  },
+  "copy_hash": {
+    "message": "複製SHA-256"
+  },
+  "apply": {
+    "message": "套用"
+  },
+  "segment_urls": {
+    "message": "TS分段網址（每行一個，可選）"
+  },
+  "global_speed_limit": {
+    "message": "總速度限制（位元組/秒，0 = 無限制）"
+  },
+  "appName": {
+    "message": "Flux"
+  },
+  "appDescription": {
+    "message": "將HTTP或HTTPS檔案加入本機佇列。"
+  },
+  "mediaReady": {
+    "message": "揀選影片畫質同輸出格式，再傳送到 Flux。"
+  }
+}

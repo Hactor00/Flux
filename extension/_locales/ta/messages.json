@@ -1,0 +1,323 @@
+{
+  "workspace": {
+    "message": "பணியிடம்"
+  },
+  "all": {
+    "message": "அனைத்து பதிவிறக்கங்கள்"
+  },
+  "active": {
+    "message": "செயலில்"
+  },
+  "complete": {
+    "message": "முடிந்தவை"
+  },
+  "settings": {
+    "message": "அமைப்புகள்"
+  },
+  "engine_ready": {
+    "message": "இயந்திரம் இணைக்கப்பட்டது"
+  },
+  "preview": {
+    "message": "உலாவி முன்னோட்டம்"
+  },
+  "local_first": {
+    "message": "உங்கள் சாதனத்தில் சேமிக்கப்படும்"
+  },
+  "open_source": {
+    "message": "திறந்த மூலம்"
+  },
+  "control": {
+    "message": "பரிமாற்றக் கட்டுப்பாடு"
+  },
+  "downloads": {
+    "message": "பதிவிறக்கங்கள்"
+  },
+  "tagline": {
+    "message": "ஒவ்வொரு பைட்டும் உங்கள் கட்டுப்பாட்டில்."
+  },
+  "new_download": {
+    "message": "புதிய பதிவிறக்கம்"
+  },
+  "desktop_required": {
+    "message": "பதிவிறக்க டெஸ்க்டாப் செயலியை இயக்கவும்."
+  },
+  "action_failed": {
+    "message": "செயல் தோல்வியடைந்தது"
+  },
+  "details": {
+    "message": "தொழில்நுட்ப விவரங்கள்"
+  },
+  "close": {
+    "message": "மூடு"
+  },
+  "network_speed": {
+    "message": "வலையமைப்பு வேகம்"
+  },
+  "live_network": {
+    "message": "நேரடி வலையமைப்பு செயல்பாடு"
+  },
+  "active_transfers": {
+    "message": "செயலில் உள்ள பரிமாற்றங்கள்"
+  },
+  "connections_max": {
+    "message": "ஒவ்வொரு கோப்புக்கும் 32 இணைப்புகள் வரை"
+  },
+  "verified_files": {
+    "message": "சரிபார்க்கப்பட்ட கோப்புகள்"
+  },
+  "integrity": {
+    "message": "SHA-256 ஒருமைப்பாடு சரிபார்க்கப்பட்டது"
+  },
+  "transfer_queue": {
+    "message": "பரிமாற்ற வரிசை"
+  },
+  "search_downloads": {
+    "message": "பதிவிறக்கங்களைத் தேடு"
+  },
+  "file": {
+    "message": "கோப்பு"
+  },
+  "progress": {
+    "message": "முன்னேற்றம்"
+  },
+  "status": {
+    "message": "நிலை"
+  },
+  "actions": {
+    "message": "செயல்கள்"
+  },
+  "no_results": {
+    "message": "முடிவுகள் இல்லை"
+  },
+  "search_hint": {
+    "message": "வேறு கோப்புப் பெயரை முயற்சிக்கவும்."
+  },
+  "empty_title": {
+    "message": "உங்கள் அடுத்த பதிவிறக்கம் இங்கே தொடங்குகிறது."
+  },
+  "empty_body": {
+    "message": "இணைப்பைச் சேர்க்கவும். இணைப்புகள், மீட்பு, சரிபார்ப்பை Flux கையாளும்."
+  },
+  "add_first": {
+    "message": "முதல் பதிவிறக்கத்தைச் சேர்"
+  },
+  "unknown_size": {
+    "message": "அளவு தெரியவில்லை"
+  },
+  "pause": {
+    "message": "இடைநிறுத்து"
+  },
+  "resume": {
+    "message": "தொடரவும்"
+  },
+  "add_description": {
+    "message": "உள்ளூர் வரிசையில் HTTP அல்லது HTTPS கோப்பைச் சேர்க்கவும்."
+  },
+  "source_url": {
+    "message": "மூல URL"
+  },
+  "filename": {
+    "message": "கோப்புப் பெயர்"
+  },
+  "connections": {
+    "message": "இணைப்புகள்"
+  },
+  "speed_limit": {
+    "message": "வேக வரம்பு (B/s, 0 = வரம்பில்லை)"
+  },
+  "expected_hash": {
+    "message": "எதிர்பார்க்கும் SHA-256 (விருப்பம்)"
+  },
+  "starting": {
+    "message": "தொடங்குகிறது…"
+  },
+  "start": {
+    "message": "பதிவிறக்கத்தைத் தொடங்கு"
+  },
+  "language_description": {
+    "message": "உங்களுக்கு ஏற்ற மொழியைத் தேர்வுசெய்க."
+  },
+  "language": {
+    "message": "மொழி"
+  },
+  "search_languages": {
+    "message": "மொழிகளைத் தேடு"
+  },
+  "privacy": {
+    "message": "உள்ளூர் சேமிப்பு. உங்கள் கோப்புகள் உங்களுடையவை."
+  },
+  "powered": {
+    "message": "Rust மூலம் · திறந்த வலைக்காக"
+  },
+  "queued": {
+    "message": "வரிசையில்"
+  },
+  "running": {
+    "message": "பதிவிறங்குகிறது"
+  },
+  "paused": {
+    "message": "இடைநிறுத்தப்பட்டது"
+  },
+  "verifying": {
+    "message": "சரிபார்க்கிறது"
+  },
+  "failed": {
+    "message": "தோல்வி"
+  },
+  "downloadMedia": {
+    "message": "ஊடகத்தைப் பதிவிறக்கு"
+  },
+  "downloadWith": {
+    "message": "Flux மூலம் பதிவிறக்கு"
+  },
+  "captureLinks": {
+    "message": "பக்க இணைப்புகளைச் சேகரி"
+  },
+  "quality": {
+    "message": "தரம் / கோடெக்"
+  },
+  "automatic": {
+    "message": "தானியங்கி"
+  },
+  "inspecting": {
+    "message": "ஊடகத்தை ஆய்வு செய்கிறது…"
+  },
+  "sentToDesktop": {
+    "message": "டெஸ்க்டாப் வரிசையில் சேமிக்கப்பட்டது"
+  },
+  "retry": {
+    "message": "மீண்டும் முயற்சி"
+  },
+  "wildcard": {
+    "message": "*.zip மூலம் வடிகட்டு"
+  },
+  "downloadSelected": {
+    "message": "தேர்ந்தவற்றைப் பதிவிறக்கு"
+  },
+  "interceptDownloads": {
+    "message": "உலாவி பதிவிறக்கங்களை ஏற்றுக்கொள்"
+  },
+  "interceptExplanation": {
+    "message": "Flux உறுதிசெய்யும் வரை உலாவி பதிவிறக்கத்தைத் தொடரும்."
+  },
+  "browserIntegration": {
+    "message": "உலாவி ஒருங்கிணைப்பு"
+  },
+  "nativeInstallHelp": {
+    "message": "Flux டெஸ்க்டாப் அமைப்புகளைத் திறந்து உலாவி பாலத்தை நிறுவவும்."
+  },
+  "saved": {
+    "message": "சேமிக்கப்பட்டது"
+  },
+  "desktopOffline": {
+    "message": "டெஸ்க்டாப் இணையமற்றது"
+  },
+  "waitingForDesktop": {
+    "message": "டெஸ்க்டாப்புக்குக் காத்திருக்கிறது"
+  },
+  "noMedia": {
+    "message": "ஊடகம் கண்டறியப்படவில்லை"
+  },
+  "mediaHint": {
+    "message": "ஊடகக் கோரிக்கைகளைக் கண்டறிய காணொளியை இயக்கவும்."
+  },
+  "batch": {
+    "message": "தொகுப்புப் பதிவிறக்கம்"
+  },
+  "priority": {
+    "message": "முன்னுரிமை"
+  },
+  "start_at": {
+    "message": "தொடக்க நேரம்"
+  },
+  "stop_at": {
+    "message": "நிறுத்தும் நேரம்"
+  },
+  "media_processing": {
+    "message": "FFmpeg மூலம் ஊடகத்தைச் செயலாக்கு"
+  },
+  "audio_url": {
+    "message": "தனி ஒலி URL (விருப்பம்)"
+  },
+  "duration_seconds": {
+    "message": "பதிவு நேரம் (விநாடிகள், விருப்பம்)"
+  },
+  "container": {
+    "message": "கொள்கலன்"
+  },
+  "concurrent_tasks": {
+    "message": "ஒரே நேரப் பதிவிறக்கங்கள்"
+  },
+  "download_directory": {
+    "message": "பதிவிறக்கக் கோப்புறை"
+  },
+  "choose_folder": {
+    "message": "கோப்புறையைத் தேர்வு செய்"
+  },
+  "queue_enabled": {
+    "message": "வரிசையை இயக்கு"
+  },
+  "clipboard_monitor": {
+    "message": "கிளிப்போர்டு இணைப்புகளைக் கவனி"
+  },
+  "minimize_to_tray": {
+    "message": "தட்டில் சிறிதாக்கு"
+  },
+  "notifications": {
+    "message": "முடிவு அறிவிப்புகள்"
+  },
+  "save": {
+    "message": "அமைப்புகளைச் சேமி"
+  },
+  "open_file": {
+    "message": "கோப்பைத் திற"
+  },
+  "reveal_file": {
+    "message": "கோப்புறையில் காட்டு"
+  },
+  "remove": {
+    "message": "பணியை அகற்று"
+  },
+  "remove_description": {
+    "message": "பணியையும் தற்காலிகத் தரவையும் அகற்றவா? முடிந்த கோப்பு இருக்கும்."
+  },
+  "confirm": {
+    "message": "அகற்று"
+  },
+  "inspect": {
+    "message": "ஸ்ட்ரீம்களை ஆய்வு செய்"
+  },
+  "queue_start": {
+    "message": "வரிசையைத் தொடங்கு"
+  },
+  "pause_all": {
+    "message": "அனைத்தையும் இடைநிறுத்து"
+  },
+  "install_bridge": {
+    "message": "உலாவி பாலத்தை நிறுவு"
+  },
+  "installed": {
+    "message": "உலாவி பாலம் நிறுவப்பட்டது"
+  },
+  "copy_hash": {
+    "message": "SHA-256 நகலெடு"
+  },
+  "apply": {
+    "message": "பயன்படுத்து"
+  },
+  "segment_urls": {
+    "message": "TS பகுதிகளின் URL (வரிக்கு ஒன்று, விருப்பத்தேர்வு)"
+  },
+  "global_speed_limit": {
+    "message": "மொத்த வேக வரம்பு (பைட்/வி, 0 = வரம்பில்லை)"
+  },
+  "appName": {
+    "message": "Flux"
+  },
+  "appDescription": {
+    "message": "உள்ளூர் வரிசையில் HTTP அல்லது HTTPS கோப்பைச் சேர்க்கவும்."
+  },
+  "mediaReady": {
+    "message": "வீடியோ தரத்தையும் வெளியீட்டு வடிவத்தையும் தேர்ந்தெடுத்து Flux-க்கு அனுப்பவும்."
+  }
+}

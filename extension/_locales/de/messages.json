@@ -1,0 +1,323 @@
+{
+  "workspace": {
+    "message": "Arbeitsbereich"
+  },
+  "all": {
+    "message": "Alle Downloads"
+  },
+  "active": {
+    "message": "Aktiv"
+  },
+  "complete": {
+    "message": "Abgeschlossen"
+  },
+  "settings": {
+    "message": "Einstellungen"
+  },
+  "engine_ready": {
+    "message": "Engine verbunden"
+  },
+  "preview": {
+    "message": "Browser-Vorschau"
+  },
+  "local_first": {
+    "message": "Auf deinem Gerät gespeichert"
+  },
+  "open_source": {
+    "message": "Quelloffen"
+  },
+  "control": {
+    "message": "TRANSFERSTEUERUNG"
+  },
+  "downloads": {
+    "message": "Downloads"
+  },
+  "tagline": {
+    "message": "Jedes Byte unter deiner Kontrolle."
+  },
+  "new_download": {
+    "message": "Neuer Download"
+  },
+  "desktop_required": {
+    "message": "Starte die Desktop-App zum Herunterladen."
+  },
+  "action_failed": {
+    "message": "Aktion fehlgeschlagen"
+  },
+  "details": {
+    "message": "Technische Details"
+  },
+  "close": {
+    "message": "Schließen"
+  },
+  "network_speed": {
+    "message": "Netzwerkgeschwindigkeit"
+  },
+  "live_network": {
+    "message": "Live-Netzwerkaktivität"
+  },
+  "active_transfers": {
+    "message": "Aktive Transfers"
+  },
+  "connections_max": {
+    "message": "Bis zu 32 Verbindungen pro Datei"
+  },
+  "verified_files": {
+    "message": "Geprüfte Dateien"
+  },
+  "integrity": {
+    "message": "SHA-256-Integrität geprüft"
+  },
+  "transfer_queue": {
+    "message": "Transferwarteschlange"
+  },
+  "search_downloads": {
+    "message": "Downloads suchen"
+  },
+  "file": {
+    "message": "Datei"
+  },
+  "progress": {
+    "message": "Fortschritt"
+  },
+  "status": {
+    "message": "Status"
+  },
+  "actions": {
+    "message": "Aktionen"
+  },
+  "no_results": {
+    "message": "Keine Ergebnisse"
+  },
+  "search_hint": {
+    "message": "Versuche einen anderen Dateinamen."
+  },
+  "empty_title": {
+    "message": "Dein nächster Download beginnt hier."
+  },
+  "empty_body": {
+    "message": "Füge einen Link hinzu. Flux übernimmt Verbindungen, Wiederherstellung und Prüfung."
+  },
+  "add_first": {
+    "message": "Ersten Download hinzufügen"
+  },
+  "unknown_size": {
+    "message": "Größe unbekannt"
+  },
+  "pause": {
+    "message": "Pausieren"
+  },
+  "resume": {
+    "message": "Fortsetzen"
+  },
+  "add_description": {
+    "message": "Füge eine HTTP- oder HTTPS-Datei zur lokalen Warteschlange hinzu."
+  },
+  "source_url": {
+    "message": "Quell-URL"
+  },
+  "filename": {
+    "message": "Dateiname"
+  },
+  "connections": {
+    "message": "Verbindungen"
+  },
+  "speed_limit": {
+    "message": "Tempolimit (B/s, 0 = unbegrenzt)"
+  },
+  "expected_hash": {
+    "message": "Erwarteter SHA-256 (optional)"
+  },
+  "starting": {
+    "message": "Startet…"
+  },
+  "start": {
+    "message": "Download starten"
+  },
+  "language_description": {
+    "message": "Wähle deine bevorzugte Sprache."
+  },
+  "language": {
+    "message": "Sprache"
+  },
+  "search_languages": {
+    "message": "Sprachen suchen"
+  },
+  "privacy": {
+    "message": "Lokaler Speicher. Deine Dateien gehören dir."
+  },
+  "powered": {
+    "message": "Mit Rust · Für das offene Web"
+  },
+  "queued": {
+    "message": "In Warteschlange"
+  },
+  "running": {
+    "message": "Wird geladen"
+  },
+  "paused": {
+    "message": "Pausiert"
+  },
+  "verifying": {
+    "message": "Wird geprüft"
+  },
+  "failed": {
+    "message": "Fehlgeschlagen"
+  },
+  "downloadMedia": {
+    "message": "Medien herunterladen"
+  },
+  "downloadWith": {
+    "message": "Mit Flux herunterladen"
+  },
+  "captureLinks": {
+    "message": "Seitenlinks erfassen"
+  },
+  "quality": {
+    "message": "Qualität / Codec"
+  },
+  "automatic": {
+    "message": "Automatisch"
+  },
+  "inspecting": {
+    "message": "Medien werden geprüft…"
+  },
+  "sentToDesktop": {
+    "message": "In der Desktop-Warteschlange gespeichert"
+  },
+  "retry": {
+    "message": "Erneut versuchen"
+  },
+  "wildcard": {
+    "message": "Mit *.zip filtern"
+  },
+  "downloadSelected": {
+    "message": "Auswahl herunterladen"
+  },
+  "interceptDownloads": {
+    "message": "Browser-Downloads übernehmen"
+  },
+  "interceptExplanation": {
+    "message": "Der Browser lädt weiter, bis Flux den Empfang bestätigt."
+  },
+  "browserIntegration": {
+    "message": "Browserintegration"
+  },
+  "nativeInstallHelp": {
+    "message": "Öffne die Flux-Einstellungen und installiere die Browserbrücke."
+  },
+  "saved": {
+    "message": "Gespeichert"
+  },
+  "desktopOffline": {
+    "message": "Desktop nicht verbunden"
+  },
+  "waitingForDesktop": {
+    "message": "Warte auf Desktop"
+  },
+  "noMedia": {
+    "message": "Keine Medien erkannt"
+  },
+  "mediaHint": {
+    "message": "Starte ein Video, um Medienanfragen zu erkennen."
+  },
+  "batch": {
+    "message": "Stapel-Download"
+  },
+  "priority": {
+    "message": "Priorität"
+  },
+  "start_at": {
+    "message": "Startzeit"
+  },
+  "stop_at": {
+    "message": "Stoppzeit"
+  },
+  "media_processing": {
+    "message": "Medien mit FFmpeg verarbeiten"
+  },
+  "audio_url": {
+    "message": "Separate Audio-URL (optional)"
+  },
+  "duration_seconds": {
+    "message": "Aufnahmedauer (Sekunden, optional)"
+  },
+  "container": {
+    "message": "Container"
+  },
+  "concurrent_tasks": {
+    "message": "Gleichzeitige Downloads"
+  },
+  "download_directory": {
+    "message": "Downloadordner"
+  },
+  "choose_folder": {
+    "message": "Ordner auswählen"
+  },
+  "queue_enabled": {
+    "message": "Warteschlange ausführen"
+  },
+  "clipboard_monitor": {
+    "message": "Zwischenablage auf Links prüfen"
+  },
+  "minimize_to_tray": {
+    "message": "In Infobereich minimieren"
+  },
+  "notifications": {
+    "message": "Benachrichtigung bei Abschluss"
+  },
+  "save": {
+    "message": "Einstellungen speichern"
+  },
+  "open_file": {
+    "message": "Datei öffnen"
+  },
+  "reveal_file": {
+    "message": "Im Ordner anzeigen"
+  },
+  "remove": {
+    "message": "Aufgabe entfernen"
+  },
+  "remove_description": {
+    "message": "Aufgabe und temporäre Daten entfernen? Die fertige Datei bleibt erhalten."
+  },
+  "confirm": {
+    "message": "Entfernen"
+  },
+  "inspect": {
+    "message": "Streams prüfen"
+  },
+  "queue_start": {
+    "message": "Warteschlange starten"
+  },
+  "pause_all": {
+    "message": "Alle pausieren"
+  },
+  "install_bridge": {
+    "message": "Browserbrücke installieren"
+  },
+  "installed": {
+    "message": "Browserbrücke installiert"
+  },
+  "copy_hash": {
+    "message": "SHA-256 kopieren"
+  },
+  "apply": {
+    "message": "Anwenden"
+  },
+  "segment_urls": {
+    "message": "TS-Segment-URLs (eine pro Zeile, optional)"
+  },
+  "global_speed_limit": {
+    "message": "Gesamtes Geschwindigkeitslimit (Byte/s, 0 = unbegrenzt)"
+  },
+  "appName": {
+    "message": "Flux"
+  },
+  "appDescription": {
+    "message": "Füge eine HTTP- oder HTTPS-Datei zur lokalen Warteschlange hinzu."
+  },
+  "mediaReady": {
+    "message": "Wähle Videoqualität und Ausgabeformat und sende das Video an Flux."
+  }
+}

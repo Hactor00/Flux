@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "transport": "Real Native Messaging stdio + authenticated TCP broker",
+  "desktop_cold_start": false,
+  "concurrent_requests": 20,
+  "downloads": 8,
+  "active_shutdown_resume": false,
+  "authenticated_requests": 16,
+  "sha256": "bb30230b4a79b25f8db24b49b7e3b385d8e9b623a74f7be79fcc6e2a9d44fb3e",
+  "time": "2026-10-11T17:44:46.619Z",
+  "local_paths_and_credentials_removed": true
+}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-labelledby="title description">
+  <title id="title">Flux download manager</title>
+  <desc id="description">Flux: downloads, media and your browser. Open source, Rust and Windows desktop.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1d1c2c"/><stop offset="1" stop-color="#0d0e13"/></linearGradient>
+    <linearGradient id="accent"><stop stop-color="#c7b5ff"/><stop offset="1" stop-color="#9f85ec"/></linearGradient>
+  </defs>
+  <rect width="1280" height="320" rx="24" fill="url(#background)"/>
+  <path d="M840 0v320M1040 0v320M0 256h1280" stroke="#ffffff" stroke-opacity=".045"/>
+  <rect x="66" y="68" width="82" height="82" rx="23" fill="url(#accent)"/>
+  <path d="m115 81-27 33h21l-9 23 29-34h-21z" fill="#222035"/>
+  <text x="171" y="132" fill="#f5f3ff" font-family="Segoe UI,Arial,sans-serif" font-size="72" font-weight="700" letter-spacing="-4">flux<tspan fill="#bda8ff">.</tspan></text>
+  <text x="68" y="207" fill="#e7e5f0" font-family="Segoe UI,Arial,sans-serif" font-size="29">Downloads. Media. Your browser.</text>
+  <text x="68" y="278" fill="#9295aa" font-family="Segoe UI,Arial,sans-serif" font-size="16" letter-spacing="2">OPEN SOURCE   /   RUST   /   WINDOWS DESKTOP</text>
+  <path d="M816 100h146c26 0 26 40 52 40h145M816 160h343M816 220h146c26 0 26-40 52-40h145" fill="none" stroke="#b9a4f3" stroke-width="3" stroke-opacity=".5"/>
+  <circle cx="1159" cy="160" r="6" fill="#bba4fa"/>
+  <circle cx="816" cy="100" r="4" fill="#a394c8"/><circle cx="816" cy="220" r="4" fill="#a394c8"/>
+</svg>

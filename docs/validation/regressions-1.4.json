@@ -1,0 +1,38 @@
+{
+  "version": "1.4.0",
+  "passed": true,
+  "rust_tests": 53,
+  "extension_tests": 23,
+  "ui_data_tests": 6,
+  "locales": 20,
+  "locale_keys": 120,
+  "checks": {
+    "hls_duration_progress_eta_without_content_length": true,
+    "dash_duration_and_capture_limit": true,
+    "live_no_fictitious_total": true,
+    "unique_transfer_bytes": true,
+    "cached_bytes_excluded_from_eta_rate": true,
+    "selected_leaf_timeline": true,
+    "snapshot_retained_on_pause": true,
+    "exact_size_on_completion": true,
+    "shared_popup_and_list_metrics": true,
+    "unknown_progress_is_indeterminate": true
+  },
+  "native_media_window": {
+    "passed": true,
+    "native_ipc": true,
+    "chunked_transfer": true,
+    "extensionless_wrong_mime_hls": true,
+    "estimated_total_visible": true,
+    "nonzero_progress_visible": true,
+    "eta_visible_in_popup_and_list": true,
+    "media_time_and_segments_visible": true,
+    "pause_resume_snapshot_preserved": true,
+    "final_size_exact": true,
+    "duration": 8.021333,
+    "sha256": "3bd5da94c00686e607a7b160f2c2bdb132fbc56ade7b922b0d986146ede593ca",
+    "time": "2026-10-11T23:24:19.032Z"
+  },
+  "time": "2026-10-11T23:25:05.888494+00:00",
+  "local_paths_and_credentials_removed": true
+}

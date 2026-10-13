@@ -1,0 +1,323 @@
+{
+  "workspace": {
+    "message": "Workspace"
+  },
+  "all": {
+    "message": "All downloads"
+  },
+  "active": {
+    "message": "Active"
+  },
+  "complete": {
+    "message": "Completed"
+  },
+  "settings": {
+    "message": "Settings"
+  },
+  "engine_ready": {
+    "message": "Engine connected"
+  },
+  "preview": {
+    "message": "Browser preview"
+  },
+  "local_first": {
+    "message": "Stored on your device"
+  },
+  "open_source": {
+    "message": "Open source"
+  },
+  "control": {
+    "message": "TRANSFER CONTROL"
+  },
+  "downloads": {
+    "message": "Downloads"
+  },
+  "tagline": {
+    "message": "Every byte, under your control."
+  },
+  "new_download": {
+    "message": "New download"
+  },
+  "desktop_required": {
+    "message": "Run the desktop app to start real downloads."
+  },
+  "action_failed": {
+    "message": "Action failed"
+  },
+  "details": {
+    "message": "Technical details"
+  },
+  "close": {
+    "message": "Close"
+  },
+  "network_speed": {
+    "message": "Network speed"
+  },
+  "live_network": {
+    "message": "Live network activity"
+  },
+  "active_transfers": {
+    "message": "Active transfers"
+  },
+  "connections_max": {
+    "message": "Up to 32 connections per file"
+  },
+  "verified_files": {
+    "message": "Verified files"
+  },
+  "integrity": {
+    "message": "SHA-256 integrity checked"
+  },
+  "transfer_queue": {
+    "message": "Transfer queue"
+  },
+  "search_downloads": {
+    "message": "Search downloads"
+  },
+  "file": {
+    "message": "File"
+  },
+  "progress": {
+    "message": "Progress"
+  },
+  "status": {
+    "message": "Status"
+  },
+  "actions": {
+    "message": "Actions"
+  },
+  "no_results": {
+    "message": "No results"
+  },
+  "search_hint": {
+    "message": "Try a different filename."
+  },
+  "empty_title": {
+    "message": "Your next download starts here."
+  },
+  "empty_body": {
+    "message": "Add a link. Flux handles the connections, recovery, and verification."
+  },
+  "add_first": {
+    "message": "Add your first download"
+  },
+  "unknown_size": {
+    "message": "Unknown size"
+  },
+  "pause": {
+    "message": "Pause"
+  },
+  "resume": {
+    "message": "Resume"
+  },
+  "add_description": {
+    "message": "Add an HTTP or HTTPS file to your local transfer queue."
+  },
+  "source_url": {
+    "message": "Source URL"
+  },
+  "filename": {
+    "message": "Filename"
+  },
+  "connections": {
+    "message": "Connections"
+  },
+  "speed_limit": {
+    "message": "Speed limit (B/s, 0 = unlimited)"
+  },
+  "expected_hash": {
+    "message": "Expected SHA-256 (optional)"
+  },
+  "starting": {
+    "message": "Starting…"
+  },
+  "start": {
+    "message": "Start download"
+  },
+  "language_description": {
+    "message": "Choose the language that feels like home."
+  },
+  "language": {
+    "message": "Language"
+  },
+  "search_languages": {
+    "message": "Search languages"
+  },
+  "privacy": {
+    "message": "Local storage. Your files stay yours."
+  },
+  "powered": {
+    "message": "Powered by Rust · Built for the open web"
+  },
+  "queued": {
+    "message": "Queued"
+  },
+  "running": {
+    "message": "Downloading"
+  },
+  "paused": {
+    "message": "Paused"
+  },
+  "verifying": {
+    "message": "Verifying"
+  },
+  "failed": {
+    "message": "Failed"
+  },
+  "downloadMedia": {
+    "message": "Download media"
+  },
+  "downloadWith": {
+    "message": "Download with Flux"
+  },
+  "captureLinks": {
+    "message": "Capture page links"
+  },
+  "quality": {
+    "message": "Quality / codec"
+  },
+  "automatic": {
+    "message": "Automatic"
+  },
+  "inspecting": {
+    "message": "Inspecting media…"
+  },
+  "sentToDesktop": {
+    "message": "Saved to the desktop queue"
+  },
+  "retry": {
+    "message": "Retry"
+  },
+  "wildcard": {
+    "message": "Filter with *.zip"
+  },
+  "downloadSelected": {
+    "message": "Download selected"
+  },
+  "interceptDownloads": {
+    "message": "Intercept browser downloads"
+  },
+  "interceptExplanation": {
+    "message": "The browser keeps downloading until Flux confirms receipt."
+  },
+  "browserIntegration": {
+    "message": "Browser integration"
+  },
+  "nativeInstallHelp": {
+    "message": "Open Flux desktop settings and install the browser bridge."
+  },
+  "saved": {
+    "message": "Saved"
+  },
+  "desktopOffline": {
+    "message": "Desktop offline"
+  },
+  "waitingForDesktop": {
+    "message": "Waiting for desktop"
+  },
+  "noMedia": {
+    "message": "No media detected"
+  },
+  "mediaHint": {
+    "message": "Play a video to detect its media requests."
+  },
+  "batch": {
+    "message": "Batch download"
+  },
+  "priority": {
+    "message": "Priority"
+  },
+  "start_at": {
+    "message": "Start at"
+  },
+  "stop_at": {
+    "message": "Stop at"
+  },
+  "media_processing": {
+    "message": "Process media with FFmpeg"
+  },
+  "audio_url": {
+    "message": "Separate audio URL (optional)"
+  },
+  "duration_seconds": {
+    "message": "Recording duration (seconds, optional)"
+  },
+  "container": {
+    "message": "Container"
+  },
+  "concurrent_tasks": {
+    "message": "Concurrent downloads"
+  },
+  "download_directory": {
+    "message": "Download folder"
+  },
+  "choose_folder": {
+    "message": "Choose folder"
+  },
+  "queue_enabled": {
+    "message": "Run the queue"
+  },
+  "clipboard_monitor": {
+    "message": "Monitor clipboard links"
+  },
+  "minimize_to_tray": {
+    "message": "Minimize to tray"
+  },
+  "notifications": {
+    "message": "Completion notifications"
+  },
+  "save": {
+    "message": "Save settings"
+  },
+  "open_file": {
+    "message": "Open file"
+  },
+  "reveal_file": {
+    "message": "Show in folder"
+  },
+  "remove": {
+    "message": "Remove task"
+  },
+  "remove_description": {
+    "message": "Remove this task and its temporary data? The completed file is kept."
+  },
+  "confirm": {
+    "message": "Remove"
+  },
+  "inspect": {
+    "message": "Inspect streams"
+  },
+  "queue_start": {
+    "message": "Start queue"
+  },
+  "pause_all": {
+    "message": "Pause all"
+  },
+  "install_bridge": {
+    "message": "Install browser bridge"
+  },
+  "installed": {
+    "message": "Browser bridge installed"
+  },
+  "copy_hash": {
+    "message": "Copy SHA-256"
+  },
+  "apply": {
+    "message": "Apply"
+  },
+  "segment_urls": {
+    "message": "TS segment URLs (one per line, optional)"
+  },
+  "global_speed_limit": {
+    "message": "Total speed limit (bytes/s, 0 = unlimited)"
+  },
+  "appName": {
+    "message": "Flux"
+  },
+  "appDescription": {
+    "message": "Add an HTTP or HTTPS file to your local transfer queue."
+  },
+  "mediaReady": {
+    "message": "Choose the video quality and output format, then send it to Flux."
+  }
+}

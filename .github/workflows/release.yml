@@ -1,0 +1,164 @@
+name: Build and sign release
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      sign:
+        type: boolean
+        default: false
+        description: Submit to the configured SignPath policy
+      publish:
+        type: boolean
+        default: false
+        description: Create a draft GitHub release
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            target: x86_64-pc-windows-msvc
+            artifact: windows-x64
+    env:
+      FLUX_REQUIRE_MEDIA_TESTS: "1"
+      SIGN_REQUESTED: ${{ inputs.sign || vars.SIGNPATH_ENABLED == 'true' }}
+      SIGNPATH_ORGANIZATION_ID: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+      SIGNPATH_PROJECT_SLUG: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+      SIGNPATH_SIGNING_POLICY_SLUG: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.18.0"
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.99.0"
+          targets: ${{ matrix.target }}
+          components: rustfmt, clippy
+      - uses: msys2/setup-msys2@v2
+        id: msys2
+        with:
+          msystem: UCRT64
+          install: mingw-w64-ucrt-x86_64-pkgconf make diffutils
+      - name: Validate version and signing configuration
+        id: plan
+        env:
+          SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne "v$version") { throw 'Tag does not match package version.' }
+          if ($env:SIGN_REQUESTED -eq 'true') {
+            foreach ($name in 'SIGNPATH_API_TOKEN','SIGNPATH_ORGANIZATION_ID','SIGNPATH_PROJECT_SLUG','SIGNPATH_SIGNING_POLICY_SLUG') {
+              if (-not [Environment]::GetEnvironmentVariable($name)) { throw "Required signing configuration is missing: $name" }
+            }
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+      - run: npm ci
+      - name: Frontend checks and production audit
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force .tools | Out-Null
+          npm test *> .tools/frontend-tests.log
+          Get-Content .tools/frontend-tests.log
+          if ($LASTEXITCODE -ne 0) { throw 'Frontend tests failed.' }
+          npm audit --omit=dev --json > .tools/production-audit.json
+          if ($LASTEXITCODE -ne 0) { throw 'Production dependency audit failed.' }
+          npx --yes web-ext@10.7.0 lint --source-dir extension-firefox-modern --output json > .tools/firefox-lint-modern.json
+          if ($LASTEXITCODE -ne 0) { throw 'Firefox extension validation failed.' }
+      - name: Prepare pinned fixture encoder
+        shell: pwsh
+        run: ./scripts/prepare-test-runtime.ps1
+      - name: Build pinned LGPL media runtime
+        shell: pwsh
+        run: ./scripts/bootstrap-media-toolchain.ps1 -PkgconfBin (Join-Path '${{ steps.msys2.outputs.msys2-location }}' 'ucrt64/bin') -Bash (Join-Path '${{ steps.msys2.outputs.msys2-location }}' 'usr/bin/bash.exe')
+      - name: Compile and package
+        shell: pwsh
+        run: |
+          ./scripts/build-release.ps1
+          $runtime = Join-Path (Get-Content .tools/media-build-path.txt) 'runtime/bin'
+          $env:FLUX_FFMPEG = Join-Path $runtime 'ffmpeg.exe'
+          $env:FLUX_FFPROBE = Join-Path $runtime 'ffprobe.exe'
+          cargo fmt --all -- --check
+          if ($LASTEXITCODE -ne 0) { throw 'Rust formatting failed.' }
+          cargo test --locked -p flux-core -p flux-cli -p flux-native-host *> .tools/core-tests.log
+          Get-Content .tools/core-tests.log
+          if ($LASTEXITCODE -ne 0) { throw 'Core tests failed.' }
+          cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
+          if ($LASTEXITCODE -ne 0) { throw 'Clippy failed.' }
+          ./scripts/prepare-firefox-tests.ps1
+          node ./scripts/test-firefox.mjs target/release .tools/firefox/120.0/core/firefox.exe .tools/firefox/geckodriver.exe
+          if ($LASTEXITCODE -ne 0) { throw 'Firefox 120 integration failed.' }
+          node ./scripts/test-firefox.mjs target/release .tools/firefox/157.0.1/core/firefox.exe .tools/firefox/geckodriver.exe --modern
+          if ($LASTEXITCODE -ne 0) { throw 'Modern Firefox integration failed.' }
+          ./scripts/test-installer.ps1
+          node ./scripts/test-daily-use.mjs target/release
+          if ($LASTEXITCODE -ne 0) { throw 'Native daily-use tests failed.' }
+          node ./scripts/test-chrome-hud.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Chromium HUD layout failed.' }
+          node ./scripts/record-hud-validation.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'HUD validation record failed.' }
+          node ./scripts/record-release-validation.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Release validation record failed.' }
+          ./scripts/export-release.ps1
+          ./scripts/verify-release.ps1
+      - name: Upload immutable signing input
+        id: unsigned
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-${{ matrix.artifact }}
+          path: |
+            release/Flux_${{ steps.plan.outputs.version }}_x64-setup.exe
+            release/Flux-${{ steps.plan.outputs.version }}-windows-x64.zip
+            release/Flux-${{ steps.plan.outputs.version }}-chrome.zip
+            release/Flux-${{ steps.plan.outputs.version }}-firefox.zip
+            release/Flux-${{ steps.plan.outputs.version }}-firefox-120.zip
+            release/Flux-${{ steps.plan.outputs.version }}-source.zip
+          if-no-files-found: error
+      - name: Submit SignPath request
+        if: env.SIGN_REQUESTED == 'true'
+        uses: SignPath/github-action-submit-signing-request@v2
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          artifact-configuration-slug: ${{ vars.SIGNPATH_ARTIFACT_CONFIGURATION_SLUG }}
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: signed
+      - name: Assemble verified release
+        shell: pwsh
+        run: ./scripts/finalize-public-release.ps1 -Signed:($env:SIGN_REQUESTED -eq 'true')
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.artifact }}
+          path: public-release/*
+          if-no-files-found: error
+  publish:
+    if: inputs.publish || github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-windows-x64
+          path: release
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version=$(jq -r .version release/release-info.json)
+          gh release create "v$version" --target "$GITHUB_SHA" --repo "$GITHUB_REPOSITORY" --draft --generate-notes release/*

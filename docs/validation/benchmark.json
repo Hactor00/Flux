@@ -1,0 +1,29 @@
+{
+  "time": "2026-10-11T17:52:48.263Z",
+  "bytes": 67108864,
+  "scenario": "Controlled local HTTP server, 64 KiB per connection every 5 ms; includes startup, merging and SHA-256",
+  "comparison": "Flux 1/8/32 connections; IDM was not measured",
+  "results": [
+    {
+      "connections": 1,
+      "seconds": 16.6593936,
+      "mebibytes_per_second": 3.8416764461342696,
+      "sha256": "98dc891b284e4d84ac25b0c0a24fdbe39a7f0dbd643ad5e8aa06e02fc6258254"
+    },
+    {
+      "connections": 8,
+      "seconds": 2.323419300000001,
+      "mebibytes_per_second": 27.545609180400614,
+      "sha256": "98dc891b284e4d84ac25b0c0a24fdbe39a7f0dbd643ad5e8aa06e02fc6258254"
+    },
+    {
+      "connections": 32,
+      "seconds": 1.3015915999999998,
+      "mebibytes_per_second": 49.17056932451009,
+      "sha256": "98dc891b284e4d84ac25b0c0a24fdbe39a7f0dbd643ad5e8aa06e02fc6258254"
+    }
+  ],
+  "speedup_8": 7.170205395126051,
+  "speedup_32": 12.799247936142184,
+  "local_paths_and_credentials_removed": true
+}

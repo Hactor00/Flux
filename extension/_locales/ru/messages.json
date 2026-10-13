@@ -1,0 +1,323 @@
+{
+  "workspace": {
+    "message": "Рабочая область"
+  },
+  "all": {
+    "message": "Все загрузки"
+  },
+  "active": {
+    "message": "Активные"
+  },
+  "complete": {
+    "message": "Завершённые"
+  },
+  "settings": {
+    "message": "Настройки"
+  },
+  "engine_ready": {
+    "message": "Движок подключён"
+  },
+  "preview": {
+    "message": "Предпросмотр в браузере"
+  },
+  "local_first": {
+    "message": "Хранится на вашем устройстве"
+  },
+  "open_source": {
+    "message": "Открытый код"
+  },
+  "control": {
+    "message": "УПРАВЛЕНИЕ ПЕРЕДАЧЕЙ"
+  },
+  "downloads": {
+    "message": "Загрузки"
+  },
+  "tagline": {
+    "message": "Каждый байт под вашим контролем."
+  },
+  "new_download": {
+    "message": "Новая загрузка"
+  },
+  "desktop_required": {
+    "message": "Запустите приложение для скачивания."
+  },
+  "action_failed": {
+    "message": "Ошибка действия"
+  },
+  "details": {
+    "message": "Технические сведения"
+  },
+  "close": {
+    "message": "Закрыть"
+  },
+  "network_speed": {
+    "message": "Скорость сети"
+  },
+  "live_network": {
+    "message": "Активность сети в реальном времени"
+  },
+  "active_transfers": {
+    "message": "Активные передачи"
+  },
+  "connections_max": {
+    "message": "До 32 соединений на файл"
+  },
+  "verified_files": {
+    "message": "Проверенные файлы"
+  },
+  "integrity": {
+    "message": "Целостность SHA-256 проверена"
+  },
+  "transfer_queue": {
+    "message": "Очередь передачи"
+  },
+  "search_downloads": {
+    "message": "Поиск загрузок"
+  },
+  "file": {
+    "message": "Файл"
+  },
+  "progress": {
+    "message": "Прогресс"
+  },
+  "status": {
+    "message": "Состояние"
+  },
+  "actions": {
+    "message": "Действия"
+  },
+  "no_results": {
+    "message": "Нет результатов"
+  },
+  "search_hint": {
+    "message": "Попробуйте другое имя файла."
+  },
+  "empty_title": {
+    "message": "Ваша следующая загрузка начинается здесь."
+  },
+  "empty_body": {
+    "message": "Добавьте ссылку. Flux управляет соединениями, восстановлением и проверкой."
+  },
+  "add_first": {
+    "message": "Добавить первую загрузку"
+  },
+  "unknown_size": {
+    "message": "Размер неизвестен"
+  },
+  "pause": {
+    "message": "Приостановить"
+  },
+  "resume": {
+    "message": "Продолжить"
+  },
+  "add_description": {
+    "message": "Добавьте HTTP или HTTPS файл в локальную очередь."
+  },
+  "source_url": {
+    "message": "URL источника"
+  },
+  "filename": {
+    "message": "Имя файла"
+  },
+  "connections": {
+    "message": "Соединения"
+  },
+  "speed_limit": {
+    "message": "Лимит скорости (Б/с, 0 = без лимита)"
+  },
+  "expected_hash": {
+    "message": "Ожидаемый SHA-256 (необязательно)"
+  },
+  "starting": {
+    "message": "Запуск…"
+  },
+  "start": {
+    "message": "Начать загрузку"
+  },
+  "language_description": {
+    "message": "Выберите удобный вам язык."
+  },
+  "language": {
+    "message": "Язык"
+  },
+  "search_languages": {
+    "message": "Поиск языков"
+  },
+  "privacy": {
+    "message": "Локальное хранение. Ваши файлы принадлежат вам."
+  },
+  "powered": {
+    "message": "На Rust · Для открытого веба"
+  },
+  "queued": {
+    "message": "В очереди"
+  },
+  "running": {
+    "message": "Загружается"
+  },
+  "paused": {
+    "message": "Приостановлено"
+  },
+  "verifying": {
+    "message": "Проверяется"
+  },
+  "failed": {
+    "message": "Ошибка"
+  },
+  "downloadMedia": {
+    "message": "Скачать медиа"
+  },
+  "downloadWith": {
+    "message": "Скачать через Flux"
+  },
+  "captureLinks": {
+    "message": "Собрать ссылки страницы"
+  },
+  "quality": {
+    "message": "Качество / кодек"
+  },
+  "automatic": {
+    "message": "Автоматически"
+  },
+  "inspecting": {
+    "message": "Анализ медиа…"
+  },
+  "sentToDesktop": {
+    "message": "Сохранено в очереди приложения"
+  },
+  "retry": {
+    "message": "Повторить"
+  },
+  "wildcard": {
+    "message": "Фильтр *.zip"
+  },
+  "downloadSelected": {
+    "message": "Скачать выбранное"
+  },
+  "interceptDownloads": {
+    "message": "Перехватывать загрузки браузера"
+  },
+  "interceptExplanation": {
+    "message": "Браузер продолжает загрузку до подтверждения Flux."
+  },
+  "browserIntegration": {
+    "message": "Интеграция с браузером"
+  },
+  "nativeInstallHelp": {
+    "message": "Откройте настройки Flux и установите мост браузера."
+  },
+  "saved": {
+    "message": "Сохранено"
+  },
+  "desktopOffline": {
+    "message": "Приложение не подключено"
+  },
+  "waitingForDesktop": {
+    "message": "Ожидание приложения"
+  },
+  "noMedia": {
+    "message": "Медиа не найдено"
+  },
+  "mediaHint": {
+    "message": "Запустите видео для обнаружения запросов."
+  },
+  "batch": {
+    "message": "Пакетная загрузка"
+  },
+  "priority": {
+    "message": "Приоритет"
+  },
+  "start_at": {
+    "message": "Время запуска"
+  },
+  "stop_at": {
+    "message": "Время остановки"
+  },
+  "media_processing": {
+    "message": "Обработать медиа через FFmpeg"
+  },
+  "audio_url": {
+    "message": "Отдельный URL аудио (необязательно)"
+  },
+  "duration_seconds": {
+    "message": "Длительность записи (секунды, необязательно)"
+  },
+  "container": {
+    "message": "Контейнер"
+  },
+  "concurrent_tasks": {
+    "message": "Одновременные загрузки"
+  },
+  "download_directory": {
+    "message": "Папка загрузок"
+  },
+  "choose_folder": {
+    "message": "Выбрать папку"
+  },
+  "queue_enabled": {
+    "message": "Запустить очередь"
+  },
+  "clipboard_monitor": {
+    "message": "Отслеживать ссылки буфера обмена"
+  },
+  "minimize_to_tray": {
+    "message": "Свернуть в трей"
+  },
+  "notifications": {
+    "message": "Уведомления о завершении"
+  },
+  "save": {
+    "message": "Сохранить настройки"
+  },
+  "open_file": {
+    "message": "Открыть файл"
+  },
+  "reveal_file": {
+    "message": "Показать в папке"
+  },
+  "remove": {
+    "message": "Удалить задачу"
+  },
+  "remove_description": {
+    "message": "Удалить задачу и временные данные? Готовый файл сохранится."
+  },
+  "confirm": {
+    "message": "Удалить"
+  },
+  "inspect": {
+    "message": "Анализ потоков"
+  },
+  "queue_start": {
+    "message": "Запустить очередь"
+  },
+  "pause_all": {
+    "message": "Приостановить всё"
+  },
+  "install_bridge": {
+    "message": "Установить мост браузера"
+  },
+  "installed": {
+    "message": "Мост браузера установлен"
+  },
+  "copy_hash": {
+    "message": "Копировать SHA-256"
+  },
+  "apply": {
+    "message": "Применить"
+  },
+  "segment_urls": {
+    "message": "URL сегментов TS (по одному на строку, необязательно)"
+  },
+  "global_speed_limit": {
+    "message": "Общий лимит скорости (байт/с, 0 = без ограничений)"
+  },
+  "appName": {
+    "message": "Flux"
+  },
+  "appDescription": {
+    "message": "Добавьте HTTP или HTTPS файл в локальную очередь."
+  },
+  "mediaReady": {
+    "message": "Выберите качество видео и выходной формат, затем отправьте в Flux."
+  }
+}

@@ -1,0 +1,323 @@
+{
+  "workspace": {
+    "message": "ワークスペース"
+  },
+  "all": {
+    "message": "すべてのダウンロード"
+  },
+  "active": {
+    "message": "実行中"
+  },
+  "complete": {
+    "message": "完了"
+  },
+  "settings": {
+    "message": "設定"
+  },
+  "engine_ready": {
+    "message": "エンジン接続済み"
+  },
+  "preview": {
+    "message": "ブラウザプレビュー"
+  },
+  "local_first": {
+    "message": "端末に保存"
+  },
+  "open_source": {
+    "message": "オープンソース"
+  },
+  "control": {
+    "message": "転送コントロール"
+  },
+  "downloads": {
+    "message": "ダウンロード"
+  },
+  "tagline": {
+    "message": "すべてのバイトを、あなたの手で。"
+  },
+  "new_download": {
+    "message": "新規ダウンロード"
+  },
+  "desktop_required": {
+    "message": "ダウンロードにはデスクトップアプリを起動してください。"
+  },
+  "action_failed": {
+    "message": "操作に失敗しました"
+  },
+  "details": {
+    "message": "技術的な詳細"
+  },
+  "close": {
+    "message": "閉じる"
+  },
+  "network_speed": {
+    "message": "ネットワーク速度"
+  },
+  "live_network": {
+    "message": "リアルタイムの通信状況"
+  },
+  "active_transfers": {
+    "message": "実行中の転送"
+  },
+  "connections_max": {
+    "message": "ファイルごとに最大32接続"
+  },
+  "verified_files": {
+    "message": "検証済みファイル"
+  },
+  "integrity": {
+    "message": "SHA-256整合性確認済み"
+  },
+  "transfer_queue": {
+    "message": "転送キュー"
+  },
+  "search_downloads": {
+    "message": "ダウンロードを検索"
+  },
+  "file": {
+    "message": "ファイル"
+  },
+  "progress": {
+    "message": "進捗"
+  },
+  "status": {
+    "message": "状態"
+  },
+  "actions": {
+    "message": "操作"
+  },
+  "no_results": {
+    "message": "結果がありません"
+  },
+  "search_hint": {
+    "message": "別のファイル名をお試しください。"
+  },
+  "empty_title": {
+    "message": "次のダウンロードはここから。"
+  },
+  "empty_body": {
+    "message": "リンクを追加。Fluxが接続、復旧、検証を処理します。"
+  },
+  "add_first": {
+    "message": "最初のダウンロードを追加"
+  },
+  "unknown_size": {
+    "message": "サイズ不明"
+  },
+  "pause": {
+    "message": "一時停止"
+  },
+  "resume": {
+    "message": "再開"
+  },
+  "add_description": {
+    "message": "HTTPまたはHTTPSファイルをローカルキューに追加します。"
+  },
+  "source_url": {
+    "message": "ソースURL"
+  },
+  "filename": {
+    "message": "ファイル名"
+  },
+  "connections": {
+    "message": "接続数"
+  },
+  "speed_limit": {
+    "message": "速度制限（B/s、0＝無制限）"
+  },
+  "expected_hash": {
+    "message": "期待するSHA-256（任意）"
+  },
+  "starting": {
+    "message": "開始中…"
+  },
+  "start": {
+    "message": "ダウンロード開始"
+  },
+  "language_description": {
+    "message": "使いやすい言語を選んでください。"
+  },
+  "language": {
+    "message": "言語"
+  },
+  "search_languages": {
+    "message": "言語を検索"
+  },
+  "privacy": {
+    "message": "ローカル保存。ファイルはあなたのもの。"
+  },
+  "powered": {
+    "message": "Rustで動作 · 開かれたウェブのために"
+  },
+  "queued": {
+    "message": "待機中"
+  },
+  "running": {
+    "message": "ダウンロード中"
+  },
+  "paused": {
+    "message": "一時停止中"
+  },
+  "verifying": {
+    "message": "検証中"
+  },
+  "failed": {
+    "message": "失敗"
+  },
+  "downloadMedia": {
+    "message": "メディアをダウンロード"
+  },
+  "downloadWith": {
+    "message": "Fluxでダウンロード"
+  },
+  "captureLinks": {
+    "message": "ページのリンクを取得"
+  },
+  "quality": {
+    "message": "画質 / コーデック"
+  },
+  "automatic": {
+    "message": "自動"
+  },
+  "inspecting": {
+    "message": "メディアを解析中…"
+  },
+  "sentToDesktop": {
+    "message": "デスクトップのキューに保存しました"
+  },
+  "retry": {
+    "message": "再試行"
+  },
+  "wildcard": {
+    "message": "*.zipで絞り込み"
+  },
+  "downloadSelected": {
+    "message": "選択した項目をダウンロード"
+  },
+  "interceptDownloads": {
+    "message": "ブラウザのダウンロードを引き継ぐ"
+  },
+  "interceptExplanation": {
+    "message": "Fluxの受信確認までブラウザはダウンロードを続けます。"
+  },
+  "browserIntegration": {
+    "message": "ブラウザ連携"
+  },
+  "nativeInstallHelp": {
+    "message": "Fluxの設定を開き、ブラウザブリッジをインストールしてください。"
+  },
+  "saved": {
+    "message": "保存しました"
+  },
+  "desktopOffline": {
+    "message": "デスクトップ未接続"
+  },
+  "waitingForDesktop": {
+    "message": "デスクトップを待機中"
+  },
+  "noMedia": {
+    "message": "メディアが見つかりません"
+  },
+  "mediaHint": {
+    "message": "動画を再生してメディア通信を検出してください。"
+  },
+  "batch": {
+    "message": "一括ダウンロード"
+  },
+  "priority": {
+    "message": "優先度"
+  },
+  "start_at": {
+    "message": "開始時刻"
+  },
+  "stop_at": {
+    "message": "停止時刻"
+  },
+  "media_processing": {
+    "message": "FFmpegでメディアを処理"
+  },
+  "audio_url": {
+    "message": "別の音声URL（任意）"
+  },
+  "duration_seconds": {
+    "message": "録画時間（秒、任意）"
+  },
+  "container": {
+    "message": "コンテナ"
+  },
+  "concurrent_tasks": {
+    "message": "同時ダウンロード数"
+  },
+  "download_directory": {
+    "message": "ダウンロードフォルダ"
+  },
+  "choose_folder": {
+    "message": "フォルダを選択"
+  },
+  "queue_enabled": {
+    "message": "キューを実行"
+  },
+  "clipboard_monitor": {
+    "message": "クリップボードのリンクを検出"
+  },
+  "minimize_to_tray": {
+    "message": "トレイに最小化"
+  },
+  "notifications": {
+    "message": "完了通知"
+  },
+  "save": {
+    "message": "設定を保存"
+  },
+  "open_file": {
+    "message": "ファイルを開く"
+  },
+  "reveal_file": {
+    "message": "フォルダに表示"
+  },
+  "remove": {
+    "message": "タスクを削除"
+  },
+  "remove_description": {
+    "message": "タスクと一時データを削除しますか？完成したファイルは残ります。"
+  },
+  "confirm": {
+    "message": "削除"
+  },
+  "inspect": {
+    "message": "ストリームを解析"
+  },
+  "queue_start": {
+    "message": "キューを開始"
+  },
+  "pause_all": {
+    "message": "すべて一時停止"
+  },
+  "install_bridge": {
+    "message": "ブラウザブリッジをインストール"
+  },
+  "installed": {
+    "message": "ブラウザブリッジをインストールしました"
+  },
+  "copy_hash": {
+    "message": "SHA-256をコピー"
+  },
+  "apply": {
+    "message": "適用"
+  },
+  "segment_urls": {
+    "message": "TSセグメントURL（1行に1件、任意）"
+  },
+  "global_speed_limit": {
+    "message": "合計速度制限（バイト/秒、0 = 無制限）"
+  },
+  "appName": {
+    "message": "Flux"
+  },
+  "appDescription": {
+    "message": "HTTPまたはHTTPSファイルをローカルキューに追加します。"
+  },
+  "mediaReady": {
+    "message": "画質と出力形式を選択して、Flux に送信してください。"
+  }
+}

@@ -1,0 +1,323 @@
+{
+  "workspace": {
+    "message": "పని ప్రదేశం"
+  },
+  "all": {
+    "message": "అన్ని డౌన్‌లోడ్‌లు"
+  },
+  "active": {
+    "message": "సక్రియం"
+  },
+  "complete": {
+    "message": "పూర్తయినవి"
+  },
+  "settings": {
+    "message": "సెట్టింగ్‌లు"
+  },
+  "engine_ready": {
+    "message": "ఇంజిన్ కనెక్ట్ అయింది"
+  },
+  "preview": {
+    "message": "బ్రౌజర్ ప్రివ్యూ"
+  },
+  "local_first": {
+    "message": "మీ పరికరంలో నిల్వ"
+  },
+  "open_source": {
+    "message": "ఓపెన్ సోర్స్"
+  },
+  "control": {
+    "message": "బదిలీ నియంత్రణ"
+  },
+  "downloads": {
+    "message": "డౌన్‌లోడ్‌లు"
+  },
+  "tagline": {
+    "message": "ప్రతి బైట్ మీ నియంత్రణలో."
+  },
+  "new_download": {
+    "message": "కొత్త డౌన్‌లోడ్"
+  },
+  "desktop_required": {
+    "message": "డౌన్‌లోడ్ కోసం డెస్క్‌టాప్ యాప్‌ను తెరవండి."
+  },
+  "action_failed": {
+    "message": "చర్య విఫలమైంది"
+  },
+  "details": {
+    "message": "సాంకేతిక వివరాలు"
+  },
+  "close": {
+    "message": "మూసివేయండి"
+  },
+  "network_speed": {
+    "message": "నెట్‌వర్క్ వేగం"
+  },
+  "live_network": {
+    "message": "ప్రత్యక్ష నెట్‌వర్క్ కార్యకలాపం"
+  },
+  "active_transfers": {
+    "message": "సక్రియ బదిలీలు"
+  },
+  "connections_max": {
+    "message": "ఒక్కో ఫైల్‌కు 32 వరకు కనెక్షన్‌లు"
+  },
+  "verified_files": {
+    "message": "ధృవీకరించిన ఫైళ్లు"
+  },
+  "integrity": {
+    "message": "SHA-256 సమగ్రత తనిఖీ అయింది"
+  },
+  "transfer_queue": {
+    "message": "బదిలీ వరుస"
+  },
+  "search_downloads": {
+    "message": "డౌన్‌లోడ్‌లను వెతకండి"
+  },
+  "file": {
+    "message": "ఫైల్"
+  },
+  "progress": {
+    "message": "పురోగతి"
+  },
+  "status": {
+    "message": "స్థితి"
+  },
+  "actions": {
+    "message": "చర్యలు"
+  },
+  "no_results": {
+    "message": "ఫలితాలు లేవు"
+  },
+  "search_hint": {
+    "message": "మరొక ఫైల్ పేరు ప్రయత్నించండి."
+  },
+  "empty_title": {
+    "message": "మీ తదుపరి డౌన్‌లోడ్ ఇక్కడ మొదలవుతుంది."
+  },
+  "empty_body": {
+    "message": "లింక్ జోడించండి. Flux కనెక్షన్‌లు, పునరుద్ధరణ, ధృవీకరణను నిర్వహిస్తుంది."
+  },
+  "add_first": {
+    "message": "మొదటి డౌన్‌లోడ్ జోడించండి"
+  },
+  "unknown_size": {
+    "message": "పరిమాణం తెలియదు"
+  },
+  "pause": {
+    "message": "పాజ్ చేయండి"
+  },
+  "resume": {
+    "message": "కొనసాగించండి"
+  },
+  "add_description": {
+    "message": "స్థానిక వరుసకు HTTP లేదా HTTPS ఫైల్ జోడించండి."
+  },
+  "source_url": {
+    "message": "మూల URL"
+  },
+  "filename": {
+    "message": "ఫైల్ పేరు"
+  },
+  "connections": {
+    "message": "కనెక్షన్‌లు"
+  },
+  "speed_limit": {
+    "message": "వేగ పరిమితి (B/s, 0 = అపరిమితం)"
+  },
+  "expected_hash": {
+    "message": "ఆశించిన SHA-256 (ఐచ్ఛికం)"
+  },
+  "starting": {
+    "message": "ప్రారంభమవుతోంది…"
+  },
+  "start": {
+    "message": "డౌన్‌లోడ్ ప్రారంభించండి"
+  },
+  "language_description": {
+    "message": "మీకు నచ్చిన భాషను ఎంచుకోండి."
+  },
+  "language": {
+    "message": "భాష"
+  },
+  "search_languages": {
+    "message": "భాషలను వెతకండి"
+  },
+  "privacy": {
+    "message": "స్థానిక నిల్వ. మీ ఫైళ్లు మీవే."
+  },
+  "powered": {
+    "message": "Rust ఆధారితం · ఓపెన్ వెబ్ కోసం"
+  },
+  "queued": {
+    "message": "వరుసలో"
+  },
+  "running": {
+    "message": "డౌన్‌లోడ్ అవుతోంది"
+  },
+  "paused": {
+    "message": "పాజ్ అయింది"
+  },
+  "verifying": {
+    "message": "ధృవీకరిస్తోంది"
+  },
+  "failed": {
+    "message": "విఫలమైంది"
+  },
+  "downloadMedia": {
+    "message": "మీడియా డౌన్‌లోడ్"
+  },
+  "downloadWith": {
+    "message": "Flux తో డౌన్‌లోడ్"
+  },
+  "captureLinks": {
+    "message": "పేజీ లింకులను సేకరించండి"
+  },
+  "quality": {
+    "message": "నాణ్యత / కోడెక్"
+  },
+  "automatic": {
+    "message": "స్వయంచాలకంగా"
+  },
+  "inspecting": {
+    "message": "మీడియాను పరిశీలిస్తోంది…"
+  },
+  "sentToDesktop": {
+    "message": "డెస్క్‌టాప్ వరుసలో సేవ్ అయింది"
+  },
+  "retry": {
+    "message": "మళ్లీ ప్రయత్నించండి"
+  },
+  "wildcard": {
+    "message": "*.zip తో వడపోయండి"
+  },
+  "downloadSelected": {
+    "message": "ఎంచుకున్నవి డౌన్‌లోడ్"
+  },
+  "interceptDownloads": {
+    "message": "బ్రౌజర్ డౌన్‌లోడ్‌లను స్వీకరించండి"
+  },
+  "interceptExplanation": {
+    "message": "Flux నిర్ధారించే వరకు బ్రౌజర్ డౌన్‌లోడ్ కొనసాగుతుంది."
+  },
+  "browserIntegration": {
+    "message": "బ్రౌజర్ అనుసంధానం"
+  },
+  "nativeInstallHelp": {
+    "message": "Flux డెస్క్‌టాప్ సెట్టింగ్‌లు తెరిచి బ్రౌజర్ బ్రిడ్జ్ ఇన్‌స్టాల్ చేయండి."
+  },
+  "saved": {
+    "message": "సేవ్ అయింది"
+  },
+  "desktopOffline": {
+    "message": "డెస్క్‌టాప్ ఆఫ్‌లైన్"
+  },
+  "waitingForDesktop": {
+    "message": "డెస్క్‌టాప్ కోసం వేచి ఉంది"
+  },
+  "noMedia": {
+    "message": "మీడియా కనిపించలేదు"
+  },
+  "mediaHint": {
+    "message": "మీడియా అభ్యర్థనలు గుర్తించడానికి వీడియో ప్లే చేయండి."
+  },
+  "batch": {
+    "message": "సామూహిక డౌన్‌లోడ్"
+  },
+  "priority": {
+    "message": "ప్రాధాన్యత"
+  },
+  "start_at": {
+    "message": "ప్రారంభ సమయం"
+  },
+  "stop_at": {
+    "message": "ఆపే సమయం"
+  },
+  "media_processing": {
+    "message": "FFmpeg తో మీడియా ప్రాసెస్"
+  },
+  "audio_url": {
+    "message": "వేరే ఆడియో URL (ఐచ్ఛికం)"
+  },
+  "duration_seconds": {
+    "message": "రికార్డింగ్ వ్యవధి (సెకన్లు, ఐచ్ఛికం)"
+  },
+  "container": {
+    "message": "కంటైనర్"
+  },
+  "concurrent_tasks": {
+    "message": "ఏకకాల డౌన్‌లోడ్‌లు"
+  },
+  "download_directory": {
+    "message": "డౌన్‌లోడ్ ఫోల్డర్"
+  },
+  "choose_folder": {
+    "message": "ఫోల్డర్ ఎంచుకోండి"
+  },
+  "queue_enabled": {
+    "message": "వరుసను అమలు చేయండి"
+  },
+  "clipboard_monitor": {
+    "message": "క్లిప్‌బోర్డ్ లింకులు గమనించండి"
+  },
+  "minimize_to_tray": {
+    "message": "ట్రేకు కనిష్టీకరించండి"
+  },
+  "notifications": {
+    "message": "పూర్తయిన నోటిఫికేషన్‌లు"
+  },
+  "save": {
+    "message": "సెట్టింగ్‌లు సేవ్ చేయండి"
+  },
+  "open_file": {
+    "message": "ఫైల్ తెరవండి"
+  },
+  "reveal_file": {
+    "message": "ఫోల్డర్‌లో చూపండి"
+  },
+  "remove": {
+    "message": "పనిని తొలగించండి"
+  },
+  "remove_description": {
+    "message": "పని మరియు తాత్కాలిక డేటా తొలగించాలా? పూర్తయిన ఫైల్ ఉంటుంది."
+  },
+  "confirm": {
+    "message": "తొలగించండి"
+  },
+  "inspect": {
+    "message": "స్ట్రీమ్‌లను పరిశీలించండి"
+  },
+  "queue_start": {
+    "message": "వరుస ప్రారంభించండి"
+  },
+  "pause_all": {
+    "message": "అన్నీ పాజ్ చేయండి"
+  },
+  "install_bridge": {
+    "message": "బ్రౌజర్ బ్రిడ్జ్ ఇన్‌స్టాల్"
+  },
+  "installed": {
+    "message": "బ్రౌజర్ బ్రిడ్జ్ ఇన్‌స్టాల్ అయింది"
+  },
+  "copy_hash": {
+    "message": "SHA-256 కాపీ"
+  },
+  "apply": {
+    "message": "వర్తింపజేయి"
+  },
+  "segment_urls": {
+    "message": "TS భాగాల URLలు (పంక్తికి ఒకటి, ఐచ్ఛికం)"
+  },
+  "global_speed_limit": {
+    "message": "మొత్తం వేగ పరిమితి (బైట్లు/సెకను, 0 = అపరిమితం)"
+  },
+  "appName": {
+    "message": "Flux"
+  },
+  "appDescription": {
+    "message": "స్థానిక వరుసకు HTTP లేదా HTTPS ఫైల్ జోడించండి."
+  },
+  "mediaReady": {
+    "message": "వీడియో నాణ్యతను, అవుట్‌పుట్ ఫార్మాట్‌ను ఎంచుకుని Flux కు పంపండి."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "native_ipc": true,
+  "chunked_transfer": true,
+  "extensionless_wrong_mime_hls": true,
+  "estimated_total_visible": true,
+  "nonzero_progress_visible": true,
+  "eta_visible_in_popup_and_list": true,
+  "media_time_and_segments_visible": true,
+  "pause_resume_snapshot_preserved": true,
+  "final_size_exact": true,
+  "duration": 8.021333,
+  "sha256": "dec6621c20410db6f4ba92c2daa8ff628b323e852f0eaae943c0342d89230990",
+  "time": "2026-10-12T11:02:50.654Z",
+  "native_subtitle_selection": true,
+  "embedded_subtitle_verified": true,
+  "chapter_output_verified": true,
+  "normalization_enabled": true,
+  "in_flight_native_renewal": true,
+  "renewal_count": 2,
+  "local_paths_and_credentials_removed": true
+}

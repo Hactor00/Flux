@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_appName__",
+  "description": "__MSG_appDescription__",
+  "version": "1.7.0",
+  "default_locale": "en",
+  "minimum_chrome_version": "120",
+  "permissions": [
+    "nativeMessaging",
+    "storage",
+    "alarms",
+    "contextMenus",
+    "downloads",
+    "webRequest",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icons/128.png"
+  },
+  "icons": {
+    "128": "icons/128.png"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'"
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn9/V3I8cDixRGxfF4FN4oGBdcRP76Q2F0hA9IwVEIiUngSrBEH2eAuCvmLADmmRYxvHuaEP12vOT3hO/aPO+fVNh8TfDIcg7NA/WZGaMcwV0Mcq99nmKhw1XcObG7OnR6/DjJSEmaYOh6nUhtosVu0LFcBqWDcPGZrfNREXGEC2BEnM3ggoWqwtg+COeo8AxoalkFV1mdcFIgaHTgBomzq0rN1hTOh4oOEz11ia3/nyfVlIQGASriLpW2hE0DSUaprTQcDGte/mw0Ae7vuHMD8CPYh017YtM9BIp4bcB6HUQQWldMSSBVU5/uxwN1hNvml0lx0xDm7B4s1Y/LDZ8fwIDAQAB"
+}

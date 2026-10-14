@@ -35,6 +35,20 @@ public static class BrowserWindowInspector {
         GetWindowText(GetForegroundWindow(), title, title.Capacity);
         return title.ToString();
     }
+    public static string[] VisibleTitles(uint process) {
+        var titles = new List<string>();
+        EnumWindows((window, parameter) => {
+            uint owner;
+            GetWindowThreadProcessId(window, out owner);
+            if (owner == process && IsWindowVisible(window)) {
+                var title = new StringBuilder(512);
+                GetWindowText(window, title, title.Capacity);
+                titles.Add(title.ToString());
+            }
+            return true;
+        }, IntPtr.Zero);
+        return titles.ToArray();
+    }
 }
 '@
-@{ dialogs = @([BrowserWindowInspector]::Dialogs($BrowserProcessId)); foreground = [BrowserWindowInspector]::ForegroundTitle() } | ConvertTo-Json -Compress
+@{ dialogs = @([BrowserWindowInspector]::Dialogs($BrowserProcessId)); windows = @([BrowserWindowInspector]::VisibleTitles($BrowserProcessId)); foreground = [BrowserWindowInspector]::ForegroundTitle() } | ConvertTo-Json -Compress

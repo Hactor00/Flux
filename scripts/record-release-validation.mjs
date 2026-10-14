@@ -25,6 +25,7 @@ const records = Object.fromEntries(
       "firefox-120.0",
       "firefox-157.0.1",
       "chrome-interception",
+      "browser-onboarding",
     ].map(async (name) => [name, await json(`docs/validation/${name}.json`)]),
   ),
 );
@@ -32,15 +33,20 @@ for (const [name, record] of Object.entries(records)) {
   if (!record.passed) throw Error(`${name} did not pass`);
   if (
     (name.startsWith("firefox-") ||
-      ["torrent-window", "browser-stores", "chrome-interception"].includes(
-        name,
-      )) &&
+      [
+        "torrent-window",
+        "browser-stores",
+        "chrome-interception",
+        "browser-onboarding",
+      ].includes(name)) &&
     record.version !== version
   )
     throw Error(`${name} validation version mismatch`);
 }
 if (
   !records.installer.installed_binary_hashes_verified ||
+  !records["browser-onboarding"].missing_registry_and_outdated_host_repaired ||
+  !records["browser-onboarding"].dismissal_persisted_after_restart ||
   !records["torrent-window"].torrent_file_row_visible
 )
   throw Error(
@@ -113,6 +119,7 @@ const report = {
   ui_data_tests: uiTests,
   automated_tests: rustTests + extensionTests + uiTests,
   browser_interception: records["chrome-interception"],
+  browser_setup: records["browser-onboarding"],
   test_evidence: {
     core_log_updated: (await stat(".tools/core-tests.log")).mtime.toISOString(),
     frontend_log_updated: (
@@ -132,6 +139,7 @@ const report = {
   frontend_build: "strict TypeScript + Vite production build passed",
   npm_audit_production_vulnerabilities: audit.metadata.vulnerabilities.total,
   scope: [
+    "Automatic installed/portable Native Messaging registration, idempotent repair and persistent first-use browser guidance",
     "Embedded BitTorrent v1/v2/hybrid engines, magnet and .torrent import, piece verification and SHA-256 outputs",
     "Browser download cancellation before filename release, Firefox attachment interception and native approval foreground authorization",
     "SHA-256 checkpoint replay without ETags or byte-range support, with preserved progress",

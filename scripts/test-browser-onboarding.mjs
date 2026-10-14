@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
 import { createServer } from "node:net";
 import { once } from "node:events";
 import { mkdtemp, mkdir, readFile, writeFile, stat } from "node:fs/promises";
@@ -81,6 +81,27 @@ const invoke = (main, command) =>
   main.evaluate(
     `window.__TAURI_INTERNALS__.invoke(${JSON.stringify(command)})`,
   );
+function mainWindowVisible() {
+  const powershell = join(
+    process.env.SystemRoot || "C:/Windows",
+    "System32/WindowsPowerShell/v1.0/powershell.exe",
+  );
+  const state = JSON.parse(
+    execFileSync(
+      powershell,
+      [
+        "-NoProfile",
+        "-NonInteractive",
+        "-File",
+        resolve("scripts/browser-dialogs.ps1"),
+        "-BrowserProcessId",
+        String(app.pid),
+      ],
+      { encoding: "utf8", windowsHide: true },
+    ),
+  );
+  return state.windows.includes("Flux");
+}
 function assertBindings() {
   const values = JSON.parse(nativeRegistration());
   for (const item of values.filter((value) => value.name === "")) {
@@ -103,12 +124,7 @@ function assertBindings() {
 try {
   let main = await launch(true);
   assertBindings();
-  assert.equal(
-    await main.evaluate(
-      "window.__TAURI_INTERNALS__.invoke('plugin:window|is_visible',{label:'main'})",
-    ),
-    false,
-  );
+  assert.equal(mainWindowVisible(), false);
   let status = await invoke(main, "browser_integration");
   assert.equal(status.registered, true);
   assert.equal(status.reminder_dismissed, false);
@@ -118,11 +134,7 @@ try {
     stdio: "ignore",
   });
   await once(foreground, "exit");
-  await wait(() =>
-    main.evaluate(
-      "window.__TAURI_INTERNALS__.invoke('plugin:window|is_visible',{label:'main'})",
-    ),
-  );
+  await wait(() => mainWindowVisible());
   await wait(() =>
     main.evaluate(
       "!!document.querySelector('.integration-notice .integration-state.ready')",
@@ -191,7 +203,7 @@ try {
     ),
   );
   await settings.evaluate(
-    "[...document.querySelectorAll('[role=tab]')].find(tab=>tab.id.endsWith('trigger-browserIntegration')).click(); true",
+    "[...document.querySelectorAll('[role=tab]')].find(tab=>tab.id.endsWith('trigger-browserIntegration')).focus(); true",
   );
   await wait(() =>
     settings.evaluate(

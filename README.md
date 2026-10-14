@@ -153,7 +153,7 @@ Downloads contact their source; torrents contact peers/trackers/DHT. Enabled Deb
 
 ## Validation
 
-Windows x64 2.2 has **194 passing automated tests: 116 Rust, 63 extension and 15 frontend**. Separate real-browser/desktop checks cover Chrome 155, Firefox 120/157, foreground approval without a browser file chooser, HUD controls, repeated detail-window closing, media ETA, torrent peer transfers, installer repair and uninstall data retention.
+Windows x64 2.2 has **196 passing automated tests: 118 Rust, 63 extension and 15 frontend**. Separate real-browser/desktop checks cover Chrome 155, Firefox 120/157, foreground approval without a browser file chooser, HUD controls, repeated detail-window closing, media ETA, torrent peer transfers, installer repair and uninstall data retention.
 
 Strict TypeScript, production build, Rust formatting and Clippy pass. Production npm audit and modern Firefox manifest lint report zero findings. See [full validation](docs/validation-2.2.md) and [machine-readable evidence](docs/validation/release.json).
 

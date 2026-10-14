@@ -4,6 +4,8 @@
 
 ## Tarayıcıdan devralma
 
+Kurulu ve taşınabilir masaüstü, yerel Native Messaging köprüsünü normal ve arka plan açılışlarında asenkron kaydeder/onarır. Değişmemiş dosya ve kayıt değerleri korunur; değişen manifest önce aynı klasörde geçici dosyaya yazılıp atomik değiştirilir. Kayıt hatası indirme motorunu kapatmaz; Ayarlar'daki tarayıcı bölümünde gösterilir. İlk kullanım bildiriminin kapatılması tercihlerden ayrı saklanır ve yalnız kullanıcının kapatma işlemiyle kaydedilir; arka plan açılışı bildirimi tüketmez. Eklentinin kurulması ve tarayıcı izinleri ayrı bir adımdır.
+
 Chromium aktarımı masaüstü erişimi kontrol edilirken duraklatılır. Bilgiler tarayıcı iptalinden önce kalıcı, henüz gönderilemeyen bir outbox kaydına yazılır. İptal tamamlanınca kayıt etkinleştirilir; masaüstü önerisi teslim edilmeden dosya adı aşaması serbest bırakılmaz. Böylece tarayıcının dosya seçicisi Flux onayıyla yarışmaz. Eklenti arka planı yeniden başladığında ertelenen kayıt kurtarılır. İlk erişim kontrolünde Flux yoksa tarayıcı sahipliği korunur; kalıcı iptal sonrasındaki hatalar outbox içinde kalır.
 
 Firefox HTTP GET dosya gezinmesini yanıt başlıklarındaki asenkron engelleyici dinleyiciyle yakalar. Açık tarayıcı API indirmeleri kalıcı iptal yolunu kullanır. `webRequestBlocking` yalnız Firefox manifestindedir; Chromium MV3 izinleri korunur.

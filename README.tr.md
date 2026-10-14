@@ -153,7 +153,7 @@ Analiz sunucusu veya uzak Flux hesabı yoktur. Eklenti seçilen URL, başlık, s
 
 ## Doğrulama
 
-Windows x64 2.2'de **194 otomatik test geçti: 116 Rust, 63 eklenti, 15 arayüz**. Ayrı gerçek tarayıcı/masaüstü testleri; Chrome 155, Firefox 120/157, tarayıcı dosya seçicisi olmadan ön planda onay, HUD, ayrıntı penceresini tekrar kapatma, medya ETA, torrent eş aktarımı, kurulum onarımı ve kaldırmada veri korumayı kapsar.
+Windows x64 2.2'de **196 otomatik test geçti: 118 Rust, 63 eklenti, 15 arayüz**. Ayrı gerçek tarayıcı/masaüstü testleri; Chrome 155, Firefox 120/157, tarayıcı dosya seçicisi olmadan ön planda onay, HUD, ayrıntı penceresini tekrar kapatma, medya ETA, torrent eş aktarımı, kurulum onarımı ve kaldırmada veri korumayı kapsar.
 
 Katı TypeScript, üretim derlemesi, Rust biçimlendirme ve Clippy geçti. Üretim npm ve güncel Firefox manifest denetimi sıfır bulgu verdi. [Tam doğrulama](docs/validation-2.2.md) ve [makine kaydı](docs/validation/release.json) ayrıntıları içerir.
 

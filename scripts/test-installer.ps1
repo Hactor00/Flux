@@ -140,5 +140,7 @@ $report.installed_extension_sources_verified = $true
 $report.installed_binary_hashes_verified = $true
 $report.native_torrent_window_verified = $true
 $report.native_browser_bindings_verified = 5
+$report.automatic_startup_registration_verified = $true
+$report.one_time_browser_guidance_verified = $true
 $report | ConvertTo-Json | Set-Content -LiteralPath "$workspace/docs/validation/installer.json" -Encoding utf8
 Write-Output ($report | ConvertTo-Json -Compress)

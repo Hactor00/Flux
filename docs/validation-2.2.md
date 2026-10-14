@@ -4,14 +4,20 @@ The current local validation targets Windows x64. Machine-readable evidence is s
 
 | Suite | Passing tests |
 | --- | ---: |
-| Rust workspace, all features | 116 |
+| Rust workspace, all features | 118 |
 | Shared browser extension | 63 |
 | Frontend data and locale logic | 15 |
-| Total | 194 |
+| Total | 196 |
 
 The total excludes separate browser, installer and desktop-window regressions. Formatting, Clippy with warnings rejected, strict TypeScript and the production frontend build are checked separately. The production dependency audit and modern Firefox manifest lint report zero findings.
 
 Hosted checks for Windows, Linux and macOS core code and the Windows native desktop are identified in the [CI record](validation/github-ci-2.2.json). This does not establish a Linux/macOS desktop release.
+
+## Automatic browser setup, 14 October
+
+The [first-use regression](validation/browser-onboarding.json) starts the real desktop in the background, verifies all five browser host bindings, brings the same instance to the foreground and dismisses the guide through its actual close button. A restart checks persistent dismissal and unchanged manifest timestamps. Missing registry values and an outdated host path are then repaired by ordinary startup without a manual registration command. The Settings panel reports the repaired host as ready. Test profiles restore the prior browser registrations after shutdown.
+
+Registration/guide failures and atomic manifest replacement have separate Rust tests. The guide is translated in all 20 desktop locales. The installer runs this regression against its installed executable as well as the existing media, browser and torrent checks.
 
 ## Media handoff repair, 14 October
 

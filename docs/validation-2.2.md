@@ -5,13 +5,21 @@ The current local validation targets Windows x64. Machine-readable evidence is s
 | Suite | Passing tests |
 | --- | ---: |
 | Rust workspace, all features | 116 |
-| Shared browser extension | 59 |
-| Frontend data and locale logic | 14 |
-| Total | 189 |
+| Shared browser extension | 63 |
+| Frontend data and locale logic | 15 |
+| Total | 194 |
 
 The total excludes separate browser, installer and desktop-window regressions. Formatting, Clippy with warnings rejected, strict TypeScript and the production frontend build are checked separately. The production dependency audit and modern Firefox manifest lint report zero findings.
 
-Hosted checks also passed for Windows, Linux and macOS core code and the Windows native desktop. The [CI record](validation/github-ci-2.2.json) identifies the tested runtime source commit and workflow. Final publication adds only documentation, screenshots and package evidence after that commit; shipped runtime code is unchanged. This does not establish a Linux/macOS desktop release.
+Hosted checks for Windows, Linux and macOS core code and the Windows native desktop are identified in the [CI record](validation/github-ci-2.2.json). This does not establish a Linux/macOS desktop release.
+
+## Media handoff repair, 14 October
+
+The 2.2.0 package refresh addresses two separate failures. A newer extension sent an empty `audio_format_id` to a registered 1.7 host, whose strict request decoder closed the connection. The HUD had acknowledged only local queue storage and concealed that failure. Empty optional fields are now omitted; interactive transfers wait for native acknowledgment, retain retryable durable entries and reuse their request IDs on retry. Chromium and Gecko HUD regressions cover delayed confirmation and visible failures.
+
+The desktop approval form duplicated its inspection action and required provider metadata even though the browser had already chosen a valid stream. Reinspection then replaced the captured signed URL, causing `Approval cannot change the captured source`. Approval now starts with captured metadata, retains its original source capability and preserves name/output/quality across optional reinspection. The engine still refreshes expiring provider URLs before transferring. The live [provider approval regression](validation/provider-approval.json) exercises the production native window, YouTube MP4 and MP3 output, optional reinspection and final stream/SHA-256 checks.
+
+The core Rust sources and yt-dlp/FFmpeg versions are unchanged by this repair. Browser and desktop packages are refreshed together without a version increment; installed 2.2.0 clients require manual package refresh because version comparison does not identify a same-version rebuild.
 
 ## Resume regressions
 

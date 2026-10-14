@@ -42,6 +42,7 @@ Previous [2.0.0](https://github.com/Hactor00/Flux/releases/tag/v2.0.0) and [1.7.
 
 ## What's new in 2.2
 
+- **Media handoff repair (14 October):** Chromium and Firefox wait for desktop confirmation and display transfer errors. Captured quality/output is ready in the approval window without another inspection; optional reinspection preserves the captured source, filename and output format. Empty newer fields are omitted for older native hosts. Refresh the desktop and extension packages together; this repair keeps version 2.2.0, so an existing 2.2 installation needs a manual package refresh.
 - **Browser handoff before file selection:** Chromium cancels its held transfer before releasing the filename gate; Firefox intercepts attachment navigation at response headers. Flux opens its approval window in the foreground.
 - **Checkpoint resume without ETags:** range support no longer requires a strong ETag. Saved prefixes are SHA-256 checked before appending; changed remote content cannot silently produce a mixed file.
 - **Progress retained on non-range sources:** Flux verifies and discards a replayed prefix before appending new bytes. Saved disk data and progress remain; prefix replay still costs network bandwidth.
@@ -148,7 +149,7 @@ Downloads contact their source; torrents contact peers/trackers/DHT. Enabled Deb
 
 ## Validation
 
-Windows x64 2.2 has **189 passing automated tests: 116 Rust, 59 extension and 14 frontend**. Separate real-browser/desktop checks cover Chrome 155, Firefox 120/157, foreground approval without a browser file chooser, HUD controls, repeated detail-window closing, media ETA, torrent peer transfers, installer repair and uninstall data retention.
+Windows x64 2.2 has **194 passing automated tests: 116 Rust, 63 extension and 15 frontend**. Separate real-browser/desktop checks cover Chrome 155, Firefox 120/157, foreground approval without a browser file chooser, HUD controls, repeated detail-window closing, media ETA, torrent peer transfers, installer repair and uninstall data retention.
 
 Strict TypeScript, production build, Rust formatting and Clippy pass. Production npm audit and modern Firefox manifest lint report zero findings. See [full validation](docs/validation-2.2.md) and [machine-readable evidence](docs/validation/release.json).
 

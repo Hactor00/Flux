@@ -7,6 +7,8 @@ import {
   torrentSource,
   isTorrentTask,
   providerSource,
+  capturedMedia,
+  approvalSource,
 } from "../src/downloads.ts";
 
 const base = {
@@ -17,6 +19,43 @@ const base = {
   expected_sha256: null,
   torrent: null,
 };
+test("captured provider media is immediately selectable and approval retains its original signed URL", () => {
+  const task = {
+    request: {
+      url: "https://cdn.example/video?signature=captured",
+      filename: "Chosen title.mp4",
+      media: {
+        provider: {
+          url: "https://youtube.com/watch?v=1",
+          format_id: "136",
+          height: 720,
+        },
+        audio_url: "https://cdn.example/audio",
+        container: "mp4",
+        chapters: [],
+        subtitles: [],
+      },
+    },
+    total: null,
+  };
+  const captured = capturedMedia(task);
+  assert.equal(captured.formats[0].height, 720);
+  assert.equal(captured.formats[0].id, "136");
+  assert.equal(captured.formats[0].audio_url, task.request.media.audio_url);
+  assert.equal(
+    approvalSource(task, "https://cdn.example/video?signature=renewed", ""),
+    task.request.url,
+  );
+  assert.equal(
+    approvalSource(
+      undefined,
+      "https://cdn.example/new",
+      "https://youtube.com/watch?v=1",
+    ),
+    "https://cdn.example/new",
+  );
+  assert.equal(capturedMedia({ request: { media: null } }), null);
+});
 test("desktop provider recognition matches browser hosts without accepting spoofed origins", () => {
   for (const value of [
     "https://vimeo.com/123",

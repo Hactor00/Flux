@@ -52,6 +52,7 @@ export interface TorrentSnapshot {
   files: TorrentFile[];
 }
 export interface MediaOptions {
+  manifest_snapshot?: { url: string; text: string } | null;
   manifest_video_id?: string | null;
   manifest_audio_id?: string | null;
   kind?: "file" | "hls" | "dash" | null;
@@ -59,6 +60,7 @@ export interface MediaOptions {
     url: string;
     format_id: string | null;
     height: number | null;
+    audio_format_id?: string | null;
   } | null;
   segment_urls?: string[];
   container: "mp4" | "mkv" | "mp3" | "mka";
@@ -129,6 +131,7 @@ export interface PendingPower {
   deadline: number;
 }
 export interface ResolvedFormat {
+  alternative_ids?: string[];
   kind?: "hls" | "dash" | null;
   manifest_video_id?: string | null;
   manifest_audio_id?: string | null;
@@ -138,7 +141,7 @@ export interface ResolvedFormat {
   height: number | null;
   codec: string;
   size: number | null;
-  container: "mp4" | "mkv" | "mp3";
+  container: "mp4" | "mkv" | "mp3" | "mka";
   fps?: number | null;
   audio_only?: boolean;
   audio_codec?: string | null;

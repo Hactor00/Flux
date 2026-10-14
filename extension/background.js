@@ -835,13 +835,10 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
           };
         }
       }
-      return {
-        id: await outbox.enqueue(
-          makeInput(message.url, message.options),
-          undefined,
-          { tabId: sender.tab?.id ?? message.options?.tabId },
-        ),
-      };
+      return outbox.enqueueConfirmed(makeInput(message.url, message.options), {
+        tabId,
+        frameId: sender.frameId ?? 0,
+      });
     }
     if (message.type === "inspect") {
       const credentials = await credentialsFor(

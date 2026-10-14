@@ -23,6 +23,8 @@ async function fixture({
   inspected,
   manifestResolved,
   resolveError,
+  enqueueWait,
+  enqueueError,
 } = {}) {
   const dom = new JSDOM(html, {
     url,
@@ -124,8 +126,11 @@ async function fixture({
               { codec_type: "audio", codec_name: "aac", index: 1 },
             ],
           };
-        else if (message.type === "enqueue")
-          result = { id: "pending-proposal" };
+        else if (message.type === "enqueue") {
+          if (enqueueWait) await enqueueWait;
+          if (enqueueError) throw new Error(enqueueError);
+          result = { id: "confirmed-proposal" };
+        }
         return { ok: true, result };
       },
     },
@@ -410,6 +415,38 @@ const resolvedFixture = {
     },
   ],
 };
+test("Chromium and Gecko HUDs remain open until desktop confirmation and display handoff failures", async () => {
+  for (const gecko of [false, true]) {
+    let release;
+    const f = await fixture({
+      gecko,
+      url: "https://www.youtube.com/watch?v=confirmation",
+      resolved: resolvedFixture,
+      enqueueWait: new Promise((r) => {
+        release = r;
+      }),
+      enqueueError: "Desktop connection closed",
+    });
+    try {
+      const shadow = f.roots[0];
+      shadow.querySelector(".main").click();
+      await until(() => !shadow.querySelector(".download").disabled);
+      shadow.querySelector(".download").click();
+      await until(() => f.calls.some((call) => call.type === "enqueue"));
+      assert.equal(shadow.querySelector(".panel").hidden, false);
+      assert.equal(shadow.querySelector(".download").disabled, true);
+      release();
+      await until(() => !shadow.querySelector(".download").disabled);
+      assert.equal(shadow.querySelector(".panel").hidden, false);
+      assert.equal(
+        shadow.querySelector("[role=status]").textContent,
+        "Desktop connection closed",
+      );
+    } finally {
+      f.close();
+    }
+  }
+});
 test("loading HUD never displays an empty quality selector", async () => {
   let release;
   const resolveWait = new Promise((r) => (release = r));

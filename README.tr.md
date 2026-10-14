@@ -42,6 +42,7 @@ Güncelleme paketleri, Flux içindeki doğrulama anahtarıyla kontrol edilen imz
 
 ## 2.2'deki yenilikler
 
+- **Medya aktarımı düzeltmesi (14 Ekim):** Chrome ve Firefox masaüstü onayını bekler, aktarım hatalarını gösterir. Seçilen kalite ve çıktı türü onay penceresinde tekrar inceleme gerektirmeden hazırdır; isteğe bağlı inceleme yakalanan kaynağı, dosya adını ve çıktı biçimini korur. Eski yerel köprüleri bozan boş yeni alanlar gönderilmez. Masaüstü ve eklenti paketlerini birlikte yenile; sürüm 2.2.0 kaldığı için kurulu 2.2 üzerinde paket yenilemesi elle yapılır.
 - **Dosya seçimi açılmadan devralma:** Chromium dosya adı aşamasını serbest bırakmadan bekletilen aktarımı iptal eder; Firefox dosya gezinmesini yanıt başlıklarında yakalar. Flux kendi onay penceresini ön planda açar.
 - **ETag olmadan doğrulanmış sürdürme:** Range artık güçlü ETag şartına bağlı değildir. Kayıtlı başlangıç bölümleri SHA-256 ile karşılaştırılmadan devam edilmez; değişmiş kaynaklardan karışık dosya üretilmez.
 - **Range olmadan ilerlemeyi koruma:** yeniden gelen başlangıç bölümü doğrulanıp atılır, yeni baytlar sona eklenir. Disk verisi ve ilerleme korunur; tekrar okuma yine ağ trafiği tüketir.
@@ -148,7 +149,7 @@ Analiz sunucusu veya uzak Flux hesabı yoktur. Eklenti seçilen URL, başlık, s
 
 ## Doğrulama
 
-Windows x64 2.2'de **189 otomatik test geçti: 116 Rust, 59 eklenti, 14 arayüz**. Ayrı gerçek tarayıcı/masaüstü testleri; Chrome 155, Firefox 120/157, tarayıcı dosya seçicisi olmadan ön planda onay, HUD, ayrıntı penceresini tekrar kapatma, medya ETA, torrent eş aktarımı, kurulum onarımı ve kaldırmada veri korumayı kapsar.
+Windows x64 2.2'de **194 otomatik test geçti: 116 Rust, 63 eklenti, 15 arayüz**. Ayrı gerçek tarayıcı/masaüstü testleri; Chrome 155, Firefox 120/157, tarayıcı dosya seçicisi olmadan ön planda onay, HUD, ayrıntı penceresini tekrar kapatma, medya ETA, torrent eş aktarımı, kurulum onarımı ve kaldırmada veri korumayı kapsar.
 
 Katı TypeScript, üretim derlemesi, Rust biçimlendirme ve Clippy geçti. Üretim npm ve güncel Firefox manifest denetimi sıfır bulgu verdi. [Tam doğrulama](docs/validation-2.2.md) ve [makine kaydı](docs/validation/release.json) ayrıntıları içerir.
 

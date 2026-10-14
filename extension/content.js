@@ -158,12 +158,7 @@
     const promise = (async () => {
       if (isProvider) {
         try {
-          const resolved = await Promise.race([
-            send({ type: "resolve", url: sourcePage }),
-            new Promise((_, reject) =>
-              setTimeout(() => reject(new Error(t("noMedia"))), 8000),
-            ),
-          ]);
+          const resolved = await send({ type: "resolve", url: sourcePage });
           if (!resolved?.formats?.length) throw new Error(t("noMedia"));
           return {
             title: resolved.title,

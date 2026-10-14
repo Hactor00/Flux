@@ -1,4 +1,36 @@
-import type { CollectionEntry, Input, Task } from "./api";
+import type { CollectionEntry, Input, Task, ResolvedMedia } from "./api";
+
+export function capturedMedia(task?: Task): ResolvedMedia | null {
+  const media = task?.request.media;
+  if (!task || !media?.provider) return null;
+  return {
+    title: task.request.filename.replace(/\.(mp4|mkv|mp3|mka)$/i, ""),
+    duration: media.duration_seconds || null,
+    formats: [
+      {
+        id: media.provider.format_id || "",
+        url: task.request.url,
+        audio_url: media.audio_url || null,
+        height: media.provider.height,
+        codec: "",
+        container: media.container,
+        audio_only: false,
+        size: task.total,
+      },
+    ],
+    audio_tracks: [],
+    subtitles: media.subtitles || [],
+    chapters: media.chapters || [],
+  };
+}
+
+export function approvalSource(
+  task: Task | undefined,
+  selectedUrl: string | undefined,
+  url: string,
+) {
+  return task?.request.url || selectedUrl || url;
+}
 
 export function providerSource(value: string) {
   try {

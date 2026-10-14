@@ -88,6 +88,7 @@ export class NativeBridge {
 export class DurableOutbox {
   #gate = Promise.resolve();
   #pumping;
+  #confirmations = new Map();
   constructor(
     bridge,
     onResult = async () => {},
@@ -134,6 +135,61 @@ export class DurableOutbox {
     if (startPump) void this.pump();
     return id;
   }
+  async enqueueConfirmed(input, context = {}) {
+    const publicInput = structuredClone(input);
+    delete publicInput.credentials;
+    const id = await this.mutate((entries) => {
+      const existing = entries.find(
+        (entry) =>
+          entry.downloadId === undefined &&
+          entry.input.url === input.url &&
+          entry.input.filename === input.filename &&
+          entry.input.referer === input.referer &&
+          JSON.stringify(entry.input.media) === JSON.stringify(input.media) &&
+          entry.context?.tabId === context.tabId &&
+          entry.context?.frameId === context.frameId,
+      );
+      if (existing) return existing.id;
+      if (entries.length >= 500) throw new Error("Transfer queue is full");
+      const id = crypto.randomUUID();
+      entries.push({
+        id,
+        input: publicInput,
+        context,
+        attempts: 0,
+        ready: false,
+        nextAt: 0,
+        createdAt: Date.now(),
+      });
+      return id;
+    });
+    const pending = this.#confirmations.get(id);
+    if (pending) return pending.promise;
+    let resolve, reject;
+    const promise = new Promise((accept, decline) => {
+      resolve = accept;
+      reject = decline;
+    });
+    const timer = setTimeout(() => {
+      this.#confirmations.delete(id);
+      reject(
+        new Error(
+          "Desktop confirmation timed out; the transfer remains queued",
+        ),
+      );
+    }, 35000);
+    this.#confirmations.set(id, { promise, resolve, reject, timer });
+    void this.activate(id).catch((error) => this.#confirm(id, null, error));
+    return promise;
+  }
+  #confirm(id, task, error) {
+    const pending = this.#confirmations.get(id);
+    if (!pending) return;
+    clearTimeout(pending.timer);
+    this.#confirmations.delete(id);
+    if (error) pending.reject(error);
+    else pending.resolve({ id, task });
+  }
   async enqueueBatch(inputs, context = {}) {
     if (!Array.isArray(inputs) || inputs.length < 1 || inputs.length > 500)
       throw new Error("Batch must contain 1 to 500 transfers");
@@ -178,7 +234,10 @@ export class DurableOutbox {
   async activate(id) {
     await this.mutate((entries) => {
       const item = entries.find((entry) => entry.id === id);
-      if (item) item.ready = true;
+      if (item) {
+        item.ready = true;
+        item.nextAt = 0;
+      }
     });
     return this.pump();
   }
@@ -226,6 +285,7 @@ export class DurableOutbox {
           const index = entries.findIndex((item) => item.id === entry.id);
           if (index >= 0) entries.splice(index, 1);
         });
+        this.#confirm(entry.id, task, null);
       } catch (error) {
         const terminal =
           /invalid|reserved|already exists|already reserved|must be|forbidden|reused|unsupported protocol/i.test(
@@ -242,6 +302,7 @@ export class DurableOutbox {
               Math.min(300000, 2000 * 2 ** Math.min(item.attempts, 7));
           }
         });
+        this.#confirm(entry.id, null, error);
         await this.onResult(entry, null, error);
         if (!terminal) break;
       }

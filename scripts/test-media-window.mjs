@@ -259,7 +259,7 @@ try {
       "[...document.querySelectorAll('[role=option]')].find(item=>item.textContent.includes('Videoya göm')).click(); true",
     );
     await download.evaluate(
-      "const switches=document.querySelectorAll('.media-extras [role=switch]'); switches[0].click(); switches[1].click(); true",
+      "for(const item of document.querySelectorAll('.media-extras [role=switch]'))if(item.getAttribute('aria-checked')!=='true')item.click(); true",
     );
     await new Promise((resolve) => setTimeout(resolve, 100));
     assert.equal(

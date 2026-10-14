@@ -146,6 +146,29 @@ const message = (
   new Promise((resolve) =>
     chrome.runtime.onMessage.listeners[0](value, sender, resolve),
   );
+test("interactive media handoff reports native failure and retries the same persisted proposal", async () => {
+  const input = {
+    type: "enqueue",
+    url: "https://media.test/confirmed",
+    options: { filename: "Confirmed.mp4", media: { container: "mp4" } },
+  };
+  nativeOffline = true;
+  try {
+    const failed = await message(structuredClone(input));
+    assert.equal(failed.ok, false);
+    assert.match(failed.error, /Desktop unavailable/);
+    const entry = local.outbox.find((entry) => entry.input.url === input.url);
+    assert.ok(entry);
+    nativeOffline = false;
+    const confirmed = await message(structuredClone(input));
+    assert.equal(confirmed.ok, true);
+    assert.equal(confirmed.result.id, entry.id);
+    assert.equal(confirmed.result.task.status, "awaiting_approval");
+    assert.equal(local.outbox.some((candidate) => candidate.id === entry.id), false);
+  } finally {
+    nativeOffline = false;
+  }
+});
 test("background scopes media to frames, keeps auth session-only and refreshes localized menus", async () => {
   chrome.webRequest.onHeadersReceived.listeners[0]({
     tabId: 7,

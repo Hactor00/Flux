@@ -7,6 +7,7 @@ jobs:
     env:
       FLUX_REQUIRE_MEDIA_TESTS: "1"
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
@@ -21,7 +22,9 @@ jobs:
       - if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y ffmpeg cmake ninja-build pkg-config libboost-dev libssl-dev
       - if: runner.os == 'macOS'
-        run: brew install ffmpeg boost openssl@3 cmake ninja pkg-config
+        run: |
+          brew install ffmpeg-full boost openssl@3 cmake ninja pkg-config
+          echo "$(brew --prefix ffmpeg-full)/bin" >> "$GITHUB_PATH"
       - if: runner.os != 'Windows'
         run: bash scripts/bootstrap-torrent-runtime.sh
       - if: runner.os == 'Windows'

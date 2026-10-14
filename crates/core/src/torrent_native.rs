@@ -4,7 +4,7 @@ use std::{
     ffi::{c_char, c_void, CString},
     path::Path,
     ptr::NonNull,
-    sync::{Arc, Mutex},
+    sync::{Arc, Mutex, OnceLock},
 };
 
 type New = unsafe extern "C" fn(u64, u64, bool) -> *mut c_void;
@@ -72,6 +72,16 @@ struct Api {
 
 impl Api {
     fn open() -> Result<Arc<Self>> {
+        // Foreign thread-local destructors can outlive a session, so never unload its code.
+        static RUNTIME: OnceLock<Arc<Api>> = OnceLock::new();
+        if let Some(api) = RUNTIME.get() {
+            return Ok(api.clone());
+        }
+        let api = Self::load()?;
+        Ok(RUNTIME.get_or_init(|| api).clone())
+    }
+
+    fn load() -> Result<Arc<Self>> {
         let executable = std::env::current_exe()?;
         let directory = executable
             .parent()
@@ -426,6 +436,39 @@ mod tests {
             })
             .unwrap()
     }
+    #[test]
+    fn metadata_runtime_survives_worker_thread_exit() {
+        const CHILD: &str = "FLUX_TORRENT_LIFETIME_CHILD";
+        if std::env::var_os(CHILD).is_none() {
+            let output = std::process::Command::new(std::env::current_exe().unwrap())
+                .args([
+                    "--exact",
+                    "torrent_native::tests::metadata_runtime_survives_worker_thread_exit",
+                    "--nocapture",
+                ])
+                .env(CHILD, "1")
+                .output()
+                .unwrap();
+            assert!(
+                output.status.success(),
+                "Native runtime worker exit failed: {:?}\n{}\n{}",
+                output.status,
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            );
+            return;
+        }
+        for _ in 0..8 {
+            std::thread::spawn(|| {
+                for _ in 0..4 {
+                    assert!(Session::describe(b"invalid torrent metadata").is_err());
+                }
+            })
+            .join()
+            .unwrap();
+        }
+    }
+
     #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
     async fn v2_and_hybrid_transfer_verify_sha256_and_seed_lifecycle() {
         for (mode, magnet_source) in [(2, false), (0, false), (2, true)] {

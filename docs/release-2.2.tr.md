@@ -26,4 +26,4 @@ Eklenti küçük penceresinin anahtarı açık çerçevelerde medya düğmelerin
 
 Kurulum, taşınabilir paket, üç eklenti hedefi, kaynak arşivi, SHA-256 ve imzalı güncelleme metaverisi 2.2.0 sürümünü taşır. Özel imza anahtarı depo ve paketlerin dışında kalır. Güncelleme imzası Authenticode yayıncı sertifikasından ayrıdır. Açılış kontrolü yeni sürüm bulursa indirme/kurulum öncesinde onay ister; Ayarlar'dan elle kontrol de mümkündür.
 
-[Doğrulama](validation-2.2.md): 115 Rust, 59 eklenti ve 14 arayüz testi, toplam 188. Ayrı Chrome 155, Firefox 120/157, Windows pencere, medya/torrent ve kurulum regresyonlarının kanıtları `docs/validation/` altında saklanır.
+[Doğrulama](validation-2.2.md): 116 Rust, 59 eklenti ve 14 arayüz testi, toplam 189. Ayrı Chrome 155, Firefox 120/157, Windows pencere, medya/torrent ve kurulum regresyonlarının kanıtları `docs/validation/` altında saklanır.

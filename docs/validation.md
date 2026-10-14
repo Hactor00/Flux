@@ -4,7 +4,7 @@ The current release is **Flux 2.2.0**. See [2.2 validation](validation-2.2.md) a
 
 ## Flux 2.2
 
-- 188 automated tests: 115 Rust, 59 browser extension and 14 frontend.
+- 189 automated tests: 116 Rust, 59 browser extension and 14 frontend.
 - Real Chrome 155 and Firefox 120/157 checks, including foreground desktop approval without a browser file chooser, consent, HUD visibility, dragging and dismissal.
 - Native Windows media/torrent transfers, separate windows, restart recovery, installer repair, removal and data retention.
 - Formatting, strict TypeScript, production build, Clippy, dependency audit and Firefox manifest lint.

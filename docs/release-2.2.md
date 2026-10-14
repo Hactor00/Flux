@@ -22,6 +22,8 @@ New profiles resolve the OS locale to one of the 20 supported languages, falling
 
 ## Distribution
 
+The native torrent runtime remains loaded for the process lifetime. C++ thread-local cleanup may outlive a session or metadata call, so unloading that module after the last short-lived API handle would leave dangling cleanup code. A fresh-process regression exercises metadata failures on repeatedly created worker threads. The native tracker user agent identifies Flux 2.2.0. macOS CI selects FFmpeg's full package so DASH/libxml2 support is available, and matrix failures do not cancel other platform checks.
+
 Version 2.2.0 uses the existing updater verification key. Private signing material stays outside the repository. The installer, portable distribution, three extension targets, source archive and update metadata are produced by the existing packaging scripts. Public upload and browser-store signing are separate publication steps.
 
 Validation records are stored under `docs/validation/`. Real browser regressions use isolated profiles with the browser file chooser enabled and separate test executable names to avoid system-wide interception by another installed download manager. Flux does not modify another manager's integration settings. If another manager captures a request before it reaches the browser extension, that browser needs one active download owner. Core regressions cover missing ETags, absent ranges, unknown response sizes, changed remote prefixes and loss of range support.

@@ -50,6 +50,8 @@ HTTP workers open independent handles to a task-owned destination-volume staging
 
 Torrent tasks lazily initialize embedded librqbit 9.0.1 for v1 and libtorrent 2.1.2 for BEP 52 v2/hybrid. SQLite remains the queue authority; bounded metainfo and destination ownership records permit restart without a daemon. The engines recheck pieces, apply upload/download quotas and peer limits, and hash selected outputs. HTTP and both torrent engines partition the shared bandwidth cap. Global and per-task seeding rules persist across restart. Task list responses omit torrent file arrays; native torrent_files pages stay below the frame limit and desktop detail views virtualize selection.
 
+Native session calls are serialized by their Rust mutex. The bridge module is pinned for the process lifetime because foreign thread-local destructors can run after the last metadata/session handle is released. Session destruction still drains libtorrent's own I/O threads; keeping the module mapped does not keep a torrent session running.
+
 Provider resolution uses a two-process semaphore, bounded output and explicit cancellation cleanup. Exact-origin cookies enter a private Netscape jar removed after the process stops. Authentication failures can request a page-bound refresh capability and retry with current origin credentials. HTTP refresh retains range validators and offsets; changed content does not silently replace a downloaded prefix.
 
 ## Release boundaries

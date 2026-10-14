@@ -4,14 +4,16 @@ The current local validation targets Windows x64. Machine-readable evidence is s
 
 | Suite | Passing tests |
 | --- | ---: |
-| Rust workspace, all features | 115 |
+| Rust workspace, all features | 116 |
 | Shared browser extension | 59 |
 | Frontend data and locale logic | 14 |
-| Total | 188 |
+| Total | 189 |
 
 The total excludes separate browser, installer and desktop-window regressions. Formatting, Clippy with warnings rejected, strict TypeScript and the production frontend build are checked separately. The production dependency audit and modern Firefox manifest lint report zero findings.
 
 ## Resume regressions
+
+The native runtime regression runs in a fresh child process, repeatedly creates worker threads and calls malformed metadata through the real bridge. This checks error propagation and worker-exit cleanup with no torrent session keeping the library alive. CI uses DASH-capable `ffmpeg-full` on macOS and retains all platform results when one matrix job fails.
 
 The HTTP fixture suite checks successful ranged resume without an ETag, prefix replay for an origin without ranges, unknown response sizes, local corruption, changed remote prefixes, loss of range support, transient failures, rate limits, persisted checkpoints and exclusive destination publication. Saved progress is retained while a validator-free prefix is compared. Changed bytes are never published as a completed mixed file.
 

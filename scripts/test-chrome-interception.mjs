@@ -22,12 +22,20 @@ await writeFile(
   }),
 );
 const payload = Buffer.alloc(1024 * 1024, 87);
-const server = createServer((request, response) => {
+const server = createServer(async (request, response) => {
   if (request.url === "/page") {
     response.setHeader("Content-Type", "text/html");
     return response.end(
-      '<!doctype html><title>Download interception test</title><a id="file" href="/fixture.bin">Download</a>',
+      '<!doctype html><title>Download interception test</title><a id="file" href="/fixture.bin">Download</a><video controls width="640" height="360" src="/media.mp4"></video>',
     );
+  }
+  if (request.url === "/media.mp4") {
+    const bytes = await readFile(".tools/firefox/media.mp4");
+    response.writeHead(200, {
+      "Content-Type": "video/mp4",
+      "Content-Length": bytes.length,
+    });
+    return response.end(bytes);
   }
   if (request.url !== "/fixture.bin") {
     response.writeHead(404);
@@ -208,6 +216,66 @@ try {
     windows.foreground.startsWith("Flux · "),
     "Flux approval must appear in the foreground: " + JSON.stringify(windows),
   );
+  const mediaRoot = await until(async () => {
+    const tree = await call(
+      "DOM.getDocument",
+      { depth: -1, pierce: true },
+      page,
+    );
+    function find(node) {
+      if (
+        node.attributes?.includes("data-flux-hud") &&
+        node.shadowRoots?.length
+      )
+        return node.shadowRoots[0].nodeId;
+      for (const child of [
+        ...(node.children || []),
+        ...(node.shadowRoots || []),
+      ]) {
+        const found = find(child);
+        if (found) return found;
+      }
+    }
+    return find(tree.root);
+  });
+  const shadow = await call("DOM.resolveNode", { nodeId: mediaRoot }, page);
+  async function hud(functionDeclaration) {
+    const result = await call(
+      "Runtime.callFunctionOn",
+      {
+        objectId: shadow.object.objectId,
+        functionDeclaration,
+        awaitPromise: true,
+        returnByValue: true,
+      },
+      page,
+    );
+    if (result.exceptionDetails)
+      throw Error(JSON.stringify(result.exceptionDetails));
+    return result.result.value;
+  }
+  await hud("function(){this.querySelector('.main').click();return true;}");
+  await until(
+    () => hud("function(){return !this.querySelector('.download').disabled;}"),
+    60000,
+  );
+  await hud("function(){this.querySelector('.download').click();return true;}");
+  const mediaResult = await until(() =>
+    evaluate(
+      `chrome.storage.local.get('lastTransfer').then(x=>x.lastTransfer?.id!==${JSON.stringify(result.id)}&&x.lastTransfer?.ok?x.lastTransfer:null)`,
+      background,
+    ),
+  );
+  await until(() =>
+    hud("function(){return this.querySelector('.panel').hidden;}"),
+  );
+  const mediaTask = await evaluate(
+    `(async()=>{const {NativeBridge}=await import(chrome.runtime.getURL('bridge.js'));const bridge=new NativeBridge();try{return await bridge.request('task',{id:${JSON.stringify(mediaResult.id)}});}finally{bridge.disconnect();}})()`,
+    background,
+  );
+  assert.equal(mediaTask.status, "awaiting_approval");
+  assert.equal(mediaTask.request.url, url + "/media.mp4");
+  assert.equal(mediaTask.request.media.container, "mp4");
   const report = {
     version: JSON.parse(await readFile("package.json")).version,
     passed: true,
@@ -220,6 +288,7 @@ try {
     native_approval_created: true,
     no_browser_file_chooser: true,
     native_approval_foreground: true,
+    hud_media_native_acknowledged: true,
     external_download_manager_isolated: true,
     task_id: task.id,
   };

@@ -203,7 +203,7 @@ try {
       assert.equal(audio.codec_name, "mp3");
     }
     assert.ok(Number(info.format.duration) >= 7);
-    assert.equal(current.request.media.provider.format_id, format.id);
+    assert.equal(current.request.media.provider.height, format.height);
     const hash = createHash("sha256")
       .update(await readFile(current.destination))
       .digest("hex");

@@ -9,6 +9,7 @@ import {
   providerSource,
   capturedMedia,
   approvalSource,
+  mediaFormatKey,
 } from "../src/downloads.ts";
 
 const base = {
@@ -40,6 +41,14 @@ test("captured provider media is immediately selectable and approval retains its
   };
   const captured = capturedMedia(task);
   assert.equal(captured.formats[0].height, 720);
+  assert.equal(
+    mediaFormatKey(captured.formats[0]),
+    mediaFormatKey({ id: "renewed", height: 720 }),
+  );
+  assert.notEqual(
+    mediaFormatKey(captured.formats[0]),
+    mediaFormatKey({ id: "highest", height: 2160 }),
+  );
   assert.equal(captured.formats[0].id, "136");
   assert.equal(captured.formats[0].audio_url, task.request.media.audio_url);
   assert.equal(

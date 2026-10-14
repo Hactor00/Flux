@@ -24,6 +24,7 @@ import {
   isTorrentTask,
   capturedMedia,
   approvalSource,
+  mediaFormatKey,
 } from "../downloads";
 import { CollectionPicker } from "./CollectionPicker";
 import { Choice } from "./primitives";
@@ -138,8 +139,9 @@ export function DownloadModal({
       );
       setContainer(proposal?.request.media?.container || "mp4");
       setStreams(null);
-      setResolved(capturedMedia(proposal));
-      setFormat("0");
+      const captured = capturedMedia(proposal);
+      setResolved(captured);
+      setFormat(captured ? mediaFormatKey(captured.formats[0]) : "");
       setExtras({
         selected: (proposal?.request.media?.subtitles || []).map(
           (_, index) => index,
@@ -194,7 +196,9 @@ export function DownloadModal({
       if (mode === "torrent" && !torrentPath && !url.trim())
         throw new Error(t("torrent_source_hint"));
       const selected =
-        mode === "media" ? resolved?.formats[Number(format)] : undefined;
+        mode === "media"
+          ? resolved?.formats.find((item) => mediaFormatKey(item) === format)
+          : undefined;
       const torrentOptions: TorrentOptions = {
         upload_limit: Number(form.get("upload_limit") || 0),
         peer_limit: Number(form.get("peer_limit") || 80),
@@ -377,7 +381,7 @@ export function DownloadModal({
         );
         const index =
           preferred >= 0 ? preferred : sameHeight >= 0 ? sameHeight : 0;
-        setFormat(String(index));
+        setFormat(mediaFormatKey(metadata.formats[index]));
         if (!proposal) {
           setContainer(metadata.formats[index].container);
           setName(
@@ -602,8 +606,8 @@ export function DownloadModal({
                         onChange={(value) => {
                           setFormat(value);
                         }}
-                        options={resolved.formats.map((value, index) => ({
-                          value: String(index),
+                        options={resolved.formats.map((value) => ({
+                          value: mediaFormatKey(value),
                           label: `${value.audio_only ? t("audio_only") : value.height ? `${value.height}p` : t("automatic")}${value.fps ? ` · ${value.fps} fps` : ""} · ${value.container.toUpperCase()}${value.size ? ` · ${(value.size / 1048576).toFixed(1)} MB` : ""}`,
                         }))}
                       />

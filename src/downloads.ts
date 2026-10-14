@@ -1,4 +1,16 @@
-import type { CollectionEntry, Input, Task, ResolvedMedia } from "./api";
+import type {
+  CollectionEntry,
+  Input,
+  Task,
+  ResolvedMedia,
+  ResolvedFormat,
+} from "./api";
+
+export function mediaFormatKey(format: ResolvedFormat) {
+  return format.height
+    ? `video-${format.height}`
+    : `format-${format.id || "auto"}`;
+}
 
 export function capturedMedia(task?: Task): ResolvedMedia | null {
   const media = task?.request.media;

@@ -471,6 +471,30 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
     async fn v2_and_hybrid_transfer_verify_sha256_and_seed_lifecycle() {
+        const CHILD: &str = "FLUX_TORRENT_TRANSFER_CHILD";
+        if std::env::var_os(CHILD).is_none() {
+            let mut child = tokio::process::Command::new(std::env::current_exe().unwrap());
+            child
+                .args([
+                    "--exact",
+                    "torrent_native::tests::v2_and_hybrid_transfer_verify_sha256_and_seed_lifecycle",
+                    "--nocapture",
+                ])
+                .env(CHILD, "1")
+                .kill_on_drop(true);
+            let output = tokio::time::timeout(Duration::from_secs(180), child.output())
+                .await
+                .expect("Native transfer child exceeded its deadline")
+                .unwrap();
+            assert!(
+                output.status.success(),
+                "Native transfer child failed: {:?}\n{}\n{}",
+                output.status,
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            );
+            return;
+        }
         for (mode, magnet_source) in [(2, false), (0, false), (2, true)] {
             let root = tempfile::tempdir().unwrap();
             let source = root.path().join("source");

@@ -11,8 +11,8 @@
   "piece_requests": 32,
   "render_sample": {
     "frames": 90,
-    "duration_ms": 414.6999999821187,
-    "maximum_interval_ms": 25
+    "duration_ms": 373.40000001192095,
+    "maximum_interval_ms": 4.2999999999999545
   },
   "webview_cleanup_warning": true,
   "local_paths_and_credentials_removed": true

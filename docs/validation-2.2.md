@@ -19,7 +19,7 @@ The 2.2.0 package refresh addresses two separate failures. A newer extension sen
 
 The desktop approval form duplicated its inspection action and required provider metadata even though the browser had already chosen a valid stream. Reinspection then replaced the captured signed URL, causing `Approval cannot change the captured source`. Approval now starts with captured metadata, retains its original source capability and preserves name/output/quality across optional reinspection. The engine still refreshes expiring provider URLs before transferring. The live [provider approval regression](validation/provider-approval.json) exercises the production native window, YouTube MP4 and MP3 output, optional reinspection and final stream/SHA-256 checks.
 
-The core Rust sources and yt-dlp/FFmpeg versions are unchanged by this repair. Browser and desktop packages are refreshed together without a version increment; installed 2.2.0 clients require manual package refresh because version comparison does not identify a same-version rebuild.
+The production Rust logic and yt-dlp/FFmpeg versions are unchanged by this repair. The stateful native torrent regression now runs in a bounded child process, isolating its native runtime from unrelated parallel fixtures. A Windows MSVC CI process crash prompted that test isolation; the distributed Windows binaries use the separately validated GNU toolchain. Browser and desktop packages are refreshed together without a version increment; installed 2.2.0 clients require manual package refresh because version comparison does not identify a same-version rebuild.
 
 ## Resume regressions
 

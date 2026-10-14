@@ -4,6 +4,7 @@
   "passed": true,
   "installed_extension": true,
   "native_framing": true,
+  "hud_media_native_acknowledged": true,
   "cookie_forwarding": true,
   "sha256_verified": true,
   "interception_approval": true,

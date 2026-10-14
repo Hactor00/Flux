@@ -1,0 +1,31 @@
+{
+  "version": "2.2.0",
+  "passed": true,
+  "provider": "YouTube",
+  "production_native_window": true,
+  "captured_quality_preserved": true,
+  "single_optional_inspection": true,
+  "refreshed_source_approved": true,
+  "results": [
+    {
+      "container": "mp4",
+      "immediate_start": true,
+      "optional_inspection": false,
+      "height": 720,
+      "audio_codec": "aac",
+      "duration": 8.016667,
+      "sha256": "7ed457311f1c374d288d57d1a4ab12903e1f87cef23ae3fbf268418189a618a2"
+    },
+    {
+      "container": "mp3",
+      "immediate_start": true,
+      "optional_inspection": true,
+      "height": null,
+      "audio_codec": "mp3",
+      "duration": 8,
+      "sha256": "f7f339bffcecfb2adfab8f1d47404dcf8d9f47107e697c044b3623a3347e4277"
+    }
+  ],
+  "time": "2026-10-14T10:07:19.842Z",
+  "local_paths_and_credentials_removed": true
+}

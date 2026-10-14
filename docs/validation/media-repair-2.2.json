@@ -1,0 +1,79 @@
+{
+  "version": "2.2.0",
+  "passed": true,
+  "time": "2026-10-14T10:27:32.308Z",
+  "source_commit": "47ee4cf3941cccc95862952c2e9bc032eb86f1ca",
+  "desktop_sha256": "db972dfe577bff3df6331a2b8c1a21b64000f62d5461683791c96d35ffd483f7",
+  "installer_sha256": "6965557d68cf459d7d550664f6c21efe70534987f2a5c99c0a814b157833bfdf",
+  "shared_extension_sha256": {
+    "background.js": "f1031264936e07744f1efd4249bcd7152a68711e4b1ef7e52687a27096296583",
+    "bridge.js": "12392518821422af9165608505ca12ec831417bc8c24427e11ac08ab7ab85ecc",
+    "content.js": "8d57a1cbc34df8af5f7674ef4fd493a620dd7593f8184f5cccfa5edb48dc678c",
+    "shared.js": "e0c273ebb7b362a6b37b4a8ce9b2f12aca65d4a796f710883426a6224a3cd330"
+  },
+  "tests": {
+    "rust": 116,
+    "extension": 63,
+    "frontend": 15,
+    "total": 194
+  },
+  "live_provider": {
+    "version": "2.2.0",
+    "passed": true,
+    "provider": "YouTube",
+    "production_native_window": true,
+    "captured_quality_preserved": true,
+    "single_optional_inspection": true,
+    "refreshed_source_approved": true,
+    "results": [
+      {
+        "container": "mp4",
+        "immediate_start": true,
+        "optional_inspection": false,
+        "height": 720,
+        "audio_codec": "aac",
+        "duration": 8.016667,
+        "sha256": "7ed457311f1c374d288d57d1a4ab12903e1f87cef23ae3fbf268418189a618a2"
+      },
+      {
+        "container": "mp3",
+        "immediate_start": true,
+        "optional_inspection": true,
+        "height": null,
+        "audio_codec": "mp3",
+        "duration": 8,
+        "sha256": "f7f339bffcecfb2adfab8f1d47404dcf8d9f47107e697c044b3623a3347e4277"
+      }
+    ],
+    "time": "2026-10-14T10:07:19.842Z"
+  },
+  "browsers": [
+    {
+      "browser": "Chrome/155.0.8059.79",
+      "native_media_acknowledged": true,
+      "installed_sources_verified": true
+    },
+    {
+      "browser": "Firefox/120.0",
+      "native_media_acknowledged": true,
+      "installed_sources_verified": true
+    },
+    {
+      "browser": "Firefox/157.0.1",
+      "native_media_acknowledged": true,
+      "installed_sources_verified": true
+    }
+  ],
+  "preserved": [
+    "captured source capability",
+    "quality",
+    "filename",
+    "output format",
+    "durable retry request identity"
+  ],
+  "version_unchanged": true,
+  "production_rust_logic_unchanged": true,
+  "native_fixture_isolated": true,
+  "ci": "https://github.com/Hactor00/Flux/actions/runs/38548352672",
+  "local_paths_and_credentials_removed": true
+}

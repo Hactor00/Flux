@@ -67,7 +67,7 @@
   "interceptDownloads": "接管浏览器下载",
   "interceptExplanation": "浏览器传输立即暂停，Flux 接收后移除。",
   "browserIntegration": "浏览器集成",
-  "nativeInstallHelp": "打开Flux桌面设置并安装浏览器桥接。",
+  "nativeInstallHelp": "如果扩展无法连接，请打开设置 → 浏览器集成 → 修复浏览器桥接。",
   "saved": "已保存",
   "desktopOffline": "桌面程序离线",
   "waitingForDesktop": "等待桌面程序",
@@ -97,7 +97,7 @@
   "inspect": "分析媒体流",
   "queue_start": "启动队列",
   "pause_all": "全部暂停",
-  "install_bridge": "安装浏览器桥接",
+  "install_bridge": "修复浏览器桥接",
   "installed": "浏览器桥接已安装",
   "copy_hash": "复制SHA-256",
   "apply": "应用",
@@ -218,5 +218,13 @@
   "seed_disabled": "验证后停止",
   "ratio": "分享率",
   "seed_minutes": "做种时间（分钟）",
-  "showMediaButtons": "显示视频下载按钮"
+  "showMediaButtons": "显示视频下载按钮",
+  "bridge_welcome": "将浏览器连接到 Flux",
+  "bridge_ready": "本地浏览器桥接已就绪",
+  "bridge_failed": "浏览器桥接需要修复",
+  "bridge_checking": "正在检查浏览器桥接…",
+  "bridge_automatic": "Flux 启动时会自动注册并修复本地浏览器桥接，便携版也支持此功能。",
+  "bridge_extension_step": "在浏览器中安装并启用 Flux 扩展，授予所需的网站和原生消息权限，然后刷新已打开的标签页。注册桥接不会自动安装扩展。",
+  "bridge_repair_help": "如果扩展无法连接，请打开设置 → 浏览器集成 → 修复浏览器桥接。",
+  "bridge_dismiss": "知道了，不再显示"
 }

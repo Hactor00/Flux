@@ -67,7 +67,7 @@
   "interceptDownloads": "Browser-Downloads übernehmen",
   "interceptExplanation": "Die Browserübertragung wird pausiert und nach Annahme durch Flux entfernt.",
   "browserIntegration": "Browserintegration",
-  "nativeInstallHelp": "Öffne die Flux-Einstellungen und installiere die Browserbrücke.",
+  "nativeInstallHelp": "Wenn die Erweiterung keine Verbindung herstellt, öffne Einstellungen → Browserintegration → Browserbrücke reparieren.",
   "saved": "Gespeichert",
   "desktopOffline": "Desktop nicht verbunden",
   "waitingForDesktop": "Warte auf Desktop",
@@ -97,7 +97,7 @@
   "inspect": "Streams prüfen",
   "queue_start": "Warteschlange starten",
   "pause_all": "Alle pausieren",
-  "install_bridge": "Browserbrücke installieren",
+  "install_bridge": "Browserbrücke reparieren",
   "installed": "Browserbrücke installiert",
   "copy_hash": "SHA-256 kopieren",
   "apply": "Anwenden",
@@ -218,5 +218,13 @@
   "seed_disabled": "Nach Prüfung stoppen",
   "ratio": "Verhältnis",
   "seed_minutes": "Verteilungsdauer (Minuten)",
-  "showMediaButtons": "Video-Download-Schaltflächen anzeigen"
+  "showMediaButtons": "Video-Download-Schaltflächen anzeigen",
+  "bridge_welcome": "Verbinde deinen Browser mit Flux",
+  "bridge_ready": "Lokale Browserbrücke bereit",
+  "bridge_failed": "Die Browserbrücke muss repariert werden",
+  "bridge_checking": "Browserbrücke wird geprüft…",
+  "bridge_automatic": "Flux registriert und repariert seine lokale Browserbrücke beim Start automatisch, auch in der portablen Version.",
+  "bridge_extension_step": "Installiere und aktiviere die Flux-Erweiterung, erlaube die angeforderten Website- und Native-Messaging-Zugriffe und lade offene Tabs neu. Die Registrierung der Brücke installiert keine Erweiterung.",
+  "bridge_repair_help": "Wenn die Erweiterung keine Verbindung herstellt, öffne Einstellungen → Browserintegration → Browserbrücke reparieren.",
+  "bridge_dismiss": "Verstanden — nicht mehr anzeigen"
 }

@@ -67,7 +67,7 @@
   "interceptDownloads": "Catch browser downloads",
   "interceptExplanation": "Browser transfer go pause sharp sharp; e go comot when Flux accept am.",
   "browserIntegration": "Browser connection",
-  "nativeInstallHelp": "Open Flux desktop settings and install browser bridge.",
+  "nativeInstallHelp": "If di extension no connect, open Settings → Browser integration → Repair browser bridge.",
   "saved": "E don save",
   "desktopOffline": "Desktop no connect",
   "waitingForDesktop": "Dey wait for desktop",
@@ -97,7 +97,7 @@
   "inspect": "Check streams",
   "queue_start": "Start queue",
   "pause_all": "Pause everything",
-  "install_bridge": "Install browser bridge",
+  "install_bridge": "Repair browser bridge",
   "installed": "Browser bridge don install",
   "copy_hash": "Copy SHA-256",
   "apply": "Apply",
@@ -218,5 +218,13 @@
   "seed_disabled": "Stop after checking",
   "ratio": "Ratio",
   "seed_minutes": "Sharing time (minutes)",
-  "showMediaButtons": "Show video download buttons"
+  "showMediaButtons": "Show video download buttons",
+  "bridge_welcome": "Connect your browser to Flux",
+  "bridge_ready": "Local browser bridge don ready",
+  "bridge_failed": "Browser bridge need repair",
+  "bridge_checking": "We dey check browser bridge…",
+  "bridge_automatic": "Flux go register and repair im local browser bridge anytime e start, even for portable edition.",
+  "bridge_extension_step": "Install and turn on Flux extension for your browser, allow di site and native messaging permissions wey e ask for, then refresh tabs wey don open. Bridge registration no go install di extension.",
+  "bridge_repair_help": "If di extension no connect, open Settings → Browser integration → Repair browser bridge.",
+  "bridge_dismiss": "I don understand — no show am again"
 }

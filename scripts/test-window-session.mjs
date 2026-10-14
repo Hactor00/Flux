@@ -1,3 +1,4 @@
+import { preserveNativeRegistration } from "./native-test-state.mjs";
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
 import { mkdtemp, mkdir, writeFile, readFile } from "node:fs/promises";
@@ -73,6 +74,7 @@ if (automatic) {
   env.WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1`;
   driver = new DesktopDriver(port);
 }
+const restoreRegistration = preserveNativeRegistration();
 const app = spawn(join(binary, "flux-desktop.exe"), [], {
   env,
   windowsHide: true,
@@ -393,4 +395,5 @@ try {
   host.stdin.end();
   fixture.closeAllConnections();
   fixture.close();
+  restoreRegistration();
 }

@@ -22,6 +22,8 @@
 
 Flux; çok bağlantılı HTTP indirmelerini, erişilebilir video/ses yakalamayı, yerleşik BitTorrent motorlarını, kalıcı yerel geçmişi ve ayrı masaüstü onay pencerelerini birleştirir. Tauri 2, React 19, Tokio ve SQLite WAL üzerine kuruludur. Adı “akış” fikrinden gelir: tarayıcıdaki dosya ve medyanın indirme kuyruğuna akması.
 
+> **İndirmeden önce: tarayıcını bağla.** Flux eklentisini kurup etkinleştir, istenen site/yerel mesajlaşma izinlerini ver ve açık sekmeleri yenile. Flux'u bir kez aç: kurulu ve taşınabilir sürüm, yerel tarayıcı köprüsünü otomatik kaydeder ve onarır. Eklenti yine bağlanamıyorsa **Ayarlar → Tarayıcı bütünleşmesi → Tarayıcı köprüsünü onar** yolunu kullan. Program ilk kullanımda bu bilgiyi gösterir; kapatınca sonraki açılışlarda tekrar göstermez. Köprü kaydı eklentiyi kurmaz.
+
 ## İndir
 
 **Güncel sürüm: [Flux 2.2.0](https://github.com/Hactor00/Flux/releases/tag/v2.2.0), Windows x64.**
@@ -41,6 +43,8 @@ Güncelleme paketleri, Flux içindeki doğrulama anahtarıyla kontrol edilen imz
 Önceki [2.0.0](https://github.com/Hactor00/Flux/releases/tag/v2.0.0) ve [1.7.0](https://github.com/Hactor00/Flux/releases/tag/v1.7.0) paketleri erişilebilir durumdadır.
 
 ## 2.2'deki yenilikler
+
+- **Otomatik tarayıcı kurulumu:** açılış, Chrome, Edge, Brave, Chromium ve Firefox için eksik/eski yerel köprü kaydını ayarlara gitmeden onarır. İlk kullanım bildirimi eklenti izinlerini hatırlatır; kapatılınca tekrar görünmez. Ayarlarda kayıt durumu ve onarım düğmesi bulunur.
 
 - **Medya aktarımı düzeltmesi (14 Ekim):** Chrome ve Firefox masaüstü onayını bekler, aktarım hatalarını gösterir. Seçilen kalite ve çıktı türü onay penceresinde tekrar inceleme gerektirmeden hazırdır; isteğe bağlı inceleme yakalanan kaynağı, dosya adını ve çıktı biçimini korur. Eski yerel köprüleri bozan boş yeni alanlar gönderilmez. Masaüstü ve eklenti paketlerini birlikte yenile; sürüm 2.2.0 kaldığı için kurulu 2.2 üzerinde paket yenilemesi elle yapılır.
 - **Dosya seçimi açılmadan devralma:** Chromium dosya adı aşamasını serbest bırakmadan bekletilen aktarımı iptal eder; Firefox dosya gezinmesini yanıt başlıklarında yakalar. Flux kendi onay penceresini ön planda açar.
@@ -69,7 +73,7 @@ Güncelleme paketleri, Flux içindeki doğrulama anahtarıyla kontrol edilen imz
 | Debrid hesapları | Şifreli Real-Debrid, AllDebrid/Premiumize API anahtarları, desteklenen sunucuları çözme ve CDN kaynağını yenileme |
 | Masaüstü | Ayrı onay, ilerleme, Ayarlar/geri sayım; sanallaştırılmış tablo, arama, sıralama, çoklu seçim ve Windows'a dosya sürükleme |
 | Günlük kullanım | İsteğe bağlı kategori klasörü, pano izleme, sessiz kuyruk, Windows başlangıcı ve iptal edilebilir tamamlanma eylemleri |
-| Dil ve güncelleme | 20 dil, 220 masaüstü anahtarı, aranabilir seçici, Arapça/Urduca RTL ve kullanıcı onaylı imzalı güncelleme |
+| Dil ve güncelleme | 20 dil, 228 masaüstü anahtarı, aranabilir seçici, Arapça/Urduca RTL ve kullanıcı onaylı imzalı güncelleme |
 
 ### HTTP ve disk
 
@@ -105,7 +109,7 @@ Görüntüler, yerel test medyasıyla yürütülen izole Windows regresyon testl
 1. `Flux_2.2.0_x64-setup.exe` dosyasını çalıştır; kurulum kullanıcı hesabına yapılır.
 2. FFmpeg, FFprobe, yt-dlp, Node ve torrent çalışma zamanları pakettedir. WebView2 yoksa Microsoft kurulum aracı internet ister.
 3. **Chrome, Edge, Brave, Chromium ve Firefox** için Native Messaging kaydedilir. Köprü kaydı tarayıcı eklentisini kurmaz.
-4. Taşınabilir sürüm doğrudan çalışır; köprü **Ayarlar** üzerinden kaydedilebilir.
+4. Eklentiyi kurduktan sonra Flux'u bir kez aç. Kurulu ve taşınabilir sürüm, köprüyü açılışta otomatik kaydeder/onarır. İzinler veya eksik dosyalar kaydı engellerse **Ayarlar → Tarayıcı bütünleşmesi → Tarayıcı köprüsünü onar** kullanılabilir.
 
 Veriler kullanıcının yerel uygulama verilerindeki `Flux` klasöründe, varsayılan indirmeler `Downloads/Flux` içindedir. Güncelleme geçmişi/tercihleri korur. Kurulumları değiştirmeden önce önemli verilerini yedekle.
 

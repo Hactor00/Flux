@@ -67,7 +67,7 @@
   "interceptDownloads": "Capturar descargas del navegador",
   "interceptExplanation": "La transferencia del navegador se pausa y se elimina cuando Flux la acepta.",
   "browserIntegration": "Integración del navegador",
-  "nativeInstallHelp": "Abre los ajustes de Flux e instala el enlace con el navegador.",
+  "nativeInstallHelp": "Si la extensión no conecta, abre Ajustes → Integración del navegador → Reparar puente del navegador.",
   "saved": "Guardado",
   "desktopOffline": "Escritorio desconectado",
   "waitingForDesktop": "Esperando al escritorio",
@@ -97,7 +97,7 @@
   "inspect": "Analizar pistas",
   "queue_start": "Iniciar cola",
   "pause_all": "Pausar todo",
-  "install_bridge": "Instalar enlace del navegador",
+  "install_bridge": "Reparar puente del navegador",
   "installed": "Enlace del navegador instalado",
   "copy_hash": "Copiar SHA-256",
   "apply": "Aplicar",
@@ -218,5 +218,13 @@
   "seed_disabled": "Detener tras verificar",
   "ratio": "Proporción",
   "seed_minutes": "Tiempo de compartición (minutos)",
-  "showMediaButtons": "Mostrar botones de descarga de vídeo"
+  "showMediaButtons": "Mostrar botones de descarga de vídeo",
+  "bridge_welcome": "Conecta tu navegador a Flux",
+  "bridge_ready": "Puente local del navegador listo",
+  "bridge_failed": "El puente del navegador necesita reparación",
+  "bridge_checking": "Comprobando el puente del navegador…",
+  "bridge_automatic": "Flux registra y repara automáticamente su puente local al iniciarse, también en la edición portátil.",
+  "bridge_extension_step": "Instala y activa la extensión de Flux, concede los permisos de sitios y mensajería nativa solicitados y actualiza las pestañas abiertas. Registrar el puente no instala la extensión.",
+  "bridge_repair_help": "Si la extensión no conecta, abre Ajustes → Integración del navegador → Reparar puente del navegador.",
+  "bridge_dismiss": "Entendido — no volver a mostrar"
 }

@@ -67,7 +67,7 @@
   "interceptDownloads": "Intercepter les téléchargements",
   "interceptExplanation": "Le transfert du navigateur est suspendu puis supprimé dès son acceptation par Flux.",
   "browserIntegration": "Intégration du navigateur",
-  "nativeInstallHelp": "Ouvrez les paramètres de Flux et installez le relais du navigateur.",
+  "nativeInstallHelp": "Si l’extension ne se connecte pas, ouvrez Paramètres → Intégration du navigateur → Réparer la passerelle du navigateur.",
   "saved": "Enregistré",
   "desktopOffline": "Application hors ligne",
   "waitingForDesktop": "En attente du bureau",
@@ -97,7 +97,7 @@
   "inspect": "Analyser les pistes",
   "queue_start": "Démarrer la file",
   "pause_all": "Tout suspendre",
-  "install_bridge": "Installer le relais du navigateur",
+  "install_bridge": "Réparer la passerelle du navigateur",
   "installed": "Relais du navigateur installé",
   "copy_hash": "Copier SHA-256",
   "apply": "Appliquer",
@@ -218,5 +218,13 @@
   "seed_disabled": "Arrêter après vérification",
   "ratio": "Ratio",
   "seed_minutes": "Durée de partage (minutes)",
-  "showMediaButtons": "Afficher les boutons de téléchargement vidéo"
+  "showMediaButtons": "Afficher les boutons de téléchargement vidéo",
+  "bridge_welcome": "Connectez votre navigateur à Flux",
+  "bridge_ready": "Passerelle locale du navigateur prête",
+  "bridge_failed": "La passerelle du navigateur doit être réparée",
+  "bridge_checking": "Vérification de la passerelle du navigateur…",
+  "bridge_automatic": "Flux enregistre et répare automatiquement sa passerelle locale au démarrage, y compris dans la version portable.",
+  "bridge_extension_step": "Installez et activez l’extension Flux, accordez les autorisations de sites et de messagerie native demandées, puis actualisez les onglets ouverts. L’enregistrement de la passerelle n’installe pas l’extension.",
+  "bridge_repair_help": "Si l’extension ne se connecte pas, ouvrez Paramètres → Intégration du navigateur → Réparer la passerelle du navigateur.",
+  "bridge_dismiss": "Compris — ne plus afficher"
 }

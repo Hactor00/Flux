@@ -1,3 +1,4 @@
+import { preserveNativeRegistration } from "./native-test-state.mjs";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
@@ -27,6 +28,7 @@ const env = {
   WEBVIEW2_USER_DATA_FOLDER: join(root, "webview"),
   WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1`,
 };
+const restoreRegistration = preserveNativeRegistration();
 const app = spawn(join(binary, "flux-desktop.exe"), ["--background"], {
   env,
   windowsHide: true,
@@ -245,4 +247,5 @@ try {
   if (app.exitCode === null) await once(app, "exit");
   host.stdin.end();
   if (host.exitCode === null) await once(host, "exit");
+  restoreRegistration();
 }

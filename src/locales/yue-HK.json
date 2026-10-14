@@ -67,7 +67,7 @@
   "interceptDownloads": "接管瀏覽器下載",
   "interceptExplanation": "瀏覽器傳輸即時暫停，Flux 接收之後會移除。",
   "browserIntegration": "瀏覽器整合",
-  "nativeInstallHelp": "開啟Flux桌面設定，再安裝瀏覽器橋接。",
+  "nativeInstallHelp": "如果擴充功能連接唔到，請開啟設定 → 瀏覽器整合 → 修復瀏覽器橋接。",
   "saved": "已儲存",
   "desktopOffline": "桌面程式離線",
   "waitingForDesktop": "等候桌面程式",
@@ -97,7 +97,7 @@
   "inspect": "檢查串流",
   "queue_start": "啟動佇列",
   "pause_all": "全部暫停",
-  "install_bridge": "安裝瀏覽器橋接",
+  "install_bridge": "修復瀏覽器橋接",
   "installed": "瀏覽器橋接已安裝",
   "copy_hash": "複製SHA-256",
   "apply": "套用",
@@ -218,5 +218,13 @@
   "seed_disabled": "驗證之後停止",
   "ratio": "分享率",
   "seed_minutes": "做種時間（分鐘）",
-  "showMediaButtons": "顯示影片下載掣"
+  "showMediaButtons": "顯示影片下載掣",
+  "bridge_welcome": "將瀏覽器連接到 Flux",
+  "bridge_ready": "本機瀏覽器橋接已準備好",
+  "bridge_failed": "瀏覽器橋接需要修復",
+  "bridge_checking": "正在檢查瀏覽器橋接…",
+  "bridge_automatic": "Flux 啟動時會自動註冊並修復本機瀏覽器橋接，便攜版亦支援此功能。",
+  "bridge_extension_step": "喺瀏覽器安裝並啟用 Flux 擴充功能，授予所需嘅網站同原生訊息權限，再重新載入已開啟嘅分頁。註冊橋接唔會自動安裝擴充功能。",
+  "bridge_repair_help": "如果擴充功能連接唔到，請開啟設定 → 瀏覽器整合 → 修復瀏覽器橋接。",
+  "bridge_dismiss": "明白 — 唔再顯示"
 }

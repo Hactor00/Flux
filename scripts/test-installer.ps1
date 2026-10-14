@@ -70,6 +70,8 @@ try {
     }
     $nodeExecutable = (Get-Command node.exe).Source
     $env:PATH = "$env:SystemRoot/System32;$env:SystemRoot"
+    & $nodeExecutable "$workspace/scripts/test-browser-onboarding.mjs" $installDirectory
+    if ($LASTEXITCODE -ne 0) { throw 'Installed automatic browser setup and first-use guide failed.' }
     & $nodeExecutable "$workspace/scripts/test-native.mjs" $installDirectory --desktop
     if ($LASTEXITCODE -ne 0) { throw 'Installed desktop integration failed.' }
     & $nodeExecutable "$workspace/scripts/test-window-session.mjs" $installDirectory --automatic

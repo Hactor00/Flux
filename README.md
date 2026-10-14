@@ -22,6 +22,8 @@
 
 Flux combines segmented HTTP transfers, accessible video/audio capture, native BitTorrent, a persistent local history and separate desktop approval windows. It is built with Tauri 2, React 19, Tokio and SQLite WAL. The name refers to flow: files and media moving from your browser into your download queue.
 
+> **Before downloading: connect your browser.** Install and enable the Flux extension, grant its requested site/native messaging permissions, and refresh open tabs. Launch Flux once: the installed and portable editions automatically register and repair the local browser bridge. If the extension still cannot connect, use **Settings → Browser integration → Repair browser bridge**. The desktop shows this guidance on first use; dismissing it keeps it hidden on later launches. Bridge registration does not install the extension.
+
 ## Download
 
 **Current release: [Flux 2.2.0](https://github.com/Hactor00/Flux/releases/tag/v2.2.0), Windows x64.**
@@ -41,6 +43,8 @@ Application update packages carry a signature checked against Flux's embedded ve
 Previous [2.0.0](https://github.com/Hactor00/Flux/releases/tag/v2.0.0) and [1.7.0](https://github.com/Hactor00/Flux/releases/tag/v1.7.0) packages remain available.
 
 ## What's new in 2.2
+
+- **Automatic browser setup:** startup repairs missing or outdated local host registration for Chrome, Edge, Brave, Chromium and Firefox without a manual Settings step. A dismissible first-use reminder explains extension permissions; Settings shows registration status and offers repair.
 
 - **Media handoff repair (14 October):** Chromium and Firefox wait for desktop confirmation and display transfer errors. Captured quality/output is ready in the approval window without another inspection; optional reinspection preserves the captured source, filename and output format. Empty newer fields are omitted for older native hosts. Refresh the desktop and extension packages together; this repair keeps version 2.2.0, so an existing 2.2 installation needs a manual package refresh.
 - **Browser handoff before file selection:** Chromium cancels its held transfer before releasing the filename gate; Firefox intercepts attachment navigation at response headers. Flux opens its approval window in the foreground.
@@ -69,7 +73,7 @@ Read the [release notes](docs/releases/v2.2.0.md), [technical changes](docs/rele
 | Debrid accounts | Encrypted Real-Debrid, AllDebrid/Premiumize API keys, supported-host resolution and CDN source renewal |
 | Desktop | Separate approval, progress, Settings/countdown windows; virtualized table, search, sorting, multi-selection and Windows file drag-out |
 | Daily use | Optional category folders, clipboard monitoring, silent queueing, Windows startup and cancellable completion actions |
-| Languages and updates | 20 languages, 220 desktop keys, searchable selector, Arabic/Urdu RTL and signed updates with user approval |
+| Languages and updates | 20 languages, 228 desktop keys, searchable selector, Arabic/Urdu RTL and signed updates with user approval |
 
 ### HTTP and disk
 
@@ -105,7 +109,7 @@ Screenshots from isolated Windows regression tests with local fixture media.
 1. Run `Flux_2.2.0_x64-setup.exe`; installation is per-user.
 2. FFmpeg, FFprobe, yt-dlp, Node and torrent runtimes are bundled. Missing WebView2 is installed using Microsoft's bootstrapper, which needs internet access.
 3. Native Messaging is registered for **Chrome, Edge, Brave, Chromium and Firefox**. Host registration does not install a browser extension.
-4. Portable users can run directly and register the bridge through **Settings**.
+4. Launch Flux once after installing the extension. Both installed and portable editions register/repair the bridge automatically at startup. **Settings → Browser integration → Repair browser bridge** remains available if permissions or files prevent automatic registration.
 
 Data lives under `Flux` in the current user's local application-data directory; downloads default to `Downloads/Flux`. Upgrades retain history/preferences. Back up important data before changing installations.
 

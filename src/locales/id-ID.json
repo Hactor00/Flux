@@ -67,7 +67,7 @@
   "interceptDownloads": "Tangkap unduhan browser",
   "interceptExplanation": "Transfer browser segera dijeda dan dihapus setelah diterima Flux.",
   "browserIntegration": "Integrasi browser",
-  "nativeInstallHelp": "Buka pengaturan Flux dan pasang penghubung browser.",
+  "nativeInstallHelp": "Jika ekstensi tidak terhubung, buka Pengaturan → Integrasi browser → Perbaiki jembatan browser.",
   "saved": "Tersimpan",
   "desktopOffline": "Desktop tidak terhubung",
   "waitingForDesktop": "Menunggu desktop",
@@ -97,7 +97,7 @@
   "inspect": "Periksa stream",
   "queue_start": "Mulai antrean",
   "pause_all": "Jeda semua",
-  "install_bridge": "Pasang penghubung browser",
+  "install_bridge": "Perbaiki jembatan browser",
   "installed": "Penghubung browser terpasang",
   "copy_hash": "Salin SHA-256",
   "apply": "Terapkan",
@@ -218,5 +218,13 @@
   "seed_disabled": "Berhenti setelah verifikasi",
   "ratio": "Rasio",
   "seed_minutes": "Waktu berbagi (menit)",
-  "showMediaButtons": "Tampilkan tombol unduh video"
+  "showMediaButtons": "Tampilkan tombol unduh video",
+  "bridge_welcome": "Hubungkan browser Anda ke Flux",
+  "bridge_ready": "Jembatan browser lokal siap",
+  "bridge_failed": "Jembatan browser perlu diperbaiki",
+  "bridge_checking": "Memeriksa jembatan browser…",
+  "bridge_automatic": "Flux otomatis mendaftarkan dan memperbaiki jembatan lokal saat dimulai, termasuk edisi portabel.",
+  "bridge_extension_step": "Pasang dan aktifkan ekstensi Flux, izinkan akses situs dan pesan native yang diminta, lalu muat ulang tab yang terbuka. Pendaftaran jembatan tidak memasang ekstensi.",
+  "bridge_repair_help": "Jika ekstensi tidak terhubung, buka Pengaturan → Integrasi browser → Perbaiki jembatan browser.",
+  "bridge_dismiss": "Mengerti — jangan tampilkan lagi"
 }

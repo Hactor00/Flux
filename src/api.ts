@@ -280,6 +280,12 @@ export async function subscribe<T>(
   }, 250);
   return () => clearInterval(timer);
 }
+export interface BrowserIntegrationStatus {
+  registered: boolean;
+  extension_id: string | null;
+  error: string | null;
+  reminder_dismissed: boolean;
+}
 export const api = {
   surface: (
     view: "download" | "settings" | "details" | "power",
@@ -353,6 +359,9 @@ export const api = {
     invoke<Task>("set_torrent_options", { id, options, speedLimit }),
   expand: (input: string) => invoke<string[]>("expand_batch", { input }),
   registerBrowser: () => invoke<string>("register_browser"),
+  browserIntegration: () =>
+    invoke<BrowserIntegrationStatus>("browser_integration"),
+  dismissBrowserReminder: () => invoke<void>("dismiss_browser_reminder"),
   suggestDirectory: (filename: string, contentType: string | null = null) =>
     invoke<string>("suggest_directory", { filename, contentType }),
   pendingPower: () => invoke<PendingPower | null>("pending_power"),

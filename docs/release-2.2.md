@@ -4,6 +4,8 @@ Flux 2.2 fixes browser download ownership, checkpoint resume and first-run langu
 
 ## Browser handoff
 
+The desktop now registers and repairs its Native Messaging host asynchronously on ordinary startup, including portable and background launches. Unchanged manifests and registry values are retained; changed manifests are flushed to sibling temporary files and atomically replaced. Registration failure is reported in Browser integration without preventing HTTP downloads. A first-use notice is stored separately from preferences and dismissed only by the user's close action, so background launches do not consume it. The installed browser extension and its requested permissions remain a separate browser step.
+
 Chromium downloads are paused while desktop availability is checked. Their transfer metadata is persisted before browser cancellation. The filename gate is released only after cancellation and the desktop proposal have completed, preventing a browser file chooser from competing with Flux approval. A deferred durable entry survives a service-worker restart without sending the same download twice. If Flux is unavailable before ownership changes, the original browser transfer is resumed.
 
 Firefox intercepts HTTP GET attachment navigation at the response-header stage before its file chooser. Explicit browser API downloads retain the durable cancellation path. Firefox alone requests `webRequestBlocking`; Chromium retains its MV3 permissions.

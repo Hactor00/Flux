@@ -293,11 +293,31 @@ pub async fn resolve_media(
     flux_core::extractor::resolve(&url).await.map_err(error)
 }
 #[tauri::command]
-pub async fn register_browser() -> Result<String, String> {
-    tokio::task::spawn_blocking(crate::install::register)
-        .await
-        .map_err(error)?
-        .map_err(error)
+pub async fn register_browser(
+    app: tauri::AppHandle,
+    state: State<'_, crate::integration::BrowserIntegration>,
+) -> Result<String, String> {
+    let status = state.status(true).await?;
+    let _ = app.emit("browser-integration-changed", &status);
+    status
+        .extension_id
+        .ok_or_else(|| status.error.unwrap_or_else(|| "Registration failed".into()))
+}
+#[tauri::command]
+pub async fn browser_integration(
+    state: State<'_, crate::integration::BrowserIntegration>,
+) -> Result<crate::integration::IntegrationStatus, String> {
+    state.status(false).await
+}
+#[tauri::command]
+pub async fn dismiss_browser_reminder(
+    app: tauri::AppHandle,
+    state: State<'_, crate::integration::BrowserIntegration>,
+) -> Result<(), String> {
+    state.dismiss().await?;
+    let status = state.status(false).await?;
+    let _ = app.emit("browser-integration-changed", status);
+    Ok(())
 }
 struct LocalizedMenu {
     open: tauri::menu::MenuItem<tauri::Wry>,
@@ -307,6 +327,13 @@ struct LocalizedMenu {
 pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     app.manage(crate::power::PowerState::default());
     let data = flux_core::default_data_directory()?;
+    let integration = crate::integration::BrowserIntegration::new(data.clone());
+    app.manage(integration.clone());
+    if !std::env::args().any(|argument| argument == "--shutdown-request") {
+        tauri::async_runtime::spawn(async move {
+            let _ = integration.status(false).await;
+        });
+    }
     let engine_data = data.clone();
     let category_root = app.path().download_dir()?;
     let downloads = category_root.join("Flux");

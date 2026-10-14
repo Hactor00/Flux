@@ -67,7 +67,7 @@
   "interceptDownloads": "Tarayıcı indirmelerini devral",
   "interceptExplanation": "Tarayıcı aktarımı hemen duraklatılır; Flux kabul ettiğinde tarayıcıdan kaldırılır.",
   "browserIntegration": "Tarayıcı bütünleşmesi",
-  "nativeInstallHelp": "Flux masaüstü ayarlarını açıp tarayıcı köprüsünü kurun.",
+  "nativeInstallHelp": "Eklenti bağlanamıyorsa Ayarlar → Tarayıcı bütünleşmesi → Tarayıcı köprüsünü onar yolunu aç.",
   "saved": "Kaydedildi",
   "desktopOffline": "Masaüstü çevrimdışı",
   "waitingForDesktop": "Masaüstü bekleniyor",
@@ -97,7 +97,7 @@
   "inspect": "Akışları incele",
   "queue_start": "Kuyruğu başlat",
   "pause_all": "Tümünü duraklat",
-  "install_bridge": "Tarayıcı köprüsünü kur",
+  "install_bridge": "Tarayıcı köprüsünü onar",
   "installed": "Tarayıcı köprüsü kuruldu",
   "copy_hash": "SHA-256’yı kopyala",
   "apply": "Uygula",
@@ -218,5 +218,13 @@
   "seed_disabled": "Doğrulamadan sonra dur",
   "ratio": "Oran",
   "seed_minutes": "Paylaşım süresi (dakika)",
-  "showMediaButtons": "Video indirme düğmelerini göster"
+  "showMediaButtons": "Video indirme düğmelerini göster",
+  "bridge_welcome": "Tarayıcını Flux’a bağla",
+  "bridge_ready": "Yerel tarayıcı köprüsü hazır",
+  "bridge_failed": "Tarayıcı köprüsü onarım gerektiriyor",
+  "bridge_checking": "Tarayıcı köprüsü kontrol ediliyor…",
+  "bridge_automatic": "Flux, açılışta yerel tarayıcı köprüsünü otomatik kaydeder ve onarır. Taşınabilir sürümde de çalışır.",
+  "bridge_extension_step": "Tarayıcına Flux eklentisini kurup etkinleştir, istenen site ve yerel mesajlaşma izinlerini ver, ardından açık sekmeleri yenile. Köprü kaydı eklentiyi kurmaz.",
+  "bridge_repair_help": "Eklenti bağlanamıyorsa Ayarlar → Tarayıcı bütünleşmesi → Tarayıcı köprüsünü onar yolunu aç.",
+  "bridge_dismiss": "Anladım — bir daha gösterme"
 }

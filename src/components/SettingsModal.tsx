@@ -10,6 +10,7 @@ import { Toggle, Choice } from "./primitives";
 import { HostAccounts } from "./HostAccounts";
 import { Updater } from "./Updater";
 import { SeedingRules } from "./SeedingRules";
+import { BrowserIntegrationSettings } from "./BrowserIntegration";
 export function SettingsModal({
   visible,
   onClose,
@@ -365,29 +366,7 @@ export function SettingsModal({
               />
             </Tabs.Content>
             <Tabs.Content value="browserIntegration">
-              <div className="bridge-panel">
-                <div className="bridge-mark">↯</div>
-                <h3>Chrome · Edge · Chromium · Firefox</h3>
-                <p>{t("nativeInstallHelp")}</p>
-                <button
-                  className="primary"
-                  disabled={!desktop || busy}
-                  onClick={async () => {
-                    setBusy(true);
-                    try {
-                      const id = await api.registerBrowser();
-                      setNotice(`${t("installed")} · ${id}`);
-                    } catch (error) {
-                      setNotice(String(error));
-                      onError(String(error));
-                    } finally {
-                      setBusy(false);
-                    }
-                  }}
-                >
-                  {t("install_bridge")}
-                </button>
-              </div>
+              <BrowserIntegrationSettings />
             </Tabs.Content>
           </Tabs.Root>
           <p role="status" className="settings-notice">

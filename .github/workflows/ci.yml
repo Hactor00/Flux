@@ -55,6 +55,7 @@ jobs:
       - run: cargo test --locked -p flux-desktop
       - run: npm run tauri build -- --debug --no-bundle
       - run: cargo build --locked -p flux-cli -p flux-native-host
+      - run: node scripts/test-browser-onboarding.mjs target/debug
       - run: node scripts/test-native.mjs target/debug
       - run: node scripts/test-window-session.mjs target/debug --automatic
       - run: node scripts/test-media-window.mjs target/debug

@@ -67,7 +67,7 @@
   "interceptDownloads": "Intercept browser downloads",
   "interceptExplanation": "Browser transfer pauses immediately and is removed when Flux accepts it.",
   "browserIntegration": "Browser integration",
-  "nativeInstallHelp": "Open Flux desktop settings and install the browser bridge.",
+  "nativeInstallHelp": "If the extension cannot connect, open Settings → Browser integration → Repair browser bridge.",
   "saved": "Saved",
   "desktopOffline": "Desktop offline",
   "waitingForDesktop": "Waiting for desktop",
@@ -97,7 +97,7 @@
   "inspect": "Inspect streams",
   "queue_start": "Start queue",
   "pause_all": "Pause all",
-  "install_bridge": "Install browser bridge",
+  "install_bridge": "Repair browser bridge",
   "installed": "Browser bridge installed",
   "copy_hash": "Copy SHA-256",
   "apply": "Apply",
@@ -218,5 +218,13 @@
   "seed_disabled": "Stop after verification",
   "ratio": "Ratio",
   "seed_minutes": "Seeding time (minutes)",
-  "showMediaButtons": "Show video download buttons"
+  "showMediaButtons": "Show video download buttons",
+  "bridge_welcome": "Connect your browser to Flux",
+  "bridge_ready": "Local browser bridge ready",
+  "bridge_failed": "Browser bridge needs repair",
+  "bridge_checking": "Checking browser bridge…",
+  "bridge_automatic": "Flux automatically registers and repairs its local browser bridge at startup, including the portable edition.",
+  "bridge_extension_step": "Install and enable the Flux extension in your browser, allow its requested site/native messaging permissions, then refresh existing tabs. Host registration does not install the extension.",
+  "bridge_repair_help": "If the extension cannot connect, open Settings → Browser integration → Repair browser bridge.",
+  "bridge_dismiss": "Got it — do not show again"
 }

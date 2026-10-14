@@ -43,6 +43,7 @@ import { DownloadModal } from "./components/DownloadModal";
 import { SettingsModal } from "./components/SettingsModal";
 import { TaskDetails } from "./components/TaskDetails";
 import { SpeedGraph } from "./components/SpeedGraph";
+import { BrowserIntegrationNotice } from "./components/BrowserIntegration";
 import "./desktop.css";
 import { transferView, formatDuration } from "./transfer";
 
@@ -387,6 +388,7 @@ export default function App() {
           <Settings2 size={18} />
         </button>
       </div>
+      <BrowserIntegrationNotice />
       <div className="desktop-workspace">
         <aside className="desktop-sidebar">
           <span className="sidebar-caption">{t("downloads")}</span>

@@ -2,6 +2,7 @@
 mod desktop;
 mod file_drag;
 mod install;
+mod integration;
 mod localization;
 mod power;
 mod shutdown;
@@ -135,6 +136,8 @@ fn main() {
             desktop::resolve_media,
             desktop::open_task,
             desktop::register_browser,
+            desktop::browser_integration,
+            desktop::dismiss_browser_reminder,
             desktop::suggest_directory,
             power::pending_power,
             power::cancel_power,

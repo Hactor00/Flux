@@ -67,7 +67,7 @@
   "interceptDownloads": "Interceptar downloads do navegador",
   "interceptExplanation": "A transferência do navegador é pausada e removida quando o Flux a aceita.",
   "browserIntegration": "Integração com navegador",
-  "nativeInstallHelp": "Abra as configurações do Flux e instale a ponte do navegador.",
+  "nativeInstallHelp": "Se a extensão não conectar, abra Configurações → Integração do navegador → Reparar ponte do navegador.",
   "saved": "Salvo",
   "desktopOffline": "Aplicativo desconectado",
   "waitingForDesktop": "Aguardando aplicativo",
@@ -97,7 +97,7 @@
   "inspect": "Analisar faixas",
   "queue_start": "Iniciar fila",
   "pause_all": "Pausar tudo",
-  "install_bridge": "Instalar ponte do navegador",
+  "install_bridge": "Reparar ponte do navegador",
   "installed": "Ponte do navegador instalada",
   "copy_hash": "Copiar SHA-256",
   "apply": "Aplicar",
@@ -218,5 +218,13 @@
   "seed_disabled": "Parar após verificar",
   "ratio": "Proporção",
   "seed_minutes": "Tempo de compartilhamento (minutos)",
-  "showMediaButtons": "Mostrar botões de download de vídeo"
+  "showMediaButtons": "Mostrar botões de download de vídeo",
+  "bridge_welcome": "Conecte seu navegador ao Flux",
+  "bridge_ready": "Ponte local do navegador pronta",
+  "bridge_failed": "A ponte do navegador precisa de reparo",
+  "bridge_checking": "Verificando a ponte do navegador…",
+  "bridge_automatic": "O Flux registra e repara automaticamente sua ponte local ao iniciar, inclusive na edição portátil.",
+  "bridge_extension_step": "Instale e ative a extensão Flux, conceda as permissões de sites e comunicação nativa solicitadas e atualize as abas abertas. Registrar a ponte não instala a extensão.",
+  "bridge_repair_help": "Se a extensão não conectar, abra Configurações → Integração do navegador → Reparar ponte do navegador.",
+  "bridge_dismiss": "Entendi — não mostrar novamente"
 }

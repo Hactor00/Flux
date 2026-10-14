@@ -67,7 +67,7 @@
   "interceptDownloads": "ブラウザのダウンロードを引き継ぐ",
   "interceptExplanation": "ブラウザー転送を一時停止し、Flux が受け付けると削除します。",
   "browserIntegration": "ブラウザ連携",
-  "nativeInstallHelp": "Fluxの設定を開き、ブラウザブリッジをインストールしてください。",
+  "nativeInstallHelp": "拡張機能が接続できない場合は、設定 → ブラウザー連携 → ブラウザーブリッジを修復を開いてください。",
   "saved": "保存しました",
   "desktopOffline": "デスクトップ未接続",
   "waitingForDesktop": "デスクトップを待機中",
@@ -97,7 +97,7 @@
   "inspect": "ストリームを解析",
   "queue_start": "キューを開始",
   "pause_all": "すべて一時停止",
-  "install_bridge": "ブラウザブリッジをインストール",
+  "install_bridge": "ブラウザーブリッジを修復",
   "installed": "ブラウザブリッジをインストールしました",
   "copy_hash": "SHA-256をコピー",
   "apply": "適用",
@@ -218,5 +218,13 @@
   "seed_disabled": "検証後に停止",
   "ratio": "共有率",
   "seed_minutes": "シード時間（分）",
-  "showMediaButtons": "動画のダウンロードボタンを表示"
+  "showMediaButtons": "動画のダウンロードボタンを表示",
+  "bridge_welcome": "ブラウザーを Flux に接続",
+  "bridge_ready": "ローカルブラウザーブリッジは準備完了",
+  "bridge_failed": "ブラウザーブリッジの修復が必要です",
+  "bridge_checking": "ブラウザーブリッジを確認中…",
+  "bridge_automatic": "Flux は起動時にローカルブラウザーブリッジを自動登録・修復します。ポータブル版でも動作します。",
+  "bridge_extension_step": "ブラウザーに Flux 拡張機能をインストールして有効にし、必要なサイトアクセスとネイティブメッセージングを許可してから、開いているタブを再読み込みしてください。ブリッジ登録だけでは拡張機能はインストールされません。",
+  "bridge_repair_help": "拡張機能が接続できない場合は、設定 → ブラウザー連携 → ブラウザーブリッジを修復を開いてください。",
+  "bridge_dismiss": "確認しました — 次回から表示しない"
 }

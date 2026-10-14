@@ -1,12 +1,12 @@
 {
   "version": "2.2.0",
-  "time": "2026-10-13T23:50:13.542Z",
+  "time": "2026-10-14T00:21:41.614Z",
   "platform": "Windows x64",
   "environment": "Local Windows validation",
-  "rust_tests": 115,
+  "rust_tests": 116,
   "extension_tests": 59,
   "ui_data_tests": 14,
-  "automated_tests": 188,
+  "automated_tests": 189,
   "browser_interception": {
     "version": "2.2.0",
     "passed": true,
@@ -19,10 +19,10 @@
     "no_browser_file_chooser": true,
     "native_approval_foreground": true,
     "external_download_manager_isolated": true,
-    "task_id": "79bfdee1-3e27-468e-b8a3-3c5d1acf77e7"
+    "task_id": "fc711c79-bf71-4998-b9c6-42ae5fb396de"
   },
   "test_evidence": {
-    "core_log_updated": "2026-10-13T22:59:52.819Z",
+    "core_log_updated": "2026-10-14T00:10:24.971Z",
     "frontend_log_updated": "2026-10-13T22:35:08.579Z",
     "core_engine_changed_in_hud_repair": true,
     "core_scope": "Core tests executed during the current local release validation"
@@ -75,27 +75,27 @@
     "window_close_cancels_countdown": true,
     "exit_app_after_countdown_verified": true,
     "startup_registry_restored": true,
-    "time": "2026-10-13T23:49:47.358Z"
+    "time": "2026-10-14T00:21:15.320Z"
   },
   "installer": {
-    "registry_restoration_verified": true,
-    "desktop_cold_start": true,
-    "passed": true,
-    "installed_extension_sources_verified": true,
-    "sha256": "a672d397ff8adb02fb57b4dc865e8b93252bfbf860ea305d8754383a2eba0dc2",
-    "native_torrent_window_verified": true,
-    "firefox_registration_verified": true,
-    "version": "2.2.0",
-    "native_browser_bindings_verified": 5,
-    "time": "2026-10-13T23:49:08.8126497Z",
-    "native_windows_verified": true,
-    "installer_filename": "Flux_2.2.0_x64-setup.exe",
-    "uninstall_removes_owned_startup": true,
-    "native_registration_verified": true,
-    "installed_binary_hashes_verified": true,
-    "idempotent_repair_remove_verified": true,
+    "sha256": "1b0b1d13cb6da137fb80d70ac385a49e69484ce37f906b337e623784635d2492",
     "bundled_runtime_verified": true,
-    "uninstall_preserves_data": true
+    "desktop_cold_start": true,
+    "time": "2026-10-14T00:20:36.7809838Z",
+    "installer_filename": "Flux_2.2.0_x64-setup.exe",
+    "installed_binary_hashes_verified": true,
+    "installed_extension_sources_verified": true,
+    "native_windows_verified": true,
+    "native_browser_bindings_verified": 5,
+    "firefox_registration_verified": true,
+    "uninstall_removes_owned_startup": true,
+    "uninstall_preserves_data": true,
+    "registry_restoration_verified": true,
+    "idempotent_repair_remove_verified": true,
+    "native_registration_verified": true,
+    "version": "2.2.0",
+    "native_torrent_window_verified": true,
+    "passed": true
   },
   "native_windows": {
     "passed": true,
@@ -111,9 +111,9 @@
     "start_timestamp_verified": true,
     "history_timestamp_verified": true,
     "completion_timestamp_persisted": true,
-    "task": "4b417791-6747-4f2d-9159-a66f49a58da9",
+    "task": "1958c0ca-ea5d-414c-bc2d-96a06d1e2b49",
     "sha256": "51510ba467b06c4f337190ef80336d0fb6b7ef8b2fd2cfb950147dedcf8a7dc1",
-    "time": "2026-10-13T23:48:19.910Z"
+    "time": "2026-10-14T00:19:48.052Z"
   },
   "native_ipc": {
     "passed": true,
@@ -124,7 +124,7 @@
     "active_shutdown_resume": true,
     "authenticated_requests": 20,
     "sha256": "bb30230b4a79b25f8db24b49b7e3b385d8e9b623a74f7be79fcc6e2a9d44fb3e",
-    "time": "2026-10-13T23:48:09.399Z"
+    "time": "2026-10-14T00:19:37.794Z"
   },
   "native_media_window": {
     "passed": true,
@@ -139,7 +139,7 @@
     "final_size_exact": true,
     "duration": 8.021333,
     "sha256": "3bd5da94c00686e607a7b160f2c2bdb132fbc56ade7b922b0d986146ede593ca",
-    "time": "2026-10-13T23:48:45.309Z"
+    "time": "2026-10-14T00:20:12.903Z"
   },
   "native_torrent_window": {
     "version": "2.2.0",
@@ -154,8 +154,8 @@
     "piece_requests": 32,
     "render_sample": {
       "frames": 90,
-      "duration_ms": 399.500000011921,
-      "maximum_interval_ms": 16.699999999999932
+      "duration_ms": 414.6999999821187,
+      "maximum_interval_ms": 25
     },
     "webview_cleanup_warning": true
   },
@@ -186,7 +186,7 @@
   },
   "hud_repair": {
     "version": "2.2.0",
-    "time": "2026-10-13T23:50:13.131Z",
+    "time": "2026-10-14T00:21:41.203Z",
     "passed": true,
     "source_sha256": "300d5bd3b50849aeda9cec7f25342c94a86b1e3e7ef94c72f5d768080cba0ef2",
     "extension_tests": 59,
@@ -301,16 +301,16 @@
     "warnings": []
   },
   "binary_sha256": {
-    "flux-desktop.exe": "a592c7d9c05bf2081ec1a1cd1cede740ed3a70c071df9d18f8ac151385a44616",
-    "flux-cli.exe": "0d69621f6189dab1505519a1e910f475c957874a9e764ae2b92e2267da25f45b",
-    "flux-native-host.exe": "4ac5565ca06595fbe8597fa1dcdbb6e33452453ec4885d0a1c3a8cdd763ba24c",
+    "flux-desktop.exe": "17465fb2021ba034a455a4cd7ea76610808afc1668689a5cf29702a912f1c586",
+    "flux-cli.exe": "3280d0e48843a27f0e564f86dbd443a546936bab036fc6ac5bf0690aa4165448",
+    "flux-native-host.exe": "b81c670d9a11a04ead884b5c67c2858a85088ff2ca239f17536f7e218974f7ce",
     "ffmpeg.exe": "b7c801e173e83d29c34a8d019abce4b13e54d36199f231a414eaeb5dbb431f23",
     "ffprobe.exe": "b438e6e0fb6d4804dcce24a105fe575d0d2a0ef5344a0bf1a23f4f784e0392d2",
     "yt-dlp.exe": "66674953fe251b89f4d08c5f0e35e0728679bd67ab3d7d05c0562af101dd3e7a",
     "node.exe": "9a4eb5f1c29c6a2e93852ead46b999e284a6a5ca8bab4d4e241d587d025a52de",
     "libunwind.dll": "b0636a4281610124704adb2be2edf5642e830d86c68b7f27dbc9c8154705a780",
     "WebView2Loader.dll": "86545b66cdb0603bc26b626fb9ad610cb6e71f28d468f5ea66df23b03dda96d5",
-    "FluxTorrentBridge.dll": "58f2cdb71bf32b4ce883c6adbf637d427595428cfa423cfb1d44a25437c43e41",
+    "FluxTorrentBridge.dll": "2d3e90f79ff36f959954029bf88074539e750e2daa752d34da28a6ff2c57f6d2",
     "libtorrent-rasterbar.dll": "c9fae493228aa69affbbb6b32eb95d7d822f03dcf8319123fa0b916cb5f24e08",
     "libssl-3-x64.dll": "8b71cd694f8edfbddc76674111278db6bcdcde0dcd63b99238420193848e6dbf",
     "libcrypto-3-x64.dll": "97308feea369b305e562c0098638a1b02a06f52ee9fcc4b8cf3da362ff563cf4",

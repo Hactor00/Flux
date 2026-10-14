@@ -11,6 +11,8 @@ The current local validation targets Windows x64. Machine-readable evidence is s
 
 The total excludes separate browser, installer and desktop-window regressions. Formatting, Clippy with warnings rejected, strict TypeScript and the production frontend build are checked separately. The production dependency audit and modern Firefox manifest lint report zero findings.
 
+Hosted checks also passed for Windows, Linux and macOS core code and the Windows native desktop. The [CI record](validation/github-ci-2.2.json) identifies the tested runtime source commit and workflow. Final publication adds only documentation, screenshots and package evidence after that commit; shipped runtime code is unchanged. This does not establish a Linux/macOS desktop release.
+
 ## Resume regressions
 
 The native runtime regression runs in a fresh child process, repeatedly creates worker threads and calls malformed metadata through the real bridge. This checks error propagation and worker-exit cleanup with no torrent session keeping the library alive. CI uses DASH-capable `ffmpeg-full` on macOS and retains all platform results when one matrix job fails.

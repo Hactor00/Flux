@@ -1,0 +1,32 @@
+{
+  "version": "2.2.0",
+  "passed": true,
+  "source_commit": "b6be4e501446ec8b11a6a720eef408e8d6d5ddd1",
+  "workflow_run": 38488702970,
+  "url": "https://github.com/Hactor00/Flux/actions/runs/38488702970",
+  "time": "2026-10-14T00:20:37Z",
+  "scope": "Core on Windows, Linux and macOS; native desktop regressions on Windows",
+  "jobs": [
+    {
+      "name": "desktop",
+      "passed": true,
+      "url": "https://github.com/Hactor00/Flux/actions/runs/38488702970/job/115608506798"
+    },
+    {
+      "name": "core (windows-latest)",
+      "passed": true,
+      "url": "https://github.com/Hactor00/Flux/actions/runs/38488702970/job/115608506970"
+    },
+    {
+      "name": "core (ubuntu-latest)",
+      "passed": true,
+      "url": "https://github.com/Hactor00/Flux/actions/runs/38488702970/job/115608506982"
+    },
+    {
+      "name": "core (macos-latest)",
+      "passed": true,
+      "url": "https://github.com/Hactor00/Flux/actions/runs/38488702970/job/115608507027"
+    }
+  ],
+  "local_paths_and_credentials_removed": true
+}

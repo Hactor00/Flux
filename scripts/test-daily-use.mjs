@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { DesktopDriver } from "./desktop-driver.mjs";
+import { preserveNativeRegistration } from "./native-test-state.mjs";
 
 assert.equal(process.platform, "win32");
 const binary = resolve(process.argv[2] || "target/release");
@@ -65,6 +66,7 @@ const env = {
   WEBVIEW2_USER_DATA_FOLDER: join(root, "webview"),
   WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1`,
 };
+const restoreRegistration = preserveNativeRegistration();
 const app = spawn(join(binary, "flux-desktop.exe"), [], {
   env,
   windowsHide: true,
@@ -355,4 +357,5 @@ try {
   }
   fixture.closeAllConnections();
   await new Promise((r) => fixture.close(r));
+  restoreRegistration();
 }

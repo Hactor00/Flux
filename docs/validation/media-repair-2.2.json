@@ -1,10 +1,10 @@
 {
   "version": "2.2.0",
   "passed": true,
-  "time": "2026-10-14T10:27:32.308Z",
-  "source_commit": "47ee4cf3941cccc95862952c2e9bc032eb86f1ca",
-  "desktop_sha256": "db972dfe577bff3df6331a2b8c1a21b64000f62d5461683791c96d35ffd483f7",
-  "installer_sha256": "6965557d68cf459d7d550664f6c21efe70534987f2a5c99c0a814b157833bfdf",
+  "time": "2026-10-14T11:20:23.183Z",
+  "source_commit": "ab48b0142da8faedb5b873731073b50be754d01d",
+  "desktop_sha256": "e5172f8146b27d25223ae08faaa602a6f388c139f07324e06c6561155f9e7e20",
+  "installer_sha256": "c429ccd88aab4888e65d70d1e9174537e86a5553e57f3e8e3939896004192b22",
   "shared_extension_sha256": {
     "background.js": "f1031264936e07744f1efd4249bcd7152a68711e4b1ef7e52687a27096296583",
     "bridge.js": "12392518821422af9165608505ca12ec831417bc8c24427e11ac08ab7ab85ecc",
@@ -12,10 +12,10 @@
     "shared.js": "e0c273ebb7b362a6b37b4a8ce9b2f12aca65d4a796f710883426a6224a3cd330"
   },
   "tests": {
-    "rust": 116,
+    "rust": 118,
     "extension": 63,
     "frontend": 15,
-    "total": 194
+    "total": 196
   },
   "live_provider": {
     "version": "2.2.0",
@@ -45,7 +45,8 @@
         "sha256": "f7f339bffcecfb2adfab8f1d47404dcf8d9f47107e697c044b3623a3347e4277"
       }
     ],
-    "time": "2026-10-14T10:07:19.842Z"
+    "time": "2026-10-14T11:12:02.539Z",
+    "local_paths_and_credentials_removed": true
   },
   "browsers": [
     {
@@ -72,8 +73,9 @@
     "durable retry request identity"
   ],
   "version_unchanged": true,
-  "production_rust_logic_unchanged": true,
   "native_fixture_isolated": true,
-  "ci": "https://github.com/Hactor00/Flux/actions/runs/38548352672",
-  "local_paths_and_credentials_removed": true
+  "ci": "https://github.com/Hactor00/Flux/actions/runs/38554420210",
+  "local_paths_and_credentials_removed": true,
+  "media_transfer_logic_unchanged": true,
+  "desktop_startup_registration_updated": true
 }

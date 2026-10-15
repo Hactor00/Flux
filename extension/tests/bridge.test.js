@@ -4,6 +4,28 @@ import { readFileSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { DurableOutbox, NativeBridge } from "../bridge.js";
 import { makeInput, mediaKind, safeFilename } from "../shared.js";
+test("deferred ownership entries remain persisted but cannot reach native messaging before activation", async () => {
+  const data = storage();
+  let delivered = 0;
+  const queue = new DurableOutbox({
+    request: async () => {
+      delivered++;
+      return { status: "awaiting_approval" };
+    },
+  });
+  const id = await queue.enqueue(
+    makeInput("https://example.com/file.zip"),
+    19,
+    { browserCancelled: true },
+    false,
+  );
+  await queue.pump();
+  assert.equal(delivered, 0);
+  assert.equal(data.outbox[0].ready, false);
+  await queue.activate(id);
+  assert.equal(delivered, 1);
+  assert.equal(data.outbox.length, 0);
+});
 
 test("authentication is sealed before durable storage and frozen across retries", async () => {
   const data = storage();
@@ -160,6 +182,72 @@ function storage() {
   };
   return data;
 }
+test("interactive proposals wait for desktop acknowledgment and share a durable request on retry", async () => {
+  const data = storage();
+  let accept;
+  let offline = true;
+  const ids = [];
+  const queue = new DurableOutbox({
+    async request(command, input, id) {
+      ids.push(id);
+      if (offline) throw Error("Desktop connection closed");
+      return new Promise((resolve) => {
+        accept = resolve;
+      });
+    },
+  });
+  const input = makeInput("https://media.test/video", {
+    filename: "Film.mp4",
+    media: { container: "mp4" },
+  });
+  await assert.rejects(
+    queue.enqueueConfirmed(input, { tabId: 7, frameId: 0 }),
+    /connection closed/,
+  );
+  assert.equal(data.outbox.length, 1);
+  offline = false;
+  let confirmed = false;
+  const first = queue
+    .enqueueConfirmed(input, { tabId: 7, frameId: 0 })
+    .then((result) => {
+      confirmed = true;
+      return result;
+    });
+  await until(() => !!accept);
+  const second = queue.enqueueConfirmed(input, { tabId: 7, frameId: 0 });
+  assert.equal(confirmed, false);
+  assert.equal(data.outbox.length, 1);
+  accept({ id: ids[0], status: "awaiting_approval" });
+  const [a, b] = await Promise.all([first, second]);
+  assert.equal(a.id, b.id);
+  assert.equal(a.task.status, "awaiting_approval");
+  assert.deepEqual(ids, [a.id, a.id]);
+  assert.equal(data.outbox.length, 0);
+});
+
+test("media requests omit empty newer fields while preserving explicit stream selections", () => {
+  const media = {
+    container: "mp4",
+    manifest_video_id: null,
+    manifest_audio_id: null,
+    manifest_snapshot: null,
+    provider: {
+      url: "https://youtube.com/watch?v=1",
+      format_id: "136",
+      height: 720,
+      audio_format_id: null,
+    },
+  };
+  const input = makeInput("https://media.test/video", { media });
+  assert.equal(Object.hasOwn(input.media, "manifest_video_id"), false);
+  assert.equal(Object.hasOwn(input.media.provider, "audio_format_id"), false);
+  assert.equal(Object.hasOwn(media.provider, "audio_format_id"), true);
+  media.provider.audio_format_id = "140";
+  media.manifest_video_id = "video-720";
+  const selected = makeInput("https://media.test/video", { media });
+  assert.equal(selected.media.provider.audio_format_id, "140");
+  assert.equal(selected.media.manifest_video_id, "video-720");
+});
 async function until(condition) {
   const deadline = Date.now() + 2000;
   while (!condition()) {

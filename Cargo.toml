@@ -2,9 +2,14 @@
 members = ["crates/core", "crates/cli", "crates/native-host", "src-tauri"]
 default-members = ["crates/core", "crates/cli", "crates/native-host"]
 resolver = "2"
+exclude = ["vendor/reqwest", "vendor/librqbit"]
+
+[patch.crates-io]
+reqwest = { path = "vendor/reqwest" }
+librqbit = { path = "vendor/librqbit" }
 
 [workspace.package]
-version = "2.0.0"
+version = "2.2.0"
 edition = "2021"
 license = "MIT"
 

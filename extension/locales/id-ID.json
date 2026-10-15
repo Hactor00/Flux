@@ -128,5 +128,6 @@
   "originalAudio": "Audio asli",
   "noSubtitles": "Tanpa subtitel",
   "queueCollection": "Antrekan koleksi",
-  "collectionHint": "Kirim hingga 500 item playlist atau kanal ke antrean unduhan Flux."
+  "collectionHint": "Kirim hingga 500 item playlist atau kanal ke antrean unduhan Flux.",
+  "showMediaButtons": "Tampilkan tombol unduh video"
 }

@@ -43,6 +43,7 @@ import { DownloadModal } from "./components/DownloadModal";
 import { SettingsModal } from "./components/SettingsModal";
 import { TaskDetails } from "./components/TaskDetails";
 import { SpeedGraph } from "./components/SpeedGraph";
+import { BrowserIntegrationNotice } from "./components/BrowserIntegration";
 import "./desktop.css";
 import { transferView, formatDuration } from "./transfer";
 
@@ -190,6 +191,7 @@ export default function App() {
           .includes(search.toLocaleLowerCase()) &&
         (filter === "all" ||
           (filter === "torrent" && isTorrentTask(task)) ||
+          (filter === "seeding" && task.torrent?.state === "seeding") ||
           (filter === "active" &&
             ["running", "queued", "verifying"].includes(task.status)) ||
           task.status === filter),
@@ -293,7 +295,9 @@ export default function App() {
           ? task.status !== "cancelled" && isTorrentTask(task)
           : key === "active"
             ? ["running", "verifying", "queued"].includes(task.status)
-            : task.status === key,
+            : key === "seeding"
+              ? task.torrent?.state === "seeding"
+              : task.status === key,
     ).length;
   const menuItem = (text: string, action: () => void, disabled = false) => (
     <Menu.Item
@@ -341,6 +345,9 @@ export default function App() {
             </Menu.Content>
           </Menu.Portal>
         </Menu.Root>
+        <button className="desktop-menu-action" onClick={openSettings}>
+          {t("settings")}
+        </button>
         <span className="desktop-version">{version}</span>
       </div>
       <div className="desktop-toolbar">
@@ -381,6 +388,7 @@ export default function App() {
           <Settings2 size={18} />
         </button>
       </div>
+      <BrowserIntegrationNotice />
       <div className="desktop-workspace">
         <aside className="desktop-sidebar">
           <span className="sidebar-caption">{t("downloads")}</span>
@@ -392,6 +400,7 @@ export default function App() {
             "failed",
             "awaiting_approval",
             "torrent",
+            "seeding",
           ].map((key, index) => (
             <button
               key={key}
@@ -406,6 +415,7 @@ export default function App() {
                   <Pause size={16} />,
                   <AlertCircle size={16} />,
                   <Clock size={16} />,
+                  <Network size={16} />,
                   <Network size={16} />,
                 ][index]
               }
@@ -596,7 +606,9 @@ export default function App() {
                                 ? "media_finalizing"
                                 : view.phase === "live"
                                   ? "live_stream"
-                                  : task.status,
+                                  : task.torrent?.state === "seeding"
+                                    ? "seeding"
+                                    : task.status,
                             )}
                           </span>
                           <span role="cell">
@@ -665,7 +677,9 @@ export default function App() {
                             disabled={task.status !== "complete"}
                             onSelect={() => void run(() => api.open(task.id))}
                           >
-                            {t(isTorrentTask(task) ? "open_folder" : "open_file")}
+                            {t(
+                              isTorrentTask(task) ? "open_folder" : "open_file",
+                            )}
                           </Context.Item>
                           <Context.Item
                             className="desktop-menu-item"

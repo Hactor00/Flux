@@ -1,3 +1,4 @@
+import { preserveNativeRegistration } from "./native-test-state.mjs";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
@@ -17,6 +18,10 @@ import { DatabaseSync } from "node:sqlite";
 import { DesktopDriver } from "./desktop-driver.mjs";
 
 const binary = resolve(process.argv[2] || "target/release");
+const mediaVersion = JSON.parse(await readFile("package.json"))
+  .version.split(".")
+  .slice(0, 2)
+  .join(".");
 let probeExecutable = process.env.FLUX_FFPROBE;
 if (!probeExecutable) {
   const bundledProbe = join(binary, "ffprobe.exe");
@@ -101,6 +106,7 @@ const env = {
   WEBVIEW2_USER_DATA_FOLDER: join(root, "webview"),
   WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1`,
 };
+const restoreRegistration = preserveNativeRegistration();
 const app = spawn(join(binary, "flux-desktop.exe"), [], {
   env,
   windowsHide: true,
@@ -255,7 +261,7 @@ try {
       "[...document.querySelectorAll('[role=option]')].find(item=>item.textContent.includes('Videoya göm')).click(); true",
     );
     await download.evaluate(
-      "const switches=document.querySelectorAll('.media-extras [role=switch]'); switches[0].click(); switches[1].click(); true",
+      "for(const item of document.querySelectorAll('.media-extras [role=switch]'))if(item.getAttribute('aria-checked')!=='true')item.click(); true",
     );
     await new Promise((resolve) => setTimeout(resolve, 100));
     assert.equal(
@@ -268,7 +274,7 @@ try {
       format: "png",
     });
     await writeFile(
-      "docs/images/media-suite-1.5.png",
+      `docs/images/media-suite-${mediaVersion}.png`,
       Buffer.from(screenshot.data, "base64"),
     );
   }
@@ -322,8 +328,8 @@ try {
   });
   await writeFile(
     suite
-      ? "docs/images/media-suite-progress-1.5.png"
-      : "docs/images/media-progress-2.0.png",
+      ? `docs/images/media-suite-progress-${mediaVersion}.png`
+      : `docs/images/media-progress-${mediaVersion}.png`,
     Buffer.from(screenshot.data, "base64"),
   );
   const paused = await call("pause", { id: task.id });
@@ -416,4 +422,5 @@ try {
   host.stdin.end();
   if (host.exitCode === null) await once(host, "exit");
   await new Promise((r) => fixture.close(r));
+  restoreRegistration();
 }

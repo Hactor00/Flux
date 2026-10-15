@@ -128,5 +128,6 @@
   "originalAudio": "Audio original",
   "noSubtitles": "Sin subtítulos",
   "queueCollection": "Añadir colección a la cola",
-  "collectionHint": "Envía hasta 500 elementos de una lista o canal a la cola de descargas de Flux."
+  "collectionHint": "Envía hasta 500 elementos de una lista o canal a la cola de descargas de Flux.",
+  "showMediaButtons": "Mostrar botones de descarga de vídeo"
 }

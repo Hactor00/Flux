@@ -22,6 +22,9 @@ import {
   torrentSource,
   providerSource,
   isTorrentTask,
+  capturedMedia,
+  approvalSource,
+  mediaFormatKey,
 } from "../downloads";
 import { CollectionPicker } from "./CollectionPicker";
 import { Choice } from "./primitives";
@@ -111,7 +114,9 @@ export function DownloadModal({
       setCollectionEntries([]);
       setCollectionBusy(false);
       setInspecting(false);
-      setAudioTrack("auto");
+      setAudioTrack(
+        proposal?.request.media?.provider?.audio_format_id || "auto",
+      );
       setContainer("mp4");
       setTransport(proposal?.request.transport || "auto");
       setSegments("");
@@ -134,9 +139,13 @@ export function DownloadModal({
       );
       setContainer(proposal?.request.media?.container || "mp4");
       setStreams(null);
-      setResolved(null);
+      const captured = capturedMedia(proposal);
+      setResolved(captured);
+      setFormat(captured ? mediaFormatKey(captured.formats[0]) : "");
       setExtras({
-        selected: [],
+        selected: (proposal?.request.media?.subtitles || []).map(
+          (_, index) => index,
+        ),
         subtitleMode: proposal?.request.media?.subtitle_mode || "none",
         normalize: proposal?.request.media?.normalize_audio || false,
         chapters: true,
@@ -187,7 +196,9 @@ export function DownloadModal({
       if (mode === "torrent" && !torrentPath && !url.trim())
         throw new Error(t("torrent_source_hint"));
       const selected =
-        mode === "media" ? resolved?.formats[Number(format)] : undefined;
+        mode === "media"
+          ? resolved?.formats.find((item) => mediaFormatKey(item) === format)
+          : undefined;
       const torrentOptions: TorrentOptions = {
         upload_limit: Number(form.get("upload_limit") || 0),
         peer_limit: Number(form.get("peer_limit") || 80),
@@ -207,7 +218,10 @@ export function DownloadModal({
       const urls =
         mode === "batch"
           ? await api.expand(String(form.get("batch")))
-          : [selected?.url || url || segments.trim().split(/\r?\n/)[0]];
+          : [
+              approvalSource(proposal, selected?.url, url) ||
+                segments.trim().split(/\r?\n/)[0],
+            ];
       if (!urls.length) throw new Error(t("no_results"));
       const names = new Set<string>();
       let inputs: Input[] = urls.map((source, index) => {
@@ -238,11 +252,12 @@ export function DownloadModal({
           media:
             mode === "media"
               ? {
+                  ...proposal?.request.media,
                   provider:
                     selected && resolved
                       ? {
                           url: providerUrl,
-                          format_id: selected.id,
+                          format_id: selected.id || null,
                           height: selected.height,
                           audio_format_id:
                             audioTrack === "auto" ? null : audioTrack,
@@ -289,7 +304,10 @@ export function DownloadModal({
                     String(form.get("audio_url") || "").trim() ||
                     proposal?.request.media?.audio_url ||
                     null,
-                  duration_seconds: Number(form.get("duration")) || null,
+                  duration_seconds:
+                    Number(form.get("duration")) ||
+                    proposal?.request.media?.duration_seconds ||
+                    null,
                   video_stream: video === "auto" ? null : Number(video),
                   audio_stream: audio === "auto" ? null : Number(audio),
                 }
@@ -346,20 +364,32 @@ export function DownloadModal({
     setInspecting(true);
     setLocalError("");
     try {
-      const direct = /\.(m3u8|mpd|mp4|mkv|mp3|mka|webm|ts)(?:\?|$)/i.test(url);
-      if (provider || !direct) {
+      if (provider) {
         const metadata = await api.resolve(providerUrl.trim(), proposal?.id);
         if (current !== inspectionGeneration.current) return;
         if (!metadata.formats.length) throw new Error(t("noMedia"));
         setResolved(metadata);
         setMode("media");
-        setFormat("0");
-        setContainer(metadata.formats[0].container);
-        setName(
-          sanitizeFilename(metadata.title) +
-            "." +
-            metadata.formats[0].container,
+        const captured = proposal?.request.media?.provider;
+        const preferred = metadata.formats.findIndex(
+          (item) =>
+            item.id === captured?.format_id ||
+            item.alternative_ids?.includes(captured?.format_id || ""),
         );
+        const sameHeight = metadata.formats.findIndex(
+          (item) => item.height === captured?.height,
+        );
+        const index =
+          preferred >= 0 ? preferred : sameHeight >= 0 ? sameHeight : 0;
+        setFormat(mediaFormatKey(metadata.formats[index]));
+        if (!proposal) {
+          setContainer(metadata.formats[index].container);
+          setName(
+            sanitizeFilename(metadata.title) +
+              "." +
+              metadata.formats[index].container,
+          );
+        }
       } else {
         const metadata = await api.inspect(
           url,
@@ -575,17 +605,9 @@ export function DownloadModal({
                         value={format}
                         onChange={(value) => {
                           setFormat(value);
-                          setContainer(
-                            resolved.formats[Number(value)].container,
-                          );
-                          setName(
-                            sanitizeFilename(resolved.title) +
-                              "." +
-                              resolved.formats[Number(value)].container,
-                          );
                         }}
-                        options={resolved.formats.map((value, index) => ({
-                          value: String(index),
+                        options={resolved.formats.map((value) => ({
+                          value: mediaFormatKey(value),
                           label: `${value.audio_only ? t("audio_only") : value.height ? `${value.height}p` : t("automatic")}${value.fps ? ` · ${value.fps} fps` : ""} · ${value.container.toUpperCase()}${value.size ? ` · ${(value.size / 1048576).toFixed(1)} MB` : ""}`,
                         }))}
                       />
@@ -631,7 +653,7 @@ export function DownloadModal({
                       />
                     </label>
                   )}
-                  {tab === "media" && !resolved && (
+                  {tab === "media" && !resolved && !provider && (
                     <>
                       <div className="media-inspect">
                         <button

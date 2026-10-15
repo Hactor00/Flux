@@ -123,6 +123,57 @@ button:focus-visible {
   flex: 1;
   min-height: 0;
 }
+.integration-notice {
+  display: flex;
+  gap: 14px;
+  padding: 14px 18px;
+  flex-shrink: 0;
+  background: #22202d;
+  border-bottom: 1px solid #bba7f230;
+  max-height: 210px;
+  overflow-y: auto;
+}
+.integration-icon {
+  flex-shrink: 0;
+  color: #c6b4f7;
+  margin-top: 2px;
+}
+.integration-copy {
+  flex: 1;
+  min-width: 0;
+}
+.integration-heading {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.integration-copy p {
+  color: #b1b5c2;
+  font-size: 12px;
+  line-height: 1.55;
+  margin: 5px 0;
+}
+.integration-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+}
+.integration-state.ready {
+  color: #8bd7b4;
+}
+.integration-state.pending {
+  color: #eac992;
+}
+.integration-error {
+  color: #f1a3a9 !important;
+  overflow-wrap: anywhere;
+}
+.integration-dismiss {
+  align-self: flex-start;
+  flex-shrink: 0;
+}
 .desktop-sidebar {
   width: 177px;
   padding: 15px 9px 12px;
@@ -830,4 +881,53 @@ button:focus-visible {
 .torrent-info-hash {
   overflow-wrap: anywhere;
   font-family: ui-monospace, monospace;
+}
+.settings-modal .tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.settings-modal .tabs button {
+  min-width: 0;
+  padding: 9px 7px;
+  white-space: normal;
+}
+.host-accounts {
+  max-height: 48vh;
+  overflow-y: auto;
+}
+.host-account {
+  display: grid;
+  gap: 10px;
+  border-bottom: 1px solid #343741;
+  padding-block: 14px;
+}
+.host-account h3 {
+  margin: 0;
+}
+.seeding-rules {
+  display: grid;
+  gap: 14px;
+  margin-block: 12px;
+}
+.updater-modal {
+  width: min(560px, calc(100vw - 32px));
+}
+.update-notes {
+  max-height: 240px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  color: #b6bdcb;
+  line-height: 1.6;
+}
+.updater-modal progress {
+  width: 100%;
+  height: 8px;
+  accent-color: #b5a0f5;
+}
+.updater-panel {
+  display: grid;
+  gap: 16px;
+  padding-block: 12px;
 }

@@ -7,13 +7,16 @@ const settings = await api.storage.local.get([
   "interceptDownloads",
   "nativeConsent",
 ]);
-let selected = settings.locale || "en-US";
+let selected = settings.locale || "";
 const select = document.getElementById("language");
 function render() {
   const query = document
     .getElementById("language-search")
     .value.toLocaleLowerCase();
   select.replaceChildren();
+  const automatic = new Option(t("automatic"), "");
+  automatic.selected = selected === "";
+  select.add(automatic);
   for (const language of languages.filter((language) =>
     `${language.name} ${language.native} ${language.code}`
       .toLocaleLowerCase()

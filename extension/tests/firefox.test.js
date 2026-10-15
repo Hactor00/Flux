@@ -62,7 +62,7 @@ test("Firefox package has an explicit identity, event background and transparent
     type: "module",
   });
   assert.equal(manifest.background.service_worker, undefined);
-  assert.equal(manifest.permissions.includes("webRequestBlocking"), false);
+  assert.equal(manifest.permissions.includes("webRequestBlocking"), true);
   assert.equal(
     manifest.browser_specific_settings.gecko.data_collection_permissions,
     undefined,

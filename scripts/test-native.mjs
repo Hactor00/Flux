@@ -1,3 +1,4 @@
+import { preserveNativeRegistration } from "./native-test-state.mjs";
 import assert from "node:assert/strict";
 import { spawn, execFileSync } from "node:child_process";
 import { createServer } from "node:http";
@@ -69,6 +70,9 @@ const fixture = createServer((request, response) => {
 });
 await new Promise((resolve) => fixture.listen(0, "127.0.0.1", resolve));
 const url = "http://127.0.0.1:" + fixture.address().port + "/file";
+const restoreRegistration = desktopMode
+  ? preserveNativeRegistration()
+  : () => {};
 const host = spawn(join(binary, "flux-native-host.exe"), [origin], {
   env: environment,
   windowsHide: true,
@@ -342,4 +346,5 @@ try {
     await writeFile(stop, "stop");
   }
   fixture.close();
+  restoreRegistration();
 }

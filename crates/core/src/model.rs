@@ -82,6 +82,12 @@ impl Default for DownloadRequest {
 #[serde(deny_unknown_fields)]
 pub struct MediaOptions {
     #[serde(default)]
+    pub manifest_snapshot: Option<ManifestSnapshot>,
+    #[serde(default)]
+    pub manifest_video_id: Option<String>,
+    #[serde(default)]
+    pub manifest_audio_id: Option<String>,
+    #[serde(default)]
     pub kind: Option<String>,
     #[serde(default)]
     pub provider: Option<MediaProvider>,
@@ -109,6 +115,9 @@ pub struct MediaOptions {
 impl Default for MediaOptions {
     fn default() -> Self {
         Self {
+            manifest_snapshot: None,
+            manifest_video_id: None,
+            manifest_audio_id: None,
             kind: None,
             provider: None,
             segment_urls: Vec::new(),
@@ -123,6 +132,12 @@ impl Default for MediaOptions {
             normalize_audio: false,
         }
     }
+}
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(deny_unknown_fields)]
+pub struct ManifestSnapshot {
+    pub url: String,
+    pub text: String,
 }
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -174,6 +189,7 @@ pub struct MediaProvider {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(default, deny_unknown_fields)]
 pub struct TorrentOptions {
+    pub seeding: Option<crate::seeding::Rule>,
     pub upload_limit: u64,
     pub peer_limit: u16,
     pub only_files: Vec<usize>,
@@ -182,6 +198,7 @@ pub struct TorrentOptions {
 impl Default for TorrentOptions {
     fn default() -> Self {
         Self {
+            seeding: None,
             upload_limit: 0,
             peer_limit: 80,
             only_files: Vec::new(),
@@ -199,6 +216,8 @@ pub struct TorrentFile {
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TorrentSnapshot {
+    #[serde(default)]
+    pub seeded_seconds: u64,
     pub info_hash: String,
     pub state: String,
     pub peers: u32,
@@ -231,6 +250,8 @@ fn default_container() -> String {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct Settings {
+    pub seeding: crate::seeding::Rule,
+    pub torrent_upload_limit: u64,
     pub concurrent_tasks: u8,
     pub connections: u8,
     pub speed_limit: u64,
@@ -249,6 +270,8 @@ pub struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Self {
+            seeding: crate::seeding::Rule::default(),
+            torrent_upload_limit: 0,
             concurrent_tasks: 3,
             connections: default_connections(),
             speed_limit: 0,
@@ -256,7 +279,7 @@ impl Default for Settings {
             clipboard_monitor: false,
             minimize_to_tray: true,
             notifications: true,
-            locale: "en-US".into(),
+            locale: crate::locale::system().into(),
             download_directory: None,
             completion_action: crate::ShutdownAction::None,
             auto_categorize: false,
@@ -268,6 +291,11 @@ impl Default for Settings {
 }
 impl Settings {
     pub fn validate(&self) -> anyhow::Result<()> {
+        self.seeding.validate()?;
+        anyhow::ensure!(
+            self.torrent_upload_limit <= i32::MAX as u64,
+            "Torrent upload limit exceeds two GiB per second"
+        );
         self.category_folders.validate()?;
         anyhow::ensure!(
             (1..=8).contains(&self.concurrent_tasks),
@@ -491,6 +519,31 @@ pub(crate) fn validate(request: &DownloadRequest) -> anyhow::Result<()> {
         }
     }
     if let Some(media) = &request.media {
+        for id in [&media.manifest_video_id, &media.manifest_audio_id]
+            .into_iter()
+            .flatten()
+        {
+            anyhow::ensure!(
+                !id.is_empty()
+                    && id.len() <= 128
+                    && id
+                        .chars()
+                        .all(|ch| ch.is_ascii_alphanumeric() || matches!(ch, '-' | '_' | '.')),
+                "Invalid manifest representation ID"
+            );
+        }
+        if let Some(snapshot) = &media.manifest_snapshot {
+            validate_url(&snapshot.url)?;
+            anyhow::ensure!(
+                snapshot.text.len() <= crate::manifest::MAX_MANIFEST,
+                "Manifest snapshot exceeds 512 KiB"
+            );
+            anyhow::ensure!(
+                snapshot.text.trim_start().starts_with("#EXTM3U")
+                    || snapshot.text.trim_start().starts_with('<'),
+                "Invalid manifest snapshot"
+            );
+        }
         if let Some(provider) = &media.provider {
             validate_url(&provider.url)?;
             anyhow::ensure!(

@@ -17,6 +17,7 @@ pub fn show(
     }
     let label = format!("{view}-{}", id.unwrap_or("new"));
     if let Some(window) = app.get_webview_window(&label) {
+        window.unminimize().map_err(|e| e.to_string())?;
         window.show().map_err(|e| e.to_string())?;
         return window.set_focus().map_err(|e| e.to_string());
     }
@@ -45,7 +46,7 @@ pub fn show(
         "details"
     };
     let title = format!("Flux · {}", words[key].as_str().unwrap_or("Flux"));
-    tauri::WebviewWindowBuilder::new(
+    let window = tauri::WebviewWindowBuilder::new(
         app,
         &label,
         tauri::WebviewUrl::App(format!("index.html?{}", query.finish()).into()),
@@ -60,9 +61,12 @@ pub fn show(
         if view == "power" { 220.0 } else { 440.0 },
     )
     .background_color(tauri::window::Color(20, 22, 28, 255))
+    .focused(true)
     .center()
     .build()
     .map_err(|e| e.to_string())?;
+    window.show().map_err(|e| e.to_string())?;
+    window.set_focus().map_err(|e| e.to_string())?;
     Ok(())
 }
 #[tauri::command]

@@ -2,6 +2,8 @@
 
 The release workflow builds Windows x64 on a GitHub-hosted runner. Tags must match the version in `package.json`. Manual runs produce artifacts by default; publication creates a draft GitHub release.
 
+The current release is **2.2.0**. Its installer and portable runtime are validated on Windows x64. Keep both README files, the package version, extension manifests and `docs/releases/v2.2.0.md` aligned. Historical documents retain their original version and evidence dates.
+
 ## Clean build
 
 The workflow provisions Rust 1.99.0, Node 24.18.0 and MSYS2. `bootstrap-media-toolchain.ps1` retrieves the pinned LLVM MinGW archive with a checked SHA-256, then compiles pinned FFmpeg, libxml2 and LAME sources. The Rust application uses the standard Windows MSVC toolchain. The LGPL media build is separate from the GPL-capable fixture encoder used only by tests.
@@ -16,9 +18,22 @@ npm ci
 node ./scripts/test-daily-use.mjs target/release
 ./scripts/export-release.ps1
 ./scripts/verify-release.ps1
+./scripts/finalize-public-release.ps1
 ```
 
 Set `MSYS2_ROOT` to the actual MSYS2 installation directory. An existing custom runtime can instead be supplied through `build-release.ps1 -MediaRuntime`. `-UseLocalToolchain` is an explicit opt-in for an already installed workspace Rust/LLVM toolchain.
+
+Finalization reads `docs/releases/v<version>.md` for update notes and refuses a missing version-specific file. It creates the installer signature, `latest.json`, `SHA256SUMS.txt` and `release-info.json` in `public-release/` (or an explicit workspace output directory).
+
+## Signed application updates
+
+`TAURI_SIGNING_PRIVATE_KEY` is required by the release build and finalization. Locally, a configured key can be read from the user's `FluxSigning/updater.key` directory outside the workspace. CI uses GitHub's encrypted secret, with `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` when needed. Never commit the private key or add it to source/runtime archives.
+
+Update signing is independent of Authenticode. Flux checks signatures against its embedded public key and requires the trusted application version to match the offered release. The current Windows packages have signed update payloads but no Authenticode certificate. `release-info.json` records both states explicitly.
+
+The main desktop checks `https://github.com/Hactor00/Flux/releases/latest/download/latest.json` shortly after startup; a manual check is available in Settings. Download and installation require a user action. Before installation, active tasks are checkpointed; a failed preparation is rolled back. A release must publish the matching installer, `.sig` and `latest.json` together. Do not replace assets of an already public version with different bytes.
+
+For a manual publication, create a draft at the exact tested source commit, upload all packages and metadata, compare uploaded sizes and SHA-256 digests with the local artifacts, and publish it as the latest stable release only after verification. CI rebuilds preserve an existing release's assets. Verify public download URLs and the updater endpoint after publication.
 
 The workflow captures the frontend/core test logs, records fresh native test results and binary hashes, runs Chromium HUD rendering checks, then exports the validation report with the source. `record-hud-validation.mjs` combines the Chromium and Firefox results. `record-release-validation.mjs` reads `.tools/frontend-tests.log`, `.tools/core-tests.log` and `.tools/production-audit.json`; it refuses missing counts, mismatched validation versions or HUD evidence for a different source hash.
 

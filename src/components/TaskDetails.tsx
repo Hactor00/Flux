@@ -269,27 +269,32 @@ export function TaskDetails({
                 </div>
               </label>
               <div className="details-actions">
-                {!["complete", "cancelled", "awaiting_approval"].includes(
+                {(!["complete", "cancelled", "awaiting_approval"].includes(
                   task.status,
-                ) && (
+                ) ||
+                  !!task.torrent) && (
                   <button
                     className="secondary"
                     disabled={busy || !desktop}
                     onClick={() =>
                       void action(() =>
-                        task.status === "running" || task.status === "verifying"
+                        task.status === "running" ||
+                        task.status === "verifying" ||
+                        task.torrent?.state === "seeding"
                           ? api.pause(task.id)
                           : api.resume(task.id),
                       )
                     }
                   >
-                    {["running", "verifying"].includes(task.status) ? (
+                    {["running", "verifying"].includes(task.status) ||
+                    task.torrent?.state === "seeding" ? (
                       <Pause size={15} />
                     ) : (
                       <Play size={15} />
                     )}
                     {t(
-                      ["running", "verifying"].includes(task.status)
+                      ["running", "verifying"].includes(task.status) ||
+                        task.torrent?.state === "seeding"
                         ? "pause"
                         : "resume",
                     )}

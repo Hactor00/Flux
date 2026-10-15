@@ -8,6 +8,7 @@
   const placementKey = `hud-position:${location.hostname}`;
   let placement = { x: 1, y: 0, space: "video" };
   let activeVideo;
+  let showMediaButtons = true;
   let pageUrl = location.href;
   const margin = 8;
   const clamp = (value) => Math.max(0, Math.min(1, value));
@@ -156,20 +157,24 @@
     if (cached && cached.expires > Date.now()) return cached.promise;
     const promise = (async () => {
       if (isProvider) {
-        const resolved = await send({ type: "resolve", url: sourcePage });
-        if (!resolved?.formats?.length) throw new Error(t("noMedia"));
-        return {
-          title: resolved.title,
-          pageUrl: sourcePage,
-          provider: true,
-          videoSource,
-          choices: resolved.formats.map((format) => ({
-            ...format,
-            audio_tracks: resolved.audio_tracks || [],
-            subtitles: resolved.subtitles || [],
-            chapters: resolved.chapters || [],
-          })),
-        };
+        try {
+          const resolved = await send({ type: "resolve", url: sourcePage });
+          if (!resolved?.formats?.length) throw new Error(t("noMedia"));
+          return {
+            title: resolved.title,
+            pageUrl: sourcePage,
+            provider: true,
+            videoSource,
+            choices: resolved.formats.map((format) => ({
+              ...format,
+              audio_tracks: resolved.audio_tracks || [],
+              subtitles: resolved.subtitles || [],
+              chapters: resolved.chapters || [],
+            })),
+          };
+        } catch (error) {
+          if (!inputs.length) throw error;
+        }
       }
       if (!inputs.length) throw new Error(t("noMedia"));
       const domSubtitles = Array.from(
@@ -191,6 +196,25 @@
         }));
       const inspected = await Promise.allSettled(
         inputs.map(async (selected) => {
+          if (selected.kind === "hls" || selected.kind === "dash") {
+            try {
+              const resolved = await send({
+                type: "resolve-manifest",
+                url: selected.url,
+              });
+              return resolved.formats.map((format) => ({
+                ...selected,
+                ...format,
+                native_manifest: true,
+                audio_tracks: resolved.audio_tracks || [],
+                subtitles: [
+                  ...(resolved.subtitles || []),
+                  ...domSubtitles,
+                ].slice(0, 32),
+                chapters: resolved.chapters || [],
+              }));
+            } catch {}
+          }
           const info = await send({
             type: "inspect",
             url: selected.url,
@@ -293,6 +317,7 @@
           continue;
         }
         const visible =
+          showMediaButtons &&
           eligible.some((item) => item.video === video) &&
           (placement.space !== "viewport" || video === activeVideo);
         if (!visible) overlay.closePanel();
@@ -630,6 +655,7 @@
           type: "enqueue",
           url: selected.url,
           options: {
+            nativeManifest: !!selected.native_manifest,
             filename,
             referer: sourceContext.pageUrl,
             media: {
@@ -643,12 +669,18 @@
                   }
                 : null,
               container,
-              audio_url: audioTrack?.url || selected.audio_url || null,
+              audio_url:
+                selected.kind === "dash" && selected.native_manifest
+                  ? null
+                  : audioTrack?.url || selected.audio_url || null,
               audio_stream: audioTrack?.index ?? selected.audio_stream ?? null,
               subtitles,
               subtitle_mode: subtitles.length ? "embed" : "none",
               chapters: selected.chapters || [],
               video_stream: selected.video_stream ?? null,
+              manifest_video_id: selected.manifest_video_id || null,
+              manifest_audio_id:
+                audioTrack?.manifest_id || selected.manifest_audio_id || null,
             },
           },
         });
@@ -811,9 +843,22 @@
     send({ type: "dictionary" }),
     send({ type: "candidates" }),
     placementReady,
+    send({ type: "preferences" }).catch(() => ({ showMediaButtons: true })),
   ])
-    .then(([words, items]) => {
+    .then(([words, items, , preferences]) => {
       dictionary = words;
+      showMediaButtons = preferences?.showMediaButtons ?? true;
+      api.storage?.onChanged?.addListener((changes, area) => {
+        if (area === "local" && changes.showMediaButtons) {
+          showMediaButtons = changes.showMediaButtons.newValue ?? true;
+          if (showMediaButtons) {
+            try {
+              sessionStorage.removeItem(sessionKey());
+            } catch {}
+          }
+          schedule();
+        }
+      });
       candidates = items;
       for (const video of document.querySelectorAll("video,audio"))
         attach(video);
@@ -825,6 +870,24 @@
       });
       addEventListener("message", (event) => {
         const hint = event.data;
+        if (
+          event.source === window &&
+          event.origin === location.origin &&
+          hint?.channel === "flux-media-hint-v2" &&
+          hint.kind === "manifest" &&
+          typeof hint.url === "string" &&
+          /^https?:\/\//i.test(hint.url) &&
+          hint.url.length <= 16384 &&
+          typeof hint.text === "string" &&
+          hint.text.length <= 128 * 1024
+        ) {
+          void send({
+            type: "manifest-hint",
+            url: hint.url,
+            text: hint.text,
+          }).catch(() => {});
+          return;
+        }
         if (
           event.source !== window ||
           event.origin !== location.origin ||

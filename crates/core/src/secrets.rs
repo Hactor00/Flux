@@ -97,15 +97,15 @@ impl Secrets {
         Ok(task)
     }
     #[cfg(windows)]
-    fn seal(&self, bytes: &[u8]) -> Result<Vec<u8>> {
+    pub(crate) fn seal(&self, bytes: &[u8]) -> Result<Vec<u8>> {
         windows_protect(bytes, true)
     }
     #[cfg(windows)]
-    fn unseal(&self, bytes: &[u8]) -> Result<Vec<u8>> {
+    pub(crate) fn unseal(&self, bytes: &[u8]) -> Result<Vec<u8>> {
         windows_protect(bytes, false)
     }
     #[cfg(not(windows))]
-    fn seal(&self, bytes: &[u8]) -> Result<Vec<u8>> {
+    pub(crate) fn seal(&self, bytes: &[u8]) -> Result<Vec<u8>> {
         use chacha20poly1305::{aead::Aead, ChaCha20Poly1305, KeyInit, Nonce};
         let mut nonce = [0; 12];
         getrandom::fill(&mut nonce).map_err(|error| anyhow::anyhow!("{error}"))?;
@@ -116,7 +116,7 @@ impl Secrets {
         Ok([nonce.as_slice(), sealed.as_slice()].concat())
     }
     #[cfg(not(windows))]
-    fn unseal(&self, bytes: &[u8]) -> Result<Vec<u8>> {
+    pub(crate) fn unseal(&self, bytes: &[u8]) -> Result<Vec<u8>> {
         use chacha20poly1305::{aead::Aead, ChaCha20Poly1305, KeyInit, Nonce};
         anyhow::ensure!(bytes.len() >= 28, "Invalid protected authentication");
         ChaCha20Poly1305::new((&self.key).into())

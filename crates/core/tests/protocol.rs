@@ -25,6 +25,7 @@ async fn large_torrent_lists_use_compact_tasks_and_bounded_file_pages() {
         })
         .collect();
     let torrent = flux_core::TorrentSnapshot {
+        seeded_seconds: 0,
         info_hash: "a".repeat(40),
         state: "paused".into(),
         peers: 0,

@@ -2,6 +2,7 @@
 mod desktop;
 mod file_drag;
 mod install;
+mod integration;
 mod localization;
 mod power;
 mod shutdown;
@@ -102,6 +103,8 @@ fn main() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .setup(|app| {
             desktop::setup(app)?;
             if std::env::args().any(|arg| arg == "--shutdown-request") {
@@ -115,6 +118,10 @@ fn main() {
             pause_download,
             resume_download,
             desktop::get_settings,
+            desktop::prepare_update,
+            desktop::abort_update,
+            desktop::host_accounts,
+            desktop::save_host_account,
             desktop::add_batch,
             desktop::import_torrent,
             desktop::set_torrent_options,
@@ -129,6 +136,8 @@ fn main() {
             desktop::resolve_media,
             desktop::open_task,
             desktop::register_browser,
+            desktop::browser_integration,
+            desktop::dismiss_browser_reminder,
             desktop::suggest_directory,
             power::pending_power,
             power::cancel_power,

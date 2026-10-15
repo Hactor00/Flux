@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_appName__",
   "description": "__MSG_appDescription__",
-  "version": "2.0.0",
+  "version": "2.2.0",
   "default_locale": "en",
   "permissions": [
     "nativeMessaging",
@@ -11,6 +11,7 @@
     "contextMenus",
     "downloads",
     "webRequest",
+    "webRequestBlocking",
     "activeTab",
     "cookies"
   ],

@@ -232,14 +232,17 @@ impl CompletionWatch {
             .map(|t| t.id.as_str())
             .collect();
         if !tasks.iter().any(|t| {
-            matches!(
-                t.status,
-                Status::Queued
-                    | Status::Running
-                    | Status::Verifying
-                    | Status::AwaitingApproval
-                    | Status::Paused
-            )
+            t.torrent
+                .as_ref()
+                .is_some_and(|torrent| torrent.state == "seeding")
+                || matches!(
+                    t.status,
+                    Status::Queued
+                        | Status::Running
+                        | Status::Verifying
+                        | Status::AwaitingApproval
+                        | Status::Paused
+                )
         }) && !self.targets.is_empty()
             && self
                 .targets

@@ -128,5 +128,6 @@
   "originalAudio": "原本音訊",
   "noSubtitles": "冇字幕",
   "queueCollection": "將合集加入佇列",
-  "collectionHint": "將播放清單或者頻道最多500個項目傳送到Flux下載佇列。"
+  "collectionHint": "將播放清單或者頻道最多500個項目傳送到Flux下載佇列。",
+  "showMediaButtons": "顯示影片下載掣"
 }

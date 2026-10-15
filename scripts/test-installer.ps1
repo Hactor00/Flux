@@ -33,10 +33,10 @@ try {
     $env:LOCALAPPDATA = $localData
     $process = Start-Process -FilePath $installerPath -ArgumentList "/S /D=$installDirectory" -WindowStyle Hidden -PassThru -Wait
     if ($process.ExitCode -ne 0) { throw "Installer failed: $($process.ExitCode)" }
-    foreach ($name in @('flux-desktop.exe','flux-native-host.exe','flux-cli.exe','ffmpeg.exe','ffprobe.exe','yt-dlp.exe','node.exe','libunwind.dll','WebView2Loader.dll','extension/manifest.json','extension-firefox/manifest.json','extension-firefox-modern/manifest.json')) {
+    foreach ($name in @('flux-desktop.exe','flux-native-host.exe','flux-cli.exe','ffmpeg.exe','ffprobe.exe','yt-dlp.exe','node.exe','libunwind.dll','WebView2Loader.dll','FluxTorrentBridge.dll','libtorrent-rasterbar.dll','libssl-3-x64.dll','libcrypto-3-x64.dll','libstdc++-6.dll','libgcc_s_seh-1.dll','libwinpthread-1.dll','native-licenses/libtorrent-rasterbar/LICENSE','extension/manifest.json','extension-firefox/manifest.json','extension-firefox-modern/manifest.json')) {
         if (-not (Test-Path -LiteralPath "$installDirectory/$name")) { throw "Installer omitted: $name" }
     }
-    foreach ($name in @('flux-desktop.exe','flux-native-host.exe','flux-cli.exe','ffmpeg.exe','ffprobe.exe','yt-dlp.exe','node.exe','libunwind.dll','WebView2Loader.dll')) {
+    foreach ($name in @('flux-desktop.exe','flux-native-host.exe','flux-cli.exe','ffmpeg.exe','ffprobe.exe','yt-dlp.exe','node.exe','libunwind.dll','WebView2Loader.dll','FluxTorrentBridge.dll','libtorrent-rasterbar.dll','libssl-3-x64.dll','libcrypto-3-x64.dll','libstdc++-6.dll','libgcc_s_seh-1.dll','libwinpthread-1.dll')) {
         if ((Get-FileHash -LiteralPath "$installDirectory/$name").Hash -ne (Get-FileHash -LiteralPath "$workspace/target/release/$name").Hash) { throw "Installed executable differs from the current build: $name" }
     }
     foreach ($folder in 'extension','extension-firefox','extension-firefox-modern') {
@@ -48,6 +48,10 @@ try {
     if ($manifest.path -ne "$installDirectory\flux-native-host.exe") { throw 'Installed host manifest has the wrong executable.' }
     foreach ($key in $keys) { $file = if ($key -like '*/Mozilla/*') {'io.flux.download.firefox.json'} else {'native-host.json'}; if ((Get-Item -LiteralPath $key).GetValue('') -ne "$localData\Flux\$file") { throw "Native host registry mismatch: $key" } }
     # Prove bundled tools work without the developer toolchain on PATH.
+    $nodeExecutable = (Get-Command node.exe).Source
+    $testBrowser = & "$PSScriptRoot/prepare-chrome-tests.ps1"
+    & $nodeExecutable "$workspace/scripts/test-chrome-interception.mjs" $testBrowser "$installDirectory/extension" $installDirectory
+    if ($LASTEXITCODE -ne 0) { throw 'Installed Chromium download handoff regression failed.' }
     $firefoxManifest = Get-Content -LiteralPath "$localData/Flux/io.flux.download.firefox.json" -Raw | ConvertFrom-Json
     if ($firefoxManifest.path -ne $manifest.path -or $firefoxManifest.allowed_extensions.Count -ne 1 -or $firefoxManifest.allowed_extensions[0] -ne 'flux@flux-download.local' -or $firefoxManifest.allowed_origins) { throw 'Firefox registration schema is invalid.' }
     1..2 | ForEach-Object { $repair = Start-Process -FilePath "$installDirectory/flux-desktop.exe" -ArgumentList '--register-browser' -WindowStyle Hidden -PassThru -Wait; if ($repair.ExitCode -ne 0) { throw 'Browser bridge repair failed.' } }
@@ -57,13 +61,17 @@ try {
     if ($repair.ExitCode -ne 0) { throw 'Registration after removal failed.' }
     foreach ($key in $keys) { $file = if ($key -like '*/Mozilla/*') {'io.flux.download.firefox.json'} else {'native-host.json'}; if ((Get-Item -LiteralPath $key).GetValue('') -ne "$localData\Flux\$file") { throw 'Repair did not restore a browser registration.' } }
     if (Test-Path -LiteralPath "$workspace/.tools/firefox/geckodriver.exe") {
-        node "$PSScriptRoot/test-firefox.mjs" $installDirectory "$workspace/.tools/firefox/120.0/core/firefox.exe" "$workspace/.tools/firefox/geckodriver.exe"
+        $legacyGecko = & "$PSScriptRoot/prepare-gecko-isolation.ps1" -Version '120.0'
+        node "$PSScriptRoot/test-firefox.mjs" $installDirectory $legacyGecko "$workspace/.tools/firefox/geckodriver.exe"
         if ($LASTEXITCODE -ne 0) { throw 'Installed Firefox 120 integration failed.' }
-        node "$PSScriptRoot/test-firefox.mjs" $installDirectory "$workspace/.tools/firefox/157.0.1/core/firefox.exe" "$workspace/.tools/firefox/geckodriver.exe" --modern
+        $modernGecko = & "$PSScriptRoot/prepare-gecko-isolation.ps1" -Version '157.0.1'
+        node "$PSScriptRoot/test-firefox.mjs" $installDirectory $modernGecko "$workspace/.tools/firefox/geckodriver.exe" --modern
         if ($LASTEXITCODE -ne 0) { throw 'Installed modern Firefox integration failed.' }
     }
     $nodeExecutable = (Get-Command node.exe).Source
     $env:PATH = "$env:SystemRoot/System32;$env:SystemRoot"
+    & $nodeExecutable "$workspace/scripts/test-browser-onboarding.mjs" $installDirectory
+    if ($LASTEXITCODE -ne 0) { throw 'Installed automatic browser setup and first-use guide failed.' }
     & $nodeExecutable "$workspace/scripts/test-native.mjs" $installDirectory --desktop
     if ($LASTEXITCODE -ne 0) { throw 'Installed desktop integration failed.' }
     & $nodeExecutable "$workspace/scripts/test-window-session.mjs" $installDirectory --automatic
@@ -132,5 +140,7 @@ $report.installed_extension_sources_verified = $true
 $report.installed_binary_hashes_verified = $true
 $report.native_torrent_window_verified = $true
 $report.native_browser_bindings_verified = 5
+$report.automatic_startup_registration_verified = $true
+$report.one_time_browser_guidance_verified = $true
 $report | ConvertTo-Json | Set-Content -LiteralPath "$workspace/docs/validation/installer.json" -Encoding utf8
 Write-Output ($report | ConvertTo-Json -Compress)

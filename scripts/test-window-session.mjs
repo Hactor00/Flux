@@ -1,3 +1,4 @@
+import { preserveNativeRegistration } from "./native-test-state.mjs";
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
 import { mkdtemp, mkdir, writeFile, readFile } from "node:fs/promises";
@@ -73,6 +74,7 @@ if (automatic) {
   env.WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = `--remote-debugging-port=${port} --remote-debugging-address=127.0.0.1`;
   driver = new DesktopDriver(port);
 }
+const restoreRegistration = preserveNativeRegistration();
 const app = spawn(join(binary, "flux-desktop.exe"), [], {
   env,
   windowsHide: true,
@@ -253,13 +255,52 @@ try {
     );
     await driver.absent("download");
     await main.evaluate(
-      "window.__TAURI_INTERNALS__.invoke('open_surface',{view:'settings'})",
+      "document.querySelector('.desktop-menu-action').click(); true",
     );
     const settings = await driver.connect("settings");
     assert.ok(
       (await settings.evaluate("document.body.textContent")).includes(
         "Ayarlar",
       ),
+    );
+    async function openSettingsTab(name) {
+      const point = await settings.evaluate(
+        `(()=>{const rect=document.querySelector('[role=tab][id$="-trigger-${name}"]').getBoundingClientRect();return {x:rect.x+rect.width/2,y:rect.y+rect.height/2}})()`,
+      );
+      for (const type of ["mousePressed", "mouseReleased"])
+        await settings.call("Input.dispatchMouseEvent", {
+          type,
+          button: "left",
+          clickCount: 1,
+          ...point,
+        });
+    }
+    await openSettingsTab("seeding");
+    assert.equal(
+      await settings.evaluate(
+        "document.querySelector('.seeding-rules input').value",
+      ),
+      "1",
+    );
+    await openSettingsTab("host_accounts");
+    assert.equal(
+      await settings.evaluate(
+        "document.querySelectorAll('.host-account input[type=password]').length",
+      ),
+      3,
+    );
+    await openSettingsTab("updates");
+    assert.ok(
+      await settings.evaluate(
+        "!!document.querySelector('.updater-panel button:not(:disabled)')",
+      ),
+    );
+    const settingsImage = await settings.call("Page.captureScreenshot", {
+      format: "png",
+    });
+    await writeFile(
+      join(root, "settings-updates.png"),
+      Buffer.from(settingsImage.data, "base64"),
     );
     await settings.evaluate(
       "void window.__TAURI_INTERNALS__.invoke('close_surface'); true",
@@ -274,6 +315,8 @@ try {
       window_destruction_verified: true,
       automatic_default_verified: true,
       settings_window_verified: true,
+      top_menu_settings_verified: true,
+      seeding_accounts_updates_panels_verified: true,
       start_timestamp_verified: true,
     };
     console.log(
@@ -352,4 +395,5 @@ try {
   host.stdin.end();
   fixture.closeAllConnections();
   fixture.close();
+  restoreRegistration();
 }

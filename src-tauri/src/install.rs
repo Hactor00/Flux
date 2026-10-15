@@ -1,4 +1,4 @@
-use std::{error::Error, path::Path};
+use std::{error::Error, io::Write, path::Path};
 type InstallResult<T> = Result<T, Box<dyn Error + Send + Sync>>;
 pub fn register() -> InstallResult<String> {
     let id = include_str!("../../extension/extension-id.txt").trim();
@@ -19,7 +19,7 @@ pub fn register() -> InstallResult<String> {
     let origins = chromium_origins()?;
     let manifest = serde_json::json!({"name":"io.flux.download","description":"Flux download bridge","path":host,"type":"stdio","allowed_origins":origins});
     let manifest_path = data.join("native-host.json");
-    std::fs::write(&manifest_path, serde_json::to_vec_pretty(&manifest)?)?;
+    write_changed(&manifest_path, &serde_json::to_vec_pretty(&manifest)?)?;
     let firefox_manifest_path = data.join("io.flux.download.firefox.json");
     let firefox = serde_json::json!({
         "name": "io.flux.download",
@@ -28,10 +28,13 @@ pub fn register() -> InstallResult<String> {
         "type": "stdio",
         "allowed_extensions": [include_str!("../../extension-firefox/extension-id.txt").trim()]
     });
-    std::fs::write(&firefox_manifest_path, serde_json::to_vec_pretty(&firefox)?)?;
-    std::fs::write(
-        data.join("allowed-origins.json"),
-        serde_json::to_vec(&origins)?,
+    write_changed(
+        &firefox_manifest_path,
+        &serde_json::to_vec_pretty(&firefox)?,
+    )?;
+    write_changed(
+        &data.join("allowed-origins.json"),
+        &serde_json::to_vec(&origins)?,
     )?;
     #[cfg(windows)]
     {
@@ -39,17 +42,49 @@ pub fn register() -> InstallResult<String> {
         let registry = RegKey::predef(HKEY_CURRENT_USER);
         for (path, file) in registry_paths() {
             let (key, _) = registry.create_subkey(path)?;
-            key.set_value("", &data.join(file).to_string_lossy().as_ref())?;
+            let target = data.join(file).to_string_lossy().into_owned();
+            if key.get_value::<String, _>("").ok().as_ref() != Some(&target) {
+                key.set_value("", &target)?;
+            }
         }
         let (key, _) = registry.create_subkey("Software\\Flux")?;
-        key.set_value("BridgeDirectory", &directory.to_string_lossy().as_ref())?;
+        let owner = directory.to_string_lossy().into_owned();
+        if key.get_value::<String, _>("BridgeDirectory").ok().as_ref() != Some(&owner) {
+            key.set_value("BridgeDirectory", &owner)?;
+        }
     }
     #[cfg(not(windows))]
     for (directory, file) in native_directories()? {
         std::fs::create_dir_all(&directory)?;
-        std::fs::copy(data.join(file), directory.join("io.flux.download.json"))?;
+        write_changed(
+            &directory.join("io.flux.download.json"),
+            &std::fs::read(data.join(file))?,
+        )?;
     }
     Ok(id.into())
+}
+
+pub(crate) fn write_changed(path: &Path, bytes: &[u8]) -> InstallResult<()> {
+    if std::fs::read(path).ok().as_deref() == Some(bytes) {
+        return Ok(());
+    }
+    let parent = path.parent().ok_or("Target directory unavailable")?;
+    let temporary = parent.join(format!(".flux-{}.tmp", uuid::Uuid::new_v4()));
+    let result = (|| -> InstallResult<()> {
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&temporary)?;
+        file.write_all(bytes)?;
+        file.sync_all()?;
+        drop(file);
+        std::fs::rename(&temporary, path)?;
+        Ok(())
+    })();
+    if result.is_err() {
+        let _ = std::fs::remove_file(&temporary);
+    }
+    result
 }
 pub fn unregister() -> InstallResult<()> {
     crate::startup::remove_owned().map_err(std::io::Error::other)?;
@@ -221,6 +256,28 @@ fn native_directories() -> InstallResult<Vec<(std::path::PathBuf, &'static str)>
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn manifest_replacement_retains_unchanged_files_and_cleans_failed_writes() {
+        let directory =
+            std::env::temp_dir().join(format!("flux-manifest-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir(&directory).unwrap();
+        let path = directory.join("manifest.json");
+        write_changed(&path, b"first").unwrap();
+        let modified = std::fs::metadata(&path).unwrap().modified().unwrap();
+        write_changed(&path, b"first").unwrap();
+        assert_eq!(
+            modified,
+            std::fs::metadata(&path).unwrap().modified().unwrap()
+        );
+        write_changed(&path, b"second").unwrap();
+        assert_eq!(std::fs::read(&path).unwrap(), b"second");
+        let blocked = directory.join("blocked");
+        std::fs::create_dir(&blocked).unwrap();
+        assert!(write_changed(&blocked, b"invalid").is_err());
+        assert_eq!(std::fs::read_dir(&directory).unwrap().count(), 2);
+        std::fs::remove_dir_all(&directory).unwrap();
+    }
 
     #[test]
     fn packaged_origins_include_the_shared_extension_and_are_unique() {

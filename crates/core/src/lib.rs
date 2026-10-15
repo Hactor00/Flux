@@ -23,6 +23,7 @@ pub mod signing;
 mod store;
 mod torrent;
 mod torrent_native;
+mod torrent_watch;
 mod transport;
 mod watchdog;
 
@@ -36,6 +37,17 @@ pub use model::{
     SubtitleTrack, Task, TorrentFile, TorrentOptions, TorrentSnapshot, TransportPreference,
 };
 pub use preferences::{CategoryFolders, ClipboardMode, ShutdownAction};
+pub use torrent_watch::{TorrentWatch, WatchMode, WatchReport};
+pub fn bundled_runtime(name: &str) -> Option<std::path::PathBuf> {
+    let current = std::env::current_exe().ok()?;
+    let parent = current.parent()?;
+    let candidates = vec![parent.join(name), parent.join("resources").join(name)];
+    #[cfg(target_os = "linux")]
+    let candidates = candidates
+        .into_iter()
+        .chain([std::path::Path::new("/usr/lib/flux").join(name)]);
+    candidates.into_iter().find(|path| path.is_file())
+}
 pub fn default_data_directory() -> anyhow::Result<std::path::PathBuf> {
     #[cfg(windows)]
     let directory = std::env::var_os("LOCALAPPDATA").map(std::path::PathBuf::from);

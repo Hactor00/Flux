@@ -11,6 +11,25 @@ fn error(error: impl std::fmt::Display) -> String {
     error.to_string()
 }
 #[tauri::command]
+pub fn runtime_platform() -> &'static str {
+    std::env::consts::OS
+}
+#[tauri::command]
+pub fn open_release_page(app: tauri::AppHandle) -> Result<(), String> {
+    app.opener()
+        .open_url(
+            "https://github.com/Hactor00/Flux/releases/latest",
+            None::<&str>,
+        )
+        .map_err(error)
+}
+#[tauri::command]
+pub async fn torrent_watch_report(
+    state: State<'_, Backend>,
+) -> Result<flux_core::WatchReport, String> {
+    Ok(state.engine.torrent_watch_report().await)
+}
+#[tauri::command]
 pub async fn prepare_update(state: State<'_, Backend>) -> Result<(), String> {
     state.engine.prepare_update().await.map_err(error)
 }
@@ -335,6 +354,12 @@ pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
         });
     }
     let engine_data = data.clone();
+    #[cfg(target_os = "linux")]
+    let category_root = app
+        .path()
+        .download_dir()
+        .or_else(|_| app.path().home_dir().map(|home| home.join("Downloads")))?;
+    #[cfg(not(target_os = "linux"))]
     let category_root = app.path().download_dir()?;
     let downloads = category_root.join("Flux");
     let engine = tauri::async_runtime::block_on(tauri::async_runtime::spawn(async move {

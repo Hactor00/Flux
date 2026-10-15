@@ -1,0 +1,49 @@
+name: Assemble verified platform release
+on:
+  workflow_dispatch:
+    inputs:
+      windows_run:
+        required: true
+        description: Successful Windows package workflow run ID
+      linux_run:
+        required: true
+        description: Successful Linux RPM workflow run ID
+  push:
+    branches: ["codex/publish-*"]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  assemble:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-windows-x64
+          path: .tools/platform-release
+          run-id: ${{ inputs.windows_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux-rpm
+          path: .tools/platform-release
+          run-id: ${{ inputs.linux_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify identities and stage the complete draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WINDOWS_RUN: ${{ inputs.windows_run }}
+          LINUX_RUN: ${{ inputs.linux_run }}
+        run: python3 scripts/assemble-platform-release.py .tools/platform-release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-manifest
+          path: |
+            .tools/platform-release/SHA256SUMS.txt
+            .tools/platform-release/release-info.json
+            .tools/platform-release/latest.json

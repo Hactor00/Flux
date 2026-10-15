@@ -73,6 +73,7 @@ struct Inner {
     torrents: crate::torrent::TorrentManager,
     hosts: Arc<crate::debrid::Resolver>,
     completion: Mutex<crate::preferences::CompletionWatch>,
+    torrent_watch: Mutex<crate::torrent_watch::Scanner>,
     _lock: std::fs::File,
 }
 #[derive(Clone)]
@@ -156,6 +157,7 @@ impl Engine {
             global_limiter: Arc::new(Limiter::new(global_rate)),
             refresh: Arc::new(crate::healing::RefreshBroker::default()),
             completion: Mutex::new(crate::preferences::CompletionWatch::default()),
+            torrent_watch: Mutex::new(crate::torrent_watch::Scanner::default()),
             _lock: lock,
         })))
     }
@@ -549,6 +551,96 @@ impl Engine {
         Ok(())
     }
     pub async fn run_scheduler(&self, cancel: CancellationToken) -> Result<()> {
+        tokio::try_join!(
+            self.run_queue_scheduler(cancel.clone()),
+            self.run_torrent_watcher(cancel)
+        )?;
+        Ok(())
+    }
+    async fn run_torrent_watcher(&self, cancel: CancellationToken) -> Result<()> {
+        let mut interval = tokio::time::interval(Duration::from_secs(3));
+        interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
+        loop {
+            tokio::select! { _ = cancel.cancelled() => return Ok(()), _ = interval.tick() => {} }
+            if self.0.closing.load(Ordering::SeqCst) {
+                return Ok(());
+            }
+            if !self.0.updating.load(Ordering::SeqCst) {
+                if let Err(error) = self.scan_torrent_folders().await {
+                    self.0.torrent_watch.lock().await.report.error = Some(error.to_string());
+                }
+            }
+        }
+    }
+    pub async fn torrent_watch_report(&self) -> crate::WatchReport {
+        self.0.torrent_watch.lock().await.report.clone()
+    }
+    pub async fn scan_torrent_folders(&self) -> Result<usize> {
+        let mut scanner = self.0.torrent_watch.lock().await;
+        let settings = self.settings().await?;
+        let candidates = scanner.scan(&settings.torrent_watch).await?;
+        let mut imported = 0;
+        for candidate in candidates {
+            let fingerprint = hex::encode(Sha256::digest(&candidate.bytes));
+            if self.0.store.watch_imported(fingerprint.clone()).await? {
+                scanner.accept(&candidate.path);
+                continue;
+            }
+            let result = async {
+                let source = self.0.torrents.import_bytes(&candidate.bytes).await?;
+                let id = source
+                    .strip_prefix("torrent:")
+                    .context("Missing torrent identifier")?
+                    .to_owned();
+                let mut request = DownloadRequest {
+                    url: source,
+                    filename: crate::preferences::safe_filename(
+                        candidate
+                            .path
+                            .file_stem()
+                            .and_then(|name| name.to_str())
+                            .unwrap_or("Torrent"),
+                    ),
+                    auto_rename: true,
+                    torrent: Some(crate::TorrentOptions::default()),
+                    ..Default::default()
+                };
+                let result = self
+                    .insert_request_watched(
+                        id.clone(),
+                        &mut request,
+                        if settings.torrent_watch.mode == crate::WatchMode::Automatic {
+                            Status::Queued
+                        } else {
+                            Status::AwaitingApproval
+                        },
+                        settings.torrent_watch.destination.clone(),
+                        Some(fingerprint),
+                    )
+                    .await;
+                if result.is_err()
+                    && matches!(self.0.store.task_exists(id.clone()).await, Ok(false))
+                {
+                    self.0.torrents.discard_import(&id).await?;
+                }
+                result
+            }
+            .await;
+            match result {
+                Ok(_) => {
+                    scanner.accept(&candidate.path);
+                    imported += 1;
+                    scanner.report.imported += 1;
+                }
+                Err(error) => scanner.reject(
+                    candidate.path.clone(),
+                    format!("{}: {error:#}", candidate.path.display()),
+                ),
+            }
+        }
+        Ok(imported)
+    }
+    async fn run_queue_scheduler(&self, cancel: CancellationToken) -> Result<()> {
         let mut interval = tokio::time::interval(Duration::from_millis(300));
         loop {
             tokio::select! { _ = cancel.cancelled() => return Ok(()), _ = interval.tick() => {} }
@@ -919,6 +1011,17 @@ impl Engine {
         status: Status,
         directory: Option<PathBuf>,
     ) -> Result<Task> {
+        self.insert_request_watched(id, request, status, directory, None)
+            .await
+    }
+    async fn insert_request_watched(
+        &self,
+        id: String,
+        request: &mut DownloadRequest,
+        status: Status,
+        directory: Option<PathBuf>,
+        fingerprint: Option<String>,
+    ) -> Result<Task> {
         self.decode_credentials(request)?;
         model::validate(request)?;
         uuid::Uuid::parse_str(&id).context("Task ID must be a UUID")?;
@@ -989,7 +1092,7 @@ impl Engine {
         };
         self.0
             .store
-            .insert(task.clone())
+            .insert_watched(task.clone(), fingerprint)
             .await
             .context("Destination is already reserved by another task")?;
         self.observe_completion_tasks(std::slice::from_ref(&task))

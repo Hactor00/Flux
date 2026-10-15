@@ -221,7 +221,7 @@ try {
     });
   }
   const report = {
-    version: "2.2.0",
+    version: JSON.parse(await readFile("package.json", "utf8")).version,
     passed: true,
     provider: "YouTube",
     production_native_window: true,

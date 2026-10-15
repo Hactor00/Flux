@@ -1,25 +1,25 @@
 {
-  "passed": true,
+  "runtime_only": true,
+  "time": "2026-10-15T13:26:26.6506607Z",
   "source_hashes_verified": true,
+  "passed": true,
   "packages": [
     {
+      "name": "chrome",
       "files": 59,
-      "sha256": "909043916719159a874c814affeea652584724f0fb4cf22e6c636676e6680fca",
-      "name": "chrome"
+      "sha256": "3a72cee1b143633280cef221e334f4b6c30f73acd0dd8e472c9a5d3975a0298f"
     },
     {
+      "name": "edge",
       "files": 59,
-      "sha256": "909043916719159a874c814affeea652584724f0fb4cf22e6c636676e6680fca",
-      "name": "edge"
+      "sha256": "3a72cee1b143633280cef221e334f4b6c30f73acd0dd8e472c9a5d3975a0298f"
     },
     {
+      "name": "firefox",
       "files": 59,
-      "sha256": "1466ebe1fc1a7535ff481e49a6905efcd99677514ba92186c42679d9852e180e",
-      "name": "firefox"
+      "sha256": "5d766bfa09f3611bc038e7392cb99584c15e6fcf411ce1b4d687bcb24ae1e6a3"
     }
   ],
-  "version": "2.2.0",
-  "runtime_only": true,
-  "time": "2026-10-13T22:36:47.4725992Z",
+  "version": "2.3.0",
   "local_paths_and_credentials_removed": true
 }

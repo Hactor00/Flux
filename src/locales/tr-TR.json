@@ -226,5 +226,14 @@
   "bridge_automatic": "Flux, açılışta yerel tarayıcı köprüsünü otomatik kaydeder ve onarır. Taşınabilir sürümde de çalışır.",
   "bridge_extension_step": "Tarayıcına Flux eklentisini kurup etkinleştir, istenen site ve yerel mesajlaşma izinlerini ver, ardından açık sekmeleri yenile. Köprü kaydı eklentiyi kurmaz.",
   "bridge_repair_help": "Eklenti bağlanamıyorsa Ayarlar → Tarayıcı bütünleşmesi → Tarayıcı köprüsünü onar yolunu aç.",
-  "bridge_dismiss": "Anladım — bir daha gösterme"
+  "bridge_dismiss": "Anladım — bir daha gösterme",
+  "watch_title": "Torrent klasörlerini izle",
+  "watch_help": "Seçilen klasörlerdeki .torrent dosyaları değişimleri durduktan sonra 3 saniyede bir kontrol edilir. Aynı dosya, yeniden başlatmalar dahil yalnızca bir kez eklenir. Alt klasörler taranmaz. Uygulamak için kaydedin.",
+  "watch_enabled": "Klasör izlemeyi etkinleştir",
+  "watch_add": "Klasör ekle",
+  "watch_mode": "Torrent geldiğinde",
+  "watch_approval": "Onay iste",
+  "watch_automatic": "İndirme kuyruğuna otomatik ekle",
+  "watch_imported": "Bu oturumda eklenen: {{count}}",
+  "rpm_updates_help": "Linux RPM güncellemeleri paket yöneticinizle kurulur. Güncel sürümü açın, RPM dosyasını indirin ve dnf ile kurun."
 }

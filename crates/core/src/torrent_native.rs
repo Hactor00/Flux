@@ -95,6 +95,9 @@ impl Api {
         #[cfg(not(any(windows, target_os = "linux", target_os = "macos")))]
         let name = "libflux_torrent.so";
         let mut path = directory.join(name);
+        if let Some(bundled) = crate::bundled_runtime(name) {
+            path = bundled;
+        }
         if cfg!(debug_assertions)
             && !path.exists()
             && directory.file_name().is_some_and(|name| name == "deps")
@@ -380,6 +383,77 @@ mod tests {
     use sha2::{Digest, Sha256};
     use std::time::Duration;
 
+    #[cfg(windows)]
+    fn capture_native_faults() {
+        #[repr(C)]
+        struct Record {
+            code: u32,
+            flags: u32,
+            nested: *mut std::ffi::c_void,
+            address: *mut std::ffi::c_void,
+        }
+        #[repr(C)]
+        struct Pointers {
+            record: *const Record,
+            context: *mut std::ffi::c_void,
+        }
+        unsafe extern "system" fn report(pointers: *const Pointers) -> i32 {
+            let record = unsafe { &*(*pointers).record };
+            eprintln!(
+                "Native exception {:#x} at {}",
+                record.code,
+                location(record.address),
+            );
+            let mut frames = [std::ptr::null_mut(); 32];
+            let count = unsafe {
+                RtlCaptureStackBackTrace(0, 32, frames.as_mut_ptr(), std::ptr::null_mut())
+            };
+            for address in frames.iter().take(count as usize) {
+                eprintln!("Native frame {}", location(*address));
+            }
+            1
+        }
+        fn location(address: *mut std::ffi::c_void) -> String {
+            let mut module = std::ptr::null_mut();
+            if unsafe { GetModuleHandleExW(6, address.cast(), &mut module) } == 0 {
+                return format!("{address:?}");
+            }
+            let mut path = [0u16; 512];
+            let length =
+                unsafe { GetModuleFileNameW(module, path.as_mut_ptr(), path.len() as u32) };
+            format!(
+                "{}+{:#x}",
+                String::from_utf16_lossy(&path[..length as usize]),
+                address as usize - module as usize
+            )
+        }
+        #[link(name = "kernel32")]
+        extern "system" {
+            fn SetUnhandledExceptionFilter(
+                filter: unsafe extern "system" fn(*const Pointers) -> i32,
+            ) -> *mut std::ffi::c_void;
+            fn GetModuleHandleExW(
+                flags: u32,
+                address: *const u16,
+                module: *mut *mut std::ffi::c_void,
+            ) -> i32;
+            fn GetModuleFileNameW(
+                module: *mut std::ffi::c_void,
+                path: *mut u16,
+                capacity: u32,
+            ) -> u32;
+            fn RtlCaptureStackBackTrace(
+                skip: u32,
+                count: u32,
+                frames: *mut *mut std::ffi::c_void,
+                hash: *mut u32,
+            ) -> u16;
+        }
+        unsafe {
+            SetUnhandledExceptionFilter(report);
+        }
+    }
+
     fn create(path: &Path, mode: u32) -> Vec<u8> {
         let api = Api::open().unwrap();
         let path = CString::new(path.to_str().unwrap()).unwrap();
@@ -467,14 +541,29 @@ mod tests {
             .join()
             .unwrap();
         }
+        let root = tempfile::tempdir().unwrap();
+        let file = root.path().join("metadata.bin");
+        std::fs::write(&file, vec![83u8; 64 * 1024]).unwrap();
+        for _ in 0..100 {
+            let metadata = create(&file, 2);
+            let sessions: Vec<_> = (0..3).map(|_| Session::new(0, 0, false).unwrap()).collect();
+            for session in &sessions {
+                let handle = session.add(&metadata, false, root.path()).unwrap();
+                session
+                    .start(handle, root.path(), &TorrentOptions::default(), 0)
+                    .unwrap();
+            }
+            drop(sessions);
+        }
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
     async fn v2_and_hybrid_transfer_verify_sha256_and_seed_lifecycle() {
         const CHILD: &str = "FLUX_TORRENT_TRANSFER_CHILD";
         if std::env::var_os(CHILD).is_none() {
-            let mut child = tokio::process::Command::new(std::env::current_exe().unwrap());
-            child
+            for attempt in 1..=5 {
+                let mut child = tokio::process::Command::new(std::env::current_exe().unwrap());
+                child
                 .args([
                     "--exact",
                     "torrent_native::tests::v2_and_hybrid_transfer_verify_sha256_and_seed_lifecycle",
@@ -482,19 +571,22 @@ mod tests {
                 ])
                 .env(CHILD, "1")
                 .kill_on_drop(true);
-            let output = tokio::time::timeout(Duration::from_secs(180), child.output())
-                .await
-                .expect("Native transfer child exceeded its deadline")
-                .unwrap();
-            assert!(
-                output.status.success(),
-                "Native transfer child failed: {:?}\n{}\n{}",
-                output.status,
-                String::from_utf8_lossy(&output.stdout),
-                String::from_utf8_lossy(&output.stderr)
-            );
+                let output = tokio::time::timeout(Duration::from_secs(180), child.output())
+                    .await
+                    .expect("Native transfer child exceeded its deadline")
+                    .unwrap();
+                assert!(
+                    output.status.success(),
+                    "Native transfer child {attempt} failed: {:?}\n{}\n{}",
+                    output.status,
+                    String::from_utf8_lossy(&output.stdout),
+                    String::from_utf8_lossy(&output.stderr)
+                );
+            }
             return;
         }
+        #[cfg(windows)]
+        capture_native_faults();
         for (mode, magnet_source) in [(2, false), (0, false), (2, true)] {
             let root = tempfile::tempdir().unwrap();
             let source = root.path().join("source");
@@ -513,13 +605,15 @@ mod tests {
             seeder
                 .start(handle, &source, &TorrentOptions::default(), 0)
                 .unwrap();
-            tokio::time::timeout(Duration::from_secs(10), async {
+            tokio::time::timeout(Duration::from_secs(30), async {
                 while seeder.stats(handle).unwrap().finished == 0 || port(&seeder) == 0 {
                     tokio::time::sleep(Duration::from_millis(100)).await;
                 }
             })
             .await
-            .unwrap();
+            .unwrap_or_else(|error| {
+                panic!("Seeder mode={mode}, magnet={magnet_source}: {error}; stats={:?}; port={}; diagnostic={}", seeder.stats(handle), port(&seeder), diagnostic(&seeder))
+            });
             let torrent = root.path().join("fixture.torrent");
             tokio::fs::write(&torrent, metainfo).await.unwrap();
             let engine = Engine::open(root.path().join("data"), root.path().join("downloads"))

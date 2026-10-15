@@ -4,6 +4,14 @@ on:
     tags: ["v*"]
   workflow_dispatch:
     inputs:
+      candidate_run:
+        type: string
+        default: ""
+        description: Revalidate unchanged packages from a previous compiled candidate
+      rebuild_media:
+        type: boolean
+        default: false
+        description: Rebuild the pinned LGPL tools instead of reusing the verified released runtime
       sign:
         type: boolean
         default: false
@@ -30,6 +38,7 @@ jobs:
             artifact: windows-x64
     env:
       FLUX_REQUIRE_MEDIA_TESTS: "1"
+      RUST_MIN_STACK: "8388608"
       SIGN_REQUESTED: ${{ inputs.sign || vars.SIGNPATH_ENABLED == 'true' }}
       SIGNPATH_ORGANIZATION_ID: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
       SIGNPATH_PROJECT_SLUG: ${{ vars.SIGNPATH_PROJECT_SLUG }}
@@ -48,6 +57,9 @@ jobs:
           toolchain: "1.99.0"
           targets: ${{ matrix.target }}
           components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
       - uses: msys2/setup-msys2@v2
         id: msys2
         with:
@@ -86,15 +98,61 @@ jobs:
         shell: pwsh
         run: ./scripts/prepare-test-runtime.ps1
       - name: Build pinned LGPL media runtime
+        if: inputs.rebuild_media
         shell: pwsh
         run: ./scripts/bootstrap-media-toolchain.ps1 -PkgconfBin (Join-Path '${{ steps.msys2.outputs.msys2-location }}' 'ucrt64/bin') -Bash (Join-Path '${{ steps.msys2.outputs.msys2-location }}' 'usr/bin/bash.exe')
-      - name: Compile and package
+      - name: Verify released LGPL media runtime
+        if: ${{ !inputs.rebuild_media && !inputs.candidate_run }}
         shell: pwsh
+        run: ./scripts/prepare-released-media.ps1
+      - name: Download compiled candidates
+        if: inputs.candidate_run != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: candidate-windows-x64
+          path: release
+          run-id: ${{ inputs.candidate_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Prepare Windows packages
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./scripts/build-release.ps1
-          $runtime = Join-Path (Get-Content .tools/media-build-path.txt) 'runtime/bin'
+          if ('${{ inputs.candidate_run }}' -ne '') {
+            ./scripts/restore-release-candidate.ps1 -RunId '${{ inputs.candidate_run }}'
+          } elseif ('${{ inputs.rebuild_media }}' -eq 'true') {
+            ./scripts/build-release.ps1
+          } else {
+            ./scripts/build-release.ps1 -RuntimePackage (Get-Content .tools/released-media-path.txt -Raw)
+          }
+          if ('${{ inputs.candidate_run }}' -eq '') {
+            @{build_run=$env:GITHUB_RUN_ID;source_commit=$env:GITHUB_SHA} | ConvertTo-Json | Set-Content release/candidate-provenance.json -Encoding utf8
+            "FLUX_BINARY_BUILD_RUN=$env:GITHUB_RUN_ID" >> $env:GITHUB_ENV
+            "FLUX_BINARY_SOURCE_COMMIT=$env:GITHUB_SHA" >> $env:GITHUB_ENV
+          }
+          $runtime = Join-Path $PWD 'target/release'
           $env:FLUX_FFMPEG = Join-Path $runtime 'ffmpeg.exe'
           $env:FLUX_FFPROBE = Join-Path $runtime 'ffprobe.exe'
+          "FLUX_FFMPEG=$env:FLUX_FFMPEG" >> $env:GITHUB_ENV
+          "FLUX_FFPROBE=$env:FLUX_FFPROBE" >> $env:GITHUB_ENV
+      - name: Save compiled candidates before integration checks
+        uses: actions/upload-artifact@v4
+        with:
+          name: candidate-windows-x64
+          path: |
+            release/Flux_${{ steps.plan.outputs.version }}_x64-setup.exe
+            release/Flux-${{ steps.plan.outputs.version }}-windows-x64.zip
+            release/Flux-${{ steps.plan.outputs.version }}-chrome.zip
+            release/Flux-${{ steps.plan.outputs.version }}-firefox.zip
+            release/Flux-${{ steps.plan.outputs.version }}-firefox-120.zip
+            release/Flux-${{ steps.plan.outputs.version }}-source.zip
+            release/SHA256SUMS.txt
+            release/candidate-provenance.json
+          if-no-files-found: error
+      - name: Core and desktop checks
+        if: env.FLUX_CORE_TEST_RUN == ''
+        shell: pwsh
+        run: |
           cargo fmt --all -- --check
           if ($LASTEXITCODE -ne 0) { throw 'Rust formatting failed.' }
           cargo test --locked -p flux-core -p flux-cli -p flux-native-host *> .tools/core-tests.log
@@ -104,18 +162,51 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Desktop registration tests failed.' }
           cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
           if ($LASTEXITCODE -ne 0) { throw 'Clippy failed.' }
+      - name: Download source-equivalent core validation
+        if: env.FLUX_CORE_TEST_RUN != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.FLUX_CORE_TEST_ARTIFACT }}
+          path: .tools/validated-core
+          run-id: ${{ env.FLUX_CORE_TEST_RUN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Retain verified core test evidence
+        if: env.FLUX_CORE_TEST_RUN != ''
+        shell: pwsh
+        run: |
+          $log = Get-Content .tools/validated-core/core-tests.log -Raw
+          if ($log -match 'test result: FAILED' -or $log -notmatch 'test result: ok\. 4 passed') { throw 'Candidate core test evidence is incomplete.' }
+          Copy-Item -LiteralPath .tools/validated-core/core-tests.log -Destination .tools/core-tests.log -Force
+          Write-Output "Retained successful Rust, desktop, formatting and Clippy checks from source-equivalent run $env:FLUX_CORE_TEST_RUN."
+      - name: Save core validation evidence
+        if: env.FLUX_CORE_TEST_RUN == ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-validation-windows-x64
+          path: .tools/core-tests.log
+          if-no-files-found: error
+      - name: Browser and installed package checks
+        shell: pwsh
+        run: |
           ./scripts/prepare-firefox-tests.ps1
-          node ./scripts/test-firefox.mjs target/release .tools/firefox/120.0/core/firefox.exe .tools/firefox/geckodriver.exe
+          $legacyGecko = ./scripts/prepare-gecko-isolation.ps1 -Version '120.0'
+          $modernGecko = ./scripts/prepare-gecko-isolation.ps1 -Version '157.0.1'
+          node ./scripts/test-firefox.mjs target/release $legacyGecko .tools/firefox/geckodriver.exe
           if ($LASTEXITCODE -ne 0) { throw 'Firefox 120 integration failed.' }
-          node ./scripts/test-firefox.mjs target/release .tools/firefox/157.0.1/core/firefox.exe .tools/firefox/geckodriver.exe --modern
+          node ./scripts/test-firefox.mjs target/release $modernGecko .tools/firefox/geckodriver.exe --modern
           if ($LASTEXITCODE -ne 0) { throw 'Modern Firefox integration failed.' }
           ./scripts/test-installer.ps1
           node ./scripts/test-daily-use.mjs target/release
           if ($LASTEXITCODE -ne 0) { throw 'Native daily-use tests failed.' }
           node ./scripts/test-torrent-window.mjs target/release
           if ($LASTEXITCODE -ne 0) { throw 'Native torrent window tests failed.' }
+          node ./scripts/test-torrent-watch-window.mjs target/release
+          if ($LASTEXITCODE -ne 0) { throw 'Torrent watch folder window tests failed.' }
           node ./scripts/test-chrome-hud.mjs
           if ($LASTEXITCODE -ne 0) { throw 'Chromium HUD layout failed.' }
+      - name: Record validation and verify package contents
+        shell: pwsh
+        run: |
           node ./scripts/record-hud-validation.mjs
           if ($LASTEXITCODE -ne 0) { throw 'HUD validation record failed.' }
           node ./scripts/record-release-validation.mjs
@@ -155,6 +246,15 @@ jobs:
           name: release-${{ matrix.artifact }}
           path: public-release/*
           if-no-files-found: error
+      - name: Preserve failed validation diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-diagnostics-windows-x64
+          path: |
+            .tools/core-tests.log
+            .tools/frontend-tests.log
+          if-no-files-found: warn
   publish:
     if: inputs.publish || github.ref_type == 'tag'
     needs: build

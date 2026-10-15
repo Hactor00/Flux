@@ -2,10 +2,14 @@ name: Validate Flux
 on: [push, pull_request]
 permissions:
   contents: read
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   core:
     env:
       FLUX_REQUIRE_MEDIA_TESTS: "1"
+      RUST_MIN_STACK: "8388608"
     strategy:
       fail-fast: false
       matrix:
@@ -33,6 +37,10 @@ jobs:
         run: ./scripts/build-torrent-runtime.ps1
       - run: cargo fmt --all -- --check
       - run: cargo test --locked -p flux-core -p flux-cli -p flux-native-host
+      - if: failure() && runner.os == 'Windows'
+        name: Report native process faults
+        shell: pwsh
+        run: Get-WinEvent -FilterHashtable @{LogName='Application'; Id=1000; StartTime=(Get-Date).AddMinutes(-15)} -ErrorAction Continue | Select-Object -First 8 -ExpandProperty Message
       - run: cargo clippy --locked -p flux-core -p flux-cli -p flux-native-host --all-targets --all-features -- -D warnings
   desktop:
     runs-on: windows-2022
@@ -61,3 +69,4 @@ jobs:
       - run: node scripts/test-media-window.mjs target/debug
       - run: node scripts/test-media-window.mjs target/debug --suite
       - run: node scripts/test-torrent-window.mjs target/debug
+      - run: node scripts/test-torrent-watch-window.mjs target/debug

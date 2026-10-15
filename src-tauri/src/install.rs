@@ -203,21 +203,26 @@ fn registry_paths() -> [(&'static str, &'static str); 5] {
 fn native_directories() -> InstallResult<Vec<(std::path::PathBuf, &'static str)>> {
     let home = std::path::PathBuf::from(std::env::var_os("HOME").ok_or("HOME unavailable")?);
     #[cfg(target_os = "linux")]
+    let config = std::env::var_os("XDG_CONFIG_HOME")
+        .map(std::path::PathBuf::from)
+        .filter(|path| path.is_absolute())
+        .unwrap_or_else(|| home.join(".config"));
+    #[cfg(target_os = "linux")]
     let paths = vec![
         (
-            home.join(".config/google-chrome/NativeMessagingHosts"),
+            config.join("google-chrome/NativeMessagingHosts"),
             "native-host.json",
         ),
         (
-            home.join(".config/chromium/NativeMessagingHosts"),
+            config.join("chromium/NativeMessagingHosts"),
             "native-host.json",
         ),
         (
-            home.join(".config/microsoft-edge/NativeMessagingHosts"),
+            config.join("microsoft-edge/NativeMessagingHosts"),
             "native-host.json",
         ),
         (
-            home.join(".config/BraveSoftware/Brave-Browser/NativeMessagingHosts"),
+            config.join("BraveSoftware/Brave-Browser/NativeMessagingHosts"),
             "native-host.json",
         ),
         (

@@ -266,6 +266,7 @@ pub struct Settings {
     pub category_folders: crate::CategoryFolders,
     pub clipboard_mode: crate::ClipboardMode,
     pub launch_at_startup: bool,
+    pub torrent_watch: crate::TorrentWatch,
 }
 impl Default for Settings {
     fn default() -> Self {
@@ -286,12 +287,14 @@ impl Default for Settings {
             category_folders: crate::CategoryFolders::default(),
             clipboard_mode: crate::ClipboardMode::Approval,
             launch_at_startup: false,
+            torrent_watch: crate::TorrentWatch::default(),
         }
     }
 }
 impl Settings {
     pub fn validate(&self) -> anyhow::Result<()> {
         self.seeding.validate()?;
+        self.torrent_watch.validate()?;
         anyhow::ensure!(
             self.torrent_upload_limit <= i32::MAX as u64,
             "Torrent upload limit exceeds two GiB per second"

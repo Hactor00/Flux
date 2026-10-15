@@ -226,5 +226,14 @@
   "bridge_automatic": "Flux tự đăng ký và sửa cầu nối cục bộ khi khởi động, kể cả bản di động.",
   "bridge_extension_step": "Cài và bật tiện ích Flux, cấp quyền truy cập trang web và nhắn tin gốc được yêu cầu, rồi tải lại các thẻ đang mở. Đăng ký cầu nối không cài tiện ích.",
   "bridge_repair_help": "Nếu tiện ích không kết nối, mở Cài đặt → Tích hợp trình duyệt → Sửa cầu nối trình duyệt.",
-  "bridge_dismiss": "Đã hiểu — không hiện lại"
+  "bridge_dismiss": "Đã hiểu — không hiện lại",
+  "watch_title": "Thư mục torrent được theo dõi",
+  "watch_help": "Kiểm tra các thư mục đã chọn mỗi 3 giây sau khi tệp .torrent ngừng thay đổi. Tệp giống nhau chỉ được nhập một lần, kể cả sau khi khởi động lại. Không gồm thư mục con. Lưu để áp dụng.",
+  "watch_enabled": "Bật theo dõi thư mục",
+  "watch_add": "Thêm thư mục",
+  "watch_mode": "Khi có torrent mới",
+  "watch_approval": "Yêu cầu xác nhận",
+  "watch_automatic": "Tự động thêm vào hàng đợi",
+  "watch_imported": "Đã nhập trong phiên này: {{count}}",
+  "rpm_updates_help": "Bản cập nhật RPM Linux được cài qua trình quản lý gói. Mở bản phát hành mới nhất, tải RPM và cài bằng dnf."
 }

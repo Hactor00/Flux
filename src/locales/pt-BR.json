@@ -226,5 +226,14 @@
   "bridge_automatic": "O Flux registra e repara automaticamente sua ponte local ao iniciar, inclusive na edição portátil.",
   "bridge_extension_step": "Instale e ative a extensão Flux, conceda as permissões de sites e comunicação nativa solicitadas e atualize as abas abertas. Registrar a ponte não instala a extensão.",
   "bridge_repair_help": "Se a extensão não conectar, abra Configurações → Integração do navegador → Reparar ponte do navegador.",
-  "bridge_dismiss": "Entendi — não mostrar novamente"
+  "bridge_dismiss": "Entendi — não mostrar novamente",
+  "watch_title": "Pastas de torrents monitoradas",
+  "watch_help": "As pastas selecionadas são verificadas a cada 3 segundos após os arquivos .torrent pararem de mudar. Arquivos idênticos são importados uma vez, mesmo após reiniciar. Subpastas não são incluídas. Salve para aplicar.",
+  "watch_enabled": "Ativar monitoramento de pastas",
+  "watch_add": "Adicionar pasta",
+  "watch_mode": "Quando um torrent chegar",
+  "watch_approval": "Pedir confirmação",
+  "watch_automatic": "Adicionar automaticamente à fila",
+  "watch_imported": "Importados nesta sessão: {{count}}",
+  "rpm_updates_help": "As atualizações RPM do Linux são instaladas pelo gerenciador de pacotes. Abra a versão mais recente, baixe o RPM e instale com dnf."
 }

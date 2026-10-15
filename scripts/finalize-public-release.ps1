@@ -27,4 +27,4 @@ if (-not (Test-Path -LiteralPath $releaseNotes)) { throw "Release notes are miss
 $names += @('latest.json',"Flux_${version}_x64-setup.exe.sig")
 $checksums = foreach ($name in $names) { (Get-FileHash -LiteralPath (Join-Path $destination $name) -Algorithm SHA256).Hash.ToLowerInvariant() + '  ' + $name }
 $checksums | Set-Content -LiteralPath (Join-Path $destination 'SHA256SUMS.txt') -Encoding ascii
-@{version=$version;signed=[bool]$Signed;authenticode_signed=[bool]$Signed;update_signed=$true;platform='Windows x64'} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $destination 'release-info.json') -Encoding utf8
+@{version=$version;signed=[bool]$Signed;authenticode_signed=[bool]$Signed;update_signed=$true;platform='Windows x64';binary_build_run=$env:FLUX_BINARY_BUILD_RUN;binary_source_commit=$env:FLUX_BINARY_SOURCE_COMMIT} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $destination 'release-info.json') -Encoding utf8

@@ -16,12 +16,18 @@ export function Updater({ startup = false }: { startup?: boolean }) {
   const [notice, setNotice] = useState("");
   const [downloaded, setDownloaded] = useState(0);
   const [total, setTotal] = useState<number | null>(null);
+  const [linux, setLinux] = useState(false);
   async function inspect(silent = false) {
     if (!desktop || request.current) return;
     request.current = true;
     setBusy(true);
     if (!silent) setNotice(t("checking_updates"));
     try {
+      if ((await api.runtimePlatform()) === "linux") {
+        setNotice("");
+        if (!silent) await api.openReleasePage();
+        return;
+      }
       const next = await check({ timeout: 15000 });
       if (!alive.current) {
         await next?.close();
@@ -43,6 +49,13 @@ export function Updater({ startup = false }: { startup?: boolean }) {
   }
   useEffect(() => {
     alive.current = true;
+    if (desktop)
+      void api
+        .runtimePlatform()
+        .then((platform) => {
+          if (alive.current) setLinux(platform === "linux");
+        })
+        .catch(() => undefined);
     const timer = startup
       ? setTimeout(() => {
           void inspect(true);
@@ -88,7 +101,9 @@ export function Updater({ startup = false }: { startup?: boolean }) {
     <>
       {!startup && (
         <div className="updater-panel">
-          <p className="muted">{t("updates_help")}</p>
+          <p className="muted">
+            {t(linux ? "rpm_updates_help" : "updates_help")}
+          </p>
           <button disabled={!desktop || busy} onClick={() => void inspect()}>
             {t("check_updates")}
           </button>

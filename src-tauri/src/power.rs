@@ -272,9 +272,29 @@ mod native {
         }
     }
 }
-#[cfg(not(windows))]
+#[cfg(not(any(windows, target_os = "linux")))]
 mod native {
     pub fn execute(_: flux_core::ShutdownAction) -> Result<(), String> {
         Err("Computer power actions require Windows".into())
+    }
+}
+#[cfg(target_os = "linux")]
+mod native {
+    pub fn execute(action: flux_core::ShutdownAction) -> Result<(), String> {
+        let operation = match action {
+            flux_core::ShutdownAction::Sleep => "suspend",
+            flux_core::ShutdownAction::Hibernate => "hibernate",
+            flux_core::ShutdownAction::ShutdownComputer => "poweroff",
+            _ => return Err("Invalid power action".into()),
+        };
+        let status = std::process::Command::new("systemctl")
+            .args(["--no-ask-password", operation])
+            .status()
+            .map_err(|error| error.to_string())?;
+        if status.success() {
+            Ok(())
+        } else {
+            Err("The system denied the power action or does not support it".into())
+        }
     }
 }

@@ -226,5 +226,14 @@
   "bridge_automatic": "Flux registriert und repariert seine lokale Browserbrücke beim Start automatisch, auch in der portablen Version.",
   "bridge_extension_step": "Installiere und aktiviere die Flux-Erweiterung, erlaube die angeforderten Website- und Native-Messaging-Zugriffe und lade offene Tabs neu. Die Registrierung der Brücke installiert keine Erweiterung.",
   "bridge_repair_help": "Wenn die Erweiterung keine Verbindung herstellt, öffne Einstellungen → Browserintegration → Browserbrücke reparieren.",
-  "bridge_dismiss": "Verstanden — nicht mehr anzeigen"
+  "bridge_dismiss": "Verstanden — nicht mehr anzeigen",
+  "watch_title": "Torrent-Ordner überwachen",
+  "watch_help": "Ausgewählte Ordner werden alle 3 Sekunden auf unveränderte .torrent-Dateien geprüft. Identische Dateien werden auch nach Neustarts nur einmal importiert. Unterordner sind ausgeschlossen. Zum Anwenden speichern.",
+  "watch_enabled": "Ordnerüberwachung aktivieren",
+  "watch_add": "Ordner hinzufügen",
+  "watch_mode": "Wenn ein Torrent eintrifft",
+  "watch_approval": "Bestätigung anfordern",
+  "watch_automatic": "Automatisch zur Warteschlange hinzufügen",
+  "watch_imported": "In dieser Sitzung importiert: {{count}}",
+  "rpm_updates_help": "Linux-RPM-Updates werden über die Paketverwaltung installiert. Öffnen Sie die neueste Version, laden Sie das RPM herunter und installieren Sie es mit dnf."
 }

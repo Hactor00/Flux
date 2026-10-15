@@ -1,5 +1,5 @@
 {
-  "version": "2.2.0",
+  "version": "2.3.0",
   "firefox": "120.0",
   "passed": true,
   "installed_extension": true,
@@ -12,6 +12,7 @@
   "attachment_intercepted_before_file_chooser": true,
   "toolbar_hud_toggle": true,
   "external_download_manager_isolated": true,
+  "isolation": "Ephemeral CI runner and a fresh WebDriver profile",
   "consent_before_native": true,
   "consent_withdrawal": true,
   "closed_shadow_dom": true,

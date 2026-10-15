@@ -4,20 +4,20 @@
 
 <p align="center">
   <strong>One desktop queue for files, media and torrents.</strong><br>
-  Open-source Windows download manager · Rust engine · Chromium and Firefox integration
+  Open-source Windows and Linux download manager · Rust engine · Chromium and Firefox integration
 </p>
 
 <p align="center">
-  <a href="https://github.com/Hactor00/Flux/releases/tag/v2.2.0"><img alt="Flux 2.2.0" src="https://img.shields.io/badge/release-2.2.0-bda8ff"></a>
+  <a href="https://github.com/Hactor00/Flux/releases/tag/v2.3.0"><img alt="Flux 2.3.0" src="https://img.shields.io/badge/release-2.3.0-bda8ff"></a>
   <a href="https://github.com/Hactor00/Flux/actions/workflows/ci.yml"><img alt="Validation" src="https://github.com/Hactor00/Flux/actions/workflows/ci.yml/badge.svg?branch=main"></a>
-  <img alt="Windows x64" src="https://img.shields.io/badge/platform-Windows_x64-0078D4">
+  <img alt="Windows and Linux" src="https://img.shields.io/badge/platform-Windows_%7C_Linux-0078D4">
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-84d6ba"></a>
   <img alt="20 languages" src="https://img.shields.io/badge/languages-20-9e9cb5">
 </p>
 
 <p align="center">
   <strong>English</strong> · <a href="README.tr.md">Türkçe</a><br>
-  <a href="#download">Download</a> · <a href="#whats-new-in-22">What's new</a> · <a href="#features">Features</a> · <a href="#installation">Installation</a> · <a href="#validation">Validation</a> · <a href="#development">Development</a>
+  <a href="#download">Download</a> · <a href="#whats-new-in-23">What's new</a> · <a href="#features">Features</a> · <a href="#installation">Installation</a> · <a href="#validation">Validation</a> · <a href="#development">Development</a>
 </p>
 
 Flux combines segmented HTTP transfers, accessible video/audio capture, native BitTorrent, a persistent local history and separate desktop approval windows. It is built with Tauri 2, React 19, Tokio and SQLite WAL. The name refers to flow: files and media moving from your browser into your download queue.
@@ -26,37 +26,35 @@ Flux combines segmented HTTP transfers, accessible video/audio capture, native B
 
 ## Download
 
-**Current release: [Flux 2.2.0](https://github.com/Hactor00/Flux/releases/tag/v2.2.0), Windows x64.**
+**Current release: [Flux 2.3.0](https://github.com/Hactor00/Flux/releases/tag/v2.3.0), Windows x64 and Linux x86_64 (RPM).**
 
 [Code signing policy](docs/code-signing-policy.md) · [Privacy policy](docs/browser-stores.md#privacy-disclosure-for-store-listings)
 
 | Package | Purpose |
 | --- | --- |
-| **[Windows installer](https://github.com/Hactor00/Flux/releases/download/v2.2.0/Flux_2.2.0_x64-setup.exe)** | Recommended; per-user installation and automatic native-host registration |
-| [Portable application](https://github.com/Hactor00/Flux/releases/download/v2.2.0/Flux-2.2.0-windows-x64.zip) | Desktop application, extensions and bundled media tools |
-| [Chromium extension](https://github.com/Hactor00/Flux/releases/download/v2.2.0/Flux-2.2.0-chrome.zip) | Chrome, Edge, Brave and compatible Chromium browsers |
-| [Firefox 140+ extension](https://github.com/Hactor00/Flux/releases/download/v2.2.0/Flux-2.2.0-firefox.zip) | Modern Firefox |
-| [Firefox 120–139 extension](https://github.com/Hactor00/Flux/releases/download/v2.2.0/Flux-2.2.0-firefox-120.zip) | Older supported Firefox versions |
-| [Source archive](https://github.com/Hactor00/Flux/releases/download/v2.2.0/Flux-2.2.0-source.zip) | Source, build scripts, tests and release documentation |
-| [SHA-256 checksums](https://github.com/Hactor00/Flux/releases/download/v2.2.0/SHA256SUMS.txt) | Verify downloaded package identity |
+| **[Windows installer](https://github.com/Hactor00/Flux/releases/download/v2.3.0/Flux_2.3.0_x64-setup.exe)** | Recommended; per-user installation and automatic native-host registration |
+| **[Linux RPM](https://github.com/Hactor00/Flux/releases/download/v2.3.0/Flux-2.3.0-linux-x86_64.rpm)** | Fedora x86_64; installs desktop, native host and torrent bridge; media dependencies are resolved by dnf |
+| [Portable application](https://github.com/Hactor00/Flux/releases/download/v2.3.0/Flux-2.3.0-windows-x64.zip) | Desktop application, extensions and bundled media tools |
+| [Chromium extension](https://github.com/Hactor00/Flux/releases/download/v2.3.0/Flux-2.3.0-chrome.zip) | Chrome, Edge, Brave and compatible Chromium browsers |
+| [Firefox 140+ extension](https://github.com/Hactor00/Flux/releases/download/v2.3.0/Flux-2.3.0-firefox.zip) | Modern Firefox |
+| [Firefox 120–139 extension](https://github.com/Hactor00/Flux/releases/download/v2.3.0/Flux-2.3.0-firefox-120.zip) | Older supported Firefox versions |
+| [Source archive](https://github.com/Hactor00/Flux/releases/download/v2.3.0/Flux-2.3.0-source.zip) | Source, build scripts, tests and release documentation |
+| [SHA-256 checksums](https://github.com/Hactor00/Flux/releases/download/v2.3.0/SHA256SUMS.txt) | Verify downloaded package identity |
 
 Application update packages carry a signature checked against Flux's embedded verification key. The Windows installer and executables **do not have an Authenticode publisher certificate**; Windows may display a publisher or SmartScreen warning. Firefox ZIPs are unsigned and require Mozilla signing for permanent installation. See [release and signing](docs/release.md) and [browser distribution](docs/browser-stores.md).
 
-Previous [2.0.0](https://github.com/Hactor00/Flux/releases/tag/v2.0.0) and [1.7.0](https://github.com/Hactor00/Flux/releases/tag/v1.7.0) packages remain available.
+Previous [2.2.0](https://github.com/Hactor00/Flux/releases/tag/v2.2.0), [2.0.0](https://github.com/Hactor00/Flux/releases/tag/v2.0.0) and [1.7.0](https://github.com/Hactor00/Flux/releases/tag/v1.7.0) packages remain available.
 
-## What's new in 2.2
+## What's new in 2.3
 
-- **Automatic browser setup:** startup repairs missing or outdated local host registration for Chrome, Edge, Brave, Chromium and Firefox without a manual Settings step. A dismissible first-use reminder explains extension permissions; Settings shows registration status and offers repair.
+- **Watched torrent folders:** choose up to 16 folders under Settings → Torrent watch folders. Stable `.torrent` files are detected every three seconds. Choose desktop confirmation or automatic queueing and an optional download destination.
+- **Durable duplicate prevention:** byte-identical torrent files are imported once across renames, application restarts and removal of the original task. Source files are retained. Malformed or inaccessible files do not block other folders; errors are visible in Settings.
+- **Linux RPM:** a native x86_64 desktop package with the CLI, Native Messaging host, pinned yt-dlp and native v2/hybrid torrent bridge. System media tools and desktop libraries are installed as RPM dependencies.
+- **Linux integration:** per-user browser-host registration, XDG autostart and systemd power requests, subject to desktop authorization. RPM upgrades use the package manager; the signed in-app installer remains available on Windows.
+- **20-language settings:** new watch-folder and Linux-update controls are translated into every existing desktop language.
+- **Existing capabilities retained:** segmented HTTP, verified resume, media discovery, native torrents, browser handoff, local history and Windows installer/portable distribution.
 
-- **Media handoff repair (14 October):** Chromium and Firefox wait for desktop confirmation and display transfer errors. Captured quality/output is ready in the approval window without another inspection; optional reinspection preserves the captured source, filename and output format. Empty newer fields are omitted for older native hosts. Refresh the desktop and extension packages together; this repair keeps version 2.2.0, so an existing 2.2 installation needs a manual package refresh.
-- **Browser handoff before file selection:** Chromium cancels its held transfer before releasing the filename gate; Firefox intercepts attachment navigation at response headers. Flux opens its approval window in the foreground.
-- **Checkpoint resume without ETags:** range support no longer requires a strong ETag. Saved prefixes are SHA-256 checked before appending; changed remote content cannot silently produce a mixed file.
-- **Progress retained on non-range sources:** Flux verifies and discards a replayed prefix before appending new bytes. Saved disk data and progress remain; prefix replay still costs network bandwidth.
-- **Media-button switch:** show/hide page video buttons from the extension popup, immediately in open frames. Re-enabling restores a dismissed HUD.
-- **Automatic languages:** new desktop profiles follow the OS; extensions follow the browser UI language. Unsupported locales use English; explicit choices persist.
-- **Direct Settings access:** open the separate Settings window from the top menu or toolbar.
-
-Read the [release notes](docs/releases/v2.2.0.md), [technical changes](docs/release-2.2.md) and [validation](docs/validation-2.2.md).
+Read the [2.3 release notes](docs/releases/v2.3.0.md), [build and platform guide](docs/release-2.3.md) and [validation](docs/validation-2.3.md).
 
 ## Features
 
@@ -74,8 +72,10 @@ Read the [release notes](docs/releases/v2.2.0.md), [technical changes](docs/rele
 | Source recovery | Origin-scoped browser session refresh, compatible expired-source renewal and bounded native HLS/DASH manifest fallback |
 | Debrid accounts | Encrypted Real-Debrid, AllDebrid/Premiumize API keys, supported-host resolution and CDN source renewal |
 | Desktop | Separate approval, progress, Settings/countdown windows; virtualized table, search, sorting, multi-selection and Windows file drag-out |
+| Torrent automation | Up to 16 watched folders, stable-file detection, confirmation/automatic queueing and durable duplicate suppression |
+| Platforms | Windows x64 installer/portable and Linux x86_64 RPM |
 | Daily use | Optional category folders, clipboard monitoring, silent queueing, Windows startup and cancellable completion actions |
-| Languages and updates | 20 languages, 228 desktop keys, searchable selector, Arabic/Urdu RTL and signed updates with user approval |
+| Languages and updates | 20 languages, 237 desktop keys, searchable selector, Arabic/Urdu RTL and signed updates with user approval |
 
 ### HTTP and disk
 
@@ -94,28 +94,49 @@ Finite media without an exact byte total can show size, percentage and ETA estim
 Flux embeds **librqbit 9.0.1** for v1 and **libtorrent 2.1.2** for v2/hybrid without a separate daemon. HTTP and torrents share bandwidth budgets. Seeding supports ratio, duration, either condition, unlimited sharing or disabled sharing. The default ratio is **1.0**; global/per-task choices persist across restarts. Per-torrent speed limits accept unlimited (`0`) or at least **16 KiB/s**.
 
 <details>
-<summary><strong>See the 2.2 desktop</strong></summary>
+<summary><strong>See the 2.3 desktop</strong></summary>
 
 Screenshots from isolated Windows regression tests with local fixture media.
 
 | Media progress and estimated remaining time | Torrent sharing controls |
 | --- | --- |
-| ![Flux 2.2 media progress](docs/images/media-progress-2.2.png) | ![Flux 2.2 torrent controls](docs/images/torrent-2.2.png) |
+| ![Flux 2.3 media progress](docs/images/media-progress-2.3.png) | ![Flux 2.3 torrent controls](docs/images/torrent-2.3.png) |
+
+**Watched torrent folders**
+
+![Flux 2.3 watched torrent folder settings](docs/images/torrent-watch-2.3.png)
 
 </details>
 
 ## Installation
 
-### Desktop
+### Windows desktop
 
-1. Run `Flux_2.2.0_x64-setup.exe`; installation is per-user.
+1. Run `Flux_2.3.0_x64-setup.exe`; installation is per-user.
 2. FFmpeg, FFprobe, yt-dlp, Node and torrent runtimes are bundled. Missing WebView2 is installed using Microsoft's bootstrapper, which needs internet access.
 3. Native Messaging is registered for **Chrome, Edge, Brave, Chromium and Firefox**. Host registration does not install a browser extension.
 4. Launch Flux once after installing the extension. Both installed and portable editions register/repair the bridge automatically at startup. **Settings → Browser integration → Repair browser bridge** remains available if permissions or files prevent automatic registration.
 
 Data lives under `Flux` in the current user's local application-data directory; downloads default to `Downloads/Flux`. Upgrades retain history/preferences. Back up important data before changing installations.
 
-Upgrade from public 1.7/2.0 packages by running the 2.2 installer manually. Those older packages do not gain the new updater until 2.2 is installed.
+Upgrade from public 1.7/2.0 packages by running the current installer manually. Existing 2.2 installations can use the signed update prompt.
+
+### Linux RPM
+
+Install or upgrade on Fedora x86_64:
+
+```bash
+sudo dnf install ./Flux-2.3.0-linux-x86_64.rpm
+flux-desktop
+```
+
+The package includes the CLI, native host, pinned yt-dlp and the native torrent bridge. `dnf` resolves WebKitGTK 4.1, GTK, AppIndicator, OpenSSL 3, FFmpeg, Python 3.10+ and Node 20+. Launch Flux once as your normal user to register the browser bridge. Install the same Chromium/Firefox extension ZIPs listed above. Sandboxed Flatpak/Snap browsers may need host integration outside the package's scope.
+
+Linux preferences/history use `~/.local/share/Flux` by default, following XDG data settings. Watch folders run while Flux is open, including in the tray. RPM updates are installed with `dnf`; in-app update controls open the current GitHub release. Native file drag-out is Windows-only. Systemd power actions require an authorized desktop session; they are disabled by default.
+
+### Torrent watch folders
+
+Open **Settings → Torrent watch folders**, add one or more folders, enable monitoring, choose confirmation or automatic queueing, then **Save**. An optional destination overrides the normal download directory. Only directly contained `.torrent` files are scanned; source files are never moved or deleted. Monitoring resumes on restart and detects files added while Flux was closed. Use manual torrent import to deliberately add an identical file again. Limits: 16 folders, 4096 torrent entries, 8 MiB per metadata file and at most 64 candidates/16 MiB per scan.
 
 ### Chromium browsers
 
@@ -139,7 +160,7 @@ Temporary add-ons disappear after restarting Firefox. Standard Firefox requires 
 - **History:** search/sort downloads, inspect creation/start/completion times, open/show completed files or drag them into Windows applications.
 - **Preferences:** category routing and clipboard monitoring are opt-in. Explicit destinations override routing. Silent clipboard mode adds to the durable queue without a window.
 - **Queue completion:** exit, sleep, hibernate or shut down after a cancellable **30-second** countdown. New work/changed state cancels it; pending, paused or unsuccessful tasks prevent completion. Disabled by default.
-- **Updates:** the main desktop checks GitHub about three seconds after opening; Settings has a manual check. A newer version displays notes and asks for approval before download/install. Flux verifies signatures, checkpoints active tasks and restarts after installation. Startup check errors stay silent.
+- **Windows updates:** the main desktop checks GitHub about three seconds after opening; Settings has a manual check. A newer version displays notes and asks for approval before download/install. Flux verifies signatures, checkpoints active tasks and restarts after installation. Startup check errors stay silent.
 
 ## Languages
 
@@ -155,11 +176,11 @@ Downloads contact their source; torrents contact peers/trackers/DHT. Enabled Deb
 
 ## Validation
 
-Windows x64 2.2 has **196 passing automated tests: 118 Rust, 63 extension and 15 frontend**. Separate real-browser/desktop checks cover Chrome 155, Firefox 120/157, foreground approval without a browser file chooser, HUD controls, repeated detail-window closing, media ETA, torrent peer transfers, installer repair and uninstall data retention.
+Windows regression checks include **124 passing Rust tests**, **63 extension tests** and **15 frontend tests**, strict TypeScript, production builds, Rust formatting and Clippy. Watch-folder tests exercise incomplete files, invalid metadata, approval/automatic modes, missing directories, duplicate suppression, removal and restart persistence.
 
-Strict TypeScript, production build, Rust formatting and Clippy pass. Production npm audit and modern Firefox manifest lint report zero findings. See [full validation](docs/validation-2.2.md) and [machine-readable evidence](docs/validation/release.json).
+Linux is built in GitHub Actions and checked separately from the Windows package. The RPM validation installs the package in a Fedora environment and exercises dependency loading, HTTP payload hashes, desktop startup, browser manifests, Native Messaging, watched-torrent import, duplicate prevention and SQLite integrity. See [2.3 validation and its limits](docs/validation-2.3.md) for the verified result and workflow links.
 
-These are defined regressions, not an every-site guarantee or competitor benchmark. Live paid Debrid entitlements, Linux/macOS application execution, a complete live updater installation round trip and physical OLE drops are outside this local record. Tests do not perform sleep/hibernate/shutdown. A nonfatal upstream WebView2 cleanup warning is recorded separately from passing functional checks.
+The existing 2.2 browser/installer evidence is retained as historical evidence. It does not replace a 2.3 package check. These tests are defined regressions, not an every-site guarantee, a competitor benchmark or certification for every RPM distribution. macOS packaging, paid Debrid entitlements, real computer power transitions and Linux browser sandbox integration are outside the release checks.
 
 ## Development
 
@@ -188,8 +209,8 @@ For required media tests, configure FFmpeg/FFprobe and the pinned fixture encode
 
 | Document | Contents |
 | --- | --- |
-| [2.2 release notes](docs/releases/v2.2.0.md) | English/Turkish release overview |
-| [2.2 technical changes](docs/release-2.2.md) · [Türkçe](docs/release-2.2.tr.md) | Handoff, resume, languages and desktop behavior |
+| [2.3 release notes](docs/releases/v2.3.0.md) | English/Turkish release overview |
+| [2.3 build and platform guide](docs/release-2.3.md) | Watch folders, RPM packaging and platform differences |
 | [Architecture](docs/architecture.md) · [IPC](docs/protocol.md) | Engine ownership, persistence and browser protocol |
 | [Validation](docs/validation.md) | Current and historical evidence |
 | [Building/signing](docs/release.md) | Runtime preparation, packaging and signatures |
@@ -206,6 +227,6 @@ Flux's owned code is [MIT](LICENSE). FFmpeg/LAME use LGPL, libxml2 uses MIT, yt-
 
 The acknowledgment for approved SignPath-signed releases is: **“This project uses SignPath Foundation for code signing.”**
 
-Flux is preparing free code signing through [SignPath.io](https://signpath.io), with a certificate provided by [SignPath Foundation](https://signpath.org). Foundation approval and production signing configuration are pending; current 2.2.0 Windows packages do not carry an Authenticode publisher certificate. The existing updater signature is separate.
+Flux is preparing free code signing through [SignPath.io](https://signpath.io), with a certificate provided by [SignPath Foundation](https://signpath.org). Foundation approval and production signing configuration are pending; current 2.3.0 Windows packages do not carry an Authenticode publisher certificate. The existing updater signature is separate.
 
 See the [code signing policy](docs/code-signing-policy.md) for signing scope, maintainer/approver roles and release verification. **Privacy Policy URL:** [Flux privacy disclosure](https://github.com/Hactor00/Flux/blob/main/docs/browser-stores.md#privacy-disclosure-for-store-listings).

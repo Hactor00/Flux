@@ -226,5 +226,14 @@
   "bridge_automatic": "Flux 啟動時會自動註冊並修復本機瀏覽器橋接，便攜版亦支援此功能。",
   "bridge_extension_step": "喺瀏覽器安裝並啟用 Flux 擴充功能，授予所需嘅網站同原生訊息權限，再重新載入已開啟嘅分頁。註冊橋接唔會自動安裝擴充功能。",
   "bridge_repair_help": "如果擴充功能連接唔到，請開啟設定 → 瀏覽器整合 → 修復瀏覽器橋接。",
-  "bridge_dismiss": "明白 — 唔再顯示"
+  "bridge_dismiss": "明白 — 唔再顯示",
+  "watch_title": "種子監察資料夾",
+  "watch_help": "每 3 秒檢查所選資料夾入面已停止變動嘅 .torrent 檔案。相同檔案只會匯入一次，重新啟動後都唔會重複。唔包括子資料夾。儲存後生效。",
+  "watch_enabled": "啟用資料夾監察",
+  "watch_add": "加入資料夾",
+  "watch_mode": "發現種子嗰陣",
+  "watch_approval": "要求確認",
+  "watch_automatic": "自動加入下載佇列",
+  "watch_imported": "今次工作階段已匯入：{{count}}",
+  "rpm_updates_help": "Linux RPM 更新要透過套件管理員安裝。開啟最新版本，下載 RPM，再用 dnf 安裝。"
 }

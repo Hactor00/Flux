@@ -226,5 +226,14 @@
   "bridge_automatic": "Flux go register and repair im local browser bridge anytime e start, even for portable edition.",
   "bridge_extension_step": "Install and turn on Flux extension for your browser, allow di site and native messaging permissions wey e ask for, then refresh tabs wey don open. Bridge registration no go install di extension.",
   "bridge_repair_help": "If di extension no connect, open Settings → Browser integration → Repair browser bridge.",
-  "bridge_dismiss": "I don understand — no show am again"
+  "bridge_dismiss": "I don understand — no show am again",
+  "watch_title": "Torrent watch folders",
+  "watch_help": "Flux go check folders wey you choose every 3 seconds after .torrent file stop to change. E go import the same file only once, even after restart. E no go enter subfolders. Save am to apply.",
+  "watch_enabled": "Turn folder watching on",
+  "watch_add": "Add folder",
+  "watch_mode": "When torrent enter",
+  "watch_approval": "Ask me to confirm",
+  "watch_automatic": "Add am to download queue by itself",
+  "watch_imported": "Files wey enter this session: {{count}}",
+  "rpm_updates_help": "Use your package manager to update Linux RPM. Open the latest release, download the RPM, then install am with dnf."
 }

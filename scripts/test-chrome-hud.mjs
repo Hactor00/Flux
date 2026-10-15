@@ -42,6 +42,10 @@ const processHandle = spawn(
 );
 let socket,
   serial = 0;
+let browserErrors = "";
+processHandle.stderr.on("data", (chunk) => {
+  browserErrors = (browserErrors + chunk.toString()).slice(-8192);
+});
 const pending = new Map();
 async function until(predicate, timeout = 10000) {
   const deadline = Date.now() + timeout;
@@ -52,7 +56,7 @@ async function until(predicate, timeout = 10000) {
     } catch {}
     await new Promise((r) => setTimeout(r, 50));
   }
-  throw Error("Chrome HUD condition timed out");
+  throw Error(`Chrome HUD condition timed out (exit=${processHandle.exitCode}): ${browserErrors}`);
 }
 function call(method, params = {}) {
   return new Promise((resolveResult, reject) => {
@@ -152,6 +156,7 @@ try {
     (await readFile(join(root, "profile", "DevToolsActivePort"), "utf8")).split(
       "\n",
     ),
+    60000,
   );
   const targets = await (
     await fetch(`http://127.0.0.1:${active[0]}/json/list`)

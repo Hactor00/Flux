@@ -1,7 +1,7 @@
 {
-  "version": "2.2.0",
+  "version": "2.3.0",
   "passed": true,
-  "browser": "Chrome/155.0.8059.79",
+  "browser": "Chrome/154.0.8037.98",
   "browser_prompt_for_download": true,
   "attachment_navigation": true,
   "browser_transfer_cancelled": true,
@@ -11,6 +11,6 @@
   "native_approval_foreground": true,
   "hud_media_native_acknowledged": true,
   "external_download_manager_isolated": true,
-  "task_id": "73b8f970-cad0-4070-a0fc-ccac10ff1cf7",
+  "task_id": "47e969ed-5ca5-4c99-b52b-6d701301c717",
   "local_paths_and_credentials_removed": true
 }

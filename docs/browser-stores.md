@@ -8,7 +8,7 @@ Run `./scripts/package-browser-stores.ps1` to create runtime-only Chrome, Edge a
 
 Normal Windows Chrome installations require a Web Store listing for consumer installation without developer mode. Standard Firefox requires Mozilla signing for permanent installation. Store publication and signing depend on the account's permissions and review; the application does not bypass these checks or force browser enterprise policies. Native host registration is automatic once the application is installed. The prepared local ZIPs have no store signature.
 
-The Firefox 140+ package declares authentication, browsing and website content transfer for its local desktop integration. Firefox 120–139 uses explicit native-transfer consent in its settings and a DOM/network fallback where MAIN-world script injection is unavailable. The modern manifest declares Firefox for Android 142 as its minimum schema version; the distributed desktop host and installation tests target Windows x64.
+The Firefox 140+ package declares authentication, browsing and website content transfer for its local desktop integration. Firefox 120–139 uses explicit native-transfer consent in its settings and a DOM/network fallback where MAIN-world script injection is unavailable. The modern manifest declares Firefox for Android 142 as its minimum schema version; distributed desktop hosts target Windows x64 and Linux x86_64. Browser installation tests run on Windows. The Linux package checks per-user host manifests and authenticated Native Messaging separately; Flatpak/Snap browser confinement is outside that test scope.
 
 ## Privacy disclosure for store listings
 

@@ -1,0 +1,104 @@
+{
+  "version": "2.3.0",
+  "recorded_at": "2026-10-15T13:33:14.704Z",
+  "windows": {
+    "passed": true,
+    "run_id": 38742148145,
+    "workflow": ".github/workflows/release.yml",
+    "source_commit": "e8754ae4b6f2646ccef79727a30e3532ae277a8f",
+    "url": "https://github.com/Hactor00/Flux/actions/runs/38742148145",
+    "platform": "Windows x64",
+    "binary_build_run": "38736529145",
+    "binary_source_commit": "7823141673c50d9cd4f3d51233c82dfe4f35e710",
+    "installer_sha256": "6a9b50f16eec59c5333b1a681bd8072cf596d5cbef50dd95e0638a6eae200ac1",
+    "checks": [
+      "Installer and portable binary identities",
+      "Chromium attachment cancellation and foreground native approval",
+      "Firefox 120 and 157 consent, media handoff and HUD",
+      "Native desktop IPC and browser onboarding",
+      "HTTP/media/torrent window regressions",
+      "Watched torrent settings, paused queue admission and restart duplicate prevention",
+      "Update signature verification"
+    ]
+  },
+  "linux": {
+    "passed": true,
+    "run_id": 38736528656,
+    "workflow": ".github/workflows/linux-release.yml",
+    "source_commit": "7823141673c50d9cd4f3d51233c82dfe4f35e710",
+    "url": "https://github.com/Hactor00/Flux/actions/runs/38736528656",
+    "platform": "Linux x86_64 RPM",
+    "distribution_tested": "Fedora 43",
+    "build_environment": "Ubuntu 24.04",
+    "package": "Flux-2.3.0-linux-x86_64.rpm",
+    "package_sha256": "485d35ba24148aa091d8041491f14caee547191c9238f76ae6cd9f266a22fbdc",
+    "checks": [
+      "Installation and dynamic dependencies",
+      "Native BEP 52 ABI",
+      "yt-dlp, FFmpeg, FFprobe and Node startup",
+      "HTTP payload SHA-256",
+      "Unprivileged desktop window under Xvfb",
+      "Per-user browser manifests and authenticated Native Messaging",
+      "Watched torrent admission and duplicate prevention",
+      "Graceful shutdown and SQLite integrity"
+    ]
+  },
+  "matrix": {
+    "passed": true,
+    "run_id": 38736528552,
+    "workflow": ".github/workflows/ci.yml",
+    "source_commit": "7823141673c50d9cd4f3d51233c82dfe4f35e710",
+    "url": "https://github.com/Hactor00/Flux/actions/runs/38736528552",
+    "platforms": [
+      "Windows",
+      "Ubuntu",
+      "macOS"
+    ],
+    "rust_tests": 124,
+    "extension_tests": 63,
+    "frontend_tests": 15,
+    "automated_tests": 202,
+    "locales": 20,
+    "locale_keys": 237
+  },
+  "native_regression": {
+    "passed": true,
+    "run_id": 38736534312,
+    "workflow": ".github/workflows/native-torrent.yml",
+    "source_commit": "7823141673c50d9cd4f3d51233c82dfe4f35e710",
+    "url": "https://github.com/Hactor00/Flux/actions/runs/38736534312",
+    "hosts": [
+      "windows-latest",
+      "windows-2022"
+    ],
+    "child_processes_per_host": 5,
+    "modes": [
+      "v2",
+      "hybrid",
+      "v2 magnet"
+    ],
+    "checks": [
+      "Verified peer transfer",
+      "Corruption repair",
+      "Pause and restart recovery",
+      "100 metadata generation rounds interleaved with 300 native session lifecycles",
+      "Native session cleanup"
+    ],
+    "earlier_fault": "An earlier intermittent access violation was reproduced in a standalone native fixture stress probe. Fixture metadata now uses the synchronous POSIX hasher rather than an asynchronous disk context; download sessions retain the existing asynchronous backend. Passing regression tests does not establish that every native runtime fault has been eliminated."
+  },
+  "source_scope": [
+    "Windows binaries were compiled in binary_build_run. Installer identities and every portable binary were checked in the successful Windows workflow.",
+    "Windows and Linux packages were built from the same runtime sources. Later changes import test evidence, update documentation and consolidate Git history.",
+    "The final release commit consolidates the tested tree and current validation records. Its source SHA is recorded separately in release-info.json."
+  ],
+  "boundaries": [
+    "Fedora 43 x86_64 was tested; universal RPM distribution compatibility is not claimed",
+    "No macOS application package",
+    "No DRM or login challenge bypass",
+    "No paid Debrid account validation",
+    "No physical power transition or end-user updater round trip",
+    "No Flatpak/Snap browser integration certification",
+    "Native file drag-out remains Windows-only",
+    "Windows Authenticode certificate and Firefox permanent-install signing remain separate distribution requirements"
+  ]
+}

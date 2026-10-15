@@ -342,8 +342,10 @@ mod settings_tests {
         assert_eq!(migrated.theme, "dark");
         assert!(migrated.validate().is_ok());
 
-        let mut invalid = Settings::default();
-        invalid.theme = "system".into();
+        let invalid = Settings {
+            theme: "system".into(),
+            ..Settings::default()
+        };
         assert!(invalid.validate().is_err());
     }
 }

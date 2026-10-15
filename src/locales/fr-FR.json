@@ -239,5 +239,9 @@
   "filename_prefix": "Préfixe du nom (facultatif)",
   "filename_prefix_hint": "Utilisez / pour les sous-dossiers. Les 10 derniers préfixes sont conservés.",
   "filename_prefix_preview": "Enregistrer sous : {{path}}",
-  "filename_prefix_invalid": "Préfixe invalide. Utilisez des sous-dossiers relatifs et un nom valide, sans .. ni chemin absolu."
+  "filename_prefix_invalid": "Préfixe invalide. Utilisez des sous-dossiers relatifs et un nom valide, sans .. ni chemin absolu.",
+  "appearance": "Apparence",
+  "theme": "Thème",
+  "theme_dark": "Sombre",
+  "theme_light": "Clair"
 }

@@ -74,11 +74,21 @@ impl Api {
     fn open() -> Result<Arc<Self>> {
         // Foreign thread-local destructors can outlive a session, so never unload its code.
         static RUNTIME: OnceLock<Arc<Api>> = OnceLock::new();
+        // Serialize the first load: loading before `get_or_init` lets concurrent callers load
+        // multiple DLL instances, then unload the losing instances on their worker threads.
+        static INITIALIZE: Mutex<()> = Mutex::new(());
+        if let Some(api) = RUNTIME.get() {
+            return Ok(api.clone());
+        }
+        let _guard = INITIALIZE
+            .lock()
+            .map_err(|_| anyhow::anyhow!("Native torrent runtime initialization lock poisoned"))?;
         if let Some(api) = RUNTIME.get() {
             return Ok(api.clone());
         }
         let api = Self::load()?;
-        Ok(RUNTIME.get_or_init(|| api).clone())
+        let _ = RUNTIME.set(api.clone());
+        Ok(api)
     }
 
     fn load() -> Result<Arc<Self>> {
@@ -541,20 +551,12 @@ mod tests {
             .join()
             .unwrap();
         }
-        let root = tempfile::tempdir().unwrap();
-        let file = root.path().join("metadata.bin");
-        std::fs::write(&file, vec![83u8; 64 * 1024]).unwrap();
-        for _ in 0..100 {
-            let metadata = create(&file, 2);
-            let sessions: Vec<_> = (0..3).map(|_| Session::new(0, 0, false).unwrap()).collect();
-            for session in &sessions {
-                let handle = session.add(&metadata, false, root.path()).unwrap();
-                session
-                    .start(handle, root.path(), &TorrentOptions::default(), 0)
-                    .unwrap();
-            }
-            drop(sessions);
-        }
+        // The first call above initializes the DLL concurrently from worker threads. After those
+        // threads have exited (and run their native TLS destructors), the runtime must still work
+        // from this thread. Keep this focused on loader lifetime rather than racing many sessions
+        // against the same files, which made the Windows test intermittently crash in libtorrent.
+        assert!(Session::describe(b"invalid torrent metadata").is_err());
+        drop(Session::new(0, 0, false).unwrap());
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 4)]

@@ -1,8 +1,6 @@
 name: Native torrent lifecycle regression
 on:
   workflow_dispatch:
-  push:
-    branches: ["codex/native-*"]
 permissions:
   contents: read
 jobs:

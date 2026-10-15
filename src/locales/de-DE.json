@@ -239,5 +239,9 @@
   "filename_prefix": "Dateinamenspräfix (optional)",
   "filename_prefix_hint": "Mit / Unterordner angeben. Die letzten 10 Präfixe werden gespeichert.",
   "filename_prefix_preview": "Speichern als: {{path}}",
-  "filename_prefix_invalid": "Ungültiges Präfix. Relative Unterordner und einen gültigen Dateinamen ohne .. oder absolute Pfade verwenden."
+  "filename_prefix_invalid": "Ungültiges Präfix. Relative Unterordner und einen gültigen Dateinamen ohne .. oder absolute Pfade verwenden.",
+  "appearance": "Darstellung",
+  "theme": "Design",
+  "theme_dark": "Dunkel",
+  "theme_light": "Hell"
 }

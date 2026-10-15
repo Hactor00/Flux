@@ -6,6 +6,8 @@ import App from "./App";
 import Surface from "./Surface";
 import { Updater } from "./components/Updater";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
+const savedTheme = localStorage.getItem("flux-theme");
+document.documentElement.dataset.theme = savedTheme === "light" ? "light" : "dark";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <TooltipProvider delayDuration={350}>

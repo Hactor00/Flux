@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Hactor00/Flux/releases/tag/v2.4.0"><img alt="Flux 2.4.0" src="https://img.shields.io/badge/release-2.4.0-bda8ff"></a>
+  <a href="https://github.com/Hactor00/Flux/releases/tag/v2.4.1"><img alt="Flux 2.4.1" src="https://img.shields.io/badge/release-2.4.1-bda8ff"></a>
   <a href="https://github.com/Hactor00/Flux/actions/workflows/ci.yml"><img alt="Validation" src="https://github.com/Hactor00/Flux/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <img alt="Windows and Linux" src="https://img.shields.io/badge/platform-Windows_%7C_Linux-0078D4">
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-84d6ba"></a>
@@ -26,26 +26,32 @@ Flux combines segmented HTTP transfers, accessible video/audio capture, native B
 
 ## Download
 
-**Current release: [Flux 2.4.0](https://github.com/Hactor00/Flux/releases/tag/v2.4.0), Windows x64 and Linux x86_64 (RPM).**
+**Current release: [Flux 2.4.1](https://github.com/Hactor00/Flux/releases/tag/v2.4.1), Windows x64 and Linux x86_64 (RPM).**
 
 [Code signing policy](docs/code-signing-policy.md) · [Privacy policy](docs/browser-stores.md#privacy-disclosure-for-store-listings)
 
 | Package | Purpose |
 | --- | --- |
-| **[Windows installer](https://github.com/Hactor00/Flux/releases/download/v2.4.0/Flux_2.4.0_x64-setup.exe)** | Recommended; per-user installation and automatic native-host registration |
-| **[Linux RPM](https://github.com/Hactor00/Flux/releases/download/v2.4.0/Flux-2.4.0-linux-x86_64.rpm)** | Fedora x86_64; installs desktop, native host and torrent bridge; media dependencies are resolved by dnf |
-| [Portable application](https://github.com/Hactor00/Flux/releases/download/v2.4.0/Flux-2.4.0-windows-x64.zip) | Desktop application, extensions and bundled media tools |
-| [Chromium extension](https://github.com/Hactor00/Flux/releases/download/v2.4.0/Flux-2.4.0-chrome.zip) | Chrome, Edge, Brave and compatible Chromium browsers |
-| [Firefox 140+ extension](https://github.com/Hactor00/Flux/releases/download/v2.4.0/Flux-2.4.0-firefox.zip) | Modern Firefox |
-| [Firefox 120–139 extension](https://github.com/Hactor00/Flux/releases/download/v2.4.0/Flux-2.4.0-firefox-120.zip) | Older supported Firefox versions |
-| [Source archive](https://github.com/Hactor00/Flux/releases/download/v2.4.0/Flux-2.4.0-source.zip) | Source, build scripts, tests and release documentation |
-| [SHA-256 checksums](https://github.com/Hactor00/Flux/releases/download/v2.4.0/SHA256SUMS.txt) | Verify downloaded package identity |
+| **[Windows installer](https://github.com/Hactor00/Flux/releases/download/v2.4.1/Flux_2.4.1_x64-setup.exe)** | Recommended; per-user installation and automatic native-host registration |
+| **[Linux RPM](https://github.com/Hactor00/Flux/releases/download/v2.4.1/Flux-2.4.1-linux-x86_64.rpm)** | Fedora x86_64; installs desktop, native host and torrent bridge; media dependencies are resolved by dnf |
+| [Portable application](https://github.com/Hactor00/Flux/releases/download/v2.4.1/Flux-2.4.1-windows-x64.zip) | Desktop application, extensions and bundled media tools |
+| [Chromium extension](https://github.com/Hactor00/Flux/releases/download/v2.4.1/Flux-2.4.1-chrome.zip) | Chrome, Edge, Brave and compatible Chromium browsers |
+| [Firefox 140+ extension](https://github.com/Hactor00/Flux/releases/download/v2.4.1/Flux-2.4.1-firefox.zip) | Modern Firefox |
+| [Firefox 120–139 extension](https://github.com/Hactor00/Flux/releases/download/v2.4.1/Flux-2.4.1-firefox-120.zip) | Older supported Firefox versions |
+| [Source archive](https://github.com/Hactor00/Flux/releases/download/v2.4.1/Flux-2.4.1-source.zip) | Source, build scripts, tests and release documentation |
+| [SHA-256 checksums](https://github.com/Hactor00/Flux/releases/download/v2.4.1/SHA256SUMS.txt) | Verify downloaded package identity |
 
 Application update packages carry a signature checked against Flux's embedded verification key. The Windows installer and executables **do not have an Authenticode publisher certificate**; Windows may display a publisher or SmartScreen warning. Firefox ZIPs are unsigned and require Mozilla signing for permanent installation. See [release and signing](docs/release.md) and [browser distribution](docs/browser-stores.md).
 
 Previous [2.3.0](https://github.com/Hactor00/Flux/releases/tag/v2.3.0), [2.2.0](https://github.com/Hactor00/Flux/releases/tag/v2.2.0), [2.0.0](https://github.com/Hactor00/Flux/releases/tag/v2.0.0) and [1.7.0](https://github.com/Hactor00/Flux/releases/tag/v1.7.0) packages remain available.
 
-## What's new in 2.4
+## What's new in 2.4.1
+
+- **No repeated update prompt:** Flux ignores an update feed entry that is the same as or older than the installed version. Windows now uses the updater's normal installer restart instead of starting a second restart itself.
+- **Light theme:** choose Light or Dark in **Settings → Language**. The choice is saved and shared with Flux's separate download and details windows.
+- **Installer language choice:** the Windows setup now offers English and Turkish instead of silently selecting from the system language.
+
+## 2.4 series highlights
 
 - **More reliable HLS audio/video assembly:** manifest-aware segment detection handles image-named or extensionless media segments served through the local relay, avoiding FFmpeg rejecting a valid stream based only on a segment URL suffix.
 - **CSP-friendly media discovery:** the browser extension observes bounded HLS/DASH responses without replacing the page's `fetch` function, preserving site behavior on stricter Content Security Policies.
@@ -53,7 +59,7 @@ Previous [2.3.0](https://github.com/Hactor00/Flux/releases/tag/v2.3.0), [2.2.0](
 - **Safer paths:** prefix paths are validated before queueing; absolute paths and traversal outside the selected download directory are rejected.
 - **Existing capabilities retained:** segmented HTTP and resume, media discovery and processing, native torrents and watched folders, Linux RPM, browser handoff, local history and twenty languages.
 
-Read the [2.4 release notes](docs/releases/v2.4.0.md), [build and platform guide](docs/release-2.4.md) and [validation](docs/validation-2.4.md).
+Read the [2.4.1 release notes](docs/releases/v2.4.1.md), [build and platform guide](docs/release-2.4.md) and [validation](docs/validation-2.4.1.md).
 
 ## Features
 
@@ -112,7 +118,7 @@ Screenshots from isolated Windows regression tests with local fixture media.
 
 ### Windows desktop
 
-1. Run `Flux_2.4.0_x64-setup.exe`; installation is per-user.
+1. Run `Flux_2.4.1_x64-setup.exe`; installation is per-user.
 2. FFmpeg, FFprobe, yt-dlp, Node and torrent runtimes are bundled. Missing WebView2 is installed using Microsoft's bootstrapper, which needs internet access.
 3. Native Messaging is registered for **Chrome, Edge, Brave, Chromium and Firefox**. Host registration does not install a browser extension.
 4. Launch Flux once after installing the extension. Both installed and portable editions register/repair the bridge automatically at startup. **Settings → Browser integration → Repair browser bridge** remains available if permissions or files prevent automatic registration.
@@ -126,7 +132,7 @@ Upgrade from older packages by running the current installer manually. Existing 
 Install or upgrade on Fedora x86_64:
 
 ```bash
-sudo dnf install ./Flux-2.4.0-linux-x86_64.rpm
+sudo dnf install ./Flux-2.4.1-linux-x86_64.rpm
 flux-desktop
 ```
 
@@ -209,7 +215,7 @@ For required media tests, configure FFmpeg/FFprobe and the pinned fixture encode
 
 | Document | Contents |
 | --- | --- |
-| [2.4 release notes](docs/releases/v2.4.0.md) | English/Turkish release overview |
+| [2.4 release notes](docs/releases/v2.4.1.md) | English/Turkish release overview |
 | [2.4 build and platform guide](docs/release-2.4.md) | Release packaging and platform differences |
 | [Architecture](docs/architecture.md) · [IPC](docs/protocol.md) | Engine ownership, persistence and browser protocol |
 | [Validation](docs/validation.md) | Current and historical evidence |
@@ -227,6 +233,6 @@ Flux's owned code is [MIT](LICENSE). FFmpeg/LAME use LGPL, libxml2 uses MIT, yt-
 
 The acknowledgment for approved SignPath-signed releases is: **“This project uses SignPath Foundation for code signing.”**
 
-Flux is preparing free code signing through [SignPath.io](https://signpath.io), with a certificate provided by [SignPath Foundation](https://signpath.org). Foundation approval and production signing configuration are pending; current 2.4.0 Windows packages do not carry an Authenticode publisher certificate. The existing updater signature is separate.
+Flux is preparing free code signing through [SignPath.io](https://signpath.io), with a certificate provided by [SignPath Foundation](https://signpath.org). Foundation approval and production signing configuration are pending; current 2.4.1 Windows packages do not carry an Authenticode publisher certificate. The existing updater signature is separate.
 
 See the [code signing policy](docs/code-signing-policy.md) for signing scope, maintainer/approver roles and release verification. **Privacy Policy URL:** [Flux privacy disclosure](https://github.com/Hactor00/Flux/blob/main/docs/browser-stores.md#privacy-disclosure-for-store-listings).

@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useTranslation } from "react-i18next";
 import { check, type Update } from "@tauri-apps/plugin-updater";
+import { getVersion } from "@tauri-apps/api/app";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { api, desktop } from "../api";
+import { compareVersions } from "../update-version.js";
 
 export function Updater({ startup = false }: { startup?: boolean }) {
   const { t } = useTranslation();
@@ -34,6 +36,19 @@ export function Updater({ startup = false }: { startup?: boolean }) {
         return;
       }
       await resource.current?.close();
+      resource.current = null;
+      const installedVersion = await getVersion();
+      const versionOrder = next
+        ? compareVersions(next.version, installedVersion)
+        : null;
+      if (next && versionOrder !== null && versionOrder <= 0) {
+        await next.close();
+        resource.current = null;
+        setUpdate(null);
+        setVisible(false);
+        if (!silent) setNotice(t("up_to_date"));
+        return;
+      }
       resource.current = next;
       setUpdate(next);
       if (next) {
@@ -88,8 +103,9 @@ export function Updater({ startup = false }: { startup?: boolean }) {
       setNotice(t("installing_update"));
       await api.prepareUpdate();
       prepared = true;
-      await update.install({ restartAfterInstall: true });
-      await relaunch();
+      const platform = await api.runtimePlatform();
+      await update.install({ restartAfterInstall: platform === "windows" });
+      if (platform !== "windows") await relaunch();
     } catch (error) {
       if (prepared) await api.abortUpdate().catch(() => undefined);
       setNotice(String(error));

@@ -114,7 +114,23 @@ def main():
             entry.external_attr = 0o644 << 16
             output.writestr(entry, path.read_bytes())
     original_portable.unlink()
-    subprocess.run(["git", "archive", "--format=zip", f"--output={stage / f'Flux-{version}-source.zip'}", "HEAD"], check=True)
+    source_archive = stage / f"Flux-{version}-source.zip"
+    subprocess.run(["git", "archive", "--format=zip", f"--output={source_archive}", "HEAD"], check=True)
+    validation_report = stage / "windows-validation" / "release.json"
+    validated_archive = source_archive.with_suffix(".validated.zip")
+    report_included = False
+    with zipfile.ZipFile(source_archive) as original, zipfile.ZipFile(validated_archive, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as output:
+        for entry in original.infolist():
+            if entry.filename == "docs/validation/release.json":
+                contents = validation_report.read_bytes()
+                report_included = True
+            else:
+                contents = original.read(entry)
+            output.writestr(entry, contents)
+    if not report_included:
+        validated_archive.unlink(missing_ok=True)
+        raise RuntimeError("Source archive omits the version-specific validation report")
+    validated_archive.replace(source_archive)
     manifest = read_json(stage / "latest.json")
     if manifest["version"] != version or not manifest["platforms"]["windows-x86_64"]["signature"]:
         raise RuntimeError("Signed updater manifest is invalid")

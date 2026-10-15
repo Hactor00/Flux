@@ -51,7 +51,7 @@
           "English",
           "Turkish"
         ],
-        "displayLanguageSelector": false,
+        "displayLanguageSelector": true,
         "sidebarImage": "installer-assets/sidebar.bmp",
         "headerImage": "installer-assets/header.bmp",
         "installerIcon": "icons/icon.ico",

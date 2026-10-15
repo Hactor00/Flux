@@ -113,6 +113,7 @@ export interface Settings {
   minimize_to_tray: boolean;
   notifications: boolean;
   locale: string;
+  theme: "dark" | "light";
   download_directory: string | null;
   completion_action: ShutdownAction;
   auto_categorize: boolean;
@@ -191,6 +192,7 @@ export const defaultSettings: Settings = {
   minimize_to_tray: true,
   notifications: true,
   locale: "en-US",
+  theme: "dark",
   download_directory: null,
   completion_action: "none",
   auto_categorize: false,

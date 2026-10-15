@@ -239,5 +239,9 @@
   "filename_prefix": "Prefixo do nome (opcional)",
   "filename_prefix_hint": "Use / para subpastas. Os últimos 10 prefixos são salvos.",
   "filename_prefix_preview": "Salvar como: {{path}}",
-  "filename_prefix_invalid": "Prefixo inválido. Use subpastas relativas e um nome válido, sem .. nem caminhos absolutos."
+  "filename_prefix_invalid": "Prefixo inválido. Use subpastas relativas e um nome válido, sem .. nem caminhos absolutos.",
+  "appearance": "Aparência",
+  "theme": "Tema",
+  "theme_dark": "Escuro",
+  "theme_light": "Claro"
 }

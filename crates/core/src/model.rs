@@ -664,7 +664,17 @@ pub(crate) fn validate(request: &DownloadRequest) -> anyhow::Result<()> {
         request.connections <= 32,
         "Connections must be automatic (0) or between 1 and 32"
     );
-    let name = &request.filename;
+    validate_filename(&request.filename)?;
+    if let Some(hash) = &request.expected_sha256 {
+        anyhow::ensure!(
+            hash.len() == 64 && hex::decode(hash).is_ok(),
+            "SHA-256 must contain 64 hexadecimal characters"
+        );
+    }
+    Ok(())
+}
+
+pub(crate) fn validate_filename(name: &str) -> anyhow::Result<()> {
     anyhow::ensure!(
         !name.is_empty()
             && name.len() <= 200
@@ -685,11 +695,5 @@ pub(crate) fn validate(request: &DownloadRequest) -> anyhow::Result<()> {
         .contains(&stem.as_str()),
         "Reserved filename"
     );
-    if let Some(hash) = &request.expected_sha256 {
-        anyhow::ensure!(
-            hash.len() == 64 && hex::decode(hash).is_ok(),
-            "SHA-256 must contain 64 hexadecimal characters"
-        );
-    }
     Ok(())
 }

@@ -165,6 +165,19 @@ impl Fixture {
             "-c",
             "copy",
             "audio.m4a",
+            "-map",
+            "0:a:0",
+            "-c",
+            "copy",
+            "-f",
+            "hls",
+            "-hls_time",
+            "1",
+            "-hls_list_size",
+            "0",
+            "-hls_segment_filename",
+            "audio%02d.png",
+            "soundtrack.m3u8",
         ])
         .output()
         .unwrap();
@@ -196,6 +209,7 @@ impl Fixture {
         files.extend(segments);
         files.insert("disguised.m3u8".into(), disguised.clone());
         files.insert("playlist".into(), disguised);
+        files.insert("soundtrack".into(), files["soundtrack.m3u8"].clone());
         let files = Files {
             files: Arc::new(files),
             ranges: Default::default(),
@@ -440,6 +454,54 @@ async fn extensionless_hls_with_jpeg_segment_names_uses_captured_media_kind() {
     let mut input = f.request("extensionless", "mp4");
     input.url = format!("{}/playlist", f.url);
     input.media.as_mut().unwrap().kind = Some("hls".into());
+    Fixture::streams(&f.finish(input).await);
+}
+#[tokio::test]
+async fn extensionless_hls_audio_with_png_segments_is_muxed_with_video() {
+    let f = Fixture::new().await;
+    let mut input = f.request("separate-hls", "mp4");
+    input.url = format!("{}/playlist", f.url);
+    let media = input.media.as_mut().unwrap();
+    media.kind = Some("hls".into());
+    media.audio_url = Some(format!("{}/soundtrack", f.url));
+    Fixture::streams(&f.finish(input).await);
+}
+#[tokio::test]
+async fn extensionless_hls_audio_export_preserves_the_selected_soundtrack() {
+    let f = Fixture::new().await;
+    let mut input = f.request("selected-hls-audio", "mka");
+    input.url = format!("{}/playlist", f.url);
+    let media = input.media.as_mut().unwrap();
+    media.kind = Some("hls".into());
+    media.audio_url = Some(format!("{}/soundtrack", f.url));
+    let task = f.finish(input).await;
+    let output = Command::new(std::env::var_os("FLUX_FFPROBE").unwrap_or_else(|| "ffprobe".into()))
+        .args(["-v", "error", "-show_streams", "-of", "json"])
+        .arg(task.destination)
+        .output()
+        .unwrap();
+    assert!(output.status.success());
+    let info: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    let streams = info["streams"].as_array().unwrap();
+    assert_eq!(streams.len(), 1);
+    assert_eq!(streams[0]["codec_type"], "audio");
+    assert_eq!(streams[0]["codec_name"], "aac");
+}
+#[tokio::test]
+async fn extensionless_hls_is_detected_without_a_captured_kind() {
+    let f = Fixture::new().await;
+    let mut input = f.request("untyped-hls", "mp4");
+    input.url = format!("{}/playlist", f.url);
+    Fixture::streams(&f.finish(input).await);
+}
+#[tokio::test]
+async fn hls_video_with_a_regular_audio_file_keeps_both_streams() {
+    let f = Fixture::new().await;
+    let mut input = f.request("mixed-inputs", "mp4");
+    input.url = format!("{}/playlist", f.url);
+    let media = input.media.as_mut().unwrap();
+    media.kind = Some("hls".into());
+    media.audio_url = Some(format!("{}/audio.m4a", f.url));
     Fixture::streams(&f.finish(input).await);
 }
 #[tokio::test]

@@ -9,7 +9,7 @@ reqwest = { path = "vendor/reqwest" }
 librqbit = { path = "vendor/librqbit" }
 
 [workspace.package]
-version = "2.3.0"
+version = "2.4.0"
 edition = "2021"
 license = "MIT"
 

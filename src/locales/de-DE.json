@@ -235,5 +235,9 @@
   "watch_approval": "Bestätigung anfordern",
   "watch_automatic": "Automatisch zur Warteschlange hinzufügen",
   "watch_imported": "In dieser Sitzung importiert: {{count}}",
-  "rpm_updates_help": "Linux-RPM-Updates werden über die Paketverwaltung installiert. Öffnen Sie die neueste Version, laden Sie das RPM herunter und installieren Sie es mit dnf."
+  "rpm_updates_help": "Linux-RPM-Updates werden über die Paketverwaltung installiert. Öffnen Sie die neueste Version, laden Sie das RPM herunter und installieren Sie es mit dnf.",
+  "filename_prefix": "Dateinamenspräfix (optional)",
+  "filename_prefix_hint": "Mit / Unterordner angeben. Die letzten 10 Präfixe werden gespeichert.",
+  "filename_prefix_preview": "Speichern als: {{path}}",
+  "filename_prefix_invalid": "Ungültiges Präfix. Relative Unterordner und einen gültigen Dateinamen ohne .. oder absolute Pfade verwenden."
 }

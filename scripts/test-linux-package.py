@@ -59,7 +59,7 @@ def native_list(origin):
 def main():
     assert os.getuid() != 0, "Run this test as a normal desktop user"
     version = run("flux-cli", "--version").strip()
-    assert version.endswith("2.3.0"), version
+    assert version.endswith("2.4.0"), version
     assert ctypes.CDLL("/usr/lib/flux/libflux_torrent.so").flux_torrent_abi() == 1
     run("/usr/lib/flux/yt-dlp", "--version")
     run("ffmpeg", "-version")

@@ -25,10 +25,10 @@ Set `FLUX_REQUIRE_MEDIA_TESTS=1` to reject skipped media tests. `FLUX_FFMPEG` an
 
 The HTTP test harness is compiled only with the `test-harness` Cargo feature. Frontend access requires development mode and the explicit `e2e` Vite mode. Production builds expose neither interface.
 
-See [Flux 2.3 validation](docs/validation-2.3.md) for the release evidence and [Linux packaging](docs/release-2.3.md) for the RPM build. Source code, identifiers and technical comments use English. Keep the English and Turkish README files aligned when user-visible behavior changes. Preserve historical validation records under their versioned names; do not present an old test run as current evidence.
+See [Flux 2.4 validation](docs/validation-2.4.md) for the release evidence and [Linux packaging](docs/release-2.4.md) for the RPM build. Source code, identifiers and technical comments use English. Keep the English and Turkish README files aligned when user-visible behavior changes. Preserve historical validation records under their versioned names; do not present an old test run as current evidence.
 
 ## Changes
 
 Keep OS side effects in desktop adapters. Test queue completion and cancellation without powering off the machine running the test suite. Use temporary download/data directories and restore registry changes made by integration tests. Add localized user text to all twenty catalogs. Preserve manual destination choices and never overwrite an existing download.
 
-Use the issue templates for reproducible bugs and feature requests. Security reports follow `SECURITY.md`.
+Use the issue templates for reproducible bugs and feature requests. Security reports follow `SECURITY.md`.\n

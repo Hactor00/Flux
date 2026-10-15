@@ -235,5 +235,9 @@
   "watch_approval": "Pedir confirmación",
   "watch_automatic": "Añadir automáticamente a la cola",
   "watch_imported": "Importados en esta sesión: {{count}}",
-  "rpm_updates_help": "Las actualizaciones RPM de Linux se instalan con el gestor de paquetes. Abre la última versión, descarga el RPM e instálalo con dnf."
+  "rpm_updates_help": "Las actualizaciones RPM de Linux se instalan con el gestor de paquetes. Abre la última versión, descarga el RPM e instálalo con dnf.",
+  "filename_prefix": "Prefijo del nombre (opcional)",
+  "filename_prefix_hint": "Usa / para subcarpetas. Se guardan los últimos 10 prefijos.",
+  "filename_prefix_preview": "Guardar como: {{path}}",
+  "filename_prefix_invalid": "Prefijo no válido. Usa subcarpetas relativas y un nombre válido, sin .. ni rutas absolutas."
 }

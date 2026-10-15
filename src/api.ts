@@ -380,6 +380,16 @@ export const api = {
   dismissBrowserReminder: () => invoke<void>("dismiss_browser_reminder"),
   suggestDirectory: (filename: string, contentType: string | null = null) =>
     invoke<string>("suggest_directory", { filename, contentType }),
+  prepareDownloadPrefix: (
+    prefix: string,
+    filename: string,
+    directory: string | null,
+  ) =>
+    invoke<{ filename: string; directory: string }>("prepare_download_prefix", {
+      prefix,
+      filename,
+      directory,
+    }),
   pendingPower: () => invoke<PendingPower | null>("pending_power"),
   cancelPower: () => invoke<void>("cancel_power"),
   dragCompleted: (ids: string[]) => invoke<void>("drag_completed", { ids }),

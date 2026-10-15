@@ -235,5 +235,9 @@
   "watch_approval": "Ask for confirmation",
   "watch_automatic": "Add to the download queue automatically",
   "watch_imported": "Imported this session: {{count}}",
-  "rpm_updates_help": "Linux RPM updates are installed through your package manager. Open the latest release, download the RPM, and install it with dnf."
+  "rpm_updates_help": "Linux RPM updates are installed through your package manager. Open the latest release, download the RPM, and install it with dnf.",
+  "filename_prefix": "Filename prefix (optional)",
+  "filename_prefix_hint": "Use / for subfolders. Your last 10 prefixes are saved.",
+  "filename_prefix_preview": "Save as: {{path}}",
+  "filename_prefix_invalid": "Invalid prefix. Use relative subfolders and a valid filename, with no .. or absolute paths."
 }

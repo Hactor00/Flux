@@ -235,5 +235,9 @@
   "watch_approval": "Onay iste",
   "watch_automatic": "İndirme kuyruğuna otomatik ekle",
   "watch_imported": "Bu oturumda eklenen: {{count}}",
-  "rpm_updates_help": "Linux RPM güncellemeleri paket yöneticinizle kurulur. Güncel sürümü açın, RPM dosyasını indirin ve dnf ile kurun."
+  "rpm_updates_help": "Linux RPM güncellemeleri paket yöneticinizle kurulur. Güncel sürümü açın, RPM dosyasını indirin ve dnf ile kurun.",
+  "filename_prefix": "Dosya adı öneki (isteğe bağlı)",
+  "filename_prefix_hint": "Alt klasörler için / kullanın. Son 10 önek saklanır.",
+  "filename_prefix_preview": "Kayıt yolu: {{path}}",
+  "filename_prefix_invalid": "Geçersiz önek. Geçerli bir dosya adı ve göreli alt klasörler kullanın; .. ve mutlak yollar kullanılamaz."
 }

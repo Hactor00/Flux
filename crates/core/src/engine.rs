@@ -1703,6 +1703,7 @@ impl Engine {
                         output_bytes,
                         output_time,
                         concat.as_deref(),
+                        &gateway,
                     )
                     .await
                 }

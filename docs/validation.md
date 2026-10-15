@@ -1,23 +1,14 @@
 # Current validation
 
-The current release is **Flux 2.3.0**. See [2.3 validation](validation-2.3.md) and the [platform release record](validation/release-2.3.json). The [Windows package record](validation/release.json) contains the separately executed installer/browser checks.
+The current source version is **Flux 2.4.0**. See [2.4 validation](validation-2.4.md) for the version-specific release workflow results and scope. The [2.3 validation report](validation-2.3.md) and its machine-readable package evidence remain historical.
 
-## Flux 2.3
-
-- Windows regression suite: 202 automated tests, comprising 124 Rust, 63 browser extension and 15 frontend tests.
-- Watched-torrent folder settings, stable-file detection, persistent duplicate prevention and failure isolation.
-- Linux x86_64 RPM build and Fedora installed-package validation, including native libraries, desktop startup, Native Messaging and watched-torrent queue admission.
-- Real Chrome 155 and Firefox 120/157 checks, including foreground desktop approval without a browser file chooser, consent, HUD visibility, dragging and dismissal.
-- Native Windows media/torrent transfers, separate windows, restart recovery, installer repair, removal and data retention.
-- Formatting, strict TypeScript, production build, Clippy, dependency audit and Firefox manifest lint.
-- Package identity and version-bound update signature verification.
-
-See the detailed platform records for test conditions, final workflow identities and untested external scenarios. Evidence dates identify individual runs. Historical external network checks are not represented as fresh 2.3 checks.
+Release reports record exact test counts, workflow identities and tested binary/package hashes. Prior-version test results are never presented as fresh evidence for a newer release.
 
 ## Historical records
 
 | Version | Record |
 | --- | --- |
+| 2.3 | [Validation](validation-2.3.md) |
 | 2.2 | [Validation](validation-2.2.md) |
 | 2.1 | [Validation](validation-2.1.md) |
 | 2.0 | [Validation](validation-2.0.md) |
@@ -26,4 +17,4 @@ See the detailed platform records for test conditions, final workflow identities
 | 1.5 | [Validation](validation-1.5.md) |
 | 1.4 and earlier | [Historical report](validation-1.4.md) |
 
-Source and binary versions are checked by the release scripts. Current machine-readable files can be refreshed by a new release validation; use Git history to recover prior evidence snapshots.
+Source and binary versions are checked by release scripts. Machine-readable records identify the corresponding release and may be refreshed only with new validation evidence.

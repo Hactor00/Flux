@@ -235,5 +235,9 @@
   "watch_approval": "Yêu cầu xác nhận",
   "watch_automatic": "Tự động thêm vào hàng đợi",
   "watch_imported": "Đã nhập trong phiên này: {{count}}",
-  "rpm_updates_help": "Bản cập nhật RPM Linux được cài qua trình quản lý gói. Mở bản phát hành mới nhất, tải RPM và cài bằng dnf."
+  "rpm_updates_help": "Bản cập nhật RPM Linux được cài qua trình quản lý gói. Mở bản phát hành mới nhất, tải RPM và cài bằng dnf.",
+  "filename_prefix": "Tiền tố tên tệp (tùy chọn)",
+  "filename_prefix_hint": "Dùng / cho thư mục con. Lưu 10 tiền tố gần nhất.",
+  "filename_prefix_preview": "Lưu thành: {{path}}",
+  "filename_prefix_invalid": "Tiền tố không hợp lệ. Dùng thư mục con tương đối và tên tệp hợp lệ, không dùng .. hoặc đường dẫn tuyệt đối."
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { isTauri } from "@tauri-apps/api/core";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Tabs from "@radix-ui/react-tabs";
@@ -29,6 +29,12 @@ import {
 import { CollectionPicker } from "./CollectionPicker";
 import { Choice } from "./primitives";
 import { MediaExtras, type MediaExtrasValue } from "./MediaExtras";
+import {
+  filenamePrefixHistory,
+  filenamePrefixPreview,
+  rememberFilenamePrefix,
+  splitFilenamePrefix,
+} from "../filename-prefix";
 function proposalDirectory(proposal?: Task) {
   return (
     proposal?.destination
@@ -61,6 +67,9 @@ export function DownloadModal({
   const [mode, setMode] = useState("single");
   const [url, setUrl] = useState(initialUrl);
   const [name, setName] = useState("");
+  const [prefix, setPrefix] = useState("");
+  const [prefixes, setPrefixes] = useState<string[]>(filenamePrefixHistory);
+  const prefixList = useId();
   const [container, setContainer] = useState("mp4");
   const [segments, setSegments] = useState("");
   const [streams, setStreams] = useState<MediaInfo | null>(null);
@@ -88,6 +97,11 @@ export function DownloadModal({
   const inspectionGeneration = useRef(0);
   const providerUrl = proposal?.request.media?.provider?.url || url;
   const provider = providerSource(providerUrl);
+  let prefixPreview = "";
+  try {
+    if (prefix && name)
+      prefixPreview = filenamePrefixPreview(directory, prefix, name);
+  } catch {}
   useEffect(() => {
     if (visible) {
       let active = true;
@@ -98,6 +112,8 @@ export function DownloadModal({
         setDirectory(proposalDirectory(proposal));
       }
       setDirectoryEdited(false);
+      setPrefix("");
+      setPrefixes(filenamePrefixHistory());
       const source = proposal?.request.url || initialUrl;
       const adaptive =
         !!proposal?.request.media ||
@@ -316,6 +332,22 @@ export function DownloadModal({
       });
       if (mode === "collection")
         inputs = collectionInputs(collectionEntries, inputs[0]);
+      const appliedPrefix = ["single", "media"].includes(mode) ? prefix : "";
+      let targetDirectory = directoryEdited || proposal ? directory : null;
+      if (appliedPrefix) {
+        try {
+          splitFilenamePrefix(appliedPrefix, inputs[0].filename);
+        } catch {
+          throw new Error(t("filename_prefix_invalid"));
+        }
+        const prepared = await api.prepareDownloadPrefix(
+          appliedPrefix,
+          inputs[0].filename,
+          targetDirectory,
+        );
+        inputs[0] = { ...inputs[0], filename: prepared.filename };
+        targetDirectory = prepared.directory;
+      }
       let added: Task | undefined;
       if (mode === "torrent" && torrentPath)
         added = await api.importTorrent(
@@ -333,19 +365,21 @@ export function DownloadModal({
           },
         );
       else if (proposal)
-        added = await api.approve(proposal.id, inputs[0], directory, !later);
-      else if (inputs.length === 1)
-        added = await api.addTo(
+        added = await api.approve(
+          proposal.id,
           inputs[0],
-          directoryEdited ? directory : null,
+          targetDirectory || directory,
           !later,
         );
+      else if (inputs.length === 1)
+        added = await api.addTo(inputs[0], targetDirectory, !later);
       else
         await api.addBatch(
           inputs,
           directoryEdited ? directory : undefined,
           !later,
         );
+      if (appliedPrefix) setPrefixes(rememberFilenamePrefix(appliedPrefix));
       await onAdded();
       if (added && !later && isTauri())
         await api
@@ -587,6 +621,32 @@ export function DownloadModal({
                       maxLength={200}
                     />
                   </label>
+                  <label>
+                    {t("filename_prefix")}
+                    <input
+                      value={prefix}
+                      onChange={(event) => setPrefix(event.target.value)}
+                      list={`${prefixList}-${tab}`}
+                      maxLength={512}
+                      disabled={busy}
+                      autoComplete="off"
+                      placeholder="Courses/lesson-"
+                      aria-describedby={`${prefixList}-${tab}-hint`}
+                    />
+                    <datalist id={`${prefixList}-${tab}`}>
+                      {prefixes.map((value) => (
+                        <option key={value} value={value} />
+                      ))}
+                    </datalist>
+                  </label>
+                  <p className="form-hint" id={`${prefixList}-${tab}-hint`}>
+                    {t("filename_prefix_hint")}
+                  </p>
+                  {prefixPreview && (
+                    <p className="form-hint prefix-preview">
+                      {t("filename_prefix_preview", { path: prefixPreview })}
+                    </p>
+                  )}
                   {provider && (
                     <button
                       type="button"

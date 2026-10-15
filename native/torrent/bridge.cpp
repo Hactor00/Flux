@@ -106,7 +106,7 @@ FLUX_API std::size_t flux_torrent_error(char* output, std::size_t capacity) noex
 FLUX_API void* flux_torrent_session(std::uint64_t download_limit, std::uint64_t upload_limit, bool discovery) noexcept {
     return protect([&]() -> void* {
         lt::settings_pack settings;
-        settings.set_str(lt::settings_pack::user_agent, "Flux/2.3.0");
+        settings.set_str(lt::settings_pack::user_agent, "Flux/2.4.0");
         settings.set_bool(lt::settings_pack::enable_dht, discovery);
         settings.set_bool(lt::settings_pack::enable_lsd, discovery);
         settings.set_bool(lt::settings_pack::enable_upnp, false);

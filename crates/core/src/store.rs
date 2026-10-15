@@ -12,14 +12,16 @@ impl Store {
     pub fn open(path: &Path) -> Result<Self> {
         let conn = Connection::open(path)?;
         let schema: u32 = conn.query_row("PRAGMA user_version", [], |row| row.get(0))?;
-        anyhow::ensure!(schema <= 1, "Database was created by a newer engine");
+        anyhow::ensure!(schema <= 2, "Database was created by a newer engine");
         conn.busy_timeout(std::time::Duration::from_secs(5))?;
         conn.execute_batch("PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;
             CREATE TABLE IF NOT EXISTS tasks(id TEXT PRIMARY KEY, destination TEXT UNIQUE NOT NULL, body TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS parts(task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE, idx INTEGER NOT NULL, body TEXT NOT NULL, PRIMARY KEY(task_id,idx));
             CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY CHECK(id=1), body TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS host_accounts(provider TEXT PRIMARY KEY, enabled INTEGER NOT NULL CHECK(enabled IN (0,1)), secret BLOB NOT NULL);
+            CREATE TABLE IF NOT EXISTS pending_update(id INTEGER PRIMARY KEY CHECK(id=1), body TEXT NOT NULL);
             CREATE INDEX IF NOT EXISTS tasks_schedule ON tasks(json_extract(body,'$.status'),json_extract(body,'$.request.priority'));
-            PRAGMA user_version=1;")?;
+            PRAGMA user_version=2;")?;
         let secrets = crate::secrets::Secrets::open(
             path.parent().context("Database directory unavailable")?,
         )?;
@@ -41,6 +43,107 @@ impl Store {
     }
     pub fn unprotect_credentials(&self, protected: &str) -> Result<Vec<crate::BrowserCredentials>> {
         self.1.unprotect_credentials(protected)
+    }
+    pub async fn host_accounts(&self) -> Result<Vec<crate::debrid::AccountStatus>> {
+        self.run(|db, _| {
+            crate::debrid::Provider::ALL
+                .into_iter()
+                .map(|provider| {
+                    let enabled = db.query_row(
+                        "SELECT enabled FROM host_accounts WHERE provider=?1",
+                        [provider.name()],
+                        |row| row.get::<_, bool>(0),
+                    );
+                    match enabled {
+                        Ok(enabled) => Ok(crate::debrid::AccountStatus {
+                            provider,
+                            enabled,
+                            configured: true,
+                        }),
+                        Err(rusqlite::Error::QueryReturnedNoRows) => {
+                            Ok(crate::debrid::AccountStatus {
+                                provider,
+                                enabled: false,
+                                configured: false,
+                            })
+                        }
+                        Err(error) => Err(error.into()),
+                    }
+                })
+                .collect()
+        })
+        .await
+    }
+    pub async fn save_update_session(&self, queue: bool, ids: Vec<String>) -> Result<()> {
+        self.run(move |db, _| {
+            db.execute(
+                "INSERT INTO pending_update(id,body) VALUES(1,?1)",
+                [serde_json::to_string(&(queue, ids))?],
+            )?;
+            Ok(())
+        })
+        .await
+    }
+    pub async fn restore_update_session(&self) -> Result<()> {
+        self.run(|db, _| {
+            use rusqlite::OptionalExtension;
+            let body: Option<String> = db.query_row("SELECT body FROM pending_update WHERE id=1", [], |row| row.get(0)).optional()?;
+            if let Some(body) = body {
+                let (queue, ids): (bool, Vec<String>) = serde_json::from_str(&body)?;
+                let tx = db.transaction()?;
+                for id in ids {
+                    tx.execute("UPDATE tasks SET body=json_set(body,'$.status','queued') WHERE id=?1 AND json_extract(body,'$.status')='paused'", [&id])?;
+                    tx.execute("UPDATE tasks SET body=json_set(body,'$.status','queued','$.torrent.state','seeding') WHERE id=?1 AND json_extract(body,'$.status')='complete' AND json_extract(body,'$.torrent.state')='seed_paused'", [&id])?;
+                }
+                tx.execute("UPDATE settings SET body=json_set(body,'$.queue_enabled',json(?1)) WHERE id=1", [if queue { "true" } else { "false" }])?;
+                tx.execute("DELETE FROM pending_update WHERE id=1", [])?;
+                tx.commit()?;
+            }
+            Ok(())
+        }).await
+    }
+    pub async fn save_host_account(
+        &self,
+        provider: crate::debrid::Provider,
+        enabled: bool,
+        key: Option<String>,
+    ) -> Result<()> {
+        if let Some(key) = &key {
+            crate::debrid::validate_key(key)?;
+        }
+        self.run(move |db, secrets| {
+            match key {
+                Some(key) if key.is_empty() => { db.execute("DELETE FROM host_accounts WHERE provider=?1", [provider.name()])?; }
+                Some(key) => {
+                    let encrypted = secrets.seal(key.as_bytes())?;
+                    db.execute("INSERT INTO host_accounts(provider,enabled,secret) VALUES(?1,?2,?3) ON CONFLICT(provider) DO UPDATE SET enabled=excluded.enabled,secret=excluded.secret", params![provider.name(), enabled, encrypted])?;
+                }
+                None => { db.execute("UPDATE host_accounts SET enabled=?2 WHERE provider=?1", params![provider.name(), enabled])?; }
+            }
+            Ok(())
+        }).await
+    }
+    pub async fn host_keys(&self) -> Result<Vec<(crate::debrid::Provider, String)>> {
+        self.run(|db, secrets| {
+            let mut statement = db.prepare(
+                "SELECT provider,secret FROM host_accounts WHERE enabled=1 ORDER BY provider",
+            )?;
+            let rows = statement.query_map([], |row| {
+                Ok((row.get::<_, String>(0)?, row.get::<_, Vec<u8>>(1)?))
+            })?;
+            rows.map(|row| {
+                let (name, encrypted) = row?;
+                let provider = crate::debrid::Provider::ALL
+                    .into_iter()
+                    .find(|provider| provider.name() == name)
+                    .context("Unknown host account")?;
+                let key = String::from_utf8(secrets.unseal(&encrypted)?)?;
+                crate::debrid::validate_key(&key)?;
+                Ok((provider, key))
+            })
+            .collect()
+        })
+        .await
     }
     pub async fn insert(&self, task: Task) -> Result<()> {
         self.run(move |db, _secrets| {
@@ -137,6 +240,13 @@ impl Store {
             rows.map(|row| Ok(serde_json::from_str(&row?)?)).collect()
         })
         .await
+    }
+    pub async fn seeds_to_restore(&self, limit: u8) -> Result<Vec<String>> {
+        self.run(move |db, _| {
+            let mut statement = db.prepare("SELECT id FROM tasks WHERE json_extract(body,'$.status')='queued' AND json_extract(body,'$.torrent.state')='seeding' LIMIT ?1")?;
+            let rows = statement.query_map([limit], |row| row.get::<_, String>(0))?;
+            Ok(rows.collect::<std::result::Result<Vec<_>, _>>()?)
+        }).await
     }
     pub async fn schedule(&self, now: u64, limit: u8) -> Result<(Vec<String>, Vec<String>)> {
         self.run(move|db,_|{
@@ -246,6 +356,10 @@ impl Store {
         .await
     }
     pub async fn recover(&self) -> Result<()> {
+        self.run(|db, _| {
+            db.execute("UPDATE tasks SET body=json_set(body,'$.status','queued') WHERE json_extract(body,'$.status')='complete' AND json_extract(body,'$.torrent.state')='seeding'", [])?;
+            Ok(())
+        }).await?;
         for mut task in self.list().await? {
             if task.status == Status::Complete && task.finished_at.is_none() {
                 if let Ok(metadata) = tokio::fs::metadata(&task.destination).await {

@@ -2,18 +2,23 @@
   "passed": true,
   "provider": "YouTube",
   "title": "Big Buck Bunny 60fps 4K - Official Blender Foundation Short Film",
-  "formats": 37,
+  "formats": 8,
   "height": 144,
-  "duration": 8.010884,
-  "video_codec": "av1",
+  "connections": 32,
+  "stale_source_renewed_after_restart": true,
+  "verified_cached_parts_before_restart": 0,
+  "signed_source_changed_on_resume": true,
+  "selected_format": "160",
+  "duration": 8.033333,
+  "video_codec": "h264",
   "audio_codec": "aac",
-  "sha256": "17966ad94ee235464467bb1d851110c8af64ad983f7e19bea16a3c980e059f9f",
+  "sha256": "a15645f77dead3075cd708f30d8b6002def437cf08c858eecdd04fe0c9696114",
   "mp3": {
     "codec": "mp3",
     "streams": 1,
     "duration": 8,
     "sha256": "f7f339bffcecfb2adfab8f1d47404dcf8d9f47107e697c044b3623a3347e4277"
   },
-  "time": "2026-10-11T17:38:30.361Z",
+  "time": "2026-10-14T09:33:28.558Z",
   "local_paths_and_credentials_removed": true
 }

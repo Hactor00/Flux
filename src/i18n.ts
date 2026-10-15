@@ -1,5 +1,6 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import { resolveLocale } from "./locale";
 export const languages = [
   { code: "en-US", name: "English", native: "English" },
   { code: "zh-CN", name: "Mandarin Chinese", native: "普通话" },
@@ -35,7 +36,9 @@ const resources = Object.fromEntries(
 const saved = localStorage.getItem("flux-language");
 void i18n.use(initReactI18next).init({
   resources,
-  lng: languages.some((l) => l.code === saved) ? saved! : "en-US",
+  lng: languages.some((l) => l.code === saved)
+    ? saved!
+    : resolveLocale(navigator.language),
   fallbackLng: "en-US",
   supportedLngs: languages.map((l) => l.code),
   interpolation: { escapeValue: false },

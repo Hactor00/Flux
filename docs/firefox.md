@@ -1,20 +1,20 @@
 # Firefox integration and security
 
-Flux 1.7 adds Gecko support without changing the version-1 IPC schema, little-endian four-byte framing, 256-KiB frame limit, eight-request host semaphore or loopback authentication token.
+Flux 2.2 supports Gecko through shared extension sources and an event background. The version-1 IPC schema, little-endian four-byte framing, 256-KiB frame limit, eight-request host semaphore and loopback authentication token remain unchanged.
 
 ## Caller authorization
 
 Chromium launches the host with a `chrome-extension://.../` origin and an optional window argument. The existing origin allowlist remains unchanged. Firefox launches it with the absolute registered manifest path followed by the Gecko add-on ID. The host validates that the manifest is registered, the ID is exactly `flux@flux-download.local`, `name` and `type` match, the allowlist contains only that ID, and the absolute host path resolves to the running executable. A copied manifest, wrong extension, missing argument or changed executable is rejected before stdin is read.
 
-Windows registration uses `HKCU\Software\Mozilla\NativeMessagingHosts\io.flux.download` and a dedicated manifest. Chrome, Edge and Chromium keep their own `allowed_origins` manifest. Linux and macOS registration also include Mozilla's user-scoped native-host directory. Only Windows integration has been exercised end to end in this release.
+Windows registration uses `HKCU\Software\Mozilla\NativeMessagingHosts\io.flux.download` and a dedicated manifest. Chrome, Edge, Brave and Chromium use `allowed_origins` manifests. Linux and macOS registration also include Mozilla's user-scoped native-host directory. Windows integration is the locally validated platform.
 
-Uninstall checks installation ownership before removing browser registration. A different Flux installation's registration is retained. User downloads and the task database are preserved. Registration is idempotent and repairs both manifests and all four browser keys.
+Uninstall checks installation ownership before removing browser registration. A different Flux installation's registration is retained. User downloads and the task database are preserved. Registration is idempotent and repairs both manifests and all five browser keys.
 
 ## Extension execution
 
-`getBrowserApi()` selects Gecko's `browser` namespace or Chromium's `chrome` namespace. Gecko uses a module event background. Chrome keeps its existing module service worker. Firefox does not implement `downloads.onDeterminingFilename`, so its interception begins at `downloads.onCreated`. Chromium keeps its filename completion gate. Shared recovery and durable proposal ownership prevent independent transfers after desktop acceptance.
+`getBrowserApi()` selects Gecko's `browser` namespace or Chromium's `chrome` namespace. Gecko uses a module event background; Chrome uses a module service worker. Firefox intercepts HTTP GET attachment navigation with asynchronous blocking `webRequest.onHeadersReceived` before filename selection. Explicit browser API downloads use `downloads.onCreated` and the durable cancellation path. Chromium uses its filename completion gate. Deferred persisted proposals prevent independent duplicate transfers after cancellation.
 
-Header observation uses `requestHeaders` on Gecko and also `extraHeaders` on Chromium. There is no blocking web-request permission. Gecko retries durable proposals through a one-minute alarm; Chromium uses its existing thirty-second alarm. Session storage contains transient credentials, while native protection encrypts them before persistent outbox writes.
+Header observation uses `requestHeaders` on Gecko and also `extraHeaders` on Chromium. Firefox alone requests `webRequestBlocking` for attachment interception; Chromium retains its MV3 permissions. Gecko retries durable proposals through a one-minute alarm; Chromium uses a thirty-second alarm. Session storage contains transient credentials, while native protection encrypts them before persistent outbox writes.
 
 Local native transfer is disabled on first Firefox installation until the user consents. Enabling it requests the declared site permissions through a user gesture, which is needed by older MV3 Firefox versions. Each native request checks the persisted consent flag to avoid a race with delayed storage events. Withdrawal disconnects the production port, rejects pending requests, clears session capture and releases unaccepted browser transfers. Stale disconnect callbacks cannot invalidate a newer port.
 
@@ -23,6 +23,8 @@ The modern manifest declares browsing activity, authentication information and w
 ## UI isolation and performance
 
 HUDs use closed shadow roots and constructed stylesheets, with a style-element fallback. No page scripting, `eval`, remote executable code or relaxed extension CSP is added. Firefox versions without the popover API use a fixed layer and fullscreen reparenting. Layout reads remain batched through requestAnimationFrame. Existing limits of 24 overlays, 500 outbox entries and bounded media candidates remain in force. No general performance equivalence benchmark is claimed by the functional tests.
+
+The toolbar popup can hide or show media buttons in all open frames. Hiding closes panels; re-enabling restores dismissed buttons. Initial language follows the browser UI locale with an English fallback; explicit preferences remain saved.
 
 ## Reproducible checks
 

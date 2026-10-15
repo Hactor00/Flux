@@ -7,11 +7,13 @@
   "window_destruction_verified": true,
   "automatic_default_verified": true,
   "settings_window_verified": true,
+  "top_menu_settings_verified": true,
+  "seeding_accounts_updates_panels_verified": true,
   "start_timestamp_verified": true,
   "history_timestamp_verified": true,
   "completion_timestamp_persisted": true,
-  "task": "f6690af0-aec7-4c8b-8a41-d5a5ea329701",
+  "task": "68df36b0-097b-4301-8ff2-4b2ac0374054",
   "sha256": "51510ba467b06c4f337190ef80336d0fb6b7ef8b2fd2cfb950147dedcf8a7dc1",
-  "time": "2026-10-13T13:59:53.154Z",
+  "time": "2026-10-14T11:09:15.926Z",
   "local_paths_and_credentials_removed": true
 }

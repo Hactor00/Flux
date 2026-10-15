@@ -1,0 +1,44 @@
+{
+  "passed": true,
+  "version": "2.2.0",
+  "automatic_background_registration": true,
+  "background_does_not_dismiss_reminder": true,
+  "first_foreground_guide_visible": true,
+  "dismissal_persisted_after_restart": true,
+  "unchanged_manifests_retained": true,
+  "missing_registry_and_outdated_host_repaired": true,
+  "browser_bindings_verified": 5,
+  "settings_status_verified": true,
+  "registry_restoration_verified": true,
+  "time": "2026-10-14T11:08:56.168Z",
+  "local_paths_and_credentials_removed": true,
+  "source_commit": "ab48b0142da8faedb5b873731073b50be754d01d",
+  "desktop_sha256": "e5172f8146b27d25223ae08faaa602a6f388c139f07324e06c6561155f9e7e20",
+  "installer_sha256": "c429ccd88aab4888e65d70d1e9174537e86a5553e57f3e8e3939896004192b22",
+  "local_test_fixtures": {
+    "scripts/test-daily-use.mjs": {
+      "passed": true,
+      "sha256": "b66876427a8aaf414522d14ff7a2f825b7a0ae98748b8a298083b5ae094d2e0c",
+      "result": {
+        "version": "2.2.0",
+        "power_os_actions_executed": false,
+        "passed": true,
+        "startup_registry_verified": true,
+        "startup_disable_verified": true,
+        "daily_settings_visible": true,
+        "native_mime_routing_verified": true,
+        "completed_row_draggable": true,
+        "incomplete_drag_rejected": true,
+        "countdown_event_permission_verified": true,
+        "countdown_deadline_verified": true,
+        "native_cancel_verified": true,
+        "new_work_cancels_countdown": true,
+        "window_close_cancels_countdown": true,
+        "exit_app_after_countdown_verified": true,
+        "startup_registry_restored": true,
+        "time": "2026-10-14T11:15:59.681Z",
+        "local_paths_and_credentials_removed": true
+      }
+    }
+  }
+}

@@ -40,6 +40,9 @@ struct Shared {
     session: String,
     referer: Option<String>,
     credentials: Vec<crate::BrowserCredentials>,
+    manifest_video_id: Option<String>,
+    manifest_audio_id: Option<String>,
+    manifest_snapshot: Option<crate::model::ManifestSnapshot>,
     cancel: CancellationToken,
     limiter: Limiter,
     global_limiter: Arc<Limiter>,
@@ -163,6 +166,18 @@ impl Gateway {
             session: uuid::Uuid::new_v4().to_string(),
             referer: request.referer.clone(),
             credentials: request.credentials.clone(),
+            manifest_video_id: request
+                .media
+                .as_ref()
+                .and_then(|media| media.manifest_video_id.clone()),
+            manifest_audio_id: request
+                .media
+                .as_ref()
+                .and_then(|media| media.manifest_audio_id.clone()),
+            manifest_snapshot: request
+                .media
+                .as_ref()
+                .and_then(|media| media.manifest_snapshot.clone()),
             cancel: cancel.child_token(),
             limiter: Limiter::new(request.speed_limit),
             global_limiter,
@@ -732,7 +747,14 @@ impl GatewayState {
         Ok(output.into_bytes())
     }
     async fn rewrite_dash(&self, remote: &Url, bytes: &[u8]) -> Result<Vec<u8>> {
-        let mut document = xmltree::Element::parse(bytes)?;
+        let mut document = crate::manifest::xml(bytes)?;
+        if self.0.manifest_video_id.is_some() || self.0.manifest_audio_id.is_some() {
+            crate::manifest::select_dash(
+                &mut document,
+                self.0.manifest_video_id.as_deref(),
+                self.0.manifest_audio_id.as_deref(),
+            )?;
+        }
         self.0.tracker.dash(remote, &document)?;
         ensure!(document.name == "MPD", "Invalid DASH manifest");
         self.rewrite_element(&mut document, remote, None).await?;
@@ -798,6 +820,29 @@ async fn handle(
 ) -> Result<Response<Body>, (StatusCode, String)> {
     let result = async {
         let remote = state.remote_url(&uri).await?;
+        if let Some(snapshot) = &state.0.manifest_snapshot {
+            if remote.as_str() == snapshot.url {
+                let hls = snapshot.text.trim_start().starts_with("#EXTM3U");
+                let rewritten = if hls {
+                    state.rewrite_hls(&remote, snapshot.text.as_bytes()).await?
+                } else {
+                    state
+                        .rewrite_dash(&remote, snapshot.text.as_bytes())
+                        .await?
+                };
+                return Ok(Response::builder()
+                    .header(
+                        "content-type",
+                        if hls {
+                            "application/vnd.apple.mpegurl"
+                        } else {
+                            "application/dash+xml"
+                        },
+                    )
+                    .header("content-length", rewritten.len())
+                    .body(Body::from(rewritten))?);
+            }
+        }
         let (path, cache) = state.cached(&remote).await?;
         let mut adaptive_hls = remote.path().to_ascii_lowercase().ends_with(".m3u8")
             || cache.content_type.to_ascii_lowercase().contains("mpegurl");

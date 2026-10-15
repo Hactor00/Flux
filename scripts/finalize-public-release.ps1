@@ -16,11 +16,15 @@ foreach ($name in $names) {
 if ($Signed) {
     $temporary = Join-Path $workspace ('.tools/signed-check-' + [guid]::NewGuid().ToString('N'))
     Expand-Archive -LiteralPath (Join-Path $destination "Flux-$version-windows-x64.zip") -DestinationPath $temporary
-    foreach ($name in 'flux-desktop.exe','flux-cli.exe','flux-native-host.exe') {
+    foreach ($name in 'flux-desktop.exe','flux-cli.exe','flux-native-host.exe','FluxTorrentBridge.dll') {
         $files = @(Get-ChildItem -LiteralPath $temporary -Filter $name -File -Recurse)
         if ($files.Count -ne 1 -or (Get-AuthenticodeSignature -LiteralPath $files[0].FullName).Status -ne 'Valid') { throw "Portable executable has no valid Authenticode signature: $name" }
     }
 }
+$releaseNotes = Join-Path $workspace "docs/releases/v$version.md"
+if (-not (Test-Path -LiteralPath $releaseNotes)) { throw "Release notes are missing for version $version." }
+& "$PSScriptRoot/sign-update.ps1" -Artifact (Join-Path $destination "Flux_${version}_x64-setup.exe") -OutputDirectory $destination -NotesFile $releaseNotes
+$names += @('latest.json',"Flux_${version}_x64-setup.exe.sig")
 $checksums = foreach ($name in $names) { (Get-FileHash -LiteralPath (Join-Path $destination $name) -Algorithm SHA256).Hash.ToLowerInvariant() + '  ' + $name }
 $checksums | Set-Content -LiteralPath (Join-Path $destination 'SHA256SUMS.txt') -Encoding ascii
-@{version=$version;signed=[bool]$Signed;platform='Windows x64'} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $destination 'release-info.json') -Encoding utf8
+@{version=$version;signed=[bool]$Signed;authenticode_signed=[bool]$Signed;update_signed=$true;platform='Windows x64'} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $destination 'release-info.json') -Encoding utf8

@@ -17,6 +17,13 @@ struct Args {
 }
 #[derive(Subcommand)]
 enum Command {
+    VerifyUpdate {
+        artifact: PathBuf,
+        signature: PathBuf,
+        public_key: String,
+        #[arg(long)]
+        expected_version: Option<String>,
+    },
     Download {
         url: String,
         filename: String,
@@ -52,8 +59,28 @@ enum Command {
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();
+    if let Command::VerifyUpdate {
+        artifact,
+        signature,
+        public_key,
+        expected_version,
+    } = &args.command
+    {
+        let signature = std::fs::read_to_string(signature)?;
+        flux_core::signing::verify_update(
+            artifact,
+            public_key,
+            &signature,
+            expected_version.as_deref(),
+        )?;
+        println!("Update signature verified");
+        return Ok(());
+    }
     let engine = Engine::open(&args.data, &args.output).await?;
     let id = match args.command {
+        Command::VerifyUpdate { .. } => {
+            unreachable!("Verification completes before opening the engine")
+        }
         Command::Download {
             url,
             filename,

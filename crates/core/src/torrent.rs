@@ -11,11 +11,11 @@ use librqbit::{
 };
 use sha2::{Digest, Sha256};
 use std::{
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     num::NonZeroU32,
     path::{Component, Path, PathBuf},
     sync::{
-        atomic::{AtomicU64, Ordering},
+        atomic::{AtomicBool, AtomicU64, Ordering},
         Arc,
     },
     time::Duration,
@@ -23,7 +23,7 @@ use std::{
 use tokio::{
     fs,
     io::{AsyncReadExt, AsyncWriteExt},
-    sync::{broadcast, Mutex},
+    sync::{broadcast, watch, Mutex},
 };
 use tokio_util::sync::CancellationToken;
 
@@ -87,8 +87,8 @@ pub(crate) fn validate_request(request: &DownloadRequest) -> Result<()> {
         }
         let magnet = librqbit::Magnet::parse(&request.url)?;
         ensure!(
-            magnet.as_id20().is_some(),
-            "BitTorrent v2-only magnets are not supported by this engine"
+            magnet.as_id20().is_some() || magnet.as_id32().is_some(),
+            "Magnet must contain a valid v1 or v2 info hash"
         );
     } else if let Some(id) = request.url.strip_prefix("torrent:") {
         uuid::Uuid::parse_str(id).context("Invalid imported torrent identifier")?;
@@ -105,6 +105,9 @@ pub(crate) fn validate_request(request: &DownloadRequest) -> Result<()> {
 }
 
 pub(crate) fn validate_options(options: &TorrentOptions, download_limit: u64) -> Result<()> {
+    if let Some(rule) = &options.seeding {
+        rule.validate()?;
+    }
     ensure!(
         (1..=500).contains(&options.peer_limit),
         "Peer limit must be between 1 and 500"
@@ -134,17 +137,91 @@ pub(crate) fn validate_options(options: &TorrentOptions, download_limit: u64) ->
 pub(crate) struct TorrentManager {
     data: PathBuf,
     downloads: PathBuf,
-    session: Mutex<Option<Arc<Session>>>,
-    download_budget: AtomicU64,
+    session: Arc<Mutex<Option<Arc<Session>>>>,
+    download_budget: Arc<AtomicU64>,
+    upload_budget: Arc<AtomicU64>,
+    seeds: Arc<Mutex<HashMap<String, SeedJob>>>,
+    native: Arc<Mutex<Option<Arc<crate::torrent_native::Session>>>>,
+}
+impl Drop for TorrentManager {
+    fn drop(&mut self) {
+        if let Ok(seeds) = self.seeds.try_lock() {
+            for job in seeds.values() {
+                job.preserve.store(true, Ordering::Release);
+                job.cancel.cancel();
+            }
+        }
+    }
+}
+
+struct SeedJob {
+    cancel: CancellationToken,
+    preserve: Arc<AtomicBool>,
+    finished: watch::Receiver<bool>,
+}
+
+pub(crate) enum SeedHandle {
+    Rqbit {
+        session: Arc<Session>,
+        id: usize,
+        handle: Arc<librqbit::ManagedTorrent>,
+    },
+    Native {
+        session: Arc<crate::torrent_native::Session>,
+        id: u64,
+    },
+}
+impl SeedHandle {
+    fn stats(&self) -> Result<(u64, u64, u32)> {
+        match self {
+            Self::Rqbit { handle, .. } => {
+                let stats = handle.stats();
+                ensure!(stats.error.is_none(), "Torrent seeding failed");
+                let speed = stats
+                    .live
+                    .as_ref()
+                    .map_or(0, |live| live.upload_speed.as_bytes());
+                let peers = stats
+                    .live
+                    .as_ref()
+                    .map_or(0, |live| live.snapshot.peer_stats.live);
+                Ok((stats.uploaded_bytes, speed, peers))
+            }
+            Self::Native { session, id } => {
+                let stats = session.stats(*id)?;
+                Ok((stats.uploaded, stats.upload_rate, stats.peers as u32))
+            }
+        }
+    }
+    async fn resume(&self) -> Result<()> {
+        match self {
+            Self::Rqbit {
+                session, handle, ..
+            } => session.unpause(handle).await,
+            Self::Native { session, id } => session.pause(*id, false),
+        }
+    }
+    async fn remove(&self) -> Result<()> {
+        match self {
+            Self::Rqbit { session, id, .. } => session.delete((*id).into(), false).await,
+            Self::Native { session, id } => {
+                session.pause(*id, true)?;
+                session.remove(*id)
+            }
+        }
+    }
 }
 
 impl TorrentManager {
-    pub fn new(data: PathBuf, downloads: PathBuf) -> Self {
+    pub fn new(data: PathBuf, downloads: PathBuf, upload: u64) -> Self {
         Self {
             data,
             downloads,
-            session: Mutex::new(None),
-            download_budget: AtomicU64::new(0),
+            session: Arc::new(Mutex::new(None)),
+            download_budget: Arc::new(AtomicU64::new(0)),
+            upload_budget: Arc::new(AtomicU64::new(upload)),
+            seeds: Arc::new(Mutex::new(HashMap::new())),
+            native: Arc::new(Mutex::new(None)),
         }
     }
     async fn session(&self) -> Result<Arc<Session>> {
@@ -170,7 +247,7 @@ impl TorrentManager {
                 concurrent_init_limit: Some(2),
                 ratelimits: librqbit::limits::LimitsConfig {
                     download_bps: rate(self.download_budget.load(Ordering::Acquire))?,
-                    upload_bps: None,
+                    upload_bps: rate(self.upload_budget.load(Ordering::Acquire))?,
                 },
                 client_name_and_version: Some(concat!("Flux/", env!("CARGO_PKG_VERSION")).into()),
                 ..Default::default()
@@ -185,15 +262,176 @@ impl TorrentManager {
     }
     pub async fn set_global_limit(&self, limit: u64) -> Result<()> {
         self.download_budget.store(limit, Ordering::Release);
-        if let Some(session) = self.session.lock().await.as_ref() {
-            session.ratelimits.set_download_bps(rate(limit)?);
-        }
-        Ok(())
+        self.rebalance().await
+    }
+    pub async fn set_upload_limit(&self, limit: u64) -> Result<()> {
+        self.upload_budget.store(limit, Ordering::Release);
+        self.rebalance().await
+    }
+    async fn rebalance(&self) -> Result<()> {
+        balance_sessions(
+            &self.session,
+            &self.native,
+            self.download_budget.load(Ordering::Acquire),
+            self.upload_budget.load(Ordering::Acquire),
+        )
+        .await
     }
     pub async fn shutdown(&self) {
+        let ids: Vec<_> = self.seeds.lock().await.keys().cloned().collect();
+        for id in ids {
+            let _ = self.stop_seed(&id, true).await;
+        }
         if let Some(session) = self.session.lock().await.take() {
             session.stop().await;
         }
+        self.native.lock().await.take();
+    }
+    pub async fn stop_seed(&self, id: &str, preserve: bool) -> Result<bool> {
+        let job = self.seeds.lock().await.remove(id);
+        if let Some(mut job) = job {
+            job.preserve.store(preserve, Ordering::Release);
+            job.cancel.cancel();
+            while !*job.finished.borrow() {
+                job.finished.changed().await?;
+            }
+            return Ok(true);
+        }
+        Ok(false)
+    }
+    pub(crate) async fn start_seed(
+        &self,
+        mut task: Task,
+        backend: SeedHandle,
+        store: Store,
+        events: broadcast::Sender<Progress>,
+    ) -> Result<bool> {
+        let rule = task
+            .request
+            .torrent
+            .as_ref()
+            .and_then(|options| options.seeding.clone())
+            .unwrap_or(store.settings().await?.seeding);
+        let snapshot = task.torrent.as_ref().context("Missing torrent snapshot")?;
+        if rule.reached(snapshot.uploaded, task.completed, snapshot.seeded_seconds) {
+            return Ok(false);
+        }
+        let base_uploaded = snapshot.uploaded.saturating_sub(backend.stats()?.0);
+        let base_seconds = snapshot.seeded_seconds;
+        backend.resume().await?;
+        task.torrent
+            .as_mut()
+            .context("Missing torrent snapshot")?
+            .state = "seeding".into();
+        store.save(task.clone()).await?;
+        let cancel = CancellationToken::new();
+        let preserve = Arc::new(AtomicBool::new(false));
+        let (finished, receiver) = watch::channel(false);
+        let seeds = self.seeds.clone();
+        let rq_pool = self.session.clone();
+        let native_pool = self.native.clone();
+        let download_budget = self.download_budget.clone();
+        let upload_budget = self.upload_budget.clone();
+        let mut entries = seeds.lock().await;
+        ensure!(
+            !entries.contains_key(&task.id),
+            "Torrent is already seeding"
+        );
+        entries.insert(
+            task.id.clone(),
+            SeedJob {
+                cancel: cancel.clone(),
+                preserve: preserve.clone(),
+                finished: receiver,
+            },
+        );
+        drop(entries);
+        tokio::spawn(async move {
+            let id = task.id.clone();
+            let mut last_tick = tokio::time::Instant::now();
+            let mut elapsed = Duration::ZERO;
+            let result: Result<()> = async {
+                let mut interval = tokio::time::interval(Duration::from_secs(1));
+                interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
+                loop {
+                    tokio::select! { _ = cancel.cancelled() => {}, _ = interval.tick() => {} }
+                    elapsed += last_tick.elapsed().min(Duration::from_secs(3));
+                    last_tick = tokio::time::Instant::now();
+                    if download_budget.load(Ordering::Acquire) != 0
+                        || upload_budget.load(Ordering::Acquire) != 0
+                    {
+                        balance_sessions(
+                            &rq_pool,
+                            &native_pool,
+                            download_budget.load(Ordering::Acquire),
+                            upload_budget.load(Ordering::Acquire),
+                        )
+                        .await?;
+                    }
+                    task = store.get(&id).await?;
+                    let (uploaded, speed, peers) = backend.stats()?;
+                    let rule = task
+                        .request
+                        .torrent
+                        .as_ref()
+                        .and_then(|options| options.seeding.clone())
+                        .unwrap_or(store.settings().await?.seeding);
+                    let torrent = task.torrent.as_mut().context("Missing torrent snapshot")?;
+                    torrent.uploaded = base_uploaded.saturating_add(uploaded);
+                    torrent.seeded_seconds = base_seconds.saturating_add(elapsed.as_secs());
+                    torrent.upload_bps = speed;
+                    torrent.peers = peers;
+                    let now = std::time::SystemTime::now()
+                        .duration_since(std::time::UNIX_EPOCH)?
+                        .as_secs();
+                    let reached =
+                        rule.reached(torrent.uploaded, task.completed, torrent.seeded_seconds)
+                            || task.request.stop_at.is_some_and(|stop| stop <= now);
+                    let stopping = cancel.is_cancelled() || reached;
+                    if stopping {
+                        torrent.state = if reached {
+                            "complete"
+                        } else if preserve.load(Ordering::Acquire) {
+                            "seeding"
+                        } else {
+                            "seed_paused"
+                        }
+                        .into();
+                        torrent.upload_bps = 0;
+                        torrent.peers = 0;
+                    }
+                    store.save(task.clone()).await?;
+                    let _ = events.send(Progress {
+                        id: id.clone(),
+                        completed: task.completed,
+                        total: task.total,
+                        bytes_per_second: 0,
+                        total_estimated: false,
+                        media: None,
+                    });
+                    if stopping {
+                        break;
+                    }
+                }
+                Ok(())
+            }
+            .await;
+            if let Err(error) = result {
+                if let Ok(mut task) = store.get(&id).await {
+                    if let Some(torrent) = &mut task.torrent {
+                        torrent.state = "seed_failed".into();
+                        torrent.upload_bps = 0;
+                        torrent.peers = 0;
+                    }
+                    task.error = Some(error.to_string());
+                    let _ = store.save(task).await;
+                }
+            }
+            let _ = backend.remove().await;
+            seeds.lock().await.remove(&id);
+            let _ = finished.send(true);
+        });
+        Ok(true)
     }
     fn metainfo_path(&self, id: &str) -> Result<PathBuf> {
         let id = uuid::Uuid::parse_str(id)?;
@@ -321,6 +559,10 @@ impl TorrentManager {
                 .unwrap_or_default();
         }
         task.torrent = Some(TorrentSnapshot {
+            seeded_seconds: task
+                .torrent
+                .as_ref()
+                .map_or(0, |torrent| torrent.seeded_seconds),
             info_hash: String::new(),
             state: "resolving".into(),
             peers: 0,
@@ -330,8 +572,17 @@ impl TorrentManager {
             file_count: 0,
         });
         store.save(task.clone()).await?;
-        let session = tokio::select! { _ = cancel.cancelled() => bail!("Cancelled"), result = self.session() => result? };
         let source = tokio::select! { _ = cancel.cancelled() => bail!("Cancelled"), result = self.source(task, client) => result? };
+        let native = match &source {
+            AddTorrent::Url(url) => librqbit::Magnet::parse(url)?.as_id32().is_some(),
+            AddTorrent::TorrentFileBytes(bytes) => metainfo_version(bytes)?.is_some(),
+        };
+        if native {
+            return self
+                .run_native(task, source, options, store, events, cancel)
+                .await;
+        }
+        let session = tokio::select! { _ = cancel.cancelled() => bail!("Cancelled"), result = self.session() => result? };
         let inspected = tokio::select! {
             _ = cancel.cancelled() => bail!("Cancelled"),
             result = tokio::time::timeout(Duration::from_secs(120), session.add_torrent(source, Some(AddTorrentOptions { list_only: true, initial_peers: Some(options.initial_peers.clone()), ..Default::default() }))) => result.context("Torrent metadata discovery timed out")??,
@@ -362,6 +613,10 @@ impl TorrentManager {
         self.save_metainfo(&task.id, &inspected.torrent_bytes)
             .await?;
         task.torrent = Some(TorrentSnapshot {
+            seeded_seconds: task
+                .torrent
+                .as_ref()
+                .map_or(0, |torrent| torrent.seeded_seconds),
             info_hash: inspected.info_hash.as_string(),
             state: "initializing".into(),
             peers: 0,
@@ -412,10 +667,122 @@ impl TorrentManager {
         let result = self
             .transfer(task, &session, &handle, store, events, cancel)
             .await;
+        if result.is_ok()
+            && self
+                .start_seed(
+                    task.clone(),
+                    SeedHandle::Rqbit {
+                        session: session.clone(),
+                        id,
+                        handle: handle.clone(),
+                    },
+                    store.clone(),
+                    events.clone(),
+                )
+                .await?
+        {
+            return Ok(());
+        }
         let cleanup = session.delete(id.into(), false).await;
         result?;
         cleanup?;
         Ok(())
+    }
+    async fn run_native(
+        &self,
+        task: &mut Task,
+        source: AddTorrent<'static>,
+        options: TorrentOptions,
+        store: &Store,
+        events: &broadcast::Sender<Progress>,
+        cancel: &CancellationToken,
+    ) -> Result<()> {
+        let session = {
+            let mut native = self.native.lock().await;
+            if let Some(session) = &*native {
+                session.clone()
+            } else {
+                let rate = self
+                    .download_budget
+                    .load(Ordering::Acquire)
+                    .min(i32::MAX as u64);
+                let upload = store.settings().await?.torrent_upload_limit;
+                let session = tokio::task::spawn_blocking(move || {
+                    crate::torrent_native::Session::new(rate, upload, true)
+                })
+                .await??;
+                *native = Some(session.clone());
+                session
+            }
+        };
+        let (bytes, magnet) = match source {
+            AddTorrent::Url(url) => (url.into_owned().into_bytes(), true),
+            AddTorrent::TorrentFileBytes(bytes) => (bytes.to_vec(), false),
+        };
+        let scratch = self
+            .data
+            .join("torrents")
+            .join(format!("{}.metadata", task.id));
+        fs::create_dir_all(&scratch).await?;
+        let id = session.add(&bytes, magnet, &scratch)?;
+        let result: Result<()> = async {
+            for peer in &options.initial_peers { session.peer(id, *peer)?; }
+            let deadline = tokio::time::Instant::now() + Duration::from_secs(120);
+            loop {
+                ensure!(tokio::time::Instant::now() < deadline, "Torrent metadata discovery timed out");
+                tokio::select! { _ = cancel.cancelled() => bail!("Cancelled"), _ = tokio::time::sleep(Duration::from_millis(200)) => {} }
+                if session.stats(id)?.metadata != 0 { break; }
+            }
+            let info = session.metadata(id)?;
+            let info_hash = info.info_hash.clone();
+            let files = files_from_native(info, &options)?;
+            ensure!(task.request.expected_sha256.is_none() || files.iter().filter(|file| file.selected).count() == 1, "Expected SHA-256 requires exactly one selected torrent file");
+            validate_output(&task.destination, &files, &self.data.join("torrents").join(format!("{}.destination.json", task.id))).await?;
+            if !magnet { self.save_metainfo(&task.id, &bytes).await?; }
+            let previous = task.torrent.as_ref().context("Missing torrent snapshot")?;
+            let uploaded_before = previous.uploaded;
+            task.total = Some(files.iter().filter(|file| file.selected).map(|file| file.length).sum());
+            task.torrent = Some(TorrentSnapshot { seeded_seconds: previous.seeded_seconds, info_hash, state: "initializing".into(), peers: 0, uploaded: uploaded_before, upload_bps: 0, file_count: files.len(), files });
+            store.save(task.clone()).await?;
+            session.start(id, &task.destination, &options, task.request.speed_limit)?;
+            self.rebalance().await?;
+            for peer in &options.initial_peers { session.peer(id, *peer)?; }
+            let mut interval = tokio::time::interval(Duration::from_millis(300));
+            loop {
+                tokio::select! { _ = cancel.cancelled() => { session.pause_and_flush(id).await?; bail!("Cancelled"); }, _ = interval.tick() => {} }
+                let stats = session.stats(id)?;
+                task.completed = stats.completed.min(task.total.unwrap_or(0));
+                task.source_validated |= task.completed > 0;
+                let torrent = task.torrent.as_mut().context("Missing torrent snapshot")?;
+                torrent.state = "downloading".into();
+                torrent.peers = stats.peers as u32;
+                torrent.upload_bps = stats.upload_rate;
+                torrent.uploaded = uploaded_before.saturating_add(stats.uploaded);
+                store.save(task.clone()).await?;
+                let _ = events.send(Progress { id: task.id.clone(), completed: task.completed, total: task.total, bytes_per_second: stats.download_rate, total_estimated: false, media: None });
+                if stats.finished != 0 && task.completed == task.total.unwrap_or(0) { break; }
+            }
+            session.pause_and_flush(id).await?;
+            verify_outputs(task, store, events, cancel).await
+        }.await;
+        if result.is_ok()
+            && self
+                .start_seed(
+                    task.clone(),
+                    SeedHandle::Native {
+                        session: session.clone(),
+                        id,
+                    },
+                    store.clone(),
+                    events.clone(),
+                )
+                .await?
+        {
+            return Ok(());
+        }
+        session.pause(id, true)?;
+        session.remove(id)?;
+        result
     }
     async fn transfer(
         &self,
@@ -428,6 +795,7 @@ impl TorrentManager {
     ) -> Result<()> {
         tokio::select! { _ = cancel.cancelled() => bail!("Cancelled"), result = handle.wait_until_initialized() => result? };
         session.unpause(handle).await?;
+        self.rebalance().await?;
         task.source_validated = true;
         let uploaded_before = task.torrent.as_ref().map_or(0, |torrent| torrent.uploaded);
         let mut interval = tokio::time::interval(Duration::from_millis(300));
@@ -462,91 +830,153 @@ impl TorrentManager {
             }
         }
         session.pause(handle).await?;
-        task.status = Status::Verifying;
+        verify_outputs(task, store, events, cancel).await
+    }
+}
+
+async fn verify_outputs(
+    task: &mut Task,
+    store: &Store,
+    events: &broadcast::Sender<Progress>,
+    cancel: &CancellationToken,
+) -> Result<()> {
+    task.status = Status::Verifying;
+    task.torrent
+        .as_mut()
+        .context("Missing torrent snapshot")?
+        .state = "verifying".into();
+    store.save(task.clone()).await?;
+    let outputs = task
+        .torrent
+        .as_ref()
+        .context("Missing torrent snapshot")?
+        .files
+        .clone();
+    let mut aggregate = Sha256::new();
+    for output in outputs.into_iter().filter(|file| file.selected) {
+        let path = task.destination.join(&output.path);
+        let mut file = fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&path)
+            .await?;
+        ensure!(
+            file.metadata().await?.len() == output.length,
+            "Torrent output has an incorrect length"
+        );
+        let mut digest = Sha256::new();
+        let mut buffer = vec![0u8; 256 * 1024];
+        loop {
+            let count = tokio::select! { _ = cancel.cancelled() => bail!("Cancelled"), result = file.read(&mut buffer) => result? };
+            if count == 0 {
+                break;
+            }
+            digest.update(&buffer[..count]);
+            aggregate.update(&buffer[..count]);
+        }
+        file.sync_all().await?;
+        let hash = hex::encode(digest.finalize());
+        if let Some(expected) = &task.request.expected_sha256 {
+            ensure!(
+                hash.eq_ignore_ascii_case(expected),
+                "Torrent SHA-256 verification failed"
+            );
+        }
         task.torrent
             .as_mut()
             .context("Missing torrent snapshot")?
-            .state = "verifying".into();
-        store.save(task.clone()).await?;
-        let outputs = task
-            .torrent
-            .as_ref()
-            .context("Missing torrent snapshot")?
             .files
-            .clone();
-        let mut aggregate = Sha256::new();
-        for output in outputs.into_iter().filter(|file| file.selected) {
-            let path = task.destination.join(&output.path);
-            let mut file = fs::OpenOptions::new()
-                .read(true)
-                .write(true)
-                .open(&path)
-                .await?;
-            ensure!(
-                file.metadata().await?.len() == output.length,
-                "Torrent output has an incorrect length"
-            );
-            let mut digest = Sha256::new();
-            let mut buffer = vec![0u8; 256 * 1024];
-            loop {
-                let count = tokio::select! { _ = cancel.cancelled() => bail!("Cancelled"), result = file.read(&mut buffer) => result? };
-                if count == 0 {
-                    break;
-                }
-                digest.update(&buffer[..count]);
-                aggregate.update(&buffer[..count]);
-            }
-            file.sync_all().await?;
-            let hash = hex::encode(digest.finalize());
-            if let Some(expected) = &task.request.expected_sha256 {
-                ensure!(
-                    hash.eq_ignore_ascii_case(expected),
-                    "Torrent SHA-256 verification failed"
-                );
-            }
-            task.torrent
-                .as_mut()
-                .context("Missing torrent snapshot")?
-                .files
-                .get_mut(output.index)
-                .context("Torrent file index disappeared during verification")?
-                .sha256 = Some(hash);
-        }
-        let torrent = task.torrent.as_mut().context("Missing torrent snapshot")?;
-        torrent.state = "complete".into();
-        torrent.peers = 0;
-        torrent.upload_bps = 0;
-        task.sha256 = Some(hex::encode(aggregate.finalize()));
-        task.completed = task.total.unwrap_or(0);
-        task.status = Status::Complete;
-        task.finished_at = Some(
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)?
-                .as_secs(),
-        );
-        task.error = None;
-        store.save(task.clone()).await?;
-        let _ = events.send(Progress {
-            id: task.id.clone(),
-            completed: task.completed,
-            total: task.total,
-            bytes_per_second: 0,
-            total_estimated: false,
-            media: None,
-        });
-        Ok(())
+            .iter_mut()
+            .find(|file| file.index == output.index)
+            .context("Torrent file index disappeared during verification")?
+            .sha256 = Some(hash);
     }
+    let torrent = task.torrent.as_mut().context("Missing torrent snapshot")?;
+    torrent.state = "complete".into();
+    torrent.peers = 0;
+    torrent.upload_bps = 0;
+    task.sha256 = Some(hex::encode(aggregate.finalize()));
+    task.completed = task.total.unwrap_or(0);
+    task.status = Status::Complete;
+    task.finished_at.get_or_insert(
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)?
+            .as_secs(),
+    );
+    task.error = None;
+    store.save(task.clone()).await?;
+    let _ = events.send(Progress {
+        id: task.id.clone(),
+        completed: task.completed,
+        total: task.total,
+        bytes_per_second: 0,
+        total_estimated: false,
+        media: None,
+    });
+    Ok(())
+}
+
+type RqPool = Arc<Mutex<Option<Arc<Session>>>>;
+type NativePool = Arc<Mutex<Option<Arc<crate::torrent_native::Session>>>>;
+
+async fn balance_sessions(
+    rq: &RqPool,
+    native: &NativePool,
+    download: u64,
+    upload: u64,
+) -> Result<()> {
+    let rq = rq.lock().await.clone();
+    let native = native.lock().await.clone();
+    let (rq_down, rq_active) = rq.as_ref().map_or((0, 0), |session| {
+        session.with_torrents(|torrents| {
+            torrents.fold((0u64, 0u64), |(down, active), (_, handle)| {
+                let stats = handle.stats();
+                let live = matches!(stats.state, librqbit::TorrentStatsState::Live);
+                (
+                    down + u64::from(live && !stats.finished),
+                    active + u64::from(live),
+                )
+            })
+        })
+    });
+    let (native_down, native_active) = native
+        .as_ref()
+        .map(|session| session.counts())
+        .transpose()?
+        .unwrap_or_default();
+    let share = |limit: u64, count: u64, total: u64| {
+        if limit == 0 || total == 0 || count == 0 {
+            limit
+        } else {
+            (u128::from(limit) * u128::from(count) / u128::from(total)).max(1) as u64
+        }
+    };
+    if let Some(session) = rq {
+        session
+            .ratelimits
+            .set_download_bps(rate(share(download, rq_down, rq_down + native_down))?);
+        session.ratelimits.set_upload_bps(rate(share(
+            upload,
+            rq_active,
+            rq_active + native_active,
+        ))?);
+    }
+    if let Some(session) = native {
+        session.limits(
+            share(download, native_down, rq_down + native_down),
+            share(upload, native_active, rq_active + native_active),
+        )?;
+    }
+    Ok(())
 }
 
 fn rate(value: u64) -> Result<Option<NonZeroU32>> {
     if value == 0 {
         return Ok(None);
     }
-    Ok(NonZeroU32::new(
-        u32::try_from(value)
-            .context("Torrent bandwidth limit exceeds four GiB per second")?
-            .max(16384),
-    ))
+    Ok(NonZeroU32::new(u32::try_from(value).context(
+        "Torrent bandwidth limit exceeds four GiB per second",
+    )?))
 }
 
 fn update_stats(task: &mut Task, stats: &librqbit::TorrentStats, uploaded_before: u64) {
@@ -573,15 +1003,102 @@ fn update_stats(task: &mut Task, stats: &librqbit::TorrentStats, uploaded_before
     }
 }
 
+fn metainfo_version(bytes: &[u8]) -> Result<Option<u32>> {
+    crate::bencode_guard::validate(bytes)?;
+    #[derive(serde::Deserialize)]
+    struct Metainfo {
+        info: Info,
+    }
+    #[derive(serde::Deserialize)]
+    struct Info {
+        #[serde(rename = "meta version")]
+        version: Option<u32>,
+    }
+    let info: Metainfo =
+        librqbit_bencode::from_bytes(bytes).map_err(|error| anyhow::anyhow!("{error}"))?;
+    Ok(info.info.version)
+}
+
 fn validate_metainfo(bytes: &[u8]) -> Result<()> {
     ensure!(
         !bytes.is_empty() && bytes.len() <= MAX_METAINFO,
         "Torrent metadata must contain between one byte and eight MiB"
     );
+    if let Some(version) = metainfo_version(bytes)? {
+        ensure!(version == 2, "Unsupported torrent metadata version");
+        let info = crate::torrent_native::Session::describe(bytes)?;
+        ensure!(
+            info.v2,
+            "Torrent declares v2 without a valid SHA-256 info hash"
+        );
+        files_from_native(info, &TorrentOptions::default())?;
+        return Ok(());
+    }
     let parsed = librqbit::torrent_from_bytes(bytes)?;
     let info = parsed.info.data.validate()?;
     files_from_info(&info, &TorrentOptions::default())?;
     Ok(())
+}
+
+fn files_from_native(
+    info: crate::torrent_native::MetadataInfo,
+    options: &TorrentOptions,
+) -> Result<Vec<TorrentFile>> {
+    ensure!(
+        !info.files.is_empty() && info.files.len() <= MAX_FILES,
+        "Invalid torrent file count"
+    );
+    let mut seen = HashSet::new();
+    let mut indexes = HashSet::new();
+    let mut total = 0u64;
+    let mut files = Vec::new();
+    for file in info.files {
+        let path = Path::new(&file.path);
+        ensure!(
+            !path.is_absolute()
+                && path
+                    .components()
+                    .all(|component| matches!(component, Component::Normal(_))),
+            "Unsafe torrent path"
+        );
+        for component in path.components() {
+            model::validate(&DownloadRequest {
+                url: "https://example.invalid/file".into(),
+                filename: component
+                    .as_os_str()
+                    .to_str()
+                    .context("Invalid torrent filename")?
+                    .into(),
+                ..Default::default()
+            })?;
+        }
+        ensure!(
+            !file.path.is_empty()
+                && file.index < MAX_FILES
+                && seen.insert(file.path.to_lowercase())
+                && indexes.insert(file.index),
+            "Duplicate or invalid torrent file"
+        );
+        total = total
+            .checked_add(file.length)
+            .context("Torrent size overflow")?;
+        ensure!(total <= i64::MAX as u64, "Torrent exceeds supported size");
+        files.push(TorrentFile {
+            index: file.index,
+            path: file.path,
+            length: file.length,
+            selected: options.only_files.is_empty() || options.only_files.contains(&file.index),
+            sha256: None,
+        });
+    }
+    ensure!(
+        options
+            .only_files
+            .iter()
+            .all(|index| indexes.contains(index)),
+        "Torrent file index is out of range"
+    );
+    Ok(files)
 }
 
 fn files_from_info<B: AsRef<[u8]>>(
@@ -737,6 +1254,8 @@ mod tests {
         request.url = "torrent:../../private".into();
         assert!(model::validate(&request).is_err());
         request.url = "magnet:?xt=urn:btmh:12200000000000000000000000000000000000000000000000000000000000000000".into();
+        assert!(model::validate(&request).is_ok());
+        request.url = "magnet:?xt=urn:btmh:122000".into();
         assert!(model::validate(&request).is_err());
     }
     #[test]

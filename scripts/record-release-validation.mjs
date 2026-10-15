@@ -1,5 +1,12 @@
 import { readFile, writeFile, stat } from "node:fs/promises";
 import { createHash } from "node:crypto";
+import { createReadStream } from "node:fs";
+
+async function sha256(path) {
+  const hash = createHash("sha256");
+  for await (const chunk of createReadStream(path)) hash.update(chunk);
+  return hash.digest("hex");
+}
 
 const json = async (path) =>
   JSON.parse((await readFile(path, "utf8")).replace(/^\uFEFF/, ""));
@@ -17,6 +24,8 @@ const records = Object.fromEntries(
       "hud-repair",
       "firefox-120.0",
       "firefox-157.0.1",
+      "chrome-interception",
+      "browser-onboarding",
     ].map(async (name) => [name, await json(`docs/validation/${name}.json`)]),
   ),
 );
@@ -24,13 +33,20 @@ for (const [name, record] of Object.entries(records)) {
   if (!record.passed) throw Error(`${name} did not pass`);
   if (
     (name.startsWith("firefox-") ||
-      ["torrent-window", "browser-stores"].includes(name)) &&
+      [
+        "torrent-window",
+        "browser-stores",
+        "chrome-interception",
+        "browser-onboarding",
+      ].includes(name)) &&
     record.version !== version
   )
     throw Error(`${name} validation version mismatch`);
 }
 if (
   !records.installer.installed_binary_hashes_verified ||
+  !records["browser-onboarding"].missing_registry_and_outdated_host_repaired ||
+  !records["browser-onboarding"].dismissal_persisted_after_restart ||
   !records["torrent-window"].torrent_file_row_visible
 )
   throw Error(
@@ -42,6 +58,11 @@ if (
   records["hud-repair"].version !== version
 )
   throw Error("Validation version mismatch");
+if (
+  (await sha256(`target/release/bundle/nsis/Flux_${version}_x64-setup.exe`)) !==
+  records.installer.sha256
+)
+  throw Error("Installer validation does not match the current build");
 const hudSourceHash = createHash("sha256")
   .update(await readFile("extension/content.js"))
   .digest("hex");
@@ -70,10 +91,15 @@ for (const name of [
   "node.exe",
   "libunwind.dll",
   "WebView2Loader.dll",
+  "FluxTorrentBridge.dll",
+  "libtorrent-rasterbar.dll",
+  "libssl-3-x64.dll",
+  "libcrypto-3-x64.dll",
+  "libstdc++-6.dll",
+  "libgcc_s_seh-1.dll",
+  "libwinpthread-1.dll",
 ]) {
-  hashes[name] = createHash("sha256")
-    .update(await readFile(`target/release/${name}`))
-    .digest("hex");
+  hashes[name] = await sha256(`target/release/${name}`);
 }
 const audit = await json(".tools/production-audit.json");
 const translations = await json("src/locales/en-US.json");
@@ -92,6 +118,8 @@ const report = {
   extension_tests: extensionTests,
   ui_data_tests: uiTests,
   automated_tests: rustTests + extensionTests + uiTests,
+  browser_interception: records["chrome-interception"],
+  browser_setup: records["browser-onboarding"],
   test_evidence: {
     core_log_updated: (await stat(".tools/core-tests.log")).mtime.toISOString(),
     frontend_log_updated: (
@@ -111,7 +139,16 @@ const report = {
   frontend_build: "strict TypeScript + Vite production build passed",
   npm_audit_production_vulnerabilities: audit.metadata.vulnerabilities.total,
   scope: [
-    "Embedded BitTorrent v1 engine, magnet and .torrent import, piece verification and SHA-256 outputs",
+    "Automatic installed/portable Native Messaging registration, idempotent repair and persistent first-use browser guidance",
+    "Embedded BitTorrent v1/v2/hybrid engines, magnet and .torrent import, piece verification and SHA-256 outputs",
+    "Browser download cancellation before filename release, Firefox attachment interception and native approval foreground authorization",
+    "SHA-256 checkpoint replay without ETags or byte-range support, with preserved progress",
+    "System/browser locale detection, direct Settings menu and persistent in-page media-button switch",
+    "Global and per-task seeding rules, pause and restart recovery, disk-flush completion barrier",
+    "Aligned Windows direct writes, stalled-socket replacement from verified offsets",
+    "Encrypted Debrid accounts, provider API contracts and CDN renewal",
+    "Bounded manifest observation and native HLS/DASH extraction",
+    "Signed updater payload verification, version binding and durable update checkpoints",
     "Native torrent window import, real peer transfer and pause/resume",
     "Direct sparse HTTP staging, non-overlapping offsets and legacy checkpoint migration",
     "DOM/network/MSE hints, audio streams, fps and subtitles",
@@ -153,6 +190,10 @@ const report = {
     "Historical external YouTube verification was not repeated",
     "DRM, CAPTCHA, login challenges and opaque renewal APIs are not automatically solved",
     "Upstream reqwest HTTP/3 interface remains experimental and pinned",
+    "Linux and macOS CI jobs have not executed for the local branch",
+    "Live Debrid account entitlements were not tested; local provider HTTP contracts were tested",
+    "EV/OV certificate, SignPath and store credentials were not supplied",
+    "A live GitHub update/install round trip was not run; signatures, checkpoints and NSIS installation were tested separately",
   ],
 };
 await writeFile(

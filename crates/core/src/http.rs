@@ -165,7 +165,7 @@ pub(crate) async fn probe(
         return Ok(Metadata {
             content_type,
             total: Some(total),
-            ranged: tag.is_some(),
+            ranged: true,
             range_supported: true,
             etag: tag,
         });
@@ -186,6 +186,91 @@ pub(crate) async fn probe(
         ranged: false,
         range_supported: false,
     })
+}
+pub(crate) async fn verify_checkpoint(
+    client: &Client,
+    input: &crate::DownloadRequest,
+    range: (u64, u64, u64),
+    expected: &str,
+    cancel: &tokio_util::sync::CancellationToken,
+    local_limit: &crate::limiter::Limiter,
+    global_limit: &crate::limiter::Limiter,
+) -> Result<()> {
+    use futures_util::StreamExt;
+    use sha2::{Digest, Sha256};
+    let (start, length, total) = range;
+    let end = start.checked_add(length).context("Checkpoint overflow")? - 1;
+    let mut request = authenticate(
+        client
+            .get(&input.url)
+            .header(header::ACCEPT_ENCODING, "identity")
+            .header(header::RANGE, format!("bytes={start}-{end}")),
+        &input.url,
+        &input.credentials,
+    )?;
+    if let Some(referer) = &input.referer {
+        request = request.header(header::REFERER, referer);
+    }
+    let response = tokio::select! {
+        _ = cancel.cancelled() => anyhow::bail!("Cancelled"),
+        response = request.send() => response.map_err(|error| Retryable { message: error.to_string(), delay: 0 })?,
+    };
+    if let Some(error) = transient(&response) {
+        return Err(error.into());
+    }
+    response.error_for_status_ref()?;
+    identity(&response)?;
+    ensure!(
+        response.status() == StatusCode::PARTIAL_CONTENT,
+        "Server no longer supports checkpoint verification"
+    );
+    ensure!(
+        content_range(
+            response
+                .headers()
+                .get(header::CONTENT_RANGE)
+                .context("Missing checkpoint Content-Range")?
+                .to_str()?
+        )? == (start, end, total),
+        "Incorrect checkpoint Content-Range"
+    );
+    let mut stream = response.bytes_stream();
+    let mut hash = Sha256::new();
+    let mut received = 0u64;
+    loop {
+        let next = tokio::select! {
+            _ = cancel.cancelled() => anyhow::bail!("Cancelled"),
+            next = tokio::time::timeout(crate::watchdog::IDLE_TIMEOUT, stream.next()) => next.map_err(|_| Retryable { message: "Checkpoint verification stalled".into(), delay: 0 })?,
+        };
+        let Some(bytes) = next else {
+            break;
+        };
+        let bytes = bytes.map_err(|error| Retryable {
+            message: error.to_string(),
+            delay: 0,
+        })?;
+        received = received
+            .checked_add(bytes.len() as u64)
+            .context("Checkpoint overflow")?;
+        ensure!(received <= length, "Server sent too many checkpoint bytes");
+        for slice in bytes.chunks(65536) {
+            local_limit.acquire(slice.len(), cancel).await?;
+            global_limit.acquire(slice.len(), cancel).await?;
+            hash.update(slice);
+        }
+    }
+    if received != length {
+        return Err(Retryable {
+            message: "Checkpoint response ended early".into(),
+            delay: 0,
+        }
+        .into());
+    }
+    ensure!(
+        hex::encode(hash.finalize()) == expected,
+        "Remote file changed; saved download bytes have been preserved"
+    );
+    Ok(())
 }
 pub(crate) fn authenticate(
     mut request: RequestBuilder,

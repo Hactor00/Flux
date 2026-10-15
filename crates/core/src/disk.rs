@@ -5,7 +5,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use tokio::{
-    fs::{File, OpenOptions},
+    fs::File,
     io::{AsyncReadExt, AsyncSeekExt},
 };
 
@@ -91,7 +91,33 @@ fn allocate(file: &std::fs::File, length: u64) -> Result<()> {
     Ok(())
 }
 
-#[cfg(not(target_os = "linux"))]
+#[cfg(target_os = "macos")]
+fn allocate(file: &std::fs::File, length: u64) -> Result<()> {
+    use std::os::fd::AsRawFd;
+    if length == 0 {
+        return Ok(());
+    }
+    let mut allocation = libc::fstore_t {
+        fst_flags: libc::F_ALLOCATECONTIG,
+        fst_posmode: libc::F_PEOFPOSMODE,
+        fst_offset: 0,
+        fst_length: length as libc::off_t,
+        fst_bytesalloc: 0,
+    };
+    let descriptor = file.as_raw_fd();
+    if unsafe { libc::fcntl(descriptor, libc::F_PREALLOCATE, &mut allocation) } != 0 {
+        allocation.fst_flags = libc::F_ALLOCATEALL;
+        if unsafe { libc::fcntl(descriptor, libc::F_PREALLOCATE, &mut allocation) } != 0 {
+            let error = std::io::Error::last_os_error();
+            if !matches!(error.raw_os_error(), Some(libc::ENOTSUP | libc::EINVAL)) {
+                return Err(error.into());
+            }
+        }
+    }
+    Ok(())
+}
+
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 fn allocate(_: &std::fs::File, _: u64) -> Result<()> {
     Ok(())
 }
@@ -112,10 +138,12 @@ pub(crate) async fn range_hasher(path: &Path, offset: u64, length: u64) -> Resul
     Ok(hash)
 }
 
-pub(crate) async fn writer(path: &Path, offset: u64) -> Result<File> {
-    let mut file = OpenOptions::new().read(true).write(true).open(path).await?;
-    file.seek(SeekFrom::Start(offset)).await?;
-    Ok(file)
+pub(crate) async fn writer(
+    path: &Path,
+    offset: u64,
+    direct: bool,
+) -> Result<crate::disk_writer::Writer> {
+    crate::disk_writer::Writer::open(path, offset, direct).await
 }
 
 pub(crate) async fn verify(

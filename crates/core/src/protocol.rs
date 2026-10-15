@@ -25,6 +25,15 @@ pub enum Command {
         #[serde(default)]
         protected_credentials: Option<String>,
     },
+    ResolveManifest {
+        url: String,
+        #[serde(default)]
+        text: Option<String>,
+        #[serde(default)]
+        referer: Option<String>,
+        #[serde(default)]
+        protected_credentials: Option<String>,
+    },
     ResolveCollection {
         url: String,
         offset: usize,
@@ -86,6 +95,8 @@ pub struct AuthenticatedRequest {
 pub struct Discovery {
     pub port: u16,
     pub token: String,
+    #[serde(default)]
+    pub process_id: Option<u32>,
 }
 
 pub async fn dispatch(engine: &Engine, request: Request) -> Response {
@@ -94,6 +105,7 @@ pub async fn dispatch(engine: &Engine, request: Request) -> Response {
         ensure!(request.version == VERSION, "Unsupported protocol version");
         uuid::Uuid::parse_str(&request_id)?;
         let value = match request.command {
+            Command::ResolveManifest { url, text, referer, protected_credentials } => serde_json::to_value(engine.resolve_manifest(url, text, referer, protected_credentials).await?)?,
             Command::Resolve {
                 url,
                 protected_credentials,
@@ -258,6 +270,7 @@ pub async fn serve(
     let discovery = Discovery {
         port: listener.local_addr()?.port(),
         token: token.clone(),
+        process_id: Some(std::process::id()),
     };
     let path = data.join("broker.json");
     let bytes = serde_json::to_vec(&discovery)?;

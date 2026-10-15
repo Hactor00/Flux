@@ -6,6 +6,7 @@ Use Rust 1.99.0, Node.js 24.18.0 and the platform prerequisites documented by Ta
 
 ```powershell
 npm ci
+./scripts/build-torrent-runtime.ps1
 npm run tauri dev
 ```
 
@@ -16,13 +17,15 @@ The frontend browser preview does not run the native downloader. Use the Tauri a
 ```powershell
 npm test
 cargo fmt --all -- --check
-cargo test --locked -p flux-core -p flux-cli -p flux-native-host
+cargo test --locked --workspace --all-features
 cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
 ```
 
 Set `FLUX_REQUIRE_MEDIA_TESTS=1` to reject skipped media tests. `FLUX_FFMPEG` and `FLUX_FFPROBE` select the runtime under test. `FLUX_FIXTURE_FFMPEG` selects the full test-only encoder used to create HLS/DASH fixtures. On Windows, `scripts/prepare-test-runtime.ps1` downloads the pinned encoder and verifies its SHA-256. The full fixture encoder is never bundled with Flux.
 
 The HTTP test harness is compiled only with the `test-harness` Cargo feature. Frontend access requires development mode and the explicit `e2e` Vite mode. Production builds expose neither interface.
+
+See [Flux 2.2 validation](docs/validation-2.2.md) for the release evidence. Source code, identifiers and technical comments use English. Keep the English and Turkish README files aligned when user-visible behavior changes. Preserve historical validation records under their versioned names; do not present an old test run as current evidence.
 
 ## Changes
 

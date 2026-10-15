@@ -9,6 +9,8 @@ import {
 } from "./shared.js";
 import { renewSource } from "./healing.js";
 import { refreshCredentials } from "./session.js";
+import { preferredLocale } from "./locale.js";
+import { attachmentFilename, isAttachment } from "./download-capture.js";
 
 const bridge = new NativeBridge();
 async function resolverCredentials(tabId, url, frameId = 0) {
@@ -91,7 +93,8 @@ const outbox = new DurableOutbox(
       // The durable desktop proposal owns the transfer as soon as it is saved.
       // Approval, cancellation and network retries now belong only to Flux.
       try {
-        await api.downloads.cancel(entry.downloadId);
+        if (!entry.context?.browserCancelled)
+          await api.downloads.cancel(entry.downloadId);
         await api.downloads.erase({ id: entry.downloadId });
       } catch {
         /* Already completed or removed by the user. */
@@ -138,6 +141,7 @@ let mediaGate = Promise.resolve();
 let authGate = Promise.resolve();
 let interceptionGate = Promise.resolve();
 let linksGate = Promise.resolve();
+let manifestGate = Promise.resolve();
 let interceptEnabled = true;
 let nativeEnabled = !isGecko(api);
 const preferencesReady = api.storage.local
@@ -192,11 +196,27 @@ function updateDrafts(callback) {
 }
 function recoverDrafts() {
   return updateDrafts(async (drafts) => {
-    const { outbox = [] } = await api.storage.local.get("outbox");
+    await outbox.mutate(async (entries) => {
+      for (const entry of entries.filter((entry) => entry.ready === false)) {
+        const items = api.downloads.search
+          ? await api.downloads.search({ id: entry.downloadId })
+          : undefined;
+        if (!items || items.some((item) => item.state === "in_progress")) {
+          try {
+            await api.downloads.cancel(entry.downloadId);
+          } catch {
+            continue;
+          }
+        }
+        entry.ready = true;
+      }
+    });
+    const { outbox: pendingOutbox = [] } =
+      await api.storage.local.get("outbox");
     for (const id of drafts) {
       if (
         Number.isInteger(id) &&
-        !outbox.some((entry) => entry.downloadId === id)
+        !pendingOutbox.some((entry) => entry.downloadId === id)
       ) {
         try {
           await api.downloads.resume(id);
@@ -348,8 +368,8 @@ api.tabs.onUpdated.addListener((tabId, change) => {
     ]);
 });
 async function dictionary() {
-  const { locale = "en-US" } = await api.storage.local.get("locale");
-  const safeLocale = /^[a-z]{2,3}-[A-Z]{2}$/.test(locale) ? locale : "en-US";
+  const stored = await api.storage.local.get("locale");
+  const safeLocale = preferredLocale(api, stored.locale);
   const response = await fetch(
     api.runtime.getURL(`locales/${safeLocale}.json`),
   );
@@ -462,15 +482,26 @@ function interceptDownload(item) {
         []
       ).find((item) => item.url === sourceUrl);
     try {
-      await outbox.enqueue(
+      const id = await outbox.enqueue(
         makeInput(sourceUrl, {
           filename: item.filename,
           content_type: item.mime,
           referer: captured?.referer || item.referrer || tab?.url,
         }),
         item.id,
-        { tabId: tab?.id },
+        { tabId: tab?.id, browserCancelled: true },
+        false,
       );
+      try {
+        await api.downloads.cancel(item.id);
+      } catch (error) {
+        await outbox.mutate((entries) => {
+          const index = entries.findIndex((entry) => entry.id === id);
+          if (index >= 0) entries.splice(index, 1);
+        });
+        throw error;
+      }
+      await outbox.activate(id);
     } catch (error) {
       await api.downloads.resume(item.id).catch(() => {});
       throw error;
@@ -493,6 +524,40 @@ function interceptDownload(item) {
         console.warn("Flux browser recovery storage failed", error);
       }
     });
+}
+if (isGecko(api)) {
+  api.webRequest.onHeadersReceived.addListener(
+    async (details) => {
+      await preferencesReady;
+      if (!interceptEnabled || !nativeEnabled || !isAttachment(details))
+        return {};
+      try {
+        await bridge.request("list_page", { offset: 0, limit: 1 });
+        await authGate;
+        const tab =
+          Number.isInteger(details.tabId) && details.tabId >= 0
+            ? await api.tabs.get(details.tabId)
+            : undefined;
+        const headers = details.responseHeaders || [];
+        await outbox.enqueue(
+          makeInput(details.url, {
+            filename: attachmentFilename(headers),
+            content_type: headers.find(
+              (header) => header.name.toLowerCase() === "content-type",
+            )?.value,
+            referer: tab?.url || details.originUrl,
+          }),
+          undefined,
+          { tabId: tab?.id },
+        );
+        return { cancel: true };
+      } catch {
+        return {};
+      }
+    },
+    { urls: ["http://*/*", "https://*/*"], types: ["main_frame", "sub_frame"] },
+    ["blocking", "responseHeaders"],
+  );
 }
 if (api.downloads.onDeterminingFilename) {
   api.downloads.onDeterminingFilename.addListener((item, suggest) => {
@@ -525,6 +590,98 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
         : items;
     }
     if (message.type === "dictionary") return dictionary();
+    if (message.type === "preferences") {
+      const stored = await api.storage.local.get([
+        "showMediaButtons",
+        "locale",
+      ]);
+      return {
+        showMediaButtons: stored.showMediaButtons ?? true,
+        locale: preferredLocale(api, stored.locale),
+      };
+    }
+    if (message.type === "manifest-hint" && sender.tab && nativeEnabled) {
+      if (
+        typeof message.url !== "string" ||
+        typeof message.text !== "string" ||
+        message.text.length > 128 * 1024 ||
+        !/^https?:\/\//i.test(message.url)
+      )
+        throw new Error("Invalid manifest hint");
+      const text = message.text.trimStart();
+      const kind = text.startsWith("#EXTM3U")
+        ? "hls"
+        : /^\s*(?:<\?xml[^>]*>\s*)?<MPD\b/i.test(text)
+          ? "dash"
+          : null;
+      if (!kind) throw new Error("Unsupported manifest hint");
+      await (manifestGate = manifestGate
+        .catch(() => {})
+        .then(async () => {
+          const stored = await api.storage.session.get("manifest-cache");
+          const entries = (stored["manifest-cache"] || []).filter(
+            (entry) =>
+              Date.now() - entry.seenAt < 600000 &&
+              !(
+                entry.tabId === sender.tab.id &&
+                entry.frameId === sender.frameId &&
+                entry.url === message.url
+              ),
+          );
+          entries.push({
+            tabId: sender.tab.id,
+            frameId: sender.frameId,
+            url: message.url,
+            text,
+            kind,
+            seenAt: Date.now(),
+          });
+          await api.storage.session.set({
+            "manifest-cache": entries.slice(-12),
+          });
+        }));
+      capture(
+        sender.tab.id,
+        message.url,
+        kind === "hls"
+          ? "application/vnd.apple.mpegurl"
+          : "application/dash+xml",
+        sender.url,
+        sender.frameId,
+        "manifest",
+      );
+      return true;
+    }
+    if (message.type === "resolve-manifest") {
+      const tabId = sender.tab?.id ?? message.tabId;
+      const frameId = sender.frameId ?? 0;
+      const stored = await api.storage.session.get([
+        "manifest-cache",
+        `media:${tabId}`,
+      ]);
+      const snapshot = (stored["manifest-cache"] || []).find(
+        (entry) =>
+          entry.tabId === tabId &&
+          entry.frameId === frameId &&
+          entry.url === message.url &&
+          Date.now() - entry.seenAt < 600000,
+      );
+      const candidate = (stored[`media:${tabId}`] || []).some(
+        (entry) => entry.url === message.url && entry.frameId === frameId,
+      );
+      if (sender.tab && !snapshot && !candidate)
+        throw new Error("Manifest does not belong to the active frame");
+      return bridge.request("resolve_manifest", {
+        url: message.url,
+        text: snapshot?.text || null,
+        referer: sender.url || null,
+        protected_credentials: await resolverCredentials(
+          tabId,
+          message.url,
+          frameId,
+        ),
+      });
+    }
     if (message.type === "resolve")
       return bridge.request("resolve", {
         url: message.url,
@@ -646,14 +803,43 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
       capture(sender.tab.id, url.href, type, sender.url, sender.frameId, "dom");
       return true;
     }
-    if (message.type === "enqueue")
-      return {
-        id: await outbox.enqueue(
-          makeInput(message.url, message.options),
-          undefined,
-          { tabId: sender.tab?.id ?? message.options?.tabId },
-        ),
-      };
+    if (message.type === "enqueue") {
+      const tabId = sender.tab?.id ?? message.options?.tabId;
+      if (message.options?.media) {
+        for (const key of ["manifest_video_id", "manifest_audio_id"])
+          if (!message.options.media[key]) delete message.options.media[key];
+      }
+      if (
+        message.options?.nativeManifest &&
+        message.options?.media &&
+        Number.isInteger(tabId)
+      ) {
+        const stored = await api.storage.session.get("manifest-cache");
+        const snapshot = (stored["manifest-cache"] || []).find(
+          (entry) =>
+            entry.tabId === tabId &&
+            entry.frameId === (sender.frameId ?? 0) &&
+            entry.url === message.url &&
+            Date.now() - entry.seenAt < 600000,
+        );
+        if (
+          snapshot &&
+          ((snapshot.kind === "hls" &&
+            snapshot.text.includes("#EXT-X-ENDLIST")) ||
+            (snapshot.kind === "dash" &&
+              !/type\s*=\s*["']dynamic["']/i.test(snapshot.text)))
+        ) {
+          message.options.media.manifest_snapshot = {
+            url: snapshot.url,
+            text: snapshot.text,
+          };
+        }
+      }
+      return outbox.enqueueConfirmed(makeInput(message.url, message.options), {
+        tabId,
+        frameId: sender.frameId ?? 0,
+      });
+    }
     if (message.type === "inspect") {
       const credentials = await credentialsFor(
         sender.tab?.id ?? message.tabId,
@@ -741,5 +927,6 @@ api.runtime.onStartup.addListener(async () => {
   await recoverDrafts();
   void outbox.pump();
 });
-void recoverDrafts().catch(console.warn);
-void outbox.pump();
+void recoverDrafts()
+  .then(() => outbox.pump())
+  .catch(console.warn);

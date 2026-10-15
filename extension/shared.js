@@ -112,10 +112,21 @@ export function makeInput(url, options = {}) {
   )
     throw new Error("Invalid BitTorrent v1 magnet");
   const kind = mediaKind(url);
-  const media = magnet
+  let media = magnet
     ? null
     : options.media ||
       (kind === "hls" || kind === "dash" ? { container: "mp4" } : null);
+  if (media) {
+    media = structuredClone(media);
+    for (const key of [
+      "manifest_snapshot",
+      "manifest_video_id",
+      "manifest_audio_id",
+    ])
+      if (media[key] == null) delete media[key];
+    if (media.provider && media.provider.audio_format_id == null)
+      delete media.provider.audio_format_id;
+  }
   let referer = options.referer || null;
   if (referer && !/^https?:\/\//i.test(referer)) referer = null;
   return {

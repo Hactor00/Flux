@@ -128,5 +128,6 @@
   "originalAudio": "元の音声",
   "noSubtitles": "字幕なし",
   "queueCollection": "コレクションをキューへ",
-  "collectionHint": "プレイリストやチャンネルの最大500件をFluxのダウンロードキューに送信します。"
+  "collectionHint": "プレイリストやチャンネルの最大500件をFluxのダウンロードキューに送信します。",
+  "showMediaButtons": "動画のダウンロードボタンを表示"
 }

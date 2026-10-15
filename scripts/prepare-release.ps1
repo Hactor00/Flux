@@ -4,6 +4,7 @@ $workspace = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $workspace
 & "$PSScriptRoot/prepare-extractor.ps1"
 if ($UseLocalToolchain) { . "$PSScriptRoot/use-local-rust.ps1" }
+& "$PSScriptRoot/build-torrent-runtime.ps1"
 if ($RuntimePackage) {
     $RuntimePackage = (Resolve-Path -LiteralPath $RuntimePackage).Path
     $MediaRuntime = $RuntimePackage
@@ -33,6 +34,14 @@ New-Item -ItemType Directory -Force -Path $stage | Out-Null
 foreach ($name in @('flux-cli.exe','flux-native-host.exe','libunwind.dll')) {
     Copy-Item -LiteralPath "$workspace/target/release/$name" -Destination $stage -Force
 }
+foreach ($name in @('FluxTorrentBridge.dll','libtorrent-rasterbar.dll','libssl-3-x64.dll','libcrypto-3-x64.dll','libstdc++-6.dll','libgcc_s_seh-1.dll','libwinpthread-1.dll')) {
+    Copy-Item -LiteralPath "$workspace/target/release/$name" -Destination $stage -Force
+}
+$nativeLicenses = Join-Path $workspace '.tools/torrent-native/ucrt64/share/licenses'
+if (-not (Test-Path -LiteralPath $nativeLicenses)) { throw 'Native torrent dependency licenses are missing.' }
+$nativeLicenseStage = Join-Path $stage 'native-licenses'
+New-Item -ItemType Directory -Force -Path $nativeLicenseStage | Out-Null
+foreach ($entry in Get-ChildItem -LiteralPath $nativeLicenses) { Copy-Item -LiteralPath $entry.FullName -Destination $nativeLicenseStage -Recurse -Force }
 foreach ($name in @('ffmpeg.exe','ffprobe.exe')) {
     if (-not (Test-Path -LiteralPath "$MediaRuntime/$name")) { throw "Missing media runtime: $name" }
     Copy-Item -LiteralPath "$MediaRuntime/$name" -Destination $stage -Force

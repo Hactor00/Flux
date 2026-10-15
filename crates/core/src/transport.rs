@@ -2,19 +2,22 @@
 use reqwest::{header, IntoUrl, Response, Version};
 use std::{
     collections::HashMap,
-    sync::Arc,
+    sync::{Arc, RwLock},
     time::{Duration, Instant},
 };
 use tokio::sync::Mutex;
 
 #[derive(Clone)]
 pub(crate) struct Client {
-    tcp: reqwest::Client,
+    tcp: Arc<RwLock<reqwest::Client>>,
+    reset: Arc<Mutex<Option<Instant>>>,
+    reset_enabled: bool,
     quic: reqwest::Client,
     origins: Arc<Mutex<HashMap<String, Route>>>,
     healing: Option<Healing>,
     policy: crate::TransportPreference,
     renewed: Arc<Mutex<HashMap<String, (crate::healing::Renewed, Instant)>>>,
+    host_resolver: Option<Arc<crate::debrid::Resolver>>,
 }
 #[derive(Clone)]
 struct Healing {
@@ -36,6 +39,14 @@ fn builder() -> reqwest::ClientBuilder {
     reqwest::Client::builder()
         .connect_timeout(Duration::from_secs(15))
         .read_timeout(Duration::from_secs(30))
+        .tcp_nodelay(true)
+        .tcp_keepalive(Duration::from_secs(10))
+        .tcp_keepalive_interval(Duration::from_secs(3))
+        .tcp_keepalive_retries(3)
+        .tcp_socket_buffers(256 * 1024, 1024 * 1024)
+        .pool_idle_timeout(Duration::from_secs(90))
+        .pool_max_idle_per_host(32)
+        .http2_adaptive_window(true)
         // Redirects are handled identically for TCP and QUIC below.
         .redirect(reqwest::redirect::Policy::none())
         .user_agent(concat!("Flux/", env!("CARGO_PKG_VERSION")))
@@ -46,14 +57,18 @@ fn builder() -> reqwest::ClientBuilder {
 }
 impl Client {
     pub fn new() -> reqwest::Result<Self> {
-        Self::from_builders(builder(), builder())
+        let mut client = Self::from_builders(builder(), builder())?;
+        client.reset_enabled = true;
+        Ok(client)
     }
     fn from_builders(
         tcp: reqwest::ClientBuilder,
         quic: reqwest::ClientBuilder,
     ) -> reqwest::Result<Self> {
         Ok(Self {
-            tcp: tcp.build()?,
+            tcp: Arc::new(RwLock::new(tcp.build()?)),
+            reset: Arc::new(Mutex::new(None)),
+            reset_enabled: false,
             quic: quic
                 .http3_prior_knowledge()
                 .http3_max_idle_timeout(Duration::from_secs(30))
@@ -63,6 +78,7 @@ impl Client {
             healing: None,
             policy: crate::TransportPreference::Auto,
             renewed: Arc::new(Mutex::new(HashMap::new())),
+            host_resolver: None,
         })
     }
     pub fn with_healing(
@@ -84,18 +100,53 @@ impl Client {
         self.policy = policy;
         self
     }
+    pub fn with_host_resolver(mut self, resolver: Arc<crate::debrid::Resolver>) -> Self {
+        self.host_resolver = Some(resolver);
+        self
+    }
     pub fn get(&self, url: impl IntoUrl) -> RequestBuilder {
         RequestBuilder {
-            inner: self.tcp.get(url),
+            inner: self
+                .tcp
+                .read()
+                .unwrap_or_else(|error| error.into_inner())
+                .get(url),
             client: self.clone(),
         }
+    }
+    pub async fn reset_tcp_pool(&self) -> anyhow::Result<()> {
+        if !self.reset_enabled {
+            return Ok(());
+        }
+        let mut reset = self.reset.lock().await;
+        if reset.is_some_and(|at| at.elapsed() < Duration::from_secs(1)) {
+            return Ok(());
+        }
+        let fresh = tokio::task::spawn_blocking(|| builder().build()).await??;
+        *self
+            .tcp
+            .write()
+            .map_err(|_| anyhow::anyhow!("TCP pool lock poisoned"))? = fresh;
+        *reset = Some(Instant::now());
+        Ok(())
     }
     fn execute(
         &self,
         mut request: reqwest::Request,
-    ) -> futures_util::future::BoxFuture<'_, reqwest::Result<Response>> {
+    ) -> futures_util::future::BoxFuture<'_, anyhow::Result<Response>> {
         // Do not embed the entire TCP/QUIC state machine into every IPC command future.
         Box::pin(async move {
+            let host_source = request.url().as_str().to_owned();
+            let host_cancel = self
+                .healing
+                .as_ref()
+                .map(|context| context.cancel.clone())
+                .unwrap_or_default();
+            if let Some(resolver) = &self.host_resolver {
+                if let Some(link) = resolver.resolve(&host_source, false, &host_cancel).await? {
+                    replace_host_url(&mut request, &link.url)?;
+                }
+            }
             let mut healed = false;
             let original = format!(
                 "{}:{}",
@@ -156,16 +207,35 @@ impl Client {
                 let response = match response {
                     Some(value) => value,
                     None => {
-                        self.tcp
-                            .execute(
-                                request
-                                    .try_clone()
-                                    .expect("GET requests have no streaming body"),
-                            )
-                            .await?
+                        let tcp = self
+                            .tcp
+                            .read()
+                            .unwrap_or_else(|error| error.into_inner())
+                            .clone();
+                        tcp.execute(
+                            request
+                                .try_clone()
+                                .expect("GET requests have no streaming body"),
+                        )
+                        .await?
                     }
                 };
                 self.learn(&response).await;
+                if !healed && matches!(response.status().as_u16(), 401 | 403 | 410) {
+                    if let Some(resolver) = &self.host_resolver {
+                        if crate::debrid::is_host_url(&host_source) {
+                            healed = true;
+                            if let Some(link) =
+                                resolver.resolve(&host_source, true, &host_cancel).await?
+                            {
+                                replace_host_url(&mut request, &link.url)?;
+                                if redirect < 9 {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
                 if !healed && matches!(response.status().as_u16(), 401 | 403 | 410) {
                     if let Some(context) = &self.healing {
                         healed = true;
@@ -266,6 +336,18 @@ impl Client {
         );
     }
 }
+fn replace_host_url(request: &mut reqwest::Request, url: &str) -> anyhow::Result<()> {
+    *request.url_mut() = url::Url::parse(url)?;
+    for name in [
+        header::COOKIE,
+        header::AUTHORIZATION,
+        header::PROXY_AUTHORIZATION,
+        header::REFERER,
+    ] {
+        request.headers_mut().remove(name);
+    }
+    Ok(())
+}
 fn apply_refresh(request: &mut reqwest::Request, fresh: &crate::healing::Renewed) {
     *request.url_mut() = url::Url::parse(&fresh.url).expect("Broker validated URL");
     for name in [header::COOKIE, header::AUTHORIZATION, header::USER_AGENT] {
@@ -316,7 +398,7 @@ impl RequestBuilder {
         self.inner = self.inner.header(key, value);
         self
     }
-    pub async fn send(self) -> reqwest::Result<Response> {
+    pub async fn send(self) -> anyhow::Result<Response> {
         self.client.execute(self.inner.build()?).await
     }
 }

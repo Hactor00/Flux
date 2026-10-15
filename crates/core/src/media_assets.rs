@@ -7,8 +7,11 @@ use url::Url;
 pub(crate) const MAX_ASSET: usize = 8 * 1024 * 1024;
 pub(crate) fn hls_attributes(line: &str) -> Result<std::collections::HashMap<String, String>> {
     let mut result = std::collections::HashMap::new();
-    let expression = regex::Regex::new(r#"([A-Z0-9-]+)=(?:"([^"]*)"|([^,]*))"#)?;
-    for captures in expression.captures_iter(line) {
+    static EXPRESSION: std::sync::LazyLock<regex::Regex> = std::sync::LazyLock::new(|| {
+        regex::Regex::new(r#"([A-Z0-9-]+)=(?:"([^"]*)"|([^,]*))"#)
+            .expect("Valid HLS attribute expression")
+    });
+    for captures in EXPRESSION.captures_iter(line) {
         result.insert(
             captures[1].to_owned(),
             captures
@@ -107,7 +110,7 @@ pub(crate) fn discover(base: &Url, text: &str) -> Result<(Vec<SubtitleTrack>, Ve
             }
         }
     } else if text.trim_start().starts_with('<') {
-        let root = xmltree::Element::parse(text.as_bytes())?;
+        let root = crate::manifest::xml(text.as_bytes())?;
         collect_dash(&root, base, &mut subtitles)?;
         collect_dash_chapters(&root, 0, &mut chapters);
     }

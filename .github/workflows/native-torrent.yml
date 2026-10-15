@@ -1,0 +1,26 @@
+name: Native torrent lifecycle regression
+on:
+  workflow_dispatch:
+  push:
+    branches: ["codex/native-*"]
+permissions:
+  contents: read
+jobs:
+  core:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    env:
+      RUST_MIN_STACK: "8388608"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      - run: ./scripts/build-torrent-runtime.ps1
+      - name: Exercise worker lifetime and repeated verified transfers
+        run: cargo test --locked -p flux-core --lib torrent_native::tests -- --nocapture

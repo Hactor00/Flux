@@ -226,5 +226,14 @@
   "bridge_automatic": "Flux registra y repara automáticamente su puente local al iniciarse, también en la edición portátil.",
   "bridge_extension_step": "Instala y activa la extensión de Flux, concede los permisos de sitios y mensajería nativa solicitados y actualiza las pestañas abiertas. Registrar el puente no instala la extensión.",
   "bridge_repair_help": "Si la extensión no conecta, abre Ajustes → Integración del navegador → Reparar puente del navegador.",
-  "bridge_dismiss": "Entendido — no volver a mostrar"
+  "bridge_dismiss": "Entendido — no volver a mostrar",
+  "watch_title": "Carpetas torrent vigiladas",
+  "watch_help": "Las carpetas seleccionadas se comprueban cada 3 segundos cuando los archivos .torrent dejan de cambiar. Los archivos idénticos solo se importan una vez, incluso tras reiniciar. No se incluyen subcarpetas. Guarda para aplicar.",
+  "watch_enabled": "Activar vigilancia de carpetas",
+  "watch_add": "Añadir carpeta",
+  "watch_mode": "Cuando llegue un torrent",
+  "watch_approval": "Pedir confirmación",
+  "watch_automatic": "Añadir automáticamente a la cola",
+  "watch_imported": "Importados en esta sesión: {{count}}",
+  "rpm_updates_help": "Las actualizaciones RPM de Linux se instalan con el gestor de paquetes. Abre la última versión, descarga el RPM e instálalo con dnf."
 }

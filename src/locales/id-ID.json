@@ -226,5 +226,14 @@
   "bridge_automatic": "Flux otomatis mendaftarkan dan memperbaiki jembatan lokal saat dimulai, termasuk edisi portabel.",
   "bridge_extension_step": "Pasang dan aktifkan ekstensi Flux, izinkan akses situs dan pesan native yang diminta, lalu muat ulang tab yang terbuka. Pendaftaran jembatan tidak memasang ekstensi.",
   "bridge_repair_help": "Jika ekstensi tidak terhubung, buka Pengaturan → Integrasi browser → Perbaiki jembatan browser.",
-  "bridge_dismiss": "Mengerti — jangan tampilkan lagi"
+  "bridge_dismiss": "Mengerti — jangan tampilkan lagi",
+  "watch_title": "Folder torrent yang dipantau",
+  "watch_help": "Folder terpilih diperiksa setiap 3 detik setelah berkas .torrent berhenti berubah. Berkas identik diimpor sekali, termasuk setelah aplikasi dimulai ulang. Subfolder tidak disertakan. Simpan untuk menerapkan.",
+  "watch_enabled": "Aktifkan pemantauan folder",
+  "watch_add": "Tambah folder",
+  "watch_mode": "Saat torrent tiba",
+  "watch_approval": "Minta konfirmasi",
+  "watch_automatic": "Tambahkan otomatis ke antrean",
+  "watch_imported": "Diimpor dalam sesi ini: {{count}}",
+  "rpm_updates_help": "Pembaruan RPM Linux dipasang melalui pengelola paket. Buka rilis terbaru, unduh RPM, lalu pasang dengan dnf."
 }

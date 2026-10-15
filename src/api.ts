@@ -122,6 +122,12 @@ export interface Settings {
   >;
   clipboard_mode: "approval" | "silent_queue";
   launch_at_startup: boolean;
+  torrent_watch: {
+    enabled: boolean;
+    folders: string[];
+    destination: string | null;
+    mode: "approval" | "automatic";
+  };
 }
 export type ShutdownAction =
   "none" | "exit_app" | "sleep" | "hibernate" | "shutdown_computer";
@@ -197,6 +203,12 @@ export const defaultSettings: Settings = {
   },
   clipboard_mode: "approval",
   launch_at_startup: false,
+  torrent_watch: {
+    enabled: false,
+    folders: [],
+    destination: null,
+    mode: "approval",
+  },
 };
 export type Status =
   | "awaiting_approval"
@@ -357,6 +369,10 @@ export const api = {
     }),
   torrentOptions: (id: string, options: TorrentOptions, speedLimit: number) =>
     invoke<Task>("set_torrent_options", { id, options, speedLimit }),
+  torrentWatchReport: () =>
+    invoke<{ imported: number; error: string | null }>("torrent_watch_report"),
+  runtimePlatform: () => invoke<string>("runtime_platform"),
+  openReleasePage: () => invoke<void>("open_release_page"),
   expand: (input: string) => invoke<string[]>("expand_batch", { input }),
   registerBrowser: () => invoke<string>("register_browser"),
   browserIntegration: () =>

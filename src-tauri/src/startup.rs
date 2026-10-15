@@ -2,8 +2,10 @@
 const KEY: &str = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 #[cfg(windows)]
 pub type Snapshot = Option<winreg::RegValue>;
-#[cfg(not(windows))]
+#[cfg(not(any(windows, target_os = "linux")))]
 pub struct Snapshot;
+#[cfg(target_os = "linux")]
+pub type Snapshot = Option<Vec<u8>>;
 
 #[cfg(windows)]
 pub fn snapshot() -> Result<Snapshot, String> {
@@ -43,15 +45,15 @@ pub fn remove_owned() -> Result<(), String> {
     Ok(())
 }
 
-#[cfg(not(windows))]
+#[cfg(not(any(windows, target_os = "linux")))]
 pub fn snapshot() -> Result<Snapshot, String> {
     Ok(Snapshot)
 }
-#[cfg(not(windows))]
+#[cfg(not(any(windows, target_os = "linux")))]
 pub fn restore(_: Snapshot) -> Result<(), String> {
     Ok(())
 }
-#[cfg(not(windows))]
+#[cfg(not(any(windows, target_os = "linux")))]
 pub fn remove_owned() -> Result<(), String> {
     Ok(())
 }
@@ -90,15 +92,85 @@ pub fn set(enabled: bool) -> Result<(), String> {
         }
     }
 }
-#[cfg(not(windows))]
+#[cfg(not(any(windows, target_os = "linux")))]
 pub fn enabled() -> Result<bool, String> {
     Ok(false)
 }
-#[cfg(not(windows))]
+#[cfg(not(any(windows, target_os = "linux")))]
 pub fn set(enabled: bool) -> Result<(), String> {
     if enabled {
         Err("Startup registration requires Windows".into())
     } else {
         Ok(())
     }
+}
+
+#[cfg(target_os = "linux")]
+fn autostart_path() -> Result<std::path::PathBuf, String> {
+    let config = std::env::var_os("XDG_CONFIG_HOME")
+        .map(std::path::PathBuf::from)
+        .filter(|path| path.is_absolute())
+        .or_else(|| {
+            std::env::var_os("HOME").map(|home| std::path::PathBuf::from(home).join(".config"))
+        })
+        .ok_or("Home directory is unavailable")?;
+    Ok(config.join("autostart/io.flux.download.desktop"))
+}
+#[cfg(target_os = "linux")]
+fn autostart_content() -> Result<Vec<u8>, String> {
+    let executable = std::env::current_exe().map_err(|error| error.to_string())?;
+    let executable = executable
+        .to_str()
+        .ok_or("Application path is not valid UTF-8")?;
+    if executable.contains(['\n', '\r']) {
+        return Err("Invalid application path".into());
+    }
+    let escaped = executable
+        .replace('\\', "\\\\")
+        .replace('"', "\\\"")
+        .replace('`', "\\`")
+        .replace('$', "\\$")
+        .replace('%', "%%");
+    Ok(format!("[Desktop Entry]\nType=Application\nName=Flux\nExec=\"{escaped}\" --background\nTerminal=false\nX-GNOME-Autostart-enabled=true\n").into_bytes())
+}
+#[cfg(target_os = "linux")]
+pub fn snapshot() -> Result<Snapshot, String> {
+    match std::fs::read(autostart_path()?) {
+        Ok(bytes) => Ok(Some(bytes)),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+        Err(error) => Err(error.to_string()),
+    }
+}
+#[cfg(target_os = "linux")]
+pub fn restore(snapshot: Snapshot) -> Result<(), String> {
+    match snapshot {
+        Some(bytes) => crate::install::write_changed(&autostart_path()?, &bytes)
+            .map_err(|error| error.to_string()),
+        None => set(false),
+    }
+}
+#[cfg(target_os = "linux")]
+pub fn enabled() -> Result<bool, String> {
+    Ok(snapshot()?.as_deref() == Some(autostart_content()?.as_slice()))
+}
+#[cfg(target_os = "linux")]
+pub fn set(enabled: bool) -> Result<(), String> {
+    let path = autostart_path()?;
+    if enabled {
+        crate::install::write_changed(&path, &autostart_content()?)
+            .map_err(|error| error.to_string())
+    } else {
+        match std::fs::remove_file(path) {
+            Ok(()) => Ok(()),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
+            Err(error) => Err(error.to_string()),
+        }
+    }
+}
+#[cfg(target_os = "linux")]
+pub fn remove_owned() -> Result<(), String> {
+    if enabled()? {
+        set(false)?;
+    }
+    Ok(())
 }

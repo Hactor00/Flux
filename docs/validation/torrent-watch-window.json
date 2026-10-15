@@ -1,0 +1,9 @@
+{
+  "version": "2.3.0",
+  "passed": true,
+  "settings_visible": true,
+  "background_import": true,
+  "queue_pause_respected": true,
+  "restart_duplicate_prevention": true,
+  "local_paths_and_credentials_removed": true
+}

@@ -219,7 +219,7 @@ try {
   await stop();
   const report = {
     passed: true,
-    version: "2.2.0",
+    version: JSON.parse(await readFile("package.json", "utf8")).version,
     automatic_background_registration: true,
     background_does_not_dismiss_reminder: true,
     first_foreground_guide_visible: true,

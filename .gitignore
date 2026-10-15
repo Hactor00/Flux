@@ -10,6 +10,9 @@ release/
 deliverables/
 public-release/
 signed/
+output/
+tmp/
+site/
 
 # Firefox runtime assets are generated from the shared extension sources.
 extension-firefox/*

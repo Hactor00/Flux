@@ -2,11 +2,13 @@
 
 The release workflow builds Windows x64 on a GitHub-hosted runner. Tags must match the version in `package.json`. Manual runs produce artifacts by default; publication creates a draft GitHub release.
 
-The current release is **2.2.0**. Its installer and portable runtime are validated on Windows x64. Keep both README files, the package version, extension manifests and `docs/releases/v2.2.0.md` aligned. Historical documents retain their original version and evidence dates.
+The current release is **2.3.0**, with a Windows x64 installer/portable runtime and a Linux x86_64 RPM. Keep both README files, package versions, extension manifests and `docs/releases/v2.3.0.md` aligned. Historical documents retain their original version and evidence dates. The [Linux build and platform guide](release-2.3.md) describes RPM dependencies, installation and validation.
 
 ## Clean build
 
-The workflow provisions Rust 1.99.0, Node 24.18.0 and MSYS2. `bootstrap-media-toolchain.ps1` retrieves the pinned LLVM MinGW archive with a checked SHA-256, then compiles pinned FFmpeg, libxml2 and LAME sources. The Rust application uses the standard Windows MSVC toolchain. The LGPL media build is separate from the GPL-capable fixture encoder used only by tests.
+The workflow provisions Rust 1.99.0, Node 24.18.0 and MSYS2. By default, `prepare-released-media.ps1` verifies the SHA-256 of the approved 2.2 portable package and reuses only its unchanged LGPL media runtime and notices. All Flux application and torrent bridge binaries are rebuilt. The preparation script independently checks the original FFmpeg/libxml2/LAME source hashes and FFmpeg license configuration.
+
+The `rebuild_media` workflow input instead invokes `bootstrap-media-toolchain.ps1`, which retrieves the pinned LLVM MinGW archive with a checked SHA-256 and compiles FFmpeg, libxml2 and LAME from source. The Rust application uses the standard Windows MSVC toolchain. The shipped LGPL media runtime is separate from the GPL-capable fixture encoder used only by tests.
 
 For a local Windows build with MSYS2 available:
 

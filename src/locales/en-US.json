@@ -226,5 +226,14 @@
   "bridge_automatic": "Flux automatically registers and repairs its local browser bridge at startup, including the portable edition.",
   "bridge_extension_step": "Install and enable the Flux extension in your browser, allow its requested site/native messaging permissions, then refresh existing tabs. Host registration does not install the extension.",
   "bridge_repair_help": "If the extension cannot connect, open Settings → Browser integration → Repair browser bridge.",
-  "bridge_dismiss": "Got it — do not show again"
+  "bridge_dismiss": "Got it — do not show again",
+  "watch_title": "Torrent watch folders",
+  "watch_help": "Watch selected folders for .torrent files. Files are checked every 3 seconds after they stop changing. Identical files are imported once, including across restarts. Subfolders are excluded. Save to apply.",
+  "watch_enabled": "Enable folder monitoring",
+  "watch_add": "Add folder",
+  "watch_mode": "When a torrent arrives",
+  "watch_approval": "Ask for confirmation",
+  "watch_automatic": "Add to the download queue automatically",
+  "watch_imported": "Imported this session: {{count}}",
+  "rpm_updates_help": "Linux RPM updates are installed through your package manager. Open the latest release, download the RPM, and install it with dnf."
 }

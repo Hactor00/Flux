@@ -17,9 +17,11 @@ else
 fi
 [ "$actual" = "$checksum" ] || { printf '%s\n' 'Torrent source checksum mismatch.' >&2; exit 1; }
 tar -xf "$archive" -C .tools/torrent-source
-cmake -S ".tools/torrent-source/libtorrent-rasterbar-$version" -B .tools/torrent-native-build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$prefix" -DBUILD_SHARED_LIBS=ON -Dbuild_tests=OFF -Dbuild_examples=OFF -Dpython-bindings=OFF
-cmake --build .tools/torrent-native-build --parallel 2
-cmake --install .tools/torrent-native-build
+if [ ! -f "$prefix/lib/pkgconfig/libtorrent-rasterbar.pc" ]; then
+    cmake -S ".tools/torrent-source/libtorrent-rasterbar-$version" -B .tools/torrent-native-build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$prefix" -DBUILD_SHARED_LIBS=ON -Dbuild_tests=OFF -Dbuild_examples=OFF -Dpython-bindings=OFF
+    cmake --build .tools/torrent-native-build --parallel 2
+    cmake --install .tools/torrent-native-build
+fi
 export PKG_CONFIG_PATH="$prefix/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
 export LD_LIBRARY_PATH="$prefix/lib:${LD_LIBRARY_PATH:-}"
 export DYLD_LIBRARY_PATH="$prefix/lib:${DYLD_LIBRARY_PATH:-}"

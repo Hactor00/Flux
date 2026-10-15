@@ -1,4 +1,6 @@
-use tauri::{Manager, State};
+#[cfg(windows)]
+use tauri::Manager;
+use tauri::State;
 #[tauri::command]
 pub async fn drag_completed(
     ids: Vec<String>,

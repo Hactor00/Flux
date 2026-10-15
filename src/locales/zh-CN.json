@@ -226,5 +226,14 @@
   "bridge_automatic": "Flux 启动时会自动注册并修复本地浏览器桥接，便携版也支持此功能。",
   "bridge_extension_step": "在浏览器中安装并启用 Flux 扩展，授予所需的网站和原生消息权限，然后刷新已打开的标签页。注册桥接不会自动安装扩展。",
   "bridge_repair_help": "如果扩展无法连接，请打开设置 → 浏览器集成 → 修复浏览器桥接。",
-  "bridge_dismiss": "知道了，不再显示"
+  "bridge_dismiss": "知道了，不再显示",
+  "watch_title": "种子监控文件夹",
+  "watch_help": "每 3 秒检查所选文件夹中已停止变化的 .torrent 文件。相同文件仅导入一次，重启后也不会重复。不包含子文件夹。保存后生效。",
+  "watch_enabled": "启用文件夹监控",
+  "watch_add": "添加文件夹",
+  "watch_mode": "发现种子时",
+  "watch_approval": "请求确认",
+  "watch_automatic": "自动加入下载队列",
+  "watch_imported": "本次会话已导入：{{count}}",
+  "rpm_updates_help": "Linux RPM 更新通过软件包管理器安装。打开最新版本，下载 RPM，然后使用 dnf 安装。"
 }

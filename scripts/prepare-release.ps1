@@ -28,7 +28,11 @@ if (-not $SkipCompile) {
     cargo build --locked --release -p flux-cli -p flux-native-host
     if ($LASTEXITCODE -ne 0) { throw 'CLI/native host compilation failed.' }
 }
-& "$PSScriptRoot/copy-local-runtime.ps1" -Profile release
+if ($RuntimePackage) {
+    Copy-Item -LiteralPath (Join-Path $RuntimePackage 'libunwind.dll') -Destination "$workspace/target/release/libunwind.dll" -Force
+} else {
+    & "$PSScriptRoot/copy-local-runtime.ps1" -Profile release
+}
 $stage = Join-Path $workspace '.tools/package'
 New-Item -ItemType Directory -Force -Path $stage | Out-Null
 foreach ($name in @('flux-cli.exe','flux-native-host.exe','libunwind.dll')) {
@@ -45,6 +49,7 @@ foreach ($entry in Get-ChildItem -LiteralPath $nativeLicenses) { Copy-Item -Lite
 foreach ($name in @('ffmpeg.exe','ffprobe.exe')) {
     if (-not (Test-Path -LiteralPath "$MediaRuntime/$name")) { throw "Missing media runtime: $name" }
     Copy-Item -LiteralPath "$MediaRuntime/$name" -Destination $stage -Force
+    Copy-Item -LiteralPath "$MediaRuntime/$name" -Destination "$workspace/target/release/$name" -Force
 }
 foreach ($name in @('yt-dlp.exe','node.exe')) {
     Copy-Item -LiteralPath "$workspace/.tools/extractor/$name" -Destination $stage -Force
@@ -87,6 +92,7 @@ if (-not (Test-Path -LiteralPath "$sdkCache/sdk.zip")) {
 }
 if ((Get-FileHash -LiteralPath "$sdkCache/sdk.zip").Hash -ne '56C9F26BDD07916A2D1949FB58A5C7E434DFA1173577DCA879206050C4E718DB') { throw 'WebView2 SDK checksum mismatch.' }
 Expand-Archive -LiteralPath "$sdkCache/sdk.zip" -DestinationPath "$sdkCache/extracted" -Force
+Copy-Item -LiteralPath "$sdkCache/extracted/build/native/x64/WebView2Loader.dll" -Destination "$workspace/target/release/WebView2Loader.dll" -Force
 New-Item -ItemType Directory -Force -Path $webviewLicense | Out-Null
 foreach ($name in @('LICENSE.txt','NOTICE.txt')) {
     Copy-Item -LiteralPath "$workspace/.tools/webview2-sdk/extracted/$name" -Destination $webviewLicense -Force

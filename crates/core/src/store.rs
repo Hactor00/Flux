@@ -20,6 +20,7 @@ impl Store {
             CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY CHECK(id=1), body TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS host_accounts(provider TEXT PRIMARY KEY, enabled INTEGER NOT NULL CHECK(enabled IN (0,1)), secret BLOB NOT NULL);
             CREATE TABLE IF NOT EXISTS pending_update(id INTEGER PRIMARY KEY CHECK(id=1), body TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS torrent_watch_imports(fingerprint TEXT PRIMARY KEY, task_id TEXT NOT NULL);
             CREATE INDEX IF NOT EXISTS tasks_schedule ON tasks(json_extract(body,'$.status'),json_extract(body,'$.request.priority'));
             PRAGMA user_version=2;")?;
         let secrets = crate::secrets::Secrets::open(
@@ -145,9 +146,30 @@ impl Store {
         })
         .await
     }
-    pub async fn insert(&self, task: Task) -> Result<()> {
+    pub async fn watch_imported(&self, fingerprint: String) -> Result<bool> {
+        self.run(move |db, _| {
+            Ok(db.query_row(
+                "SELECT EXISTS(SELECT 1 FROM torrent_watch_imports WHERE fingerprint=?1)",
+                [fingerprint],
+                |row| row.get(0),
+            )?)
+        })
+        .await
+    }
+    pub async fn task_exists(&self, id: String) -> Result<bool> {
+        self.run(move |db, _| {
+            Ok(db.query_row(
+                "SELECT EXISTS(SELECT 1 FROM tasks WHERE id=?1)",
+                [id],
+                |row| row.get(0),
+            )?)
+        })
+        .await
+    }
+    pub async fn insert_watched(&self, task: Task, fingerprint: Option<String>) -> Result<()> {
         self.run(move |db, _secrets| {
-            db.execute(
+            let tx = db.transaction()?;
+            tx.execute(
                 "INSERT INTO tasks(id,destination,body) VALUES(?1,?2,?3)",
                 params![
                     task.id,
@@ -155,6 +177,13 @@ impl Store {
                     _secrets.encode_task(&task)?
                 ],
             )?;
+            if let Some(fingerprint) = fingerprint {
+                tx.execute(
+                    "INSERT INTO torrent_watch_imports(fingerprint,task_id) VALUES(?1,?2)",
+                    params![fingerprint, task.id],
+                )?;
+            }
+            tx.commit()?;
             Ok(())
         })
         .await

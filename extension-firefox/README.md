@@ -10,13 +10,13 @@ The shared JavaScript, styles, icons and twenty language catalogs are generated 
 
 Local packages are unsigned. For development, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select the extracted package's `manifest.json`. Firefox removes temporary add-ons after restarting. Permanent distribution requires a Mozilla-signed XPI; ZIP packaging and local validation do not provide that signature.
 
-Install Flux, or run **Install browser bridge** in its desktop settings. The current-user Mozilla registry key points to `%LOCALAPPDATA%/Flux/io.flux.download.firefox.json`, whose executable path is absolute. Installation, repair and removal are handled by the desktop executable, including when invoked by NSIS.
+Launch Flux once to register the browser bridge automatically, or use **Settings → Browser integration → Repair browser bridge**. On Windows, the current-user Mozilla registry key points to `%LOCALAPPDATA%/Flux/io.flux.download.firefox.json`. On Linux, Flux writes `~/.mozilla/native-messaging-hosts/io.flux.download.json`. Host executable paths are absolute. Windows installation, repair and removal are also handled by NSIS. Sandboxed browser packages may need additional host access.
 
 Enable local Flux data transfer in the extension settings and accept Firefox's site-access prompt if shown. This permits selected URLs, media titles and necessary session headers to reach the local Flux application. Consent can be withdrawn in the same settings. Credentials stay in session storage until sealed by the native host; the durable outbox stores encrypted envelopes.
 
 ## Runtime behavior
 
-Flux 2.2 uses a Gecko module event background rather than a Chromium service worker. Its Firefox-only blocking response-header listener intercepts HTTP GET attachment navigation before file selection. Explicit browser API downloads use an early pause, persisted deferred metadata and cancellation before desktop proposal delivery. If Flux is unavailable before ownership changes, the browser keeps its transfer; delivery errors after durable cancellation remain in Flux's outbox.
+Flux uses a Gecko module event background rather than a Chromium service worker. Its Firefox-only blocking response-header listener intercepts HTTP GET attachment navigation before file selection. Explicit browser API downloads use an early pause, persisted deferred metadata and cancellation before desktop proposal delivery. If Flux is unavailable before ownership changes, the browser keeps its transfer; delivery errors after durable cancellation remain in Flux's outbox.
 
 The toolbar popup controls page media-button visibility across open frames. The initial language follows the browser UI locale, with English for unsupported locales; explicit selections persist.
 

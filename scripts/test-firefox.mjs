@@ -232,7 +232,11 @@ try {
           browserName: "firefox",
           "moz:firefoxOptions": {
             binary: firefox,
-            args: ["-headless", "-remote-allow-system-access"],
+            args: [
+              ...(process.env.GITHUB_ACTIONS === "true" ? [] : ["-headless"]),
+              "-no-remote",
+              "-remote-allow-system-access",
+            ],
             prefs: {
               "browser.shell.checkDefaultBrowser": false,
               "browser.startup.page": 0,
@@ -292,16 +296,38 @@ if(message.action==='close'){root.querySelector('.close').click();dispatchEvent(
     }),
     "flux@flux-download.local",
   );
-  const ready = await until(
-    () => reports.find((r) => r.kind === "ready"),
-    30000,
-  );
+  let ready;
+  try {
+    ready = await until(() => reports.find((r) => r.kind === "ready"), 60000);
+  } catch (error) {
+    let diagnostics;
+    try {
+      await wd("POST", prefix + "/moz/context", { context: "chrome" });
+      diagnostics = await wd("POST", prefix + "/execute/sync", {
+        script:
+          "return Services.console.getMessageArray().map(item=>item.message).filter(message=>/extension|background|module|security|permission/i.test(message)).slice(-30);",
+        args: [],
+      });
+    } catch (failure) {
+      diagnostics = String(failure);
+    }
+    throw Error(
+      `${error.message}; Firefox console=${JSON.stringify(diagnostics)}; driver=${driverErrors.slice(-8192)}; native=${cliError.slice(-4096)}`,
+    );
+  }
   await command("denied");
   await wd("POST", prefix + "/url", { url: ready.extensionUrl });
   const checkbox = await wd("POST", prefix + "/element", {
     using: "css selector",
     value: "#native-consent",
   });
+  await until(() =>
+    wd(
+      "GET",
+      prefix +
+        `/element/${checkbox["element-6066-11e4-a52e-4f735466cecf"]}/displayed`,
+    ),
+  );
   await wd(
     "POST",
     prefix +
@@ -452,9 +478,13 @@ if(message.action==='close'){root.querySelector('.close').click();dispatchEvent(
     browser_transfer_cancelled: true,
     attachment_intercepted_before_file_chooser: true,
     toolbar_hud_toggle: true,
-    external_download_manager_isolated: firefox
-      .toLowerCase()
-      .includes("flux-gecko-test"),
+    external_download_manager_isolated:
+      process.env.GITHUB_ACTIONS === "true" ||
+      firefox.toLowerCase().includes("flux-gecko-test"),
+    isolation:
+      process.env.GITHUB_ACTIONS === "true"
+        ? "Ephemeral CI runner and a fresh WebDriver profile"
+        : "Renamed test executable and a fresh WebDriver profile",
     consent_before_native: true,
     consent_withdrawal: true,
     closed_shadow_dom: true,

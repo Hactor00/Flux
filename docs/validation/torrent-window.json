@@ -1,5 +1,5 @@
 {
-  "version": "2.2.0",
+  "version": "2.3.0",
   "passed": true,
   "native_local_import": true,
   "native_v2_runtime_import": true,
@@ -11,8 +11,8 @@
   "piece_requests": 32,
   "render_sample": {
     "frames": 90,
-    "duration_ms": 370.09999999403954,
-    "maximum_interval_ms": 4.399999999999977
+    "duration_ms": 1390.6999999999534,
+    "maximum_interval_ms": 15.700000000000045
   },
   "webview_cleanup_warning": true,
   "local_paths_and_credentials_removed": true

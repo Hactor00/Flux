@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { spawn, execFileSync } from "node:child_process";
 import { once } from "node:events";
 import { createServer } from "node:http";
-import { mkdtemp, mkdir, writeFile, readFile } from "node:fs/promises";
+import { mkdtemp, mkdir, writeFile, readFile, realpath } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
@@ -181,8 +181,9 @@ try {
       (await invoke("get_task", { id: task.id })).status === "complete",
   );
   const finished = await invoke("get_task", { id: task.id });
-  assert.ok(
-    finished.destination.replace(/^\\\\\?\\/, "").startsWith(folders.documents),
+  assert.equal(
+    await realpath(finished.destination),
+    await realpath(join(folders.documents, "native-routing")),
   );
   report.native_mime_routing_verified = true;
   await until(() =>

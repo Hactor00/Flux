@@ -446,10 +446,17 @@ impl TorrentManager {
             "An absolute .torrent filename is required"
         );
         let bytes = read_bounded(path).await?;
-        validate_metainfo(&bytes)?;
+        self.import_bytes(&bytes).await
+    }
+    pub(crate) async fn import_bytes(&self, bytes: &[u8]) -> Result<String> {
+        validate_metainfo(bytes)?;
         let id = uuid::Uuid::new_v4().to_string();
-        self.save_metainfo(&id, &bytes).await?;
+        self.save_metainfo(&id, bytes).await?;
         Ok(format!("torrent:{id}"))
+    }
+    pub(crate) async fn discard_import(&self, id: &str) -> Result<()> {
+        fs::remove_file(self.metainfo_path(id)?).await?;
+        Ok(())
     }
     async fn save_metainfo(&self, id: &str, bytes: &[u8]) -> Result<()> {
         ensure!(

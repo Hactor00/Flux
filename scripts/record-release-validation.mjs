@@ -20,6 +20,7 @@ const records = Object.fromEntries(
       "desktop-integration",
       "media-window",
       "torrent-window",
+      "torrent-watch-window",
       "browser-stores",
       "hud-repair",
       "firefox-120.0",
@@ -35,6 +36,7 @@ for (const [name, record] of Object.entries(records)) {
     (name.startsWith("firefox-") ||
       [
         "torrent-window",
+        "torrent-watch-window",
         "browser-stores",
         "chrome-interception",
         "browser-onboarding",
@@ -114,6 +116,10 @@ const report = {
     process.env.GITHUB_ACTIONS === "true"
       ? "GitHub Actions"
       : "Local Windows validation",
+  binary_build_run:
+    process.env.FLUX_BINARY_BUILD_RUN || process.env.GITHUB_RUN_ID || null,
+  binary_source_commit:
+    process.env.FLUX_BINARY_SOURCE_COMMIT || process.env.GITHUB_SHA || null,
   rust_tests: rustTests,
   extension_tests: extensionTests,
   ui_data_tests: uiTests,
@@ -121,14 +127,19 @@ const report = {
   browser_interception: records["chrome-interception"],
   browser_setup: records["browser-onboarding"],
   test_evidence: {
+    core_run_id:
+      process.env.FLUX_CORE_TEST_RUN || process.env.GITHUB_RUN_ID || null,
+    core_source_commit:
+      process.env.FLUX_CORE_SOURCE_COMMIT || process.env.GITHUB_SHA || null,
     core_log_updated: (await stat(".tools/core-tests.log")).mtime.toISOString(),
     frontend_log_updated: (
       await stat(".tools/frontend-tests.log")
     ).mtime.toISOString(),
     core_engine_changed_in_hud_repair:
       records["hud-repair"].core_engine_changed,
-    core_scope:
-      process.env.GITHUB_ACTIONS === "true"
+    core_scope: process.env.FLUX_CORE_TEST_RUN
+      ? `Rust, desktop, formatting and Clippy checks passed in source-equivalent workflow ${process.env.FLUX_CORE_TEST_RUN}; this workflow revalidates browsers and installed packages`
+      : process.env.GITHUB_ACTIONS === "true"
         ? "Core tests executed during the current GitHub Actions release build"
         : "Core tests executed during the current local release validation",
   },
@@ -170,6 +181,7 @@ const report = {
   native_ipc: records["desktop-integration"],
   native_media_window: records["media-window"],
   native_torrent_window: records["torrent-window"],
+  native_torrent_watch_window: records["torrent-watch-window"],
   browser_store_packages: records["browser-stores"],
   hud_repair: records["hud-repair"],
   firefox: [records["firefox-120.0"], records["firefox-157.0.1"]],
@@ -190,7 +202,7 @@ const report = {
     "Historical external YouTube verification was not repeated",
     "DRM, CAPTCHA, login challenges and opaque renewal APIs are not automatically solved",
     "Upstream reqwest HTTP/3 interface remains experimental and pinned",
-    "Linux and macOS CI jobs have not executed for the local branch",
+    "This record covers Windows; Linux RPM and cross-platform results are recorded separately",
     "Live Debrid account entitlements were not tested; local provider HTTP contracts were tested",
     "EV/OV certificate, SignPath and store credentials were not supplied",
     "A live GitHub update/install round trip was not run; signatures, checkpoints and NSIS installation were tested separately",

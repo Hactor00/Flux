@@ -7,6 +7,7 @@
 #include <libtorrent/magnet_uri.hpp>
 #include <libtorrent/load_torrent.hpp>
 #include <libtorrent/create_torrent.hpp>
+#include <libtorrent/posix_disk_io.hpp>
 #include <libtorrent/bencode.hpp>
 #include <libtorrent/extensions/ut_pex.hpp>
 #include <libtorrent/alert_types.hpp>
@@ -105,7 +106,7 @@ FLUX_API std::size_t flux_torrent_error(char* output, std::size_t capacity) noex
 FLUX_API void* flux_torrent_session(std::uint64_t download_limit, std::uint64_t upload_limit, bool discovery) noexcept {
     return protect([&]() -> void* {
         lt::settings_pack settings;
-        settings.set_str(lt::settings_pack::user_agent, "Flux/2.2.0");
+        settings.set_str(lt::settings_pack::user_agent, "Flux/2.3.0");
         settings.set_bool(lt::settings_pack::enable_dht, discovery);
         settings.set_bool(lt::settings_pack::enable_lsd, discovery);
         settings.set_bool(lt::settings_pack::enable_upnp, false);
@@ -267,7 +268,10 @@ FLUX_API std::size_t flux_torrent_create(const char* path, std::uint32_t mode, c
         auto files = lt::list_files(path);
         auto flags = mode == 2 ? lt::create_torrent::v2_only : mode == 1 ? lt::create_torrent::v1_only : lt::create_flags_t{};
         lt::create_torrent torrent(std::move(files), 65536, flags);
-        lt::set_piece_hashes(torrent, std::filesystem::path(path).parent_path().string());
+        lt::error_code error;
+        lt::set_piece_hashes(torrent, std::filesystem::path(path).parent_path().string(),
+            lt::settings_pack{}, lt::posix_disk_io_constructor, [](lt::piece_index_t) {}, error);
+        if (error) throw std::runtime_error(error.message());
         const auto bytes = torrent.generate_buf();
         if (output && capacity >= bytes.size()) std::memcpy(output, bytes.data(), bytes.size());
         return bytes.size();

@@ -1,0 +1,70 @@
+name: Linux RPM build and validation
+on:
+  workflow_dispatch:
+  push:
+    branches: ["codex/release-2.3"]
+    tags: ["v*"]
+permissions:
+  contents: read
+concurrency:
+  group: linux-rpm-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  linux-rpm:
+    env:
+      RUST_MIN_STACK: "8388608"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      - name: Install native build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev libboost-dev libboost-json-dev cmake ninja-build pkg-config patchelf rpm ffmpeg xvfb xdotool
+      - uses: actions/cache/restore@v4
+        id: native-cache
+        with:
+          path: |
+            .tools/torrent-system
+            .tools/torrent-source
+            .tools/torrent-native-build
+            .tools/libtorrent-2.1.2.tar.gz
+          key: linux-ubuntu24-native-2.1.2-v1
+      - name: Build and verify RPM
+        run: bash scripts/build-linux-release.sh
+      - name: Install and exercise the RPM on Fedora
+        run: |
+          docker run --rm --security-opt seccomp=unconfined --security-opt apparmor=unconfined -v "$PWD/release:/packages:ro" -v "$PWD/scripts/test-linux-package.py:/test-linux-package.py:ro" fedora:43 bash -euc '
+            dnf install -y /packages/Flux-2.3.0-linux-x86_64.rpm
+            if ldd /usr/bin/flux-desktop | grep -F "not found"; then exit 1; fi
+            if ldd /usr/lib/flux/libflux_torrent.so | grep -F "not found"; then exit 1; fi
+            dnf install -y xorg-x11-server-Xvfb xorg-x11-xauth xdotool dbus-daemon procps-ng mesa-dri-drivers
+            useradd --create-home flux-test
+            runuser -u flux-test -- env LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a dbus-run-session -- python3 /test-linux-package.py
+          '
+      - uses: actions/cache/save@v4
+        if: always() && steps.native-cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            .tools/torrent-system
+            .tools/torrent-source
+            .tools/torrent-native-build
+            .tools/libtorrent-2.1.2.tar.gz
+          key: linux-ubuntu24-native-2.1.2-v1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linux-rpm
+          path: |
+            release/*linux*
+          if-no-files-found: warn

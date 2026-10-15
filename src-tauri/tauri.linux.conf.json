@@ -1,0 +1,41 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "bundle": {
+    "active": true,
+    "targets": ["rpm"],
+    "category": "Utility",
+    "license": "MIT",
+    "licenseFile": "../LICENSE",
+    "shortDescription": "Persistent file, media and torrent downloads",
+    "longDescription": "Flux combines parallel HTTP downloads, media capture, native BitTorrent and watched torrent folders in a local desktop queue.",
+    "homepage": "https://github.com/Hactor00/Flux",
+    "linux": {
+      "rpm": {
+        "depends": [
+          "webkit2gtk4.1",
+          "gtk3",
+          "libappindicator-gtk3",
+          "libxdo",
+          "openssl-libs",
+          "ffmpeg-free",
+          "python3",
+          "nodejs",
+          "xdg-utils"
+        ],
+        "files": {
+          "/usr/bin/flux-native-host": "../target/release/flux-native-host",
+          "/usr/bin/flux-cli": "../target/release/flux-cli",
+          "/usr/lib/flux/libflux_torrent.so": "../target/release/libflux_torrent.so",
+          "/usr/lib/flux/libtorrent-rasterbar.so.2.1": "../.tools/linux-package/libtorrent-rasterbar.so.2.1",
+          "/usr/lib/flux/yt-dlp": "../.tools/linux-package/yt-dlp",
+          "/usr/share/licenses/flux/LICENSE": "../LICENSE",
+          "/usr/share/licenses/flux/libtorrent-LICENSE": "../.tools/linux-package/libtorrent-LICENSE",
+          "/usr/share/licenses/flux/TORRENT-THIRD-PARTY-NOTICES.txt": "../.tools/linux-package/TORRENT-THIRD-PARTY-NOTICES.txt",
+          "/usr/share/flux/source/libtorrent-2.1.2.tar.gz": "../.tools/libtorrent-2.1.2.tar.gz",
+          "/usr/share/licenses/flux/yt-dlp-LICENSE": "../.tools/linux-package/yt-dlp-LICENSE",
+          "/usr/share/licenses/flux/yt-dlp-THIRD-PARTY-LICENSES": "../.tools/linux-package/yt-dlp-THIRD-PARTY-LICENSES"
+        }
+      }
+    }
+  }
+}

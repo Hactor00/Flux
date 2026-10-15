@@ -11,6 +11,7 @@ import { HostAccounts } from "./HostAccounts";
 import { Updater } from "./Updater";
 import { SeedingRules } from "./SeedingRules";
 import { BrowserIntegrationSettings } from "./BrowserIntegration";
+import { TorrentWatchSettings } from "./TorrentWatchSettings";
 export function SettingsModal({
   visible,
   onClose,
@@ -91,6 +92,7 @@ export function SettingsModal({
                 "host_accounts",
                 "updates",
                 "seeding",
+                "watch_title",
               ].map((key) => (
                 <Tabs.Trigger key={key} value={key}>
                   {t(key)}
@@ -99,6 +101,13 @@ export function SettingsModal({
             </Tabs.List>
             <Tabs.Content value="host_accounts">
               <HostAccounts />
+            </Tabs.Content>
+            <Tabs.Content value="watch_title">
+              <TorrentWatchSettings
+                value={settings.torrent_watch}
+                onChange={(value) => update("torrent_watch", value)}
+                onError={onError}
+              />
             </Tabs.Content>
             <Tabs.Content value="updates">
               <Updater />

@@ -43,6 +43,14 @@ pub(crate) fn executable(name: &str) -> PathBuf {
     if let Some(path) = std::env::var_os(variable) {
         return path.into();
     }
+    let bundled_name = if cfg!(windows) {
+        format!("{name}.exe")
+    } else {
+        name.to_owned()
+    };
+    if let Some(path) = crate::bundled_runtime(&bundled_name) {
+        return path;
+    }
     if let Ok(current) = std::env::current_exe() {
         if let Some(parent) = current.parent() {
             let file = parent.join(if cfg!(windows) {

@@ -1,0 +1,167 @@
+#!/usr/bin/env python3
+"""Assemble tested platform packages without rebuilding or replacing signed binaries."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import urllib.parse
+import zipfile
+
+
+def run(*arguments):
+    return subprocess.check_output(arguments, text=True).strip()
+
+
+def read_json(path):
+    return json.loads(Path(path).read_text(encoding="utf-8-sig"))
+
+
+def digest(path):
+    with Path(path).open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+def api(path, method="GET", body=None):
+    arguments = [
+        "gh", "api", f"repos/{os.environ['GITHUB_REPOSITORY']}/{path}",
+        "--method", method, "--header", "X-GitHub-Api-Version: 2022-11-28",
+        "--header", "Accept: application/vnd.github+json", "--header", "Cache-Control: no-cache",
+    ]
+    if body is not None:
+        arguments.extend(["--input", "-"])
+    response = subprocess.check_output(arguments, input=json.dumps(body) if body is not None else None, text=True)
+    return json.loads(response)
+
+
+def identities(releases):
+    return [(item["id"], [(asset["id"], asset["name"], asset["size"], asset.get("digest")) for asset in item["assets"]]) for item in releases if not item["draft"]]
+
+
+def main():
+    stage = Path(sys.argv[1]).resolve()
+    version = read_json("package.json")["version"]
+    tag = f"v{version}"
+    evidence = read_json(f"docs/validation/release-{'.'.join(version.split('.')[:2])}.json")
+    if evidence["version"] != version:
+        raise RuntimeError("Platform evidence version mismatch")
+    for platform, variable in (("windows", "WINDOWS_RUN"), ("linux", "LINUX_RUN")):
+        run_id = os.environ[variable]
+        if not evidence[platform]["passed"] or str(evidence[platform]["run_id"]) != run_id:
+            raise RuntimeError(f"Unexpected {platform} evidence")
+        workflow = api(f"actions/runs/{run_id}")
+        if workflow["conclusion"] != "success":
+            raise RuntimeError(f"{platform} workflow did not pass")
+        expected_workflow = (
+            ".github/workflows/release.yml" if platform == "windows"
+            else ".github/workflows/linux-release.yml"
+        )
+        if (
+            workflow["path"] != expected_workflow
+            or workflow["head_repository"]["full_name"] != os.environ["GITHUB_REPOSITORY"]
+        ):
+            raise RuntimeError(f"Unexpected {platform} build provenance")
+        subprocess.run(["git", "fetch", "--no-tags", "--depth=1", "origin", workflow["head_sha"]], check=True)
+        runtime_paths = [
+            "crates", "src", "src-tauri", "extension", "extension-firefox", "native",
+            "vendor", ".cargo", "Cargo.toml", "Cargo.lock", "package.json", "package-lock.json",
+            "scripts/build-torrent-runtime.ps1", "scripts/build-torrent-runtime.sh",
+            "scripts/bootstrap-torrent-runtime.sh", "scripts/prepare-torrent-runtime.py",
+            "scripts/build-linux-release.sh", "scripts/build-extensions.mjs",
+            "scripts/build-media-runtime.sh", "scripts/prepare-release.ps1",
+            "scripts/build-release.ps1", "scripts/prepare-extractor.ps1",
+        ]
+        subprocess.run(["git", "diff", "--quiet", workflow["head_sha"], "HEAD", "--", *runtime_paths], check=True)
+    for field in ("matrix", "native_regression"):
+        if not evidence[field]["passed"] or api(f"actions/runs/{evidence[field]['run_id']}")["conclusion"] != "success":
+            raise RuntimeError(f"{field} workflow did not pass")
+    windows = read_json("docs/validation/release.json")
+    original_sums = {}
+    for line in (stage / "SHA256SUMS.txt").read_text(encoding="utf-8-sig").splitlines():
+        checksum, name = line.split("  ", 1)
+        if Path(name).name != name or digest(stage / name) != checksum:
+            raise RuntimeError("Original Windows artifact checksum mismatch")
+        original_sums[name] = checksum
+    for suffix in ("windows-x64.zip", "chrome.zip", "firefox.zip", "firefox-120.zip", "source.zip"):
+        if f"Flux-{version}-{suffix}" not in original_sums:
+            raise RuntimeError(f"Original checksums omit {suffix}")
+    installer = stage / f"Flux_{version}_x64-setup.exe"
+    if windows["version"] != version or digest(installer) != windows["installer"]["sha256"]:
+        raise RuntimeError("Installer does not match its installation test")
+    portable = stage / f"Flux-{version}-windows-x64.zip"
+    prefix = f"Flux-{version}-windows-x64/"
+    with zipfile.ZipFile(portable) as archive:
+        for name, expected in windows["binary_sha256"].items():
+            with archive.open(prefix + name) as stream:
+                if hashlib.file_digest(stream, "sha256").hexdigest() != expected:
+                    raise RuntimeError(f"Portable binary identity mismatch: {name}")
+    expected_rpm = evidence["linux"]["package_sha256"]
+    if digest(stage / f"Flux-{version}-linux-x86_64.rpm") != expected_rpm:
+        raise RuntimeError("RPM does not match installed-package validation")
+    original_portable = portable.with_suffix(".original.zip")
+    portable.rename(original_portable)
+    with zipfile.ZipFile(original_portable) as source, zipfile.ZipFile(portable, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as output:
+        for entry in source.infolist():
+            relative = entry.filename.removeprefix(prefix)
+            if relative in ("README.md", "README.tr.md") or relative.startswith("docs/"):
+                continue
+            with source.open(entry) as incoming, output.open(entry, "w") as destination:
+                shutil.copyfileobj(incoming, destination)
+        paths = [Path("README.md"), Path("README.tr.md")]
+        paths.extend(Path(name) for name in run("git", "ls-files", "docs").splitlines())
+        for path in paths:
+            entry = zipfile.ZipInfo(prefix + path.as_posix(), (1980, 1, 1, 0, 0, 0))
+            entry.compress_type = zipfile.ZIP_DEFLATED
+            entry.external_attr = 0o644 << 16
+            output.writestr(entry, path.read_bytes())
+    original_portable.unlink()
+    subprocess.run(["git", "archive", "--format=zip", f"--output={stage / f'Flux-{version}-source.zip'}", "HEAD"], check=True)
+    manifest = read_json(stage / "latest.json")
+    if manifest["version"] != version or not manifest["platforms"]["windows-x86_64"]["signature"]:
+        raise RuntimeError("Signed updater manifest is invalid")
+    update = manifest["platforms"]["windows-x86_64"]
+    if update["url"] != f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/download/{tag}/{installer.name}" or update["signature"] != (stage / (installer.name + ".sig")).read_text().strip():
+        raise RuntimeError("Updater signature or download target changed")
+    release_info = read_json(stage / "release-info.json")
+    release_info.pop("platform", None)
+    release_info.update({"source_commit": run("git", "rev-parse", "HEAD"), "platforms": ["Windows x64", "Linux x86_64 RPM"], "windows_run": os.environ["WINDOWS_RUN"], "linux_run": os.environ["LINUX_RUN"]})
+    release_info["linux"] = {"distribution_tested": "Fedora 43", "architecture": "x86_64", "rpm_signed": False, "package_sha256": expected_rpm}
+    (stage / "release-info.json").write_text(json.dumps(release_info, indent=2) + "\n")
+    names = [f"Flux_{version}_x64-setup.exe", f"Flux-{version}-windows-x64.zip", f"Flux-{version}-linux-x86_64.rpm", f"Flux-{version}-chrome.zip", f"Flux-{version}-firefox.zip", f"Flux-{version}-firefox-120.zip", f"Flux-{version}-source.zip", f"Flux_{version}_x64-setup.exe.sig", "latest.json", "release-info.json"]
+    checksums = {name: digest(stage / name) for name in names}
+    (stage / "SHA256SUMS.txt").write_text("".join(f"{checksums[name]}  {name}\n" for name in sorted(names)))
+    names.append("SHA256SUMS.txt")
+    previous = identities(api("releases?per_page=100"))
+    releases = api("releases?per_page=100")
+    existing = next((item for item in releases if item["tag_name"] == tag), None)
+    if existing and not existing["draft"]:
+        raise RuntimeError("Published releases cannot be overwritten")
+    if not existing:
+        existing = api("releases", "POST", {
+            "tag_name": tag, "draft": True, "target_commitish": release_info["source_commit"],
+            "name": f"Flux {version}", "body": Path(f"docs/releases/{tag}.md").read_text(),
+        })
+    release_id = existing["id"]
+    for name in names:
+        release = api(f"releases/{release_id}")
+        target = api("commits/" + urllib.parse.quote(release["target_commitish"], safe=""))
+        if not release["draft"] or target["sha"] != release_info["source_commit"]:
+            raise RuntimeError("Draft release target changed")
+        remote = next((asset for asset in release["assets"] if asset["name"] == name), None)
+        if remote is None:
+            subprocess.run(["gh", "release", "upload", tag, str(stage / name)], check=True)
+        published = api(f"releases/{release_id}")
+        asset = next(item for item in published["assets"] if item["name"] == name)
+        if asset["size"] != (stage / name).stat().st_size or asset.get("digest") != "sha256:" + digest(stage / name):
+            raise RuntimeError(f"Uploaded package identity mismatch: {name}")
+    if previous != identities(api("releases?per_page=100")):
+        raise RuntimeError("Previously published assets changed")
+    if len(api(f"releases/{release_id}")["assets"]) != len(names):
+        raise RuntimeError("Draft contains unexpected assets")
+    print(f"Verified all {len(names)} draft assets for {tag}; publication remains a separate action.")
+
+
+if __name__ == "__main__":
+    main()

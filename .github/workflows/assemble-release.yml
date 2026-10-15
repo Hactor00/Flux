@@ -30,6 +30,12 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/download-artifact@v4
         with:
+          name: validation-windows-x64
+          path: .tools/platform-release/windows-validation
+          run-id: ${{ inputs.windows_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
           name: linux-rpm
           path: .tools/platform-release
           run-id: ${{ inputs.linux_run }}

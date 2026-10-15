@@ -5,6 +5,7 @@ mod disk;
 mod disk_writer;
 mod engine;
 pub mod extractor;
+pub mod filename_prefix;
 mod healing;
 mod http;
 mod limiter;

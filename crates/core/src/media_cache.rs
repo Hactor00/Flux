@@ -69,6 +69,35 @@ struct Cached {
     session: String,
     content_type: String,
 }
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ManifestKind {
+    Hls,
+    Dash,
+}
+async fn manifest_kind(remote: &Url, path: &Path, cache: &Cached) -> Result<Option<ManifestKind>> {
+    let path_suffix = remote.path().to_ascii_lowercase();
+    let content_type = cache.content_type.to_ascii_lowercase();
+    if path_suffix.ends_with(".m3u8") || content_type.contains("mpegurl") {
+        return Ok(Some(ManifestKind::Hls));
+    }
+    if path_suffix.ends_with(".mpd") || content_type.contains("dash+xml") {
+        return Ok(Some(ManifestKind::Dash));
+    }
+    if cache.done <= 2 * 1024 * 1024 {
+        let mut prefix = [0; 1024];
+        let mut file = File::open(path).await?;
+        let count = file.read(&mut prefix).await?;
+        let text = String::from_utf8_lossy(&prefix[..count]);
+        let text = text.trim_start_matches('\u{feff}').trim_start();
+        if text.starts_with("#EXTM3U") {
+            return Ok(Some(ManifestKind::Hls));
+        }
+        if text.starts_with('<') && text.contains("<MPD") {
+            return Ok(Some(ManifestKind::Dash));
+        }
+    }
+    Ok(None)
+}
 struct RangePlan<'a> {
     remote: &'a Url,
     key: &'a str,
@@ -210,6 +239,22 @@ impl Gateway {
     }
     pub async fn url(&self, url: &str) -> Result<String> {
         self.state.proxy_url(url).await
+    }
+    pub async fn is_hls_input(&self, url: &str) -> Result<bool> {
+        let url = Url::parse(url)?;
+        ensure!(
+            url.origin().ascii_serialization() == self.state.0.base,
+            "Media input must use its task gateway"
+        );
+        let uri = url[url::Position::BeforePath..].parse()?;
+        let remote = self.state.remote_url(&uri).await?;
+        if let Some(snapshot) = &self.state.0.manifest_snapshot {
+            if remote.as_str() == snapshot.url {
+                return Ok(snapshot.text.trim_start().starts_with("#EXTM3U"));
+            }
+        }
+        let (path, cache) = self.state.cached(&remote).await?;
+        Ok(manifest_kind(&remote, &path, &cache).await? == Some(ManifestKind::Hls))
     }
     pub async fn discover(
         &self,
@@ -844,26 +889,13 @@ async fn handle(
             }
         }
         let (path, cache) = state.cached(&remote).await?;
-        let mut adaptive_hls = remote.path().to_ascii_lowercase().ends_with(".m3u8")
-            || cache.content_type.to_ascii_lowercase().contains("mpegurl");
-        let mut adaptive_dash = remote.path().to_ascii_lowercase().ends_with(".mpd")
-            || cache.content_type.to_ascii_lowercase().contains("dash+xml");
-        if !adaptive_hls && !adaptive_dash && cache.done <= 2 * 1024 * 1024 {
-            let mut prefix = [0; 1024];
-            let mut file = File::open(&path).await?;
-            let count = file.read(&mut prefix).await?;
-            let text = String::from_utf8_lossy(&prefix[..count]);
-            let text = text.trim_start_matches('\u{feff}').trim_start();
-            adaptive_hls = text.starts_with("#EXTM3U");
-            adaptive_dash = text.starts_with('<') && text.contains("<MPD");
-        }
-        if adaptive_hls || adaptive_dash {
+        if let Some(kind) = manifest_kind(&remote, &path, &cache).await? {
             ensure!(
                 cache.done <= 2 * 1024 * 1024,
                 "Media manifest exceeds two MiB"
             );
             let bytes = fs::read(path).await?;
-            let rewritten = if adaptive_hls {
+            let rewritten = if kind == ManifestKind::Hls {
                 state.rewrite_hls(&remote, &bytes).await?
             } else {
                 state.rewrite_dash(&remote, &bytes).await?
@@ -871,7 +903,7 @@ async fn handle(
             return Ok(Response::builder()
                 .header(
                     "content-type",
-                    if adaptive_hls {
+                    if kind == ManifestKind::Hls {
                         "application/vnd.apple.mpegurl"
                     } else {
                         "application/dash+xml"

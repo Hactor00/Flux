@@ -142,6 +142,7 @@ fn main() {
             desktop::browser_integration,
             desktop::dismiss_browser_reminder,
             desktop::suggest_directory,
+            desktop::prepare_download_prefix,
             power::pending_power,
             power::cancel_power,
             file_drag::drag_completed,

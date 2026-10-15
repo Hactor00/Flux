@@ -8,7 +8,7 @@ Flux is preparing to use the SignPath Foundation program for official Windows re
 
 Free code signing provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org).
 
-Foundation approval and production signing configuration are pending. Current Flux 2.3.0 Windows packages do not carry an Authenticode publisher certificate. The cryptographic signature used by Flux's updater is a separate mechanism and does not establish Foundation approval. Linux RPMs are distributed without an RPM signing certificate and include SHA-256 checksums.
+Foundation approval and production signing configuration are pending. Current Flux 2.4.0 Windows packages do not carry an Authenticode publisher certificate. The cryptographic signature used by Flux's updater is a separate mechanism and does not establish Foundation approval. Linux RPMs are distributed without an RPM signing certificate and include SHA-256 checksums.
 
 ## Project roles
 
@@ -27,4 +27,4 @@ Requests originate from the version-controlled [release workflow](../.github/wor
 
 Project maintainers use GitHub and SignPath for release infrastructure: [GitHub privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement), [SignPath privacy policy](https://signpath.io/privacy-policy).
 
-This policy follows the [SignPath Foundation conditions](https://signpath.org/terms.html). Preparation or acknowledgment does not imply application acceptance or an issued signing certificate.
+This policy follows the [SignPath Foundation conditions](https://signpath.org/terms.html). Preparation or acknowledgment does not imply application acceptance or an issued signing certificate.\n

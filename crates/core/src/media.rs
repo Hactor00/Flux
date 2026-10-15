@@ -313,6 +313,7 @@ pub(crate) async fn assemble(
     output_bytes: Arc<AtomicU64>,
     output_time: Arc<AtomicU64>,
     concat: Option<&Path>,
+    gateway: &crate::media_cache::Gateway,
 ) -> Result<()> {
     let mut command = command("ffmpeg");
     command.args([
@@ -340,13 +341,7 @@ pub(crate) async fn assemble(
             .arg(path.file_name().context("Missing segment descriptor")?);
     } else {
         input_options(&mut command, request.referer.as_deref());
-        if request
-            .media
-            .as_ref()
-            .is_some_and(|media| media.kind.as_deref() == Some("hls"))
-            || url::Url::parse(&request.url)
-                .is_ok_and(|url| url.path().to_ascii_lowercase().ends_with(".m3u8"))
-        {
+        if gateway.is_hls_input(&request.url).await? {
             hls_options(&mut command, "ffmpeg").await?;
         }
         command.args([
@@ -364,9 +359,7 @@ pub(crate) async fn assemble(
     let audio_url = media.and_then(|m| m.audio_url.as_deref());
     if let Some(audio) = audio_url {
         input_options(&mut command, request.referer.as_deref());
-        if url::Url::parse(audio)
-            .is_ok_and(|url| url.path().to_ascii_lowercase().ends_with(".m3u8"))
-        {
+        if gateway.is_hls_input(audio).await? {
             hls_options(&mut command, "ffmpeg").await?;
         }
         command.args(["-i", audio]);

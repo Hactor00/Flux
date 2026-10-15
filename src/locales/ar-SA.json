@@ -235,5 +235,9 @@
   "watch_approval": "طلب التأكيد",
   "watch_automatic": "الإضافة تلقائيًا إلى قائمة التنزيل",
   "watch_imported": "المستوردة في هذه الجلسة: {{count}}",
-  "rpm_updates_help": "تُثبت تحديثات Linux RPM عبر مدير الحزم. افتح أحدث إصدار ونزّل ملف RPM وثبّته باستخدام dnf."
+  "rpm_updates_help": "تُثبت تحديثات Linux RPM عبر مدير الحزم. افتح أحدث إصدار ونزّل ملف RPM وثبّته باستخدام dnf.",
+  "filename_prefix": "بادئة اسم الملف (اختياري)",
+  "filename_prefix_hint": "استخدم / للمجلدات الفرعية. تُحفظ آخر 10 بادئات.",
+  "filename_prefix_preview": "حفظ باسم: {{path}}",
+  "filename_prefix_invalid": "بادئة غير صالحة. استخدم مجلدات فرعية نسبية واسم ملف صالح دون .. أو مسارات مطلقة."
 }

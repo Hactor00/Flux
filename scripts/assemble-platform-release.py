@@ -44,13 +44,12 @@ def main():
     stage = Path(sys.argv[1]).resolve()
     version = read_json("package.json")["version"]
     tag = f"v{version}"
-    evidence = read_json(f"docs/validation/release-{'.'.join(version.split('.')[:2])}.json")
-    if evidence["version"] != version:
-        raise RuntimeError("Platform evidence version mismatch")
+    windows = read_json(stage / "windows-validation" / "release.json")
+    linux = read_json(stage / "linux-validation.json")
+    if windows["version"] != version or linux["version"] != version or not linux["passed"]:
+        raise RuntimeError("Platform validation version mismatch")
     for platform, variable in (("windows", "WINDOWS_RUN"), ("linux", "LINUX_RUN")):
         run_id = os.environ[variable]
-        if not evidence[platform]["passed"] or str(evidence[platform]["run_id"]) != run_id:
-            raise RuntimeError(f"Unexpected {platform} evidence")
         workflow = api(f"actions/runs/{run_id}")
         if workflow["conclusion"] != "success":
             raise RuntimeError(f"{platform} workflow did not pass")
@@ -63,6 +62,8 @@ def main():
             or workflow["head_repository"]["full_name"] != os.environ["GITHUB_REPOSITORY"]
         ):
             raise RuntimeError(f"Unexpected {platform} build provenance")
+        if platform == "linux" and (str(linux["run_id"]) != run_id or linux["source_commit"] != workflow["head_sha"]):
+            raise RuntimeError("Linux validation record does not match its workflow run")
         subprocess.run(["git", "fetch", "--no-tags", "--depth=1", "origin", workflow["head_sha"]], check=True)
         runtime_paths = [
             "crates", "src", "src-tauri", "extension", "extension-firefox", "native",
@@ -74,10 +75,6 @@ def main():
             "scripts/build-release.ps1", "scripts/prepare-extractor.ps1",
         ]
         subprocess.run(["git", "diff", "--quiet", workflow["head_sha"], "HEAD", "--", *runtime_paths], check=True)
-    for field in ("matrix", "native_regression"):
-        if not evidence[field]["passed"] or api(f"actions/runs/{evidence[field]['run_id']}")["conclusion"] != "success":
-            raise RuntimeError(f"{field} workflow did not pass")
-    windows = read_json("docs/validation/release.json")
     original_sums = {}
     for line in (stage / "SHA256SUMS.txt").read_text(encoding="utf-8-sig").splitlines():
         checksum, name = line.split("  ", 1)
@@ -97,7 +94,7 @@ def main():
             with archive.open(prefix + name) as stream:
                 if hashlib.file_digest(stream, "sha256").hexdigest() != expected:
                     raise RuntimeError(f"Portable binary identity mismatch: {name}")
-    expected_rpm = evidence["linux"]["package_sha256"]
+    expected_rpm = linux["package_sha256"]
     if digest(stage / f"Flux-{version}-linux-x86_64.rpm") != expected_rpm:
         raise RuntimeError("RPM does not match installed-package validation")
     original_portable = portable.with_suffix(".original.zip")
@@ -160,7 +157,10 @@ def main():
         raise RuntimeError("Previously published assets changed")
     if len(api(f"releases/{release_id}")["assets"]) != len(names):
         raise RuntimeError("Draft contains unexpected assets")
-    print(f"Verified all {len(names)} draft assets for {tag}; publication remains a separate action.")
+    published_release = api(f"releases/{release_id}", "PATCH", {"draft": False})
+    if published_release["draft"] or published_release["tag_name"] != tag:
+        raise RuntimeError("Release publication could not be verified")
+    print(f"Verified and published all {len(names)} assets for {tag}.")
 
 
 if __name__ == "__main__":

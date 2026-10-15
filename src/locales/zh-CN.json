@@ -235,5 +235,9 @@
   "watch_approval": "请求确认",
   "watch_automatic": "自动加入下载队列",
   "watch_imported": "本次会话已导入：{{count}}",
-  "rpm_updates_help": "Linux RPM 更新通过软件包管理器安装。打开最新版本，下载 RPM，然后使用 dnf 安装。"
+  "rpm_updates_help": "Linux RPM 更新通过软件包管理器安装。打开最新版本，下载 RPM，然后使用 dnf 安装。",
+  "filename_prefix": "文件名前缀（可选）",
+  "filename_prefix_hint": "使用 / 指定子文件夹。保留最近 10 个前缀。",
+  "filename_prefix_preview": "保存路径：{{path}}",
+  "filename_prefix_invalid": "前缀无效。请使用有效文件名和相对子文件夹，不允许 .. 或绝对路径。"
 }

@@ -235,5 +235,9 @@
   "watch_approval": "Demander confirmation",
   "watch_automatic": "Ajouter automatiquement à la file",
   "watch_imported": "Importés pendant cette session : {{count}}",
-  "rpm_updates_help": "Les mises à jour RPM Linux passent par le gestionnaire de paquets. Ouvrez la dernière version, téléchargez le RPM et installez-le avec dnf."
+  "rpm_updates_help": "Les mises à jour RPM Linux passent par le gestionnaire de paquets. Ouvrez la dernière version, téléchargez le RPM et installez-le avec dnf.",
+  "filename_prefix": "Préfixe du nom (facultatif)",
+  "filename_prefix_hint": "Utilisez / pour les sous-dossiers. Les 10 derniers préfixes sont conservés.",
+  "filename_prefix_preview": "Enregistrer sous : {{path}}",
+  "filename_prefix_invalid": "Préfixe invalide. Utilisez des sous-dossiers relatifs et un nom valide, sans .. ni chemin absolu."
 }

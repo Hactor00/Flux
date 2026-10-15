@@ -169,6 +169,28 @@ pub async fn suggest_directory(
         .map_err(error)
 }
 #[tauri::command]
+pub async fn prepare_download_prefix(
+    prefix: String,
+    filename: String,
+    directory: Option<std::path::PathBuf>,
+    state: State<'_, Backend>,
+) -> Result<flux_core::filename_prefix::PrefixedDestination, String> {
+    let base = state
+        .engine
+        .routed_directory(
+            &flux_core::DownloadRequest {
+                filename: filename.clone(),
+                ..Default::default()
+            },
+            directory,
+        )
+        .await
+        .map_err(error)?;
+    flux_core::filename_prefix::prepare(&prefix, &filename, &base)
+        .await
+        .map_err(error)
+}
+#[tauri::command]
 pub async fn save_settings(
     input: Settings,
     app: tauri::AppHandle,

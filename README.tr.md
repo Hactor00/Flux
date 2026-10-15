@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Hactor00/Flux/releases/tag/v2.3.0"><img alt="Flux 2.3.0" src="https://img.shields.io/badge/release-2.3.0-bda8ff"></a>
+  <a href="https://github.com/Hactor00/Flux/releases/tag/v2.4.0"><img alt="Flux 2.4.0" src="https://img.shields.io/badge/release-2.4.0-bda8ff"></a>
   <a href="https://github.com/Hactor00/Flux/actions/workflows/ci.yml"><img alt="Doğrulama" src="https://github.com/Hactor00/Flux/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <img alt="Windows and Linux" src="https://img.shields.io/badge/platform-Windows_%7C_Linux-0078D4">
   <a href="LICENSE"><img alt="MIT lisansı" src="https://img.shields.io/badge/license-MIT-84d6ba"></a>
@@ -17,7 +17,7 @@
 
 <p align="center">
   <a href="README.md">English</a> · <strong>Türkçe</strong><br>
-  <a href="#i%CC%87ndir">İndir</a> · <a href="#23teki-yenilikler">Yenilikler</a> · <a href="#özellikler">Özellikler</a> · <a href="#kurulum">Kurulum</a> · <a href="#doğrulama">Doğrulama</a> · <a href="#geliştirme">Geliştirme</a>
+  <a href="#i%CC%87ndir">İndir</a> · <a href="#24teki-yenilikler">Yenilikler</a> · <a href="#özellikler">Özellikler</a> · <a href="#kurulum">Kurulum</a> · <a href="#doğrulama">Doğrulama</a> · <a href="#geliştirme">Geliştirme</a>
 </p>
 
 Flux; çok bağlantılı HTTP indirmelerini, erişilebilir video/ses yakalamayı, yerleşik BitTorrent motorlarını, kalıcı yerel geçmişi ve ayrı masaüstü onay pencerelerini birleştirir. Tauri 2, React 19, Tokio ve SQLite WAL üzerine kuruludur. Adı “akış” fikrinden gelir: tarayıcıdaki dosya ve medyanın indirme kuyruğuna akması.
@@ -26,36 +26,34 @@ Flux; çok bağlantılı HTTP indirmelerini, erişilebilir video/ses yakalamayı
 
 ## İndir
 
-**Güncel sürüm: [Flux 2.3.0](https://github.com/Hactor00/Flux/releases/tag/v2.3.0), Windows x64 ve Linux x86_64 (RPM).**
+**Güncel sürüm: [Flux 2.4.0](https://github.com/Hactor00/Flux/releases/tag/v2.4.0), Windows x64 ve Linux x86_64 (RPM).**
 
 [Kod imzalama politikası (Code signing policy)](docs/code-signing-policy.md) · [Gizlilik politikası](docs/browser-stores.md#privacy-disclosure-for-store-listings)
 
 | Paket | Kullanımı |
 | --- | --- |
-| **[Windows kurulumu](https://github.com/Hactor00/Flux/releases/download/v2.3.0/Flux_2.3.0_x64-setup.exe)** | Önerilen; kullanıcı hesabına kurulum ve otomatik yerel köprü kaydı |
-| **[Linux RPM](https://github.com/Hactor00/Flux/releases/download/v2.3.0/Flux-2.3.0-linux-x86_64.rpm)** | Fedora x86_64; masaüstü, yerel köprü ve torrent bileşeni; medya bağımlılıklarını dnf kurar |
-| [Taşınabilir uygulama](https://github.com/Hactor00/Flux/releases/download/v2.3.0/Flux-2.3.0-windows-x64.zip) | Masaüstü uygulaması, eklentiler ve medya araçları |
-| [Chromium eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.3.0/Flux-2.3.0-chrome.zip) | Chrome, Edge, Brave ve uyumlu Chromium tarayıcıları |
-| [Firefox 140+ eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.3.0/Flux-2.3.0-firefox.zip) | Güncel Firefox |
-| [Firefox 120–139 eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.3.0/Flux-2.3.0-firefox-120.zip) | Desteklenen eski Firefox sürümleri |
-| [Kaynak kod arşivi](https://github.com/Hactor00/Flux/releases/download/v2.3.0/Flux-2.3.0-source.zip) | Kaynaklar, derleme betikleri, testler ve yayın belgeleri |
-| [SHA-256 özetleri](https://github.com/Hactor00/Flux/releases/download/v2.3.0/SHA256SUMS.txt) | İndirilen paketlerin dosya kimliğini doğrulama |
+| **[Windows kurulumu](https://github.com/Hactor00/Flux/releases/download/v2.4.0/Flux_2.4.0_x64-setup.exe)** | Önerilen; kullanıcı hesabına kurulum ve otomatik yerel köprü kaydı |
+| **[Linux RPM](https://github.com/Hactor00/Flux/releases/download/v2.4.0/Flux-2.4.0-linux-x86_64.rpm)** | Fedora x86_64; masaüstü, yerel köprü ve torrent bileşeni; medya bağımlılıklarını dnf kurar |
+| [Taşınabilir uygulama](https://github.com/Hactor00/Flux/releases/download/v2.4.0/Flux-2.4.0-windows-x64.zip) | Masaüstü uygulaması, eklentiler ve medya araçları |
+| [Chromium eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.4.0/Flux-2.4.0-chrome.zip) | Chrome, Edge, Brave ve uyumlu Chromium tarayıcıları |
+| [Firefox 140+ eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.4.0/Flux-2.4.0-firefox.zip) | Güncel Firefox |
+| [Firefox 120–139 eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.4.0/Flux-2.4.0-firefox-120.zip) | Desteklenen eski Firefox sürümleri |
+| [Kaynak kod arşivi](https://github.com/Hactor00/Flux/releases/download/v2.4.0/Flux-2.4.0-source.zip) | Kaynaklar, derleme betikleri, testler ve yayın belgeleri |
+| [SHA-256 özetleri](https://github.com/Hactor00/Flux/releases/download/v2.4.0/SHA256SUMS.txt) | İndirilen paketlerin dosya kimliğini doğrulama |
 
 Güncelleme paketleri, Flux içindeki doğrulama anahtarıyla kontrol edilen imzayı taşır. Windows kurulum dosyası ve çalıştırılabilir dosyalarda **Authenticode yayıncı sertifikası yoktur**; Windows yayıncı veya SmartScreen uyarısı gösterebilir. Firefox ZIP'leri imzasızdır, kalıcı kurulum Mozilla imzası gerektirir. Ayrıntılar: [yayın ve imzalama](docs/release.md), [tarayıcı dağıtımı](docs/browser-stores.md).
 
-Önceki [2.0.0](https://github.com/Hactor00/Flux/releases/tag/v2.0.0) ve [1.7.0](https://github.com/Hactor00/Flux/releases/tag/v1.7.0) paketleri erişilebilir durumdadır.
+Önceki [2.3.0](https://github.com/Hactor00/Flux/releases/tag/v2.3.0), [2.0.0](https://github.com/Hactor00/Flux/releases/tag/v2.0.0) ve [1.7.0](https://github.com/Hactor00/Flux/releases/tag/v1.7.0) paketleri erişilebilir durumdadır.
 
-## 2.3'teki yenilikler
+## 2.4'teki yenilikler
 
-- **Torrent klasörü izleme:** Ayarlar → Torrent klasörlerini izle bölümünden en fazla 16 klasör seçilebilir. Değişmesi durmuş `.torrent` dosyaları üç saniyede bir kontrol edilir. Onay isteme veya otomatik kuyruğa ekleme ve isteğe bağlı hedef klasör seçilebilir.
-- **Kalıcı tekrar önleme:** İçeriği aynı torrent dosyaları yeniden adlandırılsa, uygulama yeniden başlatılsa veya görev silinse bile tekrar eklenmez. Kaynak dosyalara dokunulmaz. Bozuk dosyalar diğerlerini engellemez; hatalar ayarlarda gösterilir.
-- **Linux RPM:** x86_64 masaüstü paketi; CLI, Native Messaging köprüsü, sabitlenmiş yt-dlp ve yerel v2/hybrid torrent bileşenini içerir. Sistem medya araçları ve masaüstü kütüphaneleri RPM bağımlılığı olarak kurulur.
-- **Linux bütünleştirmesi:** Kullanıcı hesabına tarayıcı köprüsü kaydı, XDG otomatik başlangıç ve sistem iznine bağlı systemd güç işlemleri. RPM güncellemeleri paket yöneticisiyle, Windows güncellemeleri imzalı uygulama güncelleyicisiyle yapılır.
-- **20 dil:** Yeni klasör izleme ve Linux güncelleme açıklamaları mevcut tüm masaüstü dillerine eklendi.
-- **Mevcut özellikler korunur:** Paralel HTTP, doğrulanmış sürdürme, medya algılama, yerel torrent, tarayıcı aktarımı, yerel geçmiş ve Windows kurulum/taşınabilir paketleri.
+- **HLS video/ses birleştirme:** Akış manifestinden segment türünü belirleme, yerel aktarım köprüsünün kullandığı uzantısız veya görsel uzantılı segmentleri tanıma ve FFmpeg'in geçerli akışı dosya uzantısına bakarak reddetmesini önleme.
+- **CSP uyumlu medya algılama:** Eklenti sayfanın `fetch` işlevini değiştirmeden sınırlı HLS/DASH yanıtlarını gözlemler; daha katı Content Security Policy kullanan sitelerde sayfanın davranışı korunur.
+- **Dosya adı öneki ve klasör:** Dosya veya medya indirmesine önek ekleyin; `/` ile indirme klasörü içinde alt klasör seçin, oluşacak yolu önizleyin ve son kullandığınız on öneği yeniden kullanın.
+- **Güvenli yol kontrolü:** Mutlak yollar ve indirme klasörünün dışına çıkan yollar kuyruğa alınmadan reddedilir.
+- **Mevcut özellikler korunur:** Paralel HTTP ve sürdürme, medya algılama/işleme, yerel torrent ve izleme klasörleri, Linux RPM, tarayıcı aktarımı, geçmiş ve yirmi dil.
 
-[2.3 yayın notları](docs/releases/v2.3.0.md), [derleme ve platform kılavuzu](docs/release-2.3.md) ve [doğrulama](docs/validation-2.3.md) ayrıntıları içerir.
-
+[2.4 yayın notları](docs/releases/v2.4.0.md), [derleme ve platform kılavuzu](docs/release-2.4.md) ve [doğrulama](docs/validation-2.4.md) ayrıntıları içerir.
 ## Özellikler
 
 | Alan | İşlevler |
@@ -63,6 +61,7 @@ Güncelleme paketleri, Flux içindeki doğrulama anahtarıyla kontrol edilen imz
 | HTTP indirmeleri | Otomatik/elle 1–32 bağlantı, doğrulanmış Range, dinamik bölme, sınırlı yeniden deneme, takılan bağlantıyı yenileme, HTTP/3 ve TCP'ye dönüş |
 | Disk ve bütünlük | Hedef diskte seyrek geçici dosya, ayrı ofsetlere yazma, checkpoint/son SHA-256 ve parça birleştirmeden güvenli yayımlama |
 | Kuyruk ve geçmiş | Öncelik, zamanlama, toplam/görev hız sınırı, duraklatma/sürdürme, SQLite geçmişi, eklenme/başlangıç/tamamlanma zamanı, 500 URL'lik gruplar ve joker genişletme |
+| Adlandırma ve klasörler | Yeniden kullanılabilir dosya adı önekleri, son on öneğin geçmişi, güvenli göreli alt klasörler ve son yol önizlemesi |
 | Video ve ses | HLS, DASH, sıralı TS, MP4/MKV video, MP3 ses ve kayıpsız MKA çıkarma |
 | Medya işleme | Seçilen video/ses birleştirme, altyazı gömme/SRT çıkarma, bölümler ve iki geçişli ses normalizasyonu |
 | Medya keşfi | DOM/ağ gözlemi, video/ses ve iframe oynatıcıları, erişilebilir blob/MediaSource, başlık, çözünürlük, fps, ses akışları ve altyazılar |
@@ -73,7 +72,7 @@ Güncelleme paketleri, Flux içindeki doğrulama anahtarıyla kontrol edilen imz
 | Debrid hesapları | Şifreli Real-Debrid, AllDebrid/Premiumize API anahtarları, desteklenen sunucuları çözme ve CDN kaynağını yenileme |
 | Masaüstü | Ayrı onay, ilerleme, Ayarlar/geri sayım; sanallaştırılmış tablo, arama, sıralama, çoklu seçim ve Windows'a dosya sürükleme |
 | Günlük kullanım | İsteğe bağlı kategori klasörü, pano izleme, sessiz kuyruk, Windows başlangıcı ve iptal edilebilir tamamlanma eylemleri |
-| Dil ve güncelleme | 20 dil, 237 masaüstü anahtarı, aranabilir seçici, Arapça/Urduca RTL ve kullanıcı onaylı imzalı güncelleme |
+| Dil ve güncelleme | 20 dil, 241 masaüstü anahtarı, aranabilir seçici, Arapça/Urduca RTL ve kullanıcı onaylı imzalı güncelleme |
 
 ### HTTP ve disk
 
@@ -110,21 +109,21 @@ Görüntüler, yerel test medyasıyla yürütülen izole Windows regresyon testl
 
 ### Windows masaüstü
 
-1. `Flux_2.3.0_x64-setup.exe` dosyasını çalıştır; kurulum kullanıcı hesabına yapılır.
+1. `Flux_2.4.0_x64-setup.exe` dosyasını çalıştır; kurulum kullanıcı hesabına yapılır.
 2. FFmpeg, FFprobe, yt-dlp, Node ve torrent çalışma zamanları pakettedir. WebView2 yoksa Microsoft kurulum aracı internet ister.
 3. **Chrome, Edge, Brave, Chromium ve Firefox** için Native Messaging kaydedilir. Köprü kaydı tarayıcı eklentisini kurmaz.
 4. Eklentiyi kurduktan sonra Flux'u bir kez aç. Kurulu ve taşınabilir sürüm, köprüyü açılışta otomatik kaydeder/onarır. İzinler veya eksik dosyalar kaydı engellerse **Ayarlar → Tarayıcı bütünleşmesi → Tarayıcı köprüsünü onar** kullanılabilir.
 
 Veriler kullanıcının yerel uygulama verilerindeki `Flux` klasöründe, varsayılan indirmeler `Downloads/Flux` içindedir. Güncelleme geçmişi/tercihleri korur. Kurulumları değiştirmeden önce önemli verilerini yedekle.
 
-Yayımlanan 1.7/2.0 paketlerinden geçişte güncel kurulumu elle çalıştır. Mevcut 2.2 kurulumları imzalı güncelleme bildirimini kullanabilir.
+Yayımlanan 1.7/2.0 paketlerinden geçişte güncel kurulumu elle çalıştır. Windows'taki mevcut kurulumlar imzalı güncelleme bildirimini kullanabilir.
 
 ### Linux RPM
 
 Fedora x86_64 üzerinde kurulum veya yükseltme:
 
 ```bash
-sudo dnf install ./Flux-2.3.0-linux-x86_64.rpm
+sudo dnf install ./Flux-2.4.0-linux-x86_64.rpm
 flux-desktop
 ```
 
@@ -174,11 +173,11 @@ Analiz sunucusu veya uzak Flux hesabı yoktur. Eklenti seçilen URL, başlık, s
 
 ## Doğrulama
 
-Windows regresyon kontrollerinde **124 Rust, 63 eklenti ve 15 arayüz testi** geçmiştir. Katı TypeScript, üretim derlemesi, Rust biçimlendirme ve Clippy denetlenir. Klasör izleme testleri yarım dosya, bozuk içerik, onay/otomatik modları, eksik klasör, tekrar önleme, görev silme ve yeniden başlatmayı kapsar.
+Sürümün kesin test sayılarını ve paket kimliklerini [2.4 doğrulama raporu](docs/validation-2.4.md) kaydeder. Kontroller; Rust, eklenti ve arayüz testlerini, katı TypeScript'i, üretim derlemesini, Rust biçimlendirmesini ve Clippy'yi kapsar. Torrent klasörü ve dosya adı öneki testleri yarım/bozuk girdileri, yol güvenliğini, onay/otomatik modları, tekrar önlemeyi ve kalıcılığı denetler.
 
-Linux paketi GitHub Actions üzerinde ayrıca derlenir. RPM doğrulaması paketi Fedora ortamına kurar; kütüphane yükleme, HTTP dosya özeti, masaüstü açılışı, tarayıcı kayıtları, Native Messaging, izlenen torrent, tekrar önleme ve SQLite bütünlüğünü denetler. Doğrulanmış sonuçlar ve iş akışı bağlantıları [2.3 doğrulama kaydında](docs/validation-2.3.md) bulunur.
+Linux paketi GitHub Actions üzerinde ayrıca derlenir. RPM doğrulaması paketi Fedora ortamına kurar; kütüphane yükleme, HTTP dosya özeti, masaüstü açılışı, tarayıcı kayıtları, Native Messaging, izlenen torrent, tekrar önleme ve SQLite bütünlüğünü denetler. Doğrulanmış sonuçlar ve iş akışı bağlantıları [2.4 doğrulama kaydında](docs/validation-2.4.md) bulunur.
 
-2.2 tarayıcı/kurulum kanıtları tarihsel kayıt olarak korunur; 2.3 paket kontrolünün yerini tutmaz. Bu testler her siteyi, tüm RPM dağıtımlarını veya rakiplere göre üstünlüğü garanti etmez. macOS paketlemesi, ücretli Debrid hesapları, gerçek güç geçişleri ve Linux tarayıcılarının sandbox bağlantıları bu sürüm kontrollerinin dışındadır.
+Önceki tarayıcı/kurulum kanıtları tarihsel kayıt olarak korunur; 2.4 paket kontrolünün yerini tutmaz. Bu testler her siteyi, tüm RPM dağıtımlarını veya rakiplere göre üstünlüğü garanti etmez. macOS paketlemesi, ücretli Debrid hesapları, gerçek güç geçişleri ve Linux tarayıcılarının sandbox bağlantıları bu sürüm kontrollerinin dışındadır.
 
 ## Geliştirme
 
@@ -207,8 +206,8 @@ Zorunlu medya testleri için FFmpeg/FFprobe ve sabit örnek üreticisini [katkı
 
 | Belge | İçerik |
 | --- | --- |
-| [2.3 yayın notları](docs/releases/v2.3.0.md) | İngilizce/Türkçe sürüm özeti |
-| [2.3 derleme ve platform kılavuzu](docs/release-2.3.md) | Klasör izleme, RPM paketleme ve platform farkları |
+| [2.4 yayın notları](docs/releases/v2.4.0.md) | İngilizce/Türkçe sürüm özeti |
+| [2.4 derleme ve platform kılavuzu](docs/release-2.4.md) | Klasör izleme, RPM paketleme ve platform farkları |
 | [Mimari](docs/architecture.md) · [IPC](docs/protocol.md) | Motor sahipliği, kalıcılık ve tarayıcı protokolü |
 | [Doğrulama](docs/validation.md) | Güncel ve tarihsel kanıtlar |
 | [Derleme/imzalama](docs/release.md) | Çalışma zamanı, paketleme ve imza |
@@ -225,6 +224,6 @@ Flux'un kendi kodu [MIT](LICENSE) lisanslıdır. FFmpeg/LAME LGPL, libxml2 MIT, 
 
 SignPath onaylı, imzalı yayınlarda kullanılacak bildirim: **“This project uses SignPath Foundation for code signing.”**
 
-Flux, [SignPath.io](https://signpath.io) üzerinden ücretsiz kod imzalamaya ve [SignPath Foundation](https://signpath.org) tarafından sağlanan sertifikaya hazırlanıyor. Foundation onayı ve üretim imzalama yapılandırması bekleniyor; mevcut 2.3.0 Windows paketlerinde Authenticode yayıncı sertifikası bulunmuyor. Uygulama içi güncelleme imzası ayrı bir doğrulamadır.
+Flux, [SignPath.io](https://signpath.io) üzerinden ücretsiz kod imzalamaya ve [SignPath Foundation](https://signpath.org) tarafından sağlanan sertifikaya hazırlanıyor. Foundation onayı ve üretim imzalama yapılandırması bekleniyor; mevcut 2.4.0 Windows paketlerinde Authenticode yayıncı sertifikası bulunmuyor. Uygulama içi güncelleme imzası ayrı bir doğrulamadır.
 
 İmzalama kapsamı, geliştirici/onaylayan rolleri ve yayın doğrulaması [kod imzalama politikasında](docs/code-signing-policy.md) açıklanır. **Privacy Policy URL:** [Flux gizlilik açıklaması](https://github.com/Hactor00/Flux/blob/main/docs/browser-stores.md#privacy-disclosure-for-store-listings).

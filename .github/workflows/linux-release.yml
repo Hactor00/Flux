@@ -2,7 +2,6 @@ name: Linux RPM build and validation
 on:
   workflow_dispatch:
   push:
-    branches: ["codex/release-2.3"]
     tags: ["v*"]
 permissions:
   contents: read
@@ -45,13 +44,19 @@ jobs:
       - name: Install and exercise the RPM on Fedora
         run: |
           docker run --rm --security-opt seccomp=unconfined --security-opt apparmor=unconfined -v "$PWD/release:/packages:ro" -v "$PWD/scripts/test-linux-package.py:/test-linux-package.py:ro" fedora:43 bash -euc '
-            dnf install -y /packages/Flux-2.3.0-linux-x86_64.rpm
+            dnf install -y /packages/Flux-*-linux-x86_64.rpm
             if ldd /usr/bin/flux-desktop | grep -F "not found"; then exit 1; fi
             if ldd /usr/lib/flux/libflux_torrent.so | grep -F "not found"; then exit 1; fi
             dnf install -y xorg-x11-server-Xvfb xorg-x11-xauth xdotool dbus-daemon procps-ng mesa-dri-drivers
             useradd --create-home flux-test
             runuser -u flux-test -- env LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a dbus-run-session -- python3 /test-linux-package.py
           '
+      - name: Record installed-package identity
+        shell: bash
+        run: |
+          version="$(node -p 'JSON.parse(require("fs").readFileSync("package.json")).version')"
+          package="release/Flux-${version}-linux-x86_64.rpm"
+          jq -n --arg version "$version" --arg run_id "$GITHUB_RUN_ID" --arg source_commit "$GITHUB_SHA" --arg package_sha256 "$(sha256sum "$package" | cut -d ' ' -f 1)" '{version:$version,run_id:$run_id,source_commit:$source_commit,package_sha256:$package_sha256,passed:true}' > release/linux-validation.json
       - uses: actions/cache/save@v4
         if: always() && steps.native-cache.outputs.cache-hit != 'true'
         with:

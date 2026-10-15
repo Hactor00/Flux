@@ -931,3 +931,7 @@ button:focus-visible {
   gap: 16px;
   padding-block: 12px;
 }
+.prefix-preview {
+  overflow-wrap: anywhere;
+  unicode-bidi: plaintext;
+}

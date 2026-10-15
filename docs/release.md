@@ -2,7 +2,7 @@
 
 The release workflow builds Windows x64 on a GitHub-hosted runner. Tags must match the version in `package.json`. Manual runs produce artifacts by default; publication creates a draft GitHub release.
 
-The current release is **2.3.0**, with a Windows x64 installer/portable runtime and a Linux x86_64 RPM. Keep both README files, package versions, extension manifests and `docs/releases/v2.3.0.md` aligned. Historical documents retain their original version and evidence dates. The [Linux build and platform guide](release-2.3.md) describes RPM dependencies, installation and validation.
+The current release is **2.4.0**, with a Windows x64 installer/portable runtime and a Linux x86_64 RPM. Keep both README files, package versions, extension manifests and `docs/releases/v2.4.0.md` aligned. Historical documents retain their original version and evidence dates. The [Linux build and platform guide](release-2.4.md) describes RPM dependencies, installation and validation.
 
 ## Clean build
 
@@ -65,4 +65,4 @@ The finalization script requires valid Authenticode signatures on the returned i
 
 Only source-controlled release commits built on GitHub-hosted runners enter the signing workflow. SignPath approval roles and production certificate access belong to the project's designated maintainers. Use a review policy for production signing. Downloaded dependencies use pinned source versions and SHA-256 checks. Signing does not imply that every download source or third-party program is safe.
 
-Reference: [SignPath GitHub integration](https://docs.signpath.io/trusted-build-systems/github).
+Reference: [SignPath GitHub integration](https://docs.signpath.io/trusted-build-systems/github).\n

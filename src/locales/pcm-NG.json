@@ -235,5 +235,9 @@
   "watch_approval": "Ask me to confirm",
   "watch_automatic": "Add am to download queue by itself",
   "watch_imported": "Files wey enter this session: {{count}}",
-  "rpm_updates_help": "Use your package manager to update Linux RPM. Open the latest release, download the RPM, then install am with dnf."
+  "rpm_updates_help": "Use your package manager to update Linux RPM. Open the latest release, download the RPM, then install am with dnf.",
+  "filename_prefix": "File name prefix (if you want)",
+  "filename_prefix_hint": "Use / for subfolders. We go save your last 10 prefixes.",
+  "filename_prefix_preview": "Save am as: {{path}}",
+  "filename_prefix_invalid": "This prefix no valid. Use relative subfolders and correct file name, without .. or full path."
 }

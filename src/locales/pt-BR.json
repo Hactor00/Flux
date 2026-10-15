@@ -235,5 +235,9 @@
   "watch_approval": "Pedir confirmação",
   "watch_automatic": "Adicionar automaticamente à fila",
   "watch_imported": "Importados nesta sessão: {{count}}",
-  "rpm_updates_help": "As atualizações RPM do Linux são instaladas pelo gerenciador de pacotes. Abra a versão mais recente, baixe o RPM e instale com dnf."
+  "rpm_updates_help": "As atualizações RPM do Linux são instaladas pelo gerenciador de pacotes. Abra a versão mais recente, baixe o RPM e instale com dnf.",
+  "filename_prefix": "Prefixo do nome (opcional)",
+  "filename_prefix_hint": "Use / para subpastas. Os últimos 10 prefixos são salvos.",
+  "filename_prefix_preview": "Salvar como: {{path}}",
+  "filename_prefix_invalid": "Prefixo inválido. Use subpastas relativas e um nome válido, sem .. nem caminhos absolutos."
 }

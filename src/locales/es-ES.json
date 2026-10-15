@@ -239,5 +239,9 @@
   "filename_prefix": "Prefijo del nombre (opcional)",
   "filename_prefix_hint": "Usa / para subcarpetas. Se guardan los últimos 10 prefijos.",
   "filename_prefix_preview": "Guardar como: {{path}}",
-  "filename_prefix_invalid": "Prefijo no válido. Usa subcarpetas relativas y un nombre válido, sin .. ni rutas absolutas."
+  "filename_prefix_invalid": "Prefijo no válido. Usa subcarpetas relativas y un nombre válido, sin .. ni rutas absolutas.",
+  "appearance": "Apariencia",
+  "theme": "Tema",
+  "theme_dark": "Oscuro",
+  "theme_light": "Claro"
 }

@@ -239,5 +239,9 @@
   "filename_prefix": "Tiền tố tên tệp (tùy chọn)",
   "filename_prefix_hint": "Dùng / cho thư mục con. Lưu 10 tiền tố gần nhất.",
   "filename_prefix_preview": "Lưu thành: {{path}}",
-  "filename_prefix_invalid": "Tiền tố không hợp lệ. Dùng thư mục con tương đối và tên tệp hợp lệ, không dùng .. hoặc đường dẫn tuyệt đối."
+  "filename_prefix_invalid": "Tiền tố không hợp lệ. Dùng thư mục con tương đối và tên tệp hợp lệ, không dùng .. hoặc đường dẫn tuyệt đối.",
+  "appearance": "Giao diện",
+  "theme": "Chủ đề",
+  "theme_dark": "Tối",
+  "theme_light": "Sáng"
 }

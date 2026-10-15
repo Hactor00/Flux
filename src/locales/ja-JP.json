@@ -239,5 +239,9 @@
   "filename_prefix": "ファイル名の接頭辞（任意）",
   "filename_prefix_hint": "サブフォルダーには / を使用します。直近10件の接頭辞を保存します。",
   "filename_prefix_preview": "保存先：{{path}}",
-  "filename_prefix_invalid": "接頭辞が無効です。有効なファイル名と相対サブフォルダーを使用してください。.. や絶対パスは使用できません。"
+  "filename_prefix_invalid": "接頭辞が無効です。有効なファイル名と相対サブフォルダーを使用してください。.. や絶対パスは使用できません。",
+  "appearance": "外観",
+  "theme": "テーマ",
+  "theme_dark": "ダーク",
+  "theme_light": "ライト"
 }

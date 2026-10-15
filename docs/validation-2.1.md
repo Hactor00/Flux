@@ -1,6 +1,6 @@
 # Flux 2.1 validation
 
-Validation is performed against the local `codex/v2.1` working tree. Published 1.7.0 and 2.0.0 artifacts are preserved.
+This historical validation record describes the 2.1 development tree. Published 1.7.0 and 2.0.0 artifacts are preserved.
 
 ## Commands
 

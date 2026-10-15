@@ -8,8 +8,6 @@ on:
       linux_run:
         required: true
         description: Successful Linux RPM workflow run ID
-  push:
-    branches: ["codex/publish-*"]
 permissions:
   contents: read
   actions: read

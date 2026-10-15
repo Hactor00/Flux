@@ -4,6 +4,8 @@ target/
 .tools/
 *.sqlite*
 *.log
+__pycache__/
+*.py[cod]
 .flux/
 src-tauri/gen/
 release/

@@ -239,5 +239,9 @@
   "filename_prefix": "文件名前缀（可选）",
   "filename_prefix_hint": "使用 / 指定子文件夹。保留最近 10 个前缀。",
   "filename_prefix_preview": "保存路径：{{path}}",
-  "filename_prefix_invalid": "前缀无效。请使用有效文件名和相对子文件夹，不允许 .. 或绝对路径。"
+  "filename_prefix_invalid": "前缀无效。请使用有效文件名和相对子文件夹，不允许 .. 或绝对路径。",
+  "appearance": "外观",
+  "theme": "主题",
+  "theme_dark": "深色",
+  "theme_light": "浅色"
 }

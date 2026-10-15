@@ -239,5 +239,9 @@
   "filename_prefix": "檔案名稱前綴（可選）",
   "filename_prefix_hint": "用 / 指定子資料夾，會儲存最近 10 個前綴。",
   "filename_prefix_preview": "儲存路徑：{{path}}",
-  "filename_prefix_invalid": "前綴無效。請用有效檔案名稱同相對子資料夾，唔可以用 .. 或絕對路徑。"
+  "filename_prefix_invalid": "前綴無效。請用有效檔案名稱同相對子資料夾，唔可以用 .. 或絕對路徑。",
+  "appearance": "外觀",
+  "theme": "主題",
+  "theme_dark": "深色",
+  "theme_light": "淺色"
 }

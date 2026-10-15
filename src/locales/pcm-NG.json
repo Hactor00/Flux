@@ -239,5 +239,9 @@
   "filename_prefix": "File name prefix (if you want)",
   "filename_prefix_hint": "Use / for subfolders. We go save your last 10 prefixes.",
   "filename_prefix_preview": "Save am as: {{path}}",
-  "filename_prefix_invalid": "This prefix no valid. Use relative subfolders and correct file name, without .. or full path."
+  "filename_prefix_invalid": "This prefix no valid. Use relative subfolders and correct file name, without .. or full path.",
+  "appearance": "Appearance",
+  "theme": "Theme",
+  "theme_dark": "Dark",
+  "theme_light": "Light"
 }

@@ -239,5 +239,9 @@
   "filename_prefix": "Awalan nama berkas (opsional)",
   "filename_prefix_hint": "Gunakan / untuk subfolder. 10 awalan terakhir disimpan.",
   "filename_prefix_preview": "Simpan sebagai: {{path}}",
-  "filename_prefix_invalid": "Awalan tidak valid. Gunakan subfolder relatif dan nama berkas yang valid, tanpa .. atau jalur absolut."
+  "filename_prefix_invalid": "Awalan tidak valid. Gunakan subfolder relatif dan nama berkas yang valid, tanpa .. atau jalur absolut.",
+  "appearance": "Tampilan",
+  "theme": "Tema",
+  "theme_dark": "Gelap",
+  "theme_light": "Terang"
 }

@@ -133,6 +133,23 @@ export function SettingsModal({
               </label>
             </Tabs.Content>
             <Tabs.Content value="language">
+              <div className="appearance-setting">
+                <h3>{t("appearance")}</h3>
+                <label>
+                  {t("theme")}
+                  <Choice
+                    label={t("theme")}
+                    value={settings.theme}
+                    onChange={(value) =>
+                      update("theme", value as Settings["theme"])
+                    }
+                    options={[
+                      { value: "dark", label: t("theme_dark") },
+                      { value: "light", label: t("theme_light") },
+                    ]}
+                  />
+                </label>
+              </div>
               <div className="language-heading">
                 <Globe2 size={18} />
                 <h3>{t("language")}</h3>

@@ -89,6 +89,9 @@ export default function App() {
     >(null),
     [ascending, setAscending] = useState(true);
   const [version, setVersion] = useState(packageInfo.version);
+  const [theme, setTheme] = useState<"dark" | "light">(() =>
+    localStorage.getItem("flux-theme") === "light" ? "light" : "dark",
+  );
   useEffect(() => {
     if (isTauri())
       void getVersion()
@@ -152,7 +155,10 @@ export default function App() {
     const timer = setInterval(() => void update(), 1500);
     void api
       .settings()
-      .then((s) => i18n.changeLanguage(s.locale))
+      .then((s) => {
+        setTheme(s.theme);
+        void i18n.changeLanguage(s.locale);
+      })
       .catch((e) => setError(String(e)));
     const subscription = subscribe<Progress>("download-progress", (event) => {
       if (alive)
@@ -162,7 +168,10 @@ export default function App() {
         }));
     });
     const preferences = subscribe<Settings>("settings-changed", (event) => {
-      if (alive) void i18n.changeLanguage(event.payload.locale);
+      if (alive) {
+        setTheme(event.payload.theme);
+        void i18n.changeLanguage(event.payload.locale);
+      }
     });
     const failures = subscribe<string>("background-error", (event) => {
       if (alive) setError(event.payload);
@@ -175,6 +184,10 @@ export default function App() {
       void failures.then((stop) => stop());
     };
   }, [i18n]);
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem("flux-theme", theme);
+  }, [theme]);
   useEffect(() => {
     document.documentElement.lang = i18n.language;
     document.documentElement.dir = /^(ar|ur)/.test(i18n.language)
@@ -772,7 +785,7 @@ export default function App() {
         visible={settingsOpen}
         onClose={setSettingsOpen}
         onError={setError}
-        onSaved={() => {}}
+        onSaved={(settings) => setTheme(settings.theme)}
       />
       <TaskDetails
         task={details}

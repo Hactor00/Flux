@@ -1,9 +1,28 @@
 :root {
   font-family: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
-  color: #d9dde6;
-  background: #16181e;
+  color: var(--flux-palette-d9dde6);
+  background: var(--flux-palette-16181e);
   font-size: 13px;
-  color-scheme: dark;
+  color-scheme: var(--flux-color-scheme, dark);
+}
+.appearance-setting {
+  display: grid;
+  grid-template-columns: 1fr minmax(180px, 0.65fr);
+  align-items: end;
+  gap: 14px;
+  padding: 4px 0 16px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--flux-palette-ffffff12);
+}
+.appearance-setting h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.appearance-setting label {
+  display: grid;
+  gap: 6px;
+  margin: 0;
 }
 body {
   margin: 0;
@@ -24,7 +43,7 @@ button:disabled {
   cursor: default;
 }
 button:focus-visible {
-  outline: 2px solid #bba7ff;
+  outline: 2px solid var(--flux-palette-bba7ff);
   outline-offset: -2px;
 }
 .desktop-shell {
@@ -32,7 +51,7 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #16181e;
+  background: var(--flux-palette-16181e);
   min-width: 760px;
 }
 .desktop-menu {
@@ -42,8 +61,8 @@ button:focus-visible {
   align-items: center;
   padding: 0 12px;
   gap: 4px;
-  border-bottom: 1px solid #ffffff0b;
-  background: #1c1e25;
+  border-bottom: 1px solid var(--flux-palette-ffffff0b);
+  background: var(--flux-palette-1c1e25);
 }
 .desktop-menu button {
   display: flex;
@@ -51,15 +70,15 @@ button:focus-visible {
   gap: 5px;
   border: 0;
   background: transparent;
-  color: #b8bdc8;
+  color: var(--flux-palette-b8bdc8);
   padding: 5px 10px;
   border-radius: 4px;
   font-size: 12px;
 }
 .desktop-menu button:hover,
 .desktop-menu button[data-state="open"] {
-  background: #ffffff0a;
-  color: #fff;
+  background: var(--flux-palette-ffffff0a);
+  color: var(--flux-palette-fff);
 }
 .desktop-logo {
   display: flex;
@@ -68,12 +87,12 @@ button:focus-visible {
   font-weight: 650;
   letter-spacing: 0.2px;
   margin-inline-end: 16px;
-  color: #d5c5ff;
+  color: var(--flux-palette-d5c5ff);
 }
 .desktop-version {
   margin-inline-start: auto;
   font-size: 11px;
-  color: #767d8c;
+  color: var(--flux-palette-767d8c);
 }
 .desktop-toolbar {
   height: 59px;
@@ -81,9 +100,9 @@ button:focus-visible {
   align-items: center;
   padding: 0 12px;
   gap: 5px;
-  border-bottom: 1px solid #30343e;
+  border-bottom: 1px solid var(--flux-palette-30343e);
   flex-shrink: 0;
-  background: #1b1e26;
+  background: var(--flux-palette-1b1e26);
 }
 .desktop-toolbar button {
   display: flex;
@@ -93,26 +112,26 @@ button:focus-visible {
   border: 1px solid transparent;
   border-radius: 5px;
   background: transparent;
-  color: #c5cbd7;
+  color: var(--flux-palette-c5cbd7);
   font-size: 12px;
   white-space: nowrap;
 }
 .desktop-toolbar button:hover:not(:disabled) {
-  background: #ffffff0a;
-  border-color: #ffffff10;
+  background: var(--flux-palette-ffffff0a);
+  border-color: var(--flux-palette-ffffff10);
 }
 .desktop-toolbar .primary {
-  background: #bba7f2;
-  color: #191520;
-  border: 1px solid #cbb8ff;
+  background: var(--flux-palette-bba7f2);
+  color: var(--flux-palette-191520);
+  border: 1px solid var(--flux-palette-cbb8ff);
   padding: 9px 12px;
   font-weight: 600;
-  box-shadow: 0 1px 2px #0005;
+  box-shadow: 0 1px 2px var(--flux-palette-0005);
 }
 .toolbar-divider {
   width: 1px;
   height: 25px;
-  background: #ffffff13;
+  background: var(--flux-palette-ffffff13);
   margin: 0 6px;
 }
 .toolbar-spacer {
@@ -128,14 +147,14 @@ button:focus-visible {
   gap: 14px;
   padding: 14px 18px;
   flex-shrink: 0;
-  background: #22202d;
-  border-bottom: 1px solid #bba7f230;
+  background: var(--flux-palette-22202d);
+  border-bottom: 1px solid var(--flux-palette-bba7f230);
   max-height: 210px;
   overflow-y: auto;
 }
 .integration-icon {
   flex-shrink: 0;
-  color: #c6b4f7;
+  color: var(--flux-palette-c6b4f7);
   margin-top: 2px;
 }
 .integration-copy {
@@ -149,7 +168,7 @@ button:focus-visible {
   flex-wrap: wrap;
 }
 .integration-copy p {
-  color: #b1b5c2;
+  color: var(--flux-palette-b1b5c2);
   font-size: 12px;
   line-height: 1.55;
   margin: 5px 0;
@@ -161,13 +180,13 @@ button:focus-visible {
   font-size: 12px;
 }
 .integration-state.ready {
-  color: #8bd7b4;
+  color: var(--flux-palette-8bd7b4);
 }
 .integration-state.pending {
-  color: #eac992;
+  color: var(--flux-palette-eac992);
 }
 .integration-error {
-  color: #f1a3a9 !important;
+  color: var(--flux-palette-f1a3a9) !important;
   overflow-wrap: anywhere;
 }
 .integration-dismiss {
@@ -177,16 +196,16 @@ button:focus-visible {
 .desktop-sidebar {
   width: 177px;
   padding: 15px 9px 12px;
-  border-inline-end: 1px solid #30343e;
+  border-inline-end: 1px solid var(--flux-palette-30343e);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  background: #1b1d25;
+  background: var(--flux-palette-1b1d25);
 }
 .sidebar-caption {
   font-size: 11px;
   font-weight: 600;
-  color: #798496;
+  color: var(--flux-palette-798496);
   text-transform: uppercase;
   letter-spacing: 0.8px;
   margin: 0 10px 12px;
@@ -198,7 +217,7 @@ button:focus-visible {
   padding: 10px 9px;
   border: 0;
   border-radius: 5px;
-  color: #a8b1c2;
+  color: var(--flux-palette-a8b1c2);
   background: transparent;
   text-align: start;
   margin-bottom: 3px;
@@ -209,24 +228,24 @@ button:focus-visible {
 }
 .desktop-sidebar > button small {
   font-variant-numeric: tabular-nums;
-  color: #7f8aa0;
+  color: var(--flux-palette-7f8aa0);
   font-size: 11px;
 }
 .desktop-sidebar > button.selected {
-  background: #bba7ff12;
-  color: #dccfff;
-  box-shadow: inset 2px 0 #bba7ff;
+  background: var(--flux-palette-bba7ff12);
+  color: var(--flux-palette-dccfff);
+  box-shadow: inset 2px 0 var(--flux-palette-bba7ff);
 }
 .desktop-sidebar > button:hover {
-  background: #ffffff07;
+  background: var(--flux-palette-ffffff07);
 }
 .sidebar-network {
   margin-top: auto;
   padding: 12px 8px;
-  color: #8995a9;
+  color: var(--flux-palette-8995a9);
   font-size: 10px;
   position: relative;
-  border-top: 1px solid #ffffff0d;
+  border-top: 1px solid var(--flux-palette-ffffff0d);
 }
 .sidebar-network svg {
   display: block;
@@ -242,7 +261,7 @@ button:focus-visible {
   font-weight: 500;
   display: block;
   margin-top: 9px;
-  color: #d9def0;
+  color: var(--flux-palette-d9def0);
   font-variant-numeric: tabular-nums;
 }
 .desktop-main {
@@ -252,14 +271,14 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   padding: 0;
-  background: #16181e;
+  background: var(--flux-palette-16181e);
 }
 .desktop-list-toolbar {
   height: 43px;
   display: flex;
   align-items: center;
   padding: 0 16px;
-  border-bottom: 1px solid #ffffff09;
+  border-bottom: 1px solid var(--flux-palette-ffffff09);
   gap: 12px;
   flex-shrink: 0;
 }
@@ -271,19 +290,19 @@ button:focus-visible {
   align-items: center;
 }
 .desktop-list-toolbar small {
-  color: #8d94a4;
+  color: var(--flux-palette-8d94a4);
   font-weight: 400;
 }
 .desktop-list-toolbar .search {
   margin-inline-start: auto;
   width: 230px;
-  background: #111319;
-  border: 1px solid #30343e;
+  background: var(--flux-palette-111319);
+  border: 1px solid var(--flux-palette-30343e);
   border-radius: 5px;
   padding: 5px 9px;
   height: 28px;
   gap: 7px;
-  color: #73809a;
+  color: var(--flux-palette-73809a);
   display: flex;
 }
 .search input {
@@ -294,7 +313,7 @@ button:focus-visible {
   background: transparent;
   min-width: 0;
   width: 100%;
-  color: #d0d7e7;
+  color: var(--flux-palette-d0d7e7);
 }
 .desktop-table {
   overflow: hidden;
@@ -315,17 +334,17 @@ button:focus-visible {
   height: 31px;
   flex-shrink: 0;
   padding: 0 10px;
-  background: #22252e;
-  border-bottom: 1px solid #323743;
+  background: var(--flux-palette-22252e);
+  border-bottom: 1px solid var(--flux-palette-323743);
   min-width: 900px;
 }
 .desktop-columns button {
   height: 100%;
   text-align: start;
   border: 0;
-  border-inline-end: 1px solid #ffffff08;
+  border-inline-end: 1px solid var(--flux-palette-ffffff08);
   background: transparent;
-  color: #b8c0d0;
+  color: var(--flux-palette-b8c0d0);
   padding: 0 9px;
   font-size: 11px;
   display: flex;
@@ -342,20 +361,20 @@ button:focus-visible {
   position: relative;
   background: repeating-linear-gradient(
     to bottom,
-    #16181e 0px,
-    #16181e 42px,
-    #191b22 42px,
-    #191b22 84px
+    var(--flux-palette-16181e) 0px,
+    var(--flux-palette-16181e) 42px,
+    var(--flux-palette-191b22) 42px,
+    var(--flux-palette-191b22) 84px
   );
 }
 .desktop-row {
   padding: 0 10px;
-  border-bottom: 1px solid #ffffff05;
+  border-bottom: 1px solid var(--flux-palette-ffffff05);
   min-width: 900px;
   box-sizing: border-box;
   font-size: 12px;
   user-select: none;
-  color: #aeb7c8;
+  color: var(--flux-palette-aeb7c8);
 }
 .desktop-row > span,
 .desktop-row > div {
@@ -364,21 +383,21 @@ button:focus-visible {
   min-width: 0;
 }
 .desktop-row:hover {
-  background: #ffffff04;
+  background: var(--flux-palette-ffffff04);
 }
 .desktop-row.selected {
-  background: #9b85ea1c;
-  box-shadow: inset 2px 0 #bba7ff;
+  background: var(--flux-palette-9b85ea1c);
+  box-shadow: inset 2px 0 var(--flux-palette-bba7ff);
 }
 .desktop-file {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #d2d8e6;
+  color: var(--flux-palette-d2d8e6);
 }
 .desktop-file svg {
   flex-shrink: 0;
-  color: #a69ed0;
+  color: var(--flux-palette-a69ed0);
 }
 .desktop-file span {
   overflow: hidden;
@@ -393,37 +412,37 @@ button:focus-visible {
 .desktop-progress .progress-track {
   flex: 1;
   height: 5px;
-  background: #313543;
+  background: var(--flux-palette-313543);
   border-radius: 1px;
   margin: 0;
   overflow: hidden;
 }
 .desktop-progress .progress-track div {
   height: 100%;
-  background: #ab9adb;
+  background: var(--flux-palette-ab9adb);
   transform-origin: left;
   transition: transform 0.2s linear;
 }
 .desktop-progress small {
   font-size: 10px;
   min-width: 34px;
-  color: #959eb1;
+  color: var(--flux-palette-959eb1);
 }
 .desktop-state {
   font-size: 11px;
 }
 .desktop-state.running,
 .desktop-state.complete {
-  color: #80c7b3;
+  color: var(--flux-palette-80c7b3);
 }
 .desktop-state.failed {
-  color: #e4a1a8;
+  color: var(--flux-palette-e4a1a8);
 }
 .desktop-state.awaiting_approval {
-  color: #d2bd82;
+  color: var(--flux-palette-d2bd82);
 }
 .desktop-state.verifying {
-  color: #bca9f2;
+  color: var(--flux-palette-bca9f2);
 }
 .desktop-empty {
   position: absolute;
@@ -433,14 +452,14 @@ button:focus-visible {
   justify-content: center;
   flex-direction: column;
   gap: 10px;
-  color: #7e8ba1;
+  color: var(--flux-palette-7e8ba1);
   pointer-events: none;
 }
 .desktop-empty svg {
-  color: #66667e;
+  color: var(--flux-palette-66667e);
 }
 .desktop-empty strong {
-  color: #b9c1d1;
+  color: var(--flux-palette-b9c1d1);
   font-size: 14px;
   font-weight: 500;
   margin-top: 5px;
@@ -459,8 +478,8 @@ button:focus-visible {
 }
 .desktop-empty kbd {
   font-size: 10px;
-  color: #7e86a0;
-  border: 1px solid #ffffff19;
+  color: var(--flux-palette-7e86a0);
+  border: 1px solid var(--flux-palette-ffffff19);
   border-radius: 3px;
   padding: 2px 5px;
   margin-inline-start: 12px;
@@ -471,10 +490,10 @@ button:focus-visible {
   align-items: center;
   padding: 8px 16px;
   gap: 11px;
-  border-top: 1px solid #30343e;
-  background: #1c1f27;
+  border-top: 1px solid var(--flux-palette-30343e);
+  background: var(--flux-palette-1c1f27);
   flex-shrink: 0;
-  color: #828fa4;
+  color: var(--flux-palette-828fa4);
   font-size: 11px;
 }
 .desktop-inspector > div {
@@ -485,7 +504,7 @@ button:focus-visible {
 }
 .desktop-inspector strong {
   font-weight: 500;
-  color: #d1d7e5;
+  color: var(--flux-palette-d1d7e5);
   font-size: 12px;
 }
 .desktop-inspector span {
@@ -504,9 +523,9 @@ button:focus-visible {
   display: flex;
   gap: 20px;
   align-items: center;
-  background: #21242d;
-  border-top: 1px solid #30343e;
-  color: #939fb4;
+  background: var(--flux-palette-21242d);
+  border-top: 1px solid var(--flux-palette-30343e);
+  color: var(--flux-palette-939fb4);
   font-size: 10px;
 }
 .status-dot {
@@ -518,10 +537,10 @@ button:focus-visible {
   z-index: 150;
   padding: 5px;
   min-width: 185px;
-  border: 1px solid #434755;
+  border: 1px solid var(--flux-palette-434755);
   border-radius: 6px;
-  box-shadow: 0 8px 32px #0008;
-  background: #262a34;
+  box-shadow: 0 8px 32px var(--flux-palette-0008);
+  background: var(--flux-palette-262a34);
 }
 .desktop-menu-item {
   padding: 8px 10px;
@@ -529,13 +548,13 @@ button:focus-visible {
   display: flex;
   gap: 10px;
   align-items: center;
-  color: #d0d6e4;
+  color: var(--flux-palette-d0d6e4);
   font-size: 12px;
   border-radius: 3px;
   cursor: pointer;
 }
 .desktop-menu-item[data-highlighted] {
-  background: #bba7ff22;
+  background: var(--flux-palette-bba7ff22);
 }
 .desktop-menu-item[data-disabled] {
   opacity: 0.35;
@@ -543,15 +562,15 @@ button:focus-visible {
 }
 .desktop-menu-content [role="separator"] {
   height: 1px;
-  background: #ffffff12;
+  background: var(--flux-palette-ffffff12);
   margin: 4px;
 }
 .desktop-menu-item.danger {
-  color: #e7a0aa;
+  color: var(--flux-palette-e7a0aa);
 }
 .desktop-error {
-  background: #553a3d55;
-  color: #e3b0b6;
+  background: var(--flux-palette-553a3d55);
+  color: var(--flux-palette-e3b0b6);
   padding: 8px 15px;
   font-size: 12px;
   display: flex;
@@ -569,7 +588,7 @@ button:focus-visible {
   color: inherit;
 }
 .surface-window {
-  background: #1b1e26;
+  background: var(--flux-palette-1b1e26);
   overflow: hidden;
 }
 .surface-window #root {
@@ -589,7 +608,7 @@ button:focus-visible {
   border: 0;
   border-radius: 0;
   box-shadow: none;
-  background: #1b1e26;
+  background: var(--flux-palette-1b1e26);
   padding: 23px 25px;
   overflow: auto;
   box-sizing: border-box;
@@ -608,29 +627,29 @@ button:focus-visible {
 .surface-window .modal label {
   font-size: 12px;
   margin-top: 12px;
-  color: #aeb8ca;
+  color: var(--flux-palette-aeb8ca);
 }
 .surface-window .modal input,
 .surface-window .modal textarea {
   font-size: 13px;
   padding: 8px 10px;
-  background: #13161d;
-  border: 1px solid #3c4250;
+  background: var(--flux-palette-13161d);
+  border: 1px solid var(--flux-palette-3c4250);
   border-radius: 4px;
-  color: #d6deed;
+  color: var(--flux-palette-d6deed);
 }
 .surface-window .modal input[type="checkbox"] {
   width: 15px;
   height: 15px;
 }
 .surface-window .modal input:read-only {
-  color: #8491a9;
+  color: var(--flux-palette-8491a9);
 }
 .surface-window .tabs {
   margin: 12px 0;
   padding: 3px;
   border-radius: 5px;
-  background: #13161d;
+  background: var(--flux-palette-13161d);
 }
 .surface-window .tabs button {
   padding: 8px;
@@ -656,7 +675,7 @@ button:focus-visible {
 }
 .surface-loading {
   padding: 35px;
-  color: #aeb8ca;
+  color: var(--flux-palette-aeb8ca);
 }
 .surface-window .task-details dt,
 .surface-window .task-details dd {
@@ -676,16 +695,16 @@ button:focus-visible {
   font-size: 12px;
 }
 .surface-window .modal .form-error {
-  color: #f0aeb8;
+  color: var(--flux-palette-f0aeb8);
 }
 .surface-window .confirm-modal {
   inset: 20% 7%;
   width: 86%;
   height: auto;
   max-height: 65vh;
-  border: 1px solid #464b5b;
+  border: 1px solid var(--flux-palette-464b5b);
   border-radius: 8px;
-  box-shadow: 0 16px 50px #0008;
+  box-shadow: 0 16px 50px var(--flux-palette-0008);
 }
 .surface-window .confirm-modal .modal-close {
   display: block;
@@ -713,10 +732,10 @@ button:focus-visible {
   }
 }
 .download-advanced {
-  border-top: 1px solid #ffffff10;
+  border-top: 1px solid var(--flux-palette-ffffff10);
   margin-top: 16px;
   padding-top: 12px;
-  color: #9ba8bb;
+  color: var(--flux-palette-9ba8bb);
   font-size: 12px;
 }
 .download-advanced summary {
@@ -731,14 +750,14 @@ button:focus-visible {
   margin: 20px 0;
   padding: 16px;
   border: 1px solid var(--border);
-  background: #1c1f28;
+  background: var(--flux-palette-1c1f28);
   border-radius: 6px;
 }
 .transfer-timing {
   display: flex;
   flex-wrap: wrap;
   gap: 7px 16px;
-  border-top: 1px solid #ffffff0c;
+  border-top: 1px solid var(--flux-palette-ffffff0c);
   padding-top: 10px;
 }
 .transfer-summary .transfer-timing strong {
@@ -749,7 +768,7 @@ button:focus-visible {
   position: sticky;
   bottom: -24px;
   padding: 12px 0;
-  background: #1d2028;
+  background: var(--flux-palette-1d2028);
   z-index: 2;
 }
 .progress-track.indeterminate div {
@@ -778,7 +797,7 @@ button:focus-visible {
 .transfer-summary span,
 .transfer-summary small {
   font-size: 12px;
-  color: #aab0c0;
+  color: var(--flux-palette-aab0c0);
   font-variant-numeric: tabular-nums;
 }
 .task-details .source-address {
@@ -793,7 +812,7 @@ button:focus-visible {
   justify-content: center;
 }
 .form-hint {
-  color: #8491a7;
+  color: var(--flux-palette-8491a7);
   line-height: 1.6;
   font-size: 12px;
 }
@@ -808,21 +827,21 @@ button:focus-visible {
 .collection-heading strong {
   flex: 1;
   min-width: 120px;
-  color: #d6deed;
+  color: var(--flux-palette-d6deed);
   font-weight: 500;
 }
 .collection-heading > span {
-  color: #a5aec0;
+  color: var(--flux-palette-a5aec0);
   font-variant-numeric: tabular-nums;
 }
 .collection-entries,
 .torrent-files {
   max-height: 220px;
   overflow: auto;
-  border: 1px solid #343a47;
+  border: 1px solid var(--flux-palette-343a47);
   border-radius: 5px;
   margin: 10px 0;
-  background: #151820;
+  background: var(--flux-palette-151820);
   contain: layout;
 }
 .modal .collection-entry,
@@ -832,7 +851,7 @@ button:focus-visible {
   gap: 10px;
   margin: 0;
   padding: 9px 10px;
-  border-bottom: 1px solid #ffffff07;
+  border-bottom: 1px solid var(--flux-palette-ffffff07);
   font-size: 12px;
 }
 .collection-entry > input {
@@ -851,31 +870,31 @@ button:focus-visible {
 }
 .collection-entry > small {
   flex-shrink: 0;
-  color: #8996ac;
+  color: var(--flux-palette-8996ac);
   font-variant-numeric: tabular-nums;
   font-size: 10px;
 }
 .collection-entry > .selection-integrity {
   flex: 0;
   min-width: 14px;
-  color: #80c7b3;
+  color: var(--flux-palette-80c7b3);
 }
 .text-button {
   background: transparent;
   border: 0;
-  color: #c2acf2;
+  color: var(--flux-palette-c2acf2);
   font-size: 12px;
   cursor: pointer;
 }
 .torrent-details {
   margin: 16px 0;
   padding: 14px 0;
-  border-block: 1px solid #ffffff12;
+  border-block: 1px solid var(--flux-palette-ffffff12);
 }
 .torrent-details > h3 {
   margin: 0 0 12px;
   font-size: 13px;
-  color: #d4dbeb;
+  color: var(--flux-palette-d4dbeb);
   font-weight: 600;
 }
 .torrent-info-hash {
@@ -898,7 +917,7 @@ button:focus-visible {
 .host-account {
   display: grid;
   gap: 10px;
-  border-bottom: 1px solid #343741;
+  border-bottom: 1px solid var(--flux-palette-343741);
   padding-block: 14px;
 }
 .host-account h3 {
@@ -918,13 +937,13 @@ button:focus-visible {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   font: inherit;
-  color: #b6bdcb;
+  color: var(--flux-palette-b6bdcb);
   line-height: 1.6;
 }
 .updater-modal progress {
   width: 100%;
   height: 8px;
-  accent-color: #b5a0f5;
+  accent-color: var(--flux-palette-b5a0f5);
 }
 .updater-panel {
   display: grid;
@@ -934,4 +953,406 @@ button:focus-visible {
 .prefix-preview {
   overflow-wrap: anywhere;
   unicode-bidi: plaintext;
+}
+
+:root {
+  --flux-palette-0003: #0003;
+  --flux-palette-0005: #0005;
+  --flux-palette-0008: #0008;
+  --flux-palette-050509bb: #050509bb;
+  --flux-palette-0b0c10: #0b0c10;
+  --flux-palette-0c0d12: #0c0d12;
+  --flux-palette-101116: #101116;
+  --flux-palette-101117: #101117;
+  --flux-palette-111219: #111219;
+  --flux-palette-111319: #111319;
+  --flux-palette-13141b: #13141b;
+  --flux-palette-13161d: #13161d;
+  --flux-palette-151820: #151820;
+  --flux-palette-16181e: #16181e;
+  --flux-palette-17171f: #17171f;
+  --flux-palette-191520: #191520;
+  --flux-palette-191b22: #191b22;
+  --flux-palette-1b1d25: #1b1d25;
+  --flux-palette-1b1e26: #1b1e26;
+  --flux-palette-1c1e25: #1c1e25;
+  --flux-palette-1c1f27: #1c1f27;
+  --flux-palette-1c1f28: #1c1f28;
+  --flux-palette-1d2028: #1d2028;
+  --flux-palette-201b2e: #201b2e;
+  --flux-palette-21242d: #21242d;
+  --flux-palette-22202d: #22202d;
+  --flux-palette-22252e: #22252e;
+  --flux-palette-242032: #242032;
+  --flux-palette-262330: #262330;
+  --flux-palette-262a34: #262a34;
+  --flux-palette-282935: #282935;
+  --flux-palette-30343e: #30343e;
+  --flux-palette-313543: #313543;
+  --flux-palette-323743: #323743;
+  --flux-palette-343741: #343741;
+  --flux-palette-343a47: #343a47;
+  --flux-palette-363442: #363442;
+  --flux-palette-3c4250: #3c4250;
+  --flux-palette-434755: #434755;
+  --flux-palette-464b5b: #464b5b;
+  --flux-palette-545663: #545663;
+  --flux-palette-553a3d55: #553a3d55;
+  --flux-palette-62636f: #62636f;
+  --flux-palette-626473: #626473;
+  --flux-palette-646676: #646676;
+  --flux-palette-656775: #656775;
+  --flux-palette-66667e: #66667e;
+  --flux-palette-666875: #666875;
+  --flux-palette-676978: #676978;
+  --flux-palette-686a7b: #686a7b;
+  --flux-palette-6b6d7c: #6b6d7c;
+  --flux-palette-737584: #737584;
+  --flux-palette-73809a: #73809a;
+  --flux-palette-747588: #747588;
+  --flux-palette-747686: #747686;
+  --flux-palette-767783: #767783;
+  --flux-palette-767d8c: #767d8c;
+  --flux-palette-777783: #777783;
+  --flux-palette-777989: #777989;
+  --flux-palette-77798b: #77798b;
+  --flux-palette-798496: #798496;
+  --flux-palette-7e86a0: #7e86a0;
+  --flux-palette-7e8ba1: #7e8ba1;
+  --flux-palette-7f8aa0: #7f8aa0;
+  --flux-palette-80c7b3: #80c7b3;
+  --flux-palette-818392: #818392;
+  --flux-palette-828fa4: #828fa4;
+  --flux-palette-83ccad: #83ccad;
+  --flux-palette-83ccad30: #83ccad30;
+  --flux-palette-8491a7: #8491a7;
+  --flux-palette-8491a9: #8491a9;
+  --flux-palette-888: #888;
+  --flux-palette-8995a9: #8995a9;
+  --flux-palette-8996ac: #8996ac;
+  --flux-palette-8acdb2: #8acdb2;
+  --flux-palette-8bd7b4: #8bd7b4;
+  --flux-palette-8c869d: #8c869d;
+  --flux-palette-8d94a4: #8d94a4;
+  --flux-palette-8e8a9e: #8e8a9e;
+  --flux-palette-8f90a0: #8f90a0;
+  --flux-palette-9094a0: #9094a0;
+  --flux-palette-91929f: #91929f;
+  --flux-palette-9293a0: #9293a0;
+  --flux-palette-939fb4: #939fb4;
+  --flux-palette-9495a5: #9495a5;
+  --flux-palette-959eb1: #959eb1;
+  --flux-palette-989aaa: #989aaa;
+  --flux-palette-9b85ea1c: #9b85ea1c;
+  --flux-palette-9ba8bb: #9ba8bb;
+  --flux-palette-9d8ebd: #9d8ebd;
+  --flux-palette-a394c2: #a394c2;
+  --flux-palette-a4a5b2: #a4a5b2;
+  --flux-palette-a58ce208: #a58ce208;
+  --flux-palette-a58ce232: #a58ce232;
+  --flux-palette-a599bc15: #a599bc15;
+  --flux-palette-a5a0b5: #a5a0b5;
+  --flux-palette-a5aec0: #a5aec0;
+  --flux-palette-a69ed0: #a69ed0;
+  --flux-palette-a8b1c2: #a8b1c2;
+  --flux-palette-a991e2: #a991e2;
+  --flux-palette-a99aba: #a99aba;
+  --flux-palette-aab0c0: #aab0c0;
+  --flux-palette-ab9adb: #ab9adb;
+  --flux-palette-aeb7c8: #aeb7c8;
+  --flux-palette-aeb8ca: #aeb8ca;
+  --flux-palette-b19ed01a: #b19ed01a;
+  --flux-palette-b1b5c2: #b1b5c2;
+  --flux-palette-b49cf519: #b49cf519;
+  --flux-palette-b4a0e1: #b4a0e1;
+  --flux-palette-b4a1f6: #b4a1f6;
+  --flux-palette-b5a0f5: #b5a0f5;
+  --flux-palette-b5b6c2: #b5b6c2;
+  --flux-palette-b6a1de: #b6a1de;
+  --flux-palette-b6a8d0: #b6a8d0;
+  --flux-palette-b6b4c7: #b6b4c7;
+  --flux-palette-b6bdcb: #b6bdcb;
+  --flux-palette-b7a0fa: #b7a0fa;
+  --flux-palette-b7b2c5: #b7b2c5;
+  --flux-palette-b8bdc8: #b8bdc8;
+  --flux-palette-b8c0d0: #b8c0d0;
+  --flux-palette-b99de9: #b99de9;
+  --flux-palette-b9c1d1: #b9c1d1;
+  --flux-palette-baa6f6: #baa6f6;
+  --flux-palette-bba2ff12: #bba2ff12;
+  --flux-palette-bba7f2: #bba7f2;
+  --flux-palette-bba7f230: #bba7f230;
+  --flux-palette-bba7ff: #bba7ff;
+  --flux-palette-bba7ff12: #bba7ff12;
+  --flux-palette-bba7ff22: #bba7ff22;
+  --flux-palette-bca9f2: #bca9f2;
+  --flux-palette-bcabef: #bcabef;
+  --flux-palette-bcabef10: #bcabef10;
+  --flux-palette-bcabef20: #bcabef20;
+  --flux-palette-bda6ed: #bda6ed;
+  --flux-palette-bfa6ff22: #bfa6ff22;
+  --flux-palette-c2acf2: #c2acf2;
+  --flux-palette-c4adee: #c4adee;
+  --flux-palette-c5c4d3: #c5c4d3;
+  --flux-palette-c5cbd7: #c5cbd7;
+  --flux-palette-c6b4f7: #c6b4f7;
+  --flux-palette-c8b6ef: #c8b6ef;
+  --flux-palette-c8bfdd: #c8bfdd;
+  --flux-palette-c9b1ff38: #c9b1ff38;
+  --flux-palette-cbb8ff: #cbb8ff;
+  --flux-palette-cdbaff: #cdbaff;
+  --flux-palette-cfc0ff: #cfc0ff;
+  --flux-palette-d0c1f5: #d0c1f5;
+  --flux-palette-d0c7e4: #d0c7e4;
+  --flux-palette-d0d6e4: #d0d6e4;
+  --flux-palette-d0d7e7: #d0d7e7;
+  --flux-palette-d1d7e5: #d1d7e5;
+  --flux-palette-d2bd82: #d2bd82;
+  --flux-palette-d2d0df: #d2d0df;
+  --flux-palette-d2d8e6: #d2d8e6;
+  --flux-palette-d4c4ff: #d4c4ff;
+  --flux-palette-d4dbeb: #d4dbeb;
+  --flux-palette-d5c5ff: #d5c5ff;
+  --flux-palette-d6deed: #d6deed;
+  --flux-palette-d9dde6: #d9dde6;
+  --flux-palette-d9def0: #d9def0;
+  --flux-palette-dccfff: #dccfff;
+  --flux-palette-df829333: #df829333;
+  --flux-palette-e09898: #e09898;
+  --flux-palette-e2a8a8: #e2a8a8;
+  --flux-palette-e2a8a830: #e2a8a830;
+  --flux-palette-e3b0b6: #e3b0b6;
+  --flux-palette-e4a1a8: #e4a1a8;
+  --flux-palette-e6e8ef: #e6e8ef;
+  --flux-palette-e7a0aa: #e7a0aa;
+  --flux-palette-e9e4f4: #e9e4f4;
+  --flux-palette-eaa6b4: #eaa6b4;
+  --flux-palette-eac992: #eac992;
+  --flux-palette-f0aeb8: #f0aeb8;
+  --flux-palette-f1a3a9: #f1a3a9;
+  --flux-palette-f4f3f9: #f4f3f9;
+  --flux-palette-fff: #fff;
+  --flux-palette-ffffff02: #ffffff02;
+  --flux-palette-ffffff03: #ffffff03;
+  --flux-palette-ffffff04: #ffffff04;
+  --flux-palette-ffffff05: #ffffff05;
+  --flux-palette-ffffff06: #ffffff06;
+  --flux-palette-ffffff07: #ffffff07;
+  --flux-palette-ffffff08: #ffffff08;
+  --flux-palette-ffffff09: #ffffff09;
+  --flux-palette-ffffff0a: #ffffff0a;
+  --flux-palette-ffffff0b: #ffffff0b;
+  --flux-palette-ffffff0c: #ffffff0c;
+  --flux-palette-ffffff0d: #ffffff0d;
+  --flux-palette-ffffff10: #ffffff10;
+  --flux-palette-ffffff12: #ffffff12;
+  --flux-palette-ffffff13: #ffffff13;
+  --flux-palette-ffffff14: #ffffff14;
+  --flux-palette-ffffff15: #ffffff15;
+  --flux-palette-ffffff16: #ffffff16;
+  --flux-palette-ffffff18: #ffffff18;
+  --flux-palette-ffffff19: #ffffff19;
+}
+
+:root[data-theme="light"] {
+  --flux-color-scheme: light;
+  --flux-palette-0003: #0003;
+  --flux-palette-0005: #0005;
+  --flux-palette-0008: #0008;
+  --flux-palette-0003: #fbfbfb33;
+  --flux-palette-0005: #fbfbfb55;
+  --flux-palette-0008: #fbfbfb88;
+  --flux-palette-050509bb: #f5f5fabb;
+  --flux-palette-0b0c10: #f6f7f9;
+  --flux-palette-0c0d12: #f6f6f9;
+  --flux-palette-101116: #f6f7f9;
+  --flux-palette-101117: #f6f6f9;
+  --flux-palette-111219: #f6f6f9;
+  --flux-palette-111319: #f6f7f9;
+  --flux-palette-13141b: #f6f6f9;
+  --flux-palette-13161d: #f6f7f9;
+  --flux-palette-151820: #f6f7f9;
+  --flux-palette-16181e: #f6f7f9;
+  --flux-palette-17171f: #f6f6f8;
+  --flux-palette-191520: #f7f6f9;
+  --flux-palette-191b22: #f6f7f9;
+  --flux-palette-1b1d25: #f6f7f9;
+  --flux-palette-1b1e26: #f6f7f9;
+  --flux-palette-1c1e25: #f6f7f8;
+  --flux-palette-1c1f27: #f6f7f9;
+  --flux-palette-1c1f28: #f6f7f9;
+  --flux-palette-1d2028: #f6f7f9;
+  --flux-palette-201b2e: #f6f5f9;
+  --flux-palette-21242d: #f6f7f9;
+  --flux-palette-22202d: #f6f6f9;
+  --flux-palette-22252e: #f6f7f8;
+  --flux-palette-242032: #f6f6f9;
+  --flux-palette-262330: #f7f6f9;
+  --flux-palette-262a34: #f6f7f9;
+  --flux-palette-282935: #f6f6f8;
+  --flux-palette-30343e: #d4d7de;
+  --flux-palette-313543: #f6f7f9;
+  --flux-palette-323743: #f6f7f8;
+  --flux-palette-343741: #d4d6dd;
+  --flux-palette-343a47: #f6f7f9;
+  --flux-palette-363442: #d6d4dd;
+  --flux-palette-3c4250: #e2e4e9;
+  --flux-palette-434755: #c0c3ce;
+  --flux-palette-464b5b: #e2e4e9;
+  --flux-palette-545663: #c2c4cb;
+  --flux-palette-553a3d55: #eae1e255;
+  --flux-palette-62636f: #9d9ea9;
+  --flux-palette-626473: #9c9eab;
+  --flux-palette-646676: #9c9dab;
+  --flux-palette-656775: #9c9eaa;
+  --flux-palette-66667e: #9a9aad;
+  --flux-palette-666875: #9d9fa9;
+  --flux-palette-676978: #9c9eaa;
+  --flux-palette-686a7b: #9c9dab;
+  --flux-palette-6b6d7c: #9c9eaa;
+  --flux-palette-737584: #9d9eaa;
+  --flux-palette-73809a: #717e98;
+  --flux-palette-747588: #9c9daa;
+  --flux-palette-747686: #9d9eaa;
+  --flux-palette-767783: #9e9fa8;
+  --flux-palette-767d8c: #9ba0ab;
+  --flux-palette-777783: #9f9fa8;
+  --flux-palette-777989: #9d9eaa;
+  --flux-palette-77798b: #9c9daa;
+  --flux-palette-798496: #6e798c;
+  --flux-palette-7e86a0: #727b97;
+  --flux-palette-7e8ba1: #718098;
+  --flux-palette-7f8aa0: #727f97;
+  --flux-palette-80c7b3: #51b297;
+  --flux-palette-818392: #747686;
+  --flux-palette-828fa4: #718098;
+  --flux-palette-83ccad: #4ab487;
+  --flux-palette-83ccad30: #4ab48730;
+  --flux-palette-8491a7: #707f99;
+  --flux-palette-8491a9: #6f7e9a;
+  --flux-palette-888: #7d7d7d;
+  --flux-palette-8995a9: #718098;
+  --flux-palette-8996ac: #6f7f9a;
+  --flux-palette-8acdb2: #4baf87;
+  --flux-palette-8bd7b4: #3fb57f;
+  --flux-palette-8c869d: #77708a;
+  --flux-palette-8d94a4: #6f778b;
+  --flux-palette-8e8a9e: #767189;
+  --flux-palette-8f90a0: #737487;
+  --flux-palette-9094a0: #737887;
+  --flux-palette-91929f: #747685;
+  --flux-palette-9293a0: #747686;
+  --flux-palette-939fb4: #6b7b98;
+  --flux-palette-9495a5: #727388;
+  --flux-palette-959eb1: #6f7b95;
+  --flux-palette-989aaa: #717489;
+  --flux-palette-9b85ea1c: #4723ca1c;
+  --flux-palette-9ba8bb: #657995;
+  --flux-palette-9d8ebd: #745fa2;
+  --flux-palette-a394c2: #715ba0;
+  --flux-palette-a4a5b2: #737487;
+  --flux-palette-a58ce208: #5930be08;
+  --flux-palette-a58ce232: #5930be32;
+  --flux-palette-a599bc15: #75649815;
+  --flux-palette-a5a0b5: #756d8c;
+  --flux-palette-a5aec0: #64728f;
+  --flux-palette-a69ed0: #5b4da0;
+  --flux-palette-a8b1c2: #63718d;
+  --flux-palette-a991e2: #5931ba;
+  --flux-palette-a99aba: #7c6695;
+  --flux-palette-aab0c0: #66708a;
+  --flux-palette-ab9adb: #5a3dac;
+  --flux-palette-aeb7c8: #5e6e8b;
+  --flux-palette-aeb8ca: #5c6d8c;
+  --flux-palette-b19ed01a: #6d4da01a;
+  --flux-palette-b1b5c2: #262931;
+  --flux-palette-b49cf519: #4414c619;
+  --flux-palette-b4a0e1: #5b36ac;
+  --flux-palette-b4a1f6: #3a13c4;
+  --flux-palette-b5a0f5: #4015c3;
+  --flux-palette-b5b6c2: #272830;
+  --flux-palette-b6a1de: #613ba9;
+  --flux-palette-b6a8d0: #6a5196;
+  --flux-palette-b6b4c7: #666284;
+  --flux-palette-b6bdcb: #5e6b84;
+  --flux-palette-b7a0fa: #3c0bca;
+  --flux-palette-b7b2c5: #6c6485;
+  --flux-palette-b8bdc8: #262931;
+  --flux-palette-b8c0d0: #596886;
+  --flux-palette-b99de9: #5d29b7;
+  --flux-palette-b9c1d1: #586786;
+  --flux-palette-baa6f6: #3f13c1;
+  --flux-palette-bba2ff12: #3800d112;
+  --flux-palette-bba7f2: #461bba;
+  --flux-palette-bba7f230: #461bba30;
+  --flux-palette-bba7ff: #2f00ce;
+  --flux-palette-bba7ff12: #2f00ce12;
+  --flux-palette-bba7ff22: #2f00ce22;
+  --flux-palette-bca9f2: #451cb9;
+  --flux-palette-bcabef: #4622b3;
+  --flux-palette-bcabef10: #4622b310;
+  --flux-palette-bcabef20: #4622b320;
+  --flux-palette-bda6ed: #5324b4;
+  --flux-palette-bfa6ff22: #3a00cf22;
+  --flux-palette-c2acf2: #4d1db6;
+  --flux-palette-c4adee: #5624b0;
+  --flux-palette-c5c4d3: #5e5c7b;
+  --flux-palette-c5cbd7: #57647d;
+  --flux-palette-c6b4f7: #4014b8;
+  --flux-palette-c8b6ef: #4f25aa;
+  --flux-palette-c8bfdd: #5d4a8a;
+  --flux-palette-c9b1ff38: #3e00c938;
+  --flux-palette-cbb8ff: #3500c5;
+  --flux-palette-cdbaff: #3600c4;
+  --flux-palette-cfc0ff: #2e00c1;
+  --flux-palette-d0c1f5: #451baa;
+  --flux-palette-d0c7e4: #584289;
+  --flux-palette-d0d6e4: #49597e;
+  --flux-palette-d0d7e7: #435683;
+  --flux-palette-d1d7e5: #47587e;
+  --flux-palette-d2bd82: #b99a43;
+  --flux-palette-d2d0df: #575278;
+  --flux-palette-d2d8e6: #46577e;
+  --flux-palette-d4c4ff: #3400bf;
+  --flux-palette-d4dbeb: #3d5384;
+  --flux-palette-d5c5ff: #3400be;
+  --flux-palette-d6deed: #3a5484;
+  --flux-palette-d9dde6: #4c5974;
+  --flux-palette-d9def0: #354786;
+  --flux-palette-dccfff: #3200b8;
+  --flux-palette-df829333: #c3324c33;
+  --flux-palette-e09898: #b23636;
+  --flux-palette-e2a8a8: #a63737;
+  --flux-palette-e2a8a830: #a6373730;
+  --flux-palette-e3b0b6: #a03945;
+  --flux-palette-e4a1a8: #af323f;
+  --flux-palette-e6e8ef: #485170;
+  --flux-palette-e7a0aa: #b22d40;
+  --flux-palette-e9e4f4: #4d3582;
+  --flux-palette-eaa6b4: #b12a46;
+  --flux-palette-eac992: #c18625;
+  --flux-palette-f0aeb8: #b22137;
+  --flux-palette-f1a3a9: #bc1d29;
+  --flux-palette-f4f3f9: #473d7a;
+  --flux-palette-fff: #2b2b2b;
+  --flux-palette-ffffff02: #2b2b2b02;
+  --flux-palette-ffffff03: #2b2b2b03;
+  --flux-palette-ffffff04: #2b2b2b04;
+  --flux-palette-ffffff05: #2b2b2b05;
+  --flux-palette-ffffff06: #2b2b2b06;
+  --flux-palette-ffffff07: #2b2b2b07;
+  --flux-palette-ffffff08: #2b2b2b08;
+  --flux-palette-ffffff09: #2b2b2b09;
+  --flux-palette-ffffff0a: #2b2b2b0a;
+  --flux-palette-ffffff0b: #2b2b2b0b;
+  --flux-palette-ffffff0c: #2b2b2b0c;
+  --flux-palette-ffffff0d: #2b2b2b0d;
+  --flux-palette-ffffff10: #2b2b2b10;
+  --flux-palette-ffffff12: #2b2b2b12;
+  --flux-palette-ffffff13: #2b2b2b13;
+  --flux-palette-ffffff14: #2b2b2b14;
+  --flux-palette-ffffff15: #2b2b2b15;
+  --flux-palette-ffffff16: #2b2b2b16;
+  --flux-palette-ffffff18: #2b2b2b18;
+  --flux-palette-ffffff19: #2b2b2b19;
 }

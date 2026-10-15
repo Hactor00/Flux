@@ -21,7 +21,11 @@ export default function Surface() {
     document.body.classList.add("surface-window");
     void api
       .settings()
-      .then((settings) => i18n.changeLanguage(settings.locale))
+      .then((settings) => {
+        document.documentElement.dataset.theme = settings.theme;
+        localStorage.setItem("flux-theme", settings.theme);
+        void i18n.changeLanguage(settings.locale);
+      })
       .catch((error) => setError(String(error)));
     if (id)
       void api
@@ -29,6 +33,8 @@ export default function Surface() {
         .then(setTask)
         .catch((error) => setError(String(error)));
     const preferences = subscribe<Settings>("settings-changed", (event) => {
+      document.documentElement.dataset.theme = event.payload.theme;
+      localStorage.setItem("flux-theme", event.payload.theme);
       void i18n.changeLanguage(event.payload.locale);
     });
     return () => {

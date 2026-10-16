@@ -47,8 +47,15 @@ for (const [name, record] of Object.entries(records)) {
 }
 if (
   !records.installer.installed_binary_hashes_verified ||
+  !records.installer.active_native_host_upgrade_verified ||
   !records["browser-onboarding"].missing_registry_and_outdated_host_repaired ||
   !records["browser-onboarding"].dismissal_persisted_after_restart ||
+  !records["browser-onboarding"].registration_is_not_extension_presence ||
+  !records["browser-onboarding"]
+    .native_port_connection_and_disconnect_verified ||
+  !records["browser-onboarding"].settings_navigation_and_rtl_layout_verified ||
+  !records["browser-onboarding"].light_dark_theme_persistence_verified ||
+  !records["browser-onboarding"].application_version_read_verified ||
   !records["torrent-window"].torrent_file_row_visible
 )
   throw Error(

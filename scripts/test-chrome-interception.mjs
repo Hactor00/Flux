@@ -184,6 +184,8 @@ try {
       (item) => item.state === "in_progress" || item.state === "complete",
     ),
   );
+  // Chrome reports cancellation before its asynchronous temporary-file cleanup.
+  await until(async () => (await readdir(downloads)).length === 0);
   assert.deepEqual(await readdir(downloads), []);
   const task = await evaluate(
     `(async()=>{const {NativeBridge}=await import(chrome.runtime.getURL('bridge.js'));const bridge=new NativeBridge();try{return await bridge.request('task',{id:${JSON.stringify(result.id)}});}finally{bridge.disconnect();}})()`,

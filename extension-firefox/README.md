@@ -14,6 +14,12 @@ Launch Flux once to register the browser bridge automatically, or use **Settings
 
 Enable local Flux data transfer in the extension settings and accept Firefox's site-access prompt if shown. This permits selected URLs, media titles and necessary session headers to reach the local Flux application. Consent can be withdrawn in the same settings. Credentials stay in session storage until sealed by the native host; the durable outbox stores encrypted envelopes.
 
+## Connection and update notices
+
+The free Flux desktop app is required. Download it from [GitHub Releases](https://github.com/Hactor00/Flux/releases/latest), start Flux, grant local-transfer consent and open the extension popup. **Settings → Browser integration** shows a live extension connection separately from local host registration. Repair does not install the extension.
+
+Since 2.4.2 the popup checks GitHub release metadata with a six-hour cache and offline backoff. It links to the official release when the extension or desktop is outdated. ZIP installations require manual replacement; permanent Firefox distribution still requires Mozilla signing.
+
 ## Runtime behavior
 
 Flux uses a Gecko module event background rather than a Chromium service worker. Its Firefox-only blocking response-header listener intercepts HTTP GET attachment navigation before file selection. Explicit browser API downloads use an early pause, persisted deferred metadata and cancellation before desktop proposal delivery. If Flux is unavailable before ownership changes, the browser keeps its transfer; delivery errors after durable cancellation remain in Flux's outbox.

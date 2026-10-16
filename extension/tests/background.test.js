@@ -15,6 +15,7 @@ const requests = [];
 const browserCalls = [],
   tasks = new Map();
 let nativeOffline = false;
+let supportsPresence = false;
 function storage(data) {
   return {
     async get(key) {
@@ -33,28 +34,39 @@ function storage(data) {
 globalThis.chrome = {
   runtime: {
     id: "test-extension",
+    getManifest: () => ({ version: "2.4.2" }),
     onInstalled: event(),
     onStartup: event(),
     onMessage: event(),
     getURL: (path) => new URL("../" + path, import.meta.url).href,
     connectNative() {
       const port = {
+        disconnect() {
+          for (const listener of this.onDisconnect.listeners) listener();
+        },
         onMessage: event(),
         onDisconnect: event(),
         postMessage(request) {
           requests.push(request);
           const result =
-            request.command === "protect"
-              ? "sealed-auth"
-              : request.command === "inspect"
-                ? { streams: [], format: "hls" }
-                : request.command === "propose"
-                  ? tasks.get(request.request_id) || {
-                      id: request.request_id,
-                      status: "awaiting_approval",
-                      source_validated: false,
-                    }
-                  : { tasks: [], total: 0 };
+            request.command === "list_page"
+              ? {
+                  tasks: [],
+                  ...(supportsPresence ? { desktop_version: "2.4.2" } : {}),
+                }
+              : request.command === "browser_connect"
+                ? { desktop_version: "2.4.2" }
+                : request.command === "protect"
+                  ? "sealed-auth"
+                  : request.command === "inspect"
+                    ? { streams: [], format: "hls" }
+                    : request.command === "propose"
+                      ? tasks.get(request.request_id) || {
+                          id: request.request_id,
+                          status: "awaiting_approval",
+                          source_validated: false,
+                        }
+                      : { tasks: [], total: 0 };
           queueMicrotask(() =>
             port.onMessage.listeners.forEach((fn) =>
               fn({
@@ -146,6 +158,28 @@ const message = (
   new Promise((resolve) =>
     chrome.runtime.onMessage.listeners[0](value, sender, resolve),
   );
+test("presence negotiation keeps legacy hosts usable and announces the installed extension to current hosts", async () => {
+  await flush();
+  const start = requests.length;
+  const legacy = await message({ type: "status" }, { id: "test-extension" });
+  assert.equal(legacy.result.connected, true);
+  assert.equal(legacy.result.legacy_desktop, true);
+  assert.equal(
+    requests
+      .slice(start)
+      .some((request) => request.command === "browser_connect"),
+    false,
+  );
+  supportsPresence = true;
+  const current = await message({ type: "status" }, { id: "test-extension" });
+  assert.equal(current.result.desktop_version, "2.4.2");
+  assert.equal(current.result.legacy_desktop, false);
+  assert.equal(
+    requests.filter((request) => request.command === "browser_connect").at(-1)
+      .payload.extension_version,
+    "2.4.2",
+  );
+});
 test("interactive media handoff reports native failure and retries the same persisted proposal", async () => {
   const input = {
     type: "enqueue",
@@ -164,7 +198,10 @@ test("interactive media handoff reports native failure and retries the same pers
     assert.equal(confirmed.ok, true);
     assert.equal(confirmed.result.id, entry.id);
     assert.equal(confirmed.result.task.status, "awaiting_approval");
-    assert.equal(local.outbox.some((candidate) => candidate.id === entry.id), false);
+    assert.equal(
+      local.outbox.some((candidate) => candidate.id === entry.id),
+      false,
+    );
   } finally {
     nativeOffline = false;
   }

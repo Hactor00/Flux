@@ -2,10 +2,33 @@ import { getBrowserApi } from "./browser-api.js";
 const api = getBrowserApi();
 import { localize, t } from "./i18n.js";
 import { isProviderUrl, isCollectionUrl, mediaKind } from "./shared.js";
+import { compareVersions } from "./release-update.js";
 
 let links = [];
 
 let currentTab;
+let desktopVersion;
+let releaseVersion;
+let legacyDesktop = false;
+function renderUpdate() {
+  const extensionOld =
+    compareVersions(releaseVersion, api.runtime.getManifest().version) === 1;
+  const desktopOld =
+    compareVersions(releaseVersion, desktopVersion) === 1 ||
+    (legacyDesktop &&
+      compareVersions(releaseVersion, "2.4.2") !== null &&
+      compareVersions(releaseVersion, "2.4.2") >= 0);
+  document.getElementById("update-notice").hidden =
+    !extensionOld && !desktopOld;
+  document.getElementById("update-title").textContent =
+    `${t("updateAvailable")} ${releaseVersion || ""}`;
+  document.getElementById("update-help").textContent = [
+    extensionOld ? t("extensionUpdateHelp") : "",
+    desktopOld ? t("desktopUpdateHelp") : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
 
 async function send(message) {
   const response = await api.runtime.sendMessage(message);
@@ -50,6 +73,10 @@ function item(name, detail, action) {
 
 async function refresh() {
   const state = await send({ type: "status" });
+  desktopVersion = state.desktop_version;
+  legacyDesktop = state.connected && state.legacy_desktop;
+  document.getElementById("desktop-install-help").hidden = state.connected;
+  renderUpdate();
 
   document.getElementById("dot").classList.toggle("online", state.connected);
 
@@ -270,6 +297,14 @@ document
   });
 
 try {
+  // Start independently of media inspection, which may need an offline desktop.
+  void send({ type: "release-update" })
+    .then((version) => {
+      releaseVersion = version;
+      renderUpdate();
+    })
+    .catch(() => {});
+  await refresh();
   const [tab] = await api.tabs.query({ active: true, currentWindow: true });
 
   currentTab = tab;

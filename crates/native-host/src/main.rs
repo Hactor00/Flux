@@ -15,7 +15,12 @@ async fn connect(data: &Path) -> Result<(tokio::net::TcpStream, Discovery)> {
         tokio::net::TcpStream::connect((std::net::Ipv4Addr::LOCALHOST, discovery.port)).await?;
     Ok((stream, discovery))
 }
-async fn forward(data: &Path, request: Request, startup: &Mutex<()>) -> Result<Response> {
+async fn forward(
+    data: &Path,
+    request: Request,
+    startup: &Mutex<()>,
+    presence: &Mutex<Option<tokio::net::TcpStream>>,
+) -> Result<Response> {
     ensure!(request.version == VERSION, "Unsupported protocol version");
     uuid::Uuid::parse_str(&request.request_id)?;
     if let protocol::Command::Protect { credentials } = &request.command {
@@ -33,8 +38,15 @@ async fn forward(data: &Path, request: Request, startup: &Mutex<()>) -> Result<R
             error: None,
         });
     }
+    let browser_connect = matches!(request.command, protocol::Command::BrowserConnect { .. });
+    let passive = browser_connect
+        || matches!(
+            request.command,
+            protocol::Command::RefreshPoll | protocol::Command::ListPage { probe: true, .. }
+        );
     let (mut stream, discovery) = match connect(data).await {
         Ok(connection) => connection,
+        Err(error) if passive => return Err(error.context("Flux is not running")),
         Err(_) => {
             let _guard = startup.lock().await;
             match connect(data).await {
@@ -95,7 +107,41 @@ async fn forward(data: &Path, request: Request, startup: &Mutex<()>) -> Result<R
     let bytes = protocol::read_frame(&mut stream)
         .await?
         .context("Broker closed without a response")?;
-    Ok(serde_json::from_slice(&bytes)?)
+    let response: Response = serde_json::from_slice(&bytes)?;
+    if response.ok {
+        let mut active = presence.lock().await;
+        if browser_connect {
+            *active = Some(stream);
+        } else if active.is_none() {
+            // Older extensions still establish a real connection, with an unknown version.
+            if let Ok((mut socket, discovery)) = connect(data).await {
+                let hello = AuthenticatedRequest {
+                    token: discovery.token,
+                    request: Request {
+                        version: VERSION,
+                        request_id: uuid::Uuid::new_v4().to_string(),
+                        command: protocol::Command::BrowserConnect {
+                            extension_version: "unknown".into(),
+                        },
+                    },
+                };
+                if protocol::write_frame(&mut socket, &hello).await.is_ok() {
+                    if let Ok(Some(bytes)) = tokio::time::timeout(
+                        Duration::from_secs(3),
+                        protocol::read_frame(&mut socket),
+                    )
+                    .await
+                    .unwrap_or(Ok(None))
+                    {
+                        if serde_json::from_slice::<Response>(&bytes).is_ok_and(|reply| reply.ok) {
+                            *active = Some(socket);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Ok(response)
 }
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -108,6 +154,8 @@ async fn main() -> Result<()> {
     let (sender, mut replies) = mpsc::channel::<Response>(16);
     let startup = Arc::new(Mutex::new(()));
     let limit = Arc::new(Semaphore::new(8));
+    let presence = Arc::new(Mutex::new(None));
+    let live_presence = presence.clone();
     let reader = tokio::spawn(async move {
         let mut stdin = tokio::io::stdin();
         while let Some(frame) = protocol::read_frame(&mut stdin).await? {
@@ -117,11 +165,12 @@ async fn main() -> Result<()> {
             let data: PathBuf = data.clone();
             let startup = startup.clone();
             let sender = sender.clone();
+            let presence = live_presence.clone();
             tokio::spawn(async move {
                 let _permit = permit;
                 let result = tokio::time::timeout(
                     Duration::from_secs(120),
-                    forward(&data, request, &startup),
+                    forward(&data, request, &startup, &presence),
                 )
                 .await;
                 let response = match result {
@@ -144,5 +193,6 @@ async fn main() -> Result<()> {
         protocol::write_frame(&mut stdout, &response).await?;
     }
     reader.await??;
+    drop(presence);
     Ok(())
 }

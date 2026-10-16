@@ -4,6 +4,7 @@ import "./i18n";
 import "./styles.css";
 import App from "./App";
 import Surface from "./Surface";
+import "./design.css";
 import { Updater } from "./components/Updater";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 const savedTheme = localStorage.getItem("flux-theme");

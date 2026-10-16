@@ -11,8 +11,32 @@ import { renewSource } from "./healing.js";
 import { refreshCredentials } from "./session.js";
 import { preferredLocale } from "./locale.js";
 import { attachmentFilename, isAttachment } from "./download-capture.js";
+import { ReleaseChecker } from "./release-update.js";
 
 const bridge = new NativeBridge();
+const releaseChecker = new ReleaseChecker(api.storage.local);
+let announcing;
+function announceConnection() {
+  if (announcing) return announcing;
+  announcing = nativeAllowed(api)
+    .then((allowed) => {
+      if (!allowed) return null;
+      return bridge
+        .request("list_page", { offset: 0, limit: 1, probe: true })
+        .then((page) => {
+          // Older hosts understand list_page, but not the new presence handshake.
+          if (!page?.desktop_version) return { legacy: true };
+          return bridge.request("browser_connect", {
+            extension_version: api.runtime.getManifest().version,
+          });
+        });
+    })
+    .catch(() => null)
+    .finally(() => {
+      announcing = null;
+    });
+  return announcing;
+}
 async function resolverCredentials(tabId, url, frameId = 0) {
   const credentials = await credentialsFor(tabId, url, frameId);
   return credentials.length ? bridge.request("protect", { credentials }) : null;
@@ -51,6 +75,7 @@ async function healPending() {
   }
 }
 bridge.onConnected = () => {
+  void announceConnection();
   clearInterval(healingTimer);
   healingTimer = setInterval(() => {
     if (!bridge.connected) {
@@ -590,6 +615,8 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
         : items;
     }
     if (message.type === "dictionary") return dictionary();
+    if (message.type === "release-update" && !sender.tab)
+      return releaseChecker.check();
     if (message.type === "preferences") {
       const stored = await api.storage.local.get([
         "showMediaButtons",
@@ -864,8 +891,12 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
           "locale",
         ]),
       ]);
+      const hello =
+        native.status === "fulfilled" ? await announceConnection() : null;
       return {
         connected: native.status === "fulfilled",
+        desktop_version: hello?.desktop_version ?? null,
+        legacy_desktop: hello?.legacy === true,
         tasks: native.status === "fulfilled" ? native.value.tasks : [],
         ...(stored.status === "fulfilled" ? stored.value : {}),
       };
@@ -899,6 +930,8 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
       return next;
     }
     if (message.type === "retry") {
+      bridge.disconnect();
+      await announceConnection();
       void outbox
         .mutate((entries) => {
           for (const item of entries) item.nextAt = 0;
@@ -916,6 +949,7 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
 });
 api.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "flux-outbox") {
+    void announceConnection();
     void outbox.pump();
     void healPending();
   }
@@ -930,3 +964,4 @@ api.runtime.onStartup.addListener(async () => {
 void recoverDrafts()
   .then(() => outbox.pump())
   .catch(console.warn);
+void announceConnection();

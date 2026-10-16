@@ -14,6 +14,8 @@ pub struct BrowserIntegration {
 #[derive(Clone, Serialize)]
 pub struct IntegrationStatus {
     pub registered: bool,
+    pub connected: bool,
+    pub extension_versions: Vec<String>,
     pub extension_id: Option<String>,
     pub error: Option<String>,
     pub reminder_dismissed: bool,
@@ -50,6 +52,8 @@ impl BrowserIntegration {
         };
         Ok(IntegrationStatus {
             registered: extension_id.is_some(),
+            connected: false,
+            extension_versions: Vec::new(),
             extension_id,
             error,
             reminder_dismissed,

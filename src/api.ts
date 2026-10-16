@@ -296,6 +296,8 @@ export async function subscribe<T>(
 }
 export interface BrowserIntegrationStatus {
   registered: boolean;
+  connected: boolean;
+  extension_versions: string[];
   extension_id: string | null;
   error: string | null;
   reminder_dismissed: boolean;
@@ -375,8 +377,9 @@ export const api = {
     invoke<{ imported: number; error: string | null }>("torrent_watch_report"),
   runtimePlatform: () => invoke<string>("runtime_platform"),
   openReleasePage: () => invoke<void>("open_release_page"),
+  latestReleaseVersion: () => invoke<string>("latest_release_version"),
   expand: (input: string) => invoke<string[]>("expand_batch", { input }),
-  registerBrowser: () => invoke<string>("register_browser"),
+  registerBrowser: () => invoke<BrowserIntegrationStatus>("register_browser"),
   browserIntegration: () =>
     invoke<BrowserIntegrationStatus>("browser_integration"),
   dismissBrowserReminder: () => invoke<void>("dismiss_browser_reminder"),

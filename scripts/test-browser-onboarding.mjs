@@ -29,6 +29,7 @@ const env = {
 const restoreRegistration = preserveNativeRegistration();
 let app;
 let driver;
+let browserHost;
 const wait = async (operation) => {
   const deadline = Date.now() + 60000;
   let last;
@@ -81,6 +82,80 @@ const invoke = (main, command) =>
   main.evaluate(
     `window.__TAURI_INTERNALS__.invoke(${JSON.stringify(command)})`,
   );
+async function screenshot(view, filename) {
+  if (!process.env.FLUX_UI_SCREENSHOTS) return;
+  await mkdir(process.env.FLUX_UI_SCREENSHOTS, { recursive: true });
+  const result = await view.call("Page.captureScreenshot", { format: "png" });
+  await writeFile(
+    join(process.env.FLUX_UI_SCREENSHOTS, filename),
+    Buffer.from(result.data, "base64"),
+  );
+}
+async function inspectSettingsLayout(settings, main) {
+  assert.equal(
+    await invoke(settings, "plugin:app|version"),
+    JSON.parse(await readFile("package.json", "utf8")).version,
+  );
+  // Exercise the real settings controls with representative long and RTL labels.
+  for (const locale of ["tr-TR", "de-DE", "ar-SA", "en-US"]) {
+    await settings.evaluate(
+      `document.querySelector('.theme-option.dark').focus(); [...document.querySelectorAll('.languages button')].find(button => button.dataset.locale === '${locale}').click(); true`,
+    );
+    await wait(() =>
+      settings.evaluate(`document.documentElement.lang === '${locale}'`),
+    );
+    for (const section of [
+      "downloads",
+      "daily_usage",
+      "host_accounts",
+      "seeding",
+      "watch_title",
+      "language",
+    ]) {
+      await settings.evaluate(
+        `[...document.querySelectorAll('[role=tab]')].find(tab=>tab.id.endsWith('trigger-${section}')).focus(); true`,
+      );
+      await wait(() =>
+        settings.evaluate(
+          `!!document.querySelector('[id$="content-${section}"][data-state=active]')`,
+        ),
+      );
+      const layout = await settings.evaluate(
+        `(() => { const panel=document.querySelector('.settings-content'); const footer=document.querySelector('.settings-footer').getBoundingClientRect(); return {overflow:panel.scrollWidth-panel.clientWidth, bottom:footer.bottom, width:innerWidth, height:innerHeight}; })()`,
+      );
+      assert.ok(
+        layout.overflow <= 2,
+        `Settings overflow in ${locale}/${section}: ${JSON.stringify(layout)}`,
+      );
+      assert.ok(
+        layout.bottom <= layout.height + 1,
+        "Settings save bar is outside the window",
+      );
+    }
+  }
+  await settings.evaluate("document.activeElement.blur(); true");
+  await screenshot(settings, "settings-dark-2.4.2.png");
+  for (const theme of ["light", "dark"]) {
+    await settings.evaluate(
+      `document.querySelector('.theme-option.${theme}').click(); true`,
+    );
+    await settings.evaluate(
+      "document.querySelector('.settings-footer .primary').click(); true",
+    );
+    await wait(() =>
+      settings.evaluate(
+        `document.documentElement.dataset.theme === '${theme}'`,
+      ),
+    );
+    await wait(() =>
+      main.evaluate(`document.documentElement.dataset.theme === '${theme}'`),
+    );
+    assert.equal((await invoke(main, "get_settings")).theme, theme);
+    if (theme === "light")
+      await screenshot(settings, "settings-light-2.4.2.png");
+  }
+  await screenshot(main, "queue-dark-2.4.2.png");
+}
 function mainWindowVisible() {
   const powershell = join(
     process.env.SystemRoot || "C:/Windows",
@@ -127,6 +202,8 @@ try {
   assert.equal(mainWindowVisible(), false);
   let status = await invoke(main, "browser_integration");
   assert.equal(status.registered, true);
+  assert.equal(status.connected, false);
+  assert.deepEqual(status.extension_versions, []);
   assert.equal(status.reminder_dismissed, false);
   const foreground = spawn(join(binary, "flux-desktop.exe"), [], {
     env,
@@ -137,7 +214,7 @@ try {
   await wait(() => mainWindowVisible());
   await wait(() =>
     main.evaluate(
-      "!!document.querySelector('.integration-notice .integration-state.ready')",
+      "!!document.querySelector('.integration-notice .integration-state.pending')",
     ),
   );
   assert.equal(
@@ -202,12 +279,13 @@ try {
       "!!document.querySelector('[data-state=active][role=tab]')",
     ),
   );
+  await inspectSettingsLayout(settings, main);
   await settings.evaluate(
     "[...document.querySelectorAll('[role=tab]')].find(tab=>tab.id.endsWith('trigger-browserIntegration')).focus(); true",
   );
   await wait(() =>
     settings.evaluate(
-      "!!document.querySelector('.bridge-panel .integration-state.ready')",
+      "!!document.querySelector('.bridge-panel .integration-state.pending')",
     ),
   );
   assert.equal(
@@ -215,6 +293,60 @@ try {
       "!!document.querySelector('.bridge-panel button:not(:disabled)')",
     ),
     true,
+  );
+  // Registration must not count as presence. Only an authenticated native port does.
+  await settings.evaluate(
+    "document.querySelector('.bridge-panel button.primary').click(); true",
+  );
+  await wait(() =>
+    settings.evaluate(
+      "!document.querySelector('.bridge-panel button.primary').disabled",
+    ),
+  );
+  assert.equal((await invoke(main, "browser_integration")).connected, false);
+  const extensionVersion = JSON.parse(
+    await readFile("extension/manifest.json", "utf8"),
+  ).version;
+  const origin = `chrome-extension://${(await readFile("extension/extension-id.txt", "utf8")).trim()}/`;
+  browserHost = spawn(join(binary, "flux-native-host.exe"), [origin], {
+    env,
+    windowsHide: true,
+    stdio: ["pipe", "pipe", "pipe"],
+  });
+  const frame = Buffer.from(
+    JSON.stringify({
+      version: 1,
+      request_id: crypto.randomUUID(),
+      command: "browser_connect",
+      payload: { extension_version: extensionVersion },
+    }),
+  );
+  const prefix = Buffer.alloc(4);
+  prefix.writeUInt32LE(frame.length);
+  browserHost.stdin.write(Buffer.concat([prefix, frame]));
+  browserHost.stdout.resume();
+  browserHost.stderr.resume();
+  await wait(async () => (await invoke(main, "browser_integration")).connected);
+  assert.deepEqual(
+    (await invoke(main, "browser_integration")).extension_versions,
+    [extensionVersion],
+  );
+  await wait(() =>
+    settings.evaluate(
+      "!!document.querySelector('.bridge-panel .integration-state.ready')",
+    ),
+  );
+  const disconnected = once(browserHost, "exit");
+  browserHost.stdin.end();
+  await disconnected;
+  browserHost = null;
+  await wait(
+    async () => !(await invoke(main, "browser_integration")).connected,
+  );
+  await wait(() =>
+    settings.evaluate(
+      "!!document.querySelector('.bridge-panel .integration-state.pending')",
+    ),
   );
   await stop();
   const report = {
@@ -228,6 +360,11 @@ try {
     missing_registry_and_outdated_host_repaired: true,
     browser_bindings_verified: 5,
     settings_status_verified: true,
+    registration_is_not_extension_presence: true,
+    native_port_connection_and_disconnect_verified: true,
+    settings_navigation_and_rtl_layout_verified: true,
+    light_dark_theme_persistence_verified: true,
+    application_version_read_verified: true,
     registry_restoration_verified: true,
     time: new Date().toISOString(),
   };
@@ -238,6 +375,7 @@ try {
   );
   console.log(JSON.stringify(report));
 } finally {
+  browserHost?.kill();
   await stop();
   restoreRegistration();
 }

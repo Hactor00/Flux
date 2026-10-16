@@ -139,6 +139,7 @@ fn main() {
             desktop::resolve_media,
             desktop::open_task,
             desktop::register_browser,
+            desktop::latest_release_version,
             desktop::browser_integration,
             desktop::dismiss_browser_reminder,
             desktop::suggest_directory,

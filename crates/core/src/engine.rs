@@ -58,6 +58,7 @@ mod connection_tests {
 #[derive(Clone)]
 pub struct Engine(Arc<Inner>);
 struct Inner {
+    browser_connections: crate::browser_connection::BrowserConnections,
     store: Store,
     client: Client,
     data: PathBuf,
@@ -138,6 +139,7 @@ impl Engine {
             .await??
             .with_host_resolver(hosts.clone());
         Ok(Self(Arc::new(Inner {
+            browser_connections: Default::default(),
             store,
             client,
             hosts,
@@ -163,6 +165,9 @@ impl Engine {
     }
     pub fn subscribe(&self) -> broadcast::Receiver<Progress> {
         self.0.events.subscribe()
+    }
+    pub fn browser_connections(&self) -> &crate::browser_connection::BrowserConnections {
+        &self.0.browser_connections
     }
     pub async fn host_accounts(&self) -> Result<Vec<crate::debrid::AccountStatus>> {
         self.0.store.host_accounts().await

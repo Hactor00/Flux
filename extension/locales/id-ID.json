@@ -129,5 +129,10 @@
   "noSubtitles": "Tanpa subtitel",
   "queueCollection": "Antrekan koleksi",
   "collectionHint": "Kirim hingga 500 item playlist atau kanal ke antrean unduhan Flux.",
-  "showMediaButtons": "Tampilkan tombol unduh video"
+  "showMediaButtons": "Tampilkan tombol unduh video",
+  "updateAvailable": "Versi Flux baru tersedia:",
+  "extensionUpdateHelp": "Ganti ekstensi lama dengan ZIP baru dari GitHub. Pemasangan ZIP tidak diperbarui otomatis.",
+  "desktopUpdateHelp": "Perbarui Flux lewat Pengaturan → Pembaruan atau GitHub.",
+  "desktopRequired": "Tidak dapat terhubung ke aplikasi desktop Flux. Jika sudah terpasang, buka Flux dan periksa Pengaturan → Integrasi browser. Jika belum, unduh aplikasi gratis di bawah.",
+  "releaseDownloads": "Unduh di GitHub"
 }

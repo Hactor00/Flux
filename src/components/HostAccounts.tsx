@@ -82,12 +82,14 @@ export function HostAccounts() {
             </label>
             <div className="dialog-actions">
               <button
+                className="secondary"
                 disabled={!!busy || !keys[provider]?.trim()}
                 onClick={() => void save(account, false, true)}
               >
                 {t("save")}
               </button>
               <button
+                className="secondary danger"
                 disabled={!!busy || !account.configured}
                 onClick={() => void save(account, true)}
               >

@@ -129,5 +129,10 @@
   "noSubtitles": "字幕なし",
   "queueCollection": "コレクションをキューへ",
   "collectionHint": "プレイリストやチャンネルの最大500件をFluxのダウンロードキューに送信します。",
-  "showMediaButtons": "動画のダウンロードボタンを表示"
+  "showMediaButtons": "動画のダウンロードボタンを表示",
+  "updateAvailable": "Fluxの新しいバージョン：",
+  "extensionUpdateHelp": "GitHubの新しいZIPに入れ替えて再接続してください。ZIPからインストールした拡張機能は自動更新されません。",
+  "desktopUpdateHelp": "設定 → 更新からFluxを更新するか、GitHubからダウンロードしてください。",
+  "desktopRequired": "Fluxデスクトップアプリに接続できません。インストール済みの場合はFluxを開き、設定 → ブラウザー連携で接続を確認してください。未インストールの場合は下から無料アプリをダウンロードしてください。",
+  "releaseDownloads": "GitHubからダウンロード"
 }

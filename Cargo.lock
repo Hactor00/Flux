@@ -1722,7 +1722,7 @@ dependencies = [
 
 [[package]]
 name = "flux-cli"
-version = "2.4.1"
+version = "2.4.2"
 dependencies = [
  "anyhow",
  "axum",
@@ -1736,7 +1736,7 @@ dependencies = [
 
 [[package]]
 name = "flux-core"
-version = "2.4.1"
+version = "2.4.2"
 dependencies = [
  "anyhow",
  "axum",
@@ -1782,7 +1782,7 @@ dependencies = [
 
 [[package]]
 name = "flux-desktop"
-version = "2.4.1"
+version = "2.4.2"
 dependencies = [
  "drag",
  "flux-core",
@@ -1808,7 +1808,7 @@ dependencies = [
 
 [[package]]
 name = "flux-native-host"
-version = "2.4.1"
+version = "2.4.2"
 dependencies = [
  "anyhow",
  "flux-core",

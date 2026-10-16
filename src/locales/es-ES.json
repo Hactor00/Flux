@@ -243,5 +243,12 @@
   "appearance": "Apariencia",
   "theme": "Tema",
   "theme_dark": "Oscuro",
-  "theme_light": "Claro"
+  "theme_light": "Claro",
+  "bridge_connected": "Extensión conectada",
+  "bridge_disconnected": "Ninguna extensión conectada",
+  "bridge_connection_help": "Abra el navegador y la ventana de Flux. Instale y active la extensión desde GitHub si es necesario.",
+  "bridge_not_found": "No se encontró una extensión Flux conectada. Puede faltar, estar desactivada, necesitar permisos o el navegador estar cerrado. Instálela desde GitHub y abra su ventana.",
+  "extension_update_help": "Una extensión conectada necesita actualizarse. Sustitúyala por el nuevo ZIP de GitHub y vuelva a conectarla. Última versión:",
+  "release_downloads": "Descargas en GitHub",
+  "extension_versions": "Versiones de extensiones conectadas"
 }

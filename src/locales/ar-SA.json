@@ -243,5 +243,12 @@
   "appearance": "المظهر",
   "theme": "السمة",
   "theme_dark": "داكن",
-  "theme_light": "فاتح"
+  "theme_light": "فاتح",
+  "bridge_connected": "إضافة المتصفح متصلة",
+  "bridge_disconnected": "لا توجد إضافة متصلة",
+  "bridge_connection_help": "افتح المتصفح ونافذة إضافة Flux. ثبّت الإضافة وفعّلها من GitHub عند الحاجة.",
+  "bridge_not_found": "لم يتم العثور على إضافة Flux متصلة. قد تكون غير مثبتة أو معطلة أو تنتظر إذنًا، أو المتصفح مغلقًا. ثبّتها من GitHub وافتح نافذتها.",
+  "extension_update_help": "تحتاج إضافة متصلة إلى تحديث. استبدلها بملف ZIP الجديد من GitHub وأعد الاتصال. أحدث إصدار:",
+  "release_downloads": "التنزيل من GitHub",
+  "extension_versions": "إصدارات الإضافات المتصلة"
 }

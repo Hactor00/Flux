@@ -2,6 +2,95 @@ use flux_core::protocol::{self, Command, Request, VERSION};
 use tokio::io::AsyncWriteExt;
 
 #[tokio::test]
+async fn browser_presence_requires_authentication_and_ends_with_its_socket() {
+    use flux_core::protocol::{AuthenticatedRequest, Discovery, Response};
+    use tokio_util::sync::CancellationToken;
+    let root = tempfile::tempdir().unwrap();
+    let data = root.path().join("data");
+    let engine = flux_core::Engine::open(&data, root.path().join("out"))
+        .await
+        .unwrap();
+    let cancel = CancellationToken::new();
+    let server_engine = engine.clone();
+    let server_data = data.clone();
+    let server_cancel = cancel.clone();
+    let server =
+        tokio::spawn(
+            async move { protocol::serve(server_engine, &server_data, server_cancel).await },
+        );
+    let discovery: Discovery = tokio::time::timeout(std::time::Duration::from_secs(10), async {
+        loop {
+            if let Ok(bytes) = tokio::fs::read(data.join("broker.json")).await {
+                if let Ok(value) = serde_json::from_slice(&bytes) {
+                    break value;
+                }
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(20)).await;
+        }
+    })
+    .await
+    .unwrap();
+    assert!(engine.browser_connections().versions().is_empty());
+    let hello = |token: String, version: &str| AuthenticatedRequest {
+        token,
+        request: Request {
+            version: VERSION,
+            request_id: uuid::Uuid::new_v4().to_string(),
+            command: Command::BrowserConnect {
+                extension_version: version.into(),
+            },
+        },
+    };
+    let mut socket =
+        tokio::net::TcpStream::connect((std::net::Ipv4Addr::LOCALHOST, discovery.port))
+            .await
+            .unwrap();
+    protocol::write_frame(&mut socket, &hello("invalid".into(), "2.4.2"))
+        .await
+        .unwrap();
+    assert!(protocol::read_frame(&mut socket).await.unwrap().is_none());
+    assert!(engine.browser_connections().versions().is_empty());
+    let mut socket =
+        tokio::net::TcpStream::connect((std::net::Ipv4Addr::LOCALHOST, discovery.port))
+            .await
+            .unwrap();
+    let mut invalid = hello(discovery.token.clone(), "2.4.2");
+    invalid.request.version = 99;
+    protocol::write_frame(&mut socket, &invalid).await.unwrap();
+    let response: Response =
+        serde_json::from_slice(&protocol::read_frame(&mut socket).await.unwrap().unwrap()).unwrap();
+    assert!(!response.ok);
+    assert!(engine.browser_connections().versions().is_empty());
+    drop(socket);
+    let mut socket =
+        tokio::net::TcpStream::connect((std::net::Ipv4Addr::LOCALHOST, discovery.port))
+            .await
+            .unwrap();
+    protocol::write_frame(&mut socket, &hello(discovery.token, "2.4.2"))
+        .await
+        .unwrap();
+    let response: Response =
+        serde_json::from_slice(&protocol::read_frame(&mut socket).await.unwrap().unwrap()).unwrap();
+    assert!(response.ok);
+    assert_eq!(
+        response.result.unwrap()["desktop_version"],
+        env!("CARGO_PKG_VERSION")
+    );
+    assert_eq!(engine.browser_connections().versions(), ["2.4.2"]);
+    drop(socket);
+    tokio::time::timeout(std::time::Duration::from_secs(3), async {
+        while !engine.browser_connections().versions().is_empty() {
+            tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+        }
+    })
+    .await
+    .unwrap();
+    cancel.cancel();
+    server.await.unwrap().unwrap();
+    engine.shutdown().await.unwrap();
+}
+
+#[tokio::test]
 async fn large_torrent_lists_use_compact_tasks_and_bounded_file_pages() {
     let root = tempfile::tempdir().unwrap();
     let engine = flux_core::Engine::open(root.path().join("data"), root.path().join("out"))
@@ -115,7 +204,11 @@ async fn history_pages_stay_below_native_frame_limit_without_losing_tasks() {
             Request {
                 version: VERSION,
                 request_id: uuid::Uuid::new_v4().to_string(),
-                command: Command::ListPage { offset, limit: 50 },
+                command: Command::ListPage {
+                    offset,
+                    limit: 50,
+                    probe: false,
+                },
             },
         )
         .await;

@@ -1,6 +1,6 @@
 {
   "passed": true,
-  "version": "2.3.0",
+  "version": "2.4.2",
   "automatic_background_registration": true,
   "background_does_not_dismiss_reminder": true,
   "first_foreground_guide_visible": true,
@@ -9,7 +9,11 @@
   "missing_registry_and_outdated_host_repaired": true,
   "browser_bindings_verified": 5,
   "settings_status_verified": true,
+  "registration_is_not_extension_presence": true,
+  "native_port_connection_and_disconnect_verified": true,
+  "settings_navigation_and_rtl_layout_verified": true,
+  "light_dark_theme_persistence_verified": true,
+  "application_version_read_verified": true,
   "registry_restoration_verified": true,
-  "time": "2026-10-15T13:29:29.874Z",
-  "local_paths_and_credentials_removed": true
+  "time": "2026-10-16T14:46:36.740Z"
 }

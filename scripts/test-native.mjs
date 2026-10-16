@@ -124,6 +124,19 @@ globalThis.chrome = {
 const bridge = new NativeBridge();
 let cli;
 try {
+  await assert.rejects(
+    bridge.request("browser_connect", { extension_version: "2.4.2" }),
+    /not running|broker unavailable/i,
+  );
+  await assert.rejects(
+    bridge.request("refresh_poll"),
+    /not running|broker unavailable/i,
+  );
+  await assert.rejects(
+    bridge.request("list_page", { offset: 0, limit: 1, probe: true }),
+    /not running|broker unavailable/i,
+  );
+  await assert.rejects(readFile(join(data, "broker.json")), { code: "ENOENT" });
   const protected_credentials = await bridge.request("protect", {
     credentials: [
       {
@@ -210,6 +223,14 @@ try {
     assert.equal(first.id, replay.id);
     assert.ok(!JSON.stringify(first).includes("native-fixture"));
   }
+  const hello = await bridge.request("browser_connect", {
+    extension_version: JSON.parse(await readFile("package.json", "utf8"))
+      .version,
+  });
+  assert.equal(
+    hello.desktop_version,
+    JSON.parse(await readFile("package.json", "utf8")).version,
+  );
   const deadline = Date.now() + 30000;
   let tasks;
   while (true) {
@@ -324,11 +345,20 @@ try {
     time: new Date().toISOString(),
   };
   await mkdir("docs/validation", { recursive: true });
+  const publicResult = {
+    ...result,
+    version: JSON.parse(await readFile("package.json", "utf8")).version,
+    local_paths_and_credentials_removed: true,
+    passive_checks_do_not_start_desktop: true,
+  };
+  delete publicResult.binary_directory;
+  delete publicResult.output;
+  delete publicResult.root;
   await writeFile(
     desktopMode
       ? "docs/validation/desktop-integration.json"
       : "docs/validation/native-integration.json",
-    JSON.stringify(result, null, 2) + "\n",
+    JSON.stringify(publicResult, null, 2) + "\n",
   );
   console.log(JSON.stringify(result));
   assert.equal(hostErrors, "");

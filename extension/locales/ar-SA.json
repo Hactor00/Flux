@@ -129,5 +129,10 @@
   "noSubtitles": "بدون ترجمة",
   "queueCollection": "إضافة المجموعة إلى الطابور",
   "collectionHint": "أرسل حتى 500 عنصر من قائمة تشغيل أو قناة إلى طابور تنزيل Flux.",
-  "showMediaButtons": "إظهار أزرار تنزيل الفيديو"
+  "showMediaButtons": "إظهار أزرار تنزيل الفيديو",
+  "updateAvailable": "يتوفر إصدار Flux جديد:",
+  "extensionUpdateHelp": "استبدل الإضافة بملف ZIP الجديد من GitHub وأعد الاتصال. التثبيت من ZIP لا يتحدث تلقائيًا.",
+  "desktopUpdateHelp": "حدّث Flux من الإعدادات ← التحديثات أو من GitHub.",
+  "desktopRequired": "تعذر الاتصال بتطبيق Flux. إذا كان مثبتًا، افتحه وتحقق من الإعدادات ← تكامل المتصفح. وإلا، نزّل تطبيق سطح المكتب المجاني أدناه.",
+  "releaseDownloads": "التنزيل من GitHub"
 }

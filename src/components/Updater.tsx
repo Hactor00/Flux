@@ -6,6 +6,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { api, desktop } from "../api";
 import { compareVersions } from "../update-version.js";
+import { ArrowDownToLine, RefreshCw } from "lucide-react";
 
 export function Updater({ startup = false }: { startup?: boolean }) {
   const { t } = useTranslation();
@@ -19,6 +20,7 @@ export function Updater({ startup = false }: { startup?: boolean }) {
   const [downloaded, setDownloaded] = useState(0);
   const [total, setTotal] = useState<number | null>(null);
   const [linux, setLinux] = useState(false);
+  const [releaseVersion, setReleaseVersion] = useState("");
   async function inspect(silent = false) {
     if (!desktop || request.current) return;
     request.current = true;
@@ -26,8 +28,14 @@ export function Updater({ startup = false }: { startup?: boolean }) {
     if (!silent) setNotice(t("checking_updates"));
     try {
       if ((await api.runtimePlatform()) === "linux") {
-        setNotice("");
-        if (!silent) await api.openReleasePage();
+        const latest = await api.latestReleaseVersion();
+        const newer = compareVersions(latest, await getVersion()) === 1;
+        if (alive.current) {
+          setLinux(true);
+          setReleaseVersion(newer ? latest : "");
+          setVisible(newer);
+          if (!silent) setNotice(newer ? "" : t("up_to_date"));
+        }
         return;
       }
       const next = await check({ timeout: 15000 });
@@ -41,7 +49,7 @@ export function Updater({ startup = false }: { startup?: boolean }) {
       const versionOrder = next
         ? compareVersions(next.version, installedVersion)
         : null;
-      if (next && versionOrder !== null && versionOrder <= 0) {
+      if (next && (versionOrder === null || versionOrder <= 0)) {
         await next.close();
         resource.current = null;
         setUpdate(null);
@@ -84,6 +92,10 @@ export function Updater({ startup = false }: { startup?: boolean }) {
     };
   }, [startup]);
   async function install() {
+    if (linux && releaseVersion) {
+      await api.openReleasePage().catch((error) => setNotice(String(error)));
+      return;
+    }
     if (!update || busy) return;
     setBusy(true);
     setNotice(t("downloading_update"));
@@ -120,7 +132,12 @@ export function Updater({ startup = false }: { startup?: boolean }) {
           <p className="muted">
             {t(linux ? "rpm_updates_help" : "updates_help")}
           </p>
-          <button disabled={!desktop || busy} onClick={() => void inspect()}>
+          <button
+            className="secondary"
+            disabled={!desktop || busy}
+            onClick={() => void inspect()}
+          >
+            <RefreshCw size={16} className={busy ? "spinning" : undefined} />
             {t("check_updates")}
           </button>
           {notice && !visible && <p role="status">{notice}</p>}
@@ -133,7 +150,7 @@ export function Updater({ startup = false }: { startup?: boolean }) {
         }}
       >
         <Dialog.Portal>
-          <Dialog.Overlay className="modal-overlay" />
+          <Dialog.Overlay className="modal-overlay update-overlay" />
           <Dialog.Content
             className="modal updater-modal"
             onEscapeKeyDown={(event) => {
@@ -143,10 +160,16 @@ export function Updater({ startup = false }: { startup?: boolean }) {
               if (busy) event.preventDefault();
             }}
           >
+            <span className="update-symbol" aria-hidden="true">
+              <ArrowDownToLine size={25} />
+            </span>
             <Dialog.Title>
-              {t("update_available")} · {update?.version}
+              {t("update_available")} ·{" "}
+              {linux ? releaseVersion : update?.version}
             </Dialog.Title>
-            <Dialog.Description>{t("update_description")}</Dialog.Description>
+            <Dialog.Description>
+              {t(linux ? "rpm_updates_help" : "update_description")}
+            </Dialog.Description>
             <pre className="update-notes">
               {update?.body?.slice(0, 16384) || t("update_description")}
             </pre>
@@ -157,18 +180,21 @@ export function Updater({ startup = false }: { startup?: boolean }) {
                 value={progress ?? undefined}
               />
             )}
-            <p role="status">
+            <p role="status" className="update-status">
               {notice}
               {busy && progress !== null ? ` ${progress.toFixed(0)}%` : ""}
             </p>
             <div className="dialog-actions">
-              <Dialog.Close disabled={busy}>{t("later")}</Dialog.Close>
+              <Dialog.Close className="secondary" disabled={busy}>
+                {t("later")}
+              </Dialog.Close>
               <button
                 className="primary"
                 disabled={busy}
                 onClick={() => void install()}
               >
-                {t("update_now")}
+                <ArrowDownToLine size={16} />
+                {t(linux ? "release_downloads" : "update_now")}
               </button>
             </div>
           </Dialog.Content>

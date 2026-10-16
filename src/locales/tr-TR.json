@@ -243,5 +243,12 @@
   "filename_prefix": "Dosya adı öneki (isteğe bağlı)",
   "filename_prefix_hint": "Alt klasörler için / kullanın. Son 10 önek saklanır.",
   "filename_prefix_preview": "Kayıt yolu: {{path}}",
-  "filename_prefix_invalid": "Geçersiz önek. Geçerli bir dosya adı ve göreli alt klasörler kullanın; .. ve mutlak yollar kullanılamaz."
+  "filename_prefix_invalid": "Geçersiz önek. Geçerli bir dosya adı ve göreli alt klasörler kullanın; .. ve mutlak yollar kullanılamaz.",
+  "bridge_connected": "Tarayıcı eklentisi bağlı",
+  "bridge_disconnected": "Bağlı tarayıcı eklentisi yok",
+  "bridge_connection_help": "Bağlanmak için tarayıcıyı ve Flux eklentisinin açılır penceresini açın. Gerekiyorsa GitHub’dan eklentiyi indirip etkinleştirin.",
+  "bridge_not_found": "Bağlı bir Flux eklentisi bulunamadı. Eklenti kurulu olmayabilir, devre dışı olabilir, izin bekliyor olabilir veya tarayıcı kapalı olabilir. Eklentiyi GitHub’dan indirip etkinleştirin ve açılır penceresini açın.",
+  "extension_update_help": "Bağlı eklentinin güncellenmesi gerekiyor. GitHub’dan yeni ZIP’i indirin, eski eklentinin yerine kurup yeniden bağlanın. Güncel sürüm:",
+  "release_downloads": "GitHub’dan indir",
+  "extension_versions": "Bağlı eklenti sürümleri"
 }

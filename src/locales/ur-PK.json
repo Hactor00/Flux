@@ -243,5 +243,12 @@
   "appearance": "ظاہری شکل",
   "theme": "تھیم",
   "theme_dark": "گہرا",
-  "theme_light": "ہلکا"
+  "theme_light": "ہلکا",
+  "bridge_connected": "براؤزر ایکسٹینشن منسلک ہے",
+  "bridge_disconnected": "کوئی ایکسٹینشن منسلک نہیں",
+  "bridge_connection_help": "براؤزر اور Flux ایکسٹینشن کا پاپ اپ کھولیں۔ ضرورت ہو تو GitHub سے انسٹال کرکے فعال کریں۔",
+  "bridge_not_found": "منسلک Flux ایکسٹینشن نہیں ملی۔ یہ انسٹال نہیں، غیر فعال، اجازت کی منتظر یا براؤزر بند ہو سکتا ہے۔ GitHub سے انسٹال کریں اور پاپ اپ کھولیں۔",
+  "extension_update_help": "منسلک ایکسٹینشن کو اپ ڈیٹ درکار ہے۔ GitHub کی نئی ZIP سے پرانی تبدیل کرکے دوبارہ جڑیں۔ تازہ ورژن:",
+  "release_downloads": "GitHub سے ڈاؤن لوڈ",
+  "extension_versions": "منسلک ایکسٹینشن کے ورژن"
 }

@@ -243,5 +243,12 @@
   "appearance": "Giao diện",
   "theme": "Chủ đề",
   "theme_dark": "Tối",
-  "theme_light": "Sáng"
+  "theme_light": "Sáng",
+  "bridge_connected": "Tiện ích trình duyệt đã kết nối",
+  "bridge_disconnected": "Không có tiện ích kết nối",
+  "bridge_connection_help": "Mở trình duyệt và cửa sổ tiện ích Flux. Nếu cần, cài và bật tiện ích từ GitHub.",
+  "bridge_not_found": "Không tìm thấy tiện ích Flux đang kết nối. Có thể chưa cài, bị tắt, đang chờ quyền hoặc trình duyệt đã đóng. Cài từ GitHub rồi mở cửa sổ tiện ích.",
+  "extension_update_help": "Tiện ích đang kết nối cần cập nhật. Thay bằng ZIP mới từ GitHub và kết nối lại. Phiên bản mới nhất:",
+  "release_downloads": "Tải trên GitHub",
+  "extension_versions": "Phiên bản tiện ích đã kết nối"
 }

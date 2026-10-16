@@ -243,5 +243,12 @@
   "appearance": "Tampilan",
   "theme": "Tema",
   "theme_dark": "Gelap",
-  "theme_light": "Terang"
+  "theme_light": "Terang",
+  "bridge_connected": "Ekstensi browser terhubung",
+  "bridge_disconnected": "Tidak ada ekstensi terhubung",
+  "bridge_connection_help": "Buka browser dan popup Flux. Jika perlu, pasang dan aktifkan ekstensi dari GitHub.",
+  "bridge_not_found": "Ekstensi Flux yang terhubung tidak ditemukan. Mungkin belum dipasang, dinonaktifkan, menunggu izin, atau browser ditutup. Pasang dari GitHub dan buka popup-nya.",
+  "extension_update_help": "Ekstensi terhubung perlu diperbarui. Ganti dengan ZIP baru dari GitHub dan hubungkan lagi. Versi terbaru:",
+  "release_downloads": "Unduh di GitHub",
+  "extension_versions": "Versi ekstensi terhubung"
 }

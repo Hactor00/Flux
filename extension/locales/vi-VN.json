@@ -129,5 +129,10 @@
   "noSubtitles": "Không có phụ đề",
   "queueCollection": "Đưa bộ sưu tập vào hàng đợi",
   "collectionHint": "Gửi tối đa 500 mục trong danh sách phát hoặc kênh vào hàng đợi tải xuống Flux.",
-  "showMediaButtons": "Hiện nút tải video"
+  "showMediaButtons": "Hiện nút tải video",
+  "updateAvailable": "Có phiên bản Flux mới:",
+  "extensionUpdateHelp": "Thay tiện ích cũ bằng ZIP mới từ GitHub. Tiện ích cài từ ZIP không tự cập nhật.",
+  "desktopUpdateHelp": "Cập nhật Flux qua Cài đặt → Cập nhật hoặc GitHub.",
+  "desktopRequired": "Không thể kết nối với ứng dụng Flux. Nếu đã cài, hãy mở Flux và kiểm tra Cài đặt → Tích hợp trình duyệt. Nếu chưa, tải ứng dụng miễn phí bên dưới.",
+  "releaseDownloads": "Tải trên GitHub"
 }

@@ -243,5 +243,12 @@
   "appearance": "外观",
   "theme": "主题",
   "theme_dark": "深色",
-  "theme_light": "浅色"
+  "theme_light": "浅色",
+  "bridge_connected": "浏览器扩展已连接",
+  "bridge_disconnected": "没有已连接的浏览器扩展",
+  "bridge_connection_help": "请打开浏览器及 Flux 扩展弹窗。需要时从 GitHub 安装并启用扩展。",
+  "bridge_not_found": "未找到已连接的 Flux 扩展。扩展可能尚未安装、已禁用、等待权限，或浏览器已关闭。请从 GitHub 安装并打开扩展弹窗。",
+  "extension_update_help": "已连接的扩展需要更新。请使用 GitHub 的新版 ZIP 替换旧扩展并重新连接。最新版本：",
+  "release_downloads": "前往 GitHub 下载",
+  "extension_versions": "已连接的扩展版本"
 }

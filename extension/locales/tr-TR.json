@@ -129,5 +129,10 @@
   "noSubtitles": "Altyazı yok",
   "queueCollection": "Koleksiyonu kuyruğa ekle",
   "collectionHint": "Oynatma listesindeki veya kanaldaki en fazla 500 öğeyi Flux indirme kuyruğuna gönderin.",
-  "showMediaButtons": "Video indirme düğmelerini göster"
+  "showMediaButtons": "Video indirme düğmelerini göster",
+  "updateAvailable": "Yeni Flux sürümü var:",
+  "extensionUpdateHelp": "GitHub’dan yeni eklenti ZIP’ini indirip eski eklentinin yerine kurun ve yeniden bağlanın. ZIP ile kurulan eklentiler otomatik güncellenmez.",
+  "desktopUpdateHelp": "Flux uygulamasını Ayarlar → Güncellemeler bölümünden güncelleyin veya GitHub’dan yeni kurulumu indirin.",
+  "desktopRequired": "Flux masaüstü uygulamasına bağlanılamadı. Kuruluysa Flux’u açıp Ayarlar → Tarayıcı bütünleştirmesi bölümünden bağlantıyı kontrol edin. Kurulu değilse ücretsiz uygulamayı aşağıdan indirin.",
+  "releaseDownloads": "GitHub’dan indir"
 }

@@ -18,6 +18,9 @@ pub struct Request {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "command", content = "payload", rename_all = "snake_case")]
 pub enum Command {
+    BrowserConnect {
+        extension_version: String,
+    },
     Add(Box<DownloadRequest>),
     Propose(Box<DownloadRequest>),
     Resolve {
@@ -57,6 +60,8 @@ pub enum Command {
     ListPage {
         offset: usize,
         limit: usize,
+        #[serde(default)]
+        probe: bool,
     },
     Protect {
         credentials: Vec<crate::BrowserCredentials>,
@@ -105,6 +110,10 @@ pub async fn dispatch(engine: &Engine, request: Request) -> Response {
         ensure!(request.version == VERSION, "Unsupported protocol version");
         uuid::Uuid::parse_str(&request_id)?;
         let value = match request.command {
+            Command::BrowserConnect { extension_version } => {
+                ensure!(extension_version == "unknown" || crate::browser_connection::valid_version(&extension_version), "Invalid extension version");
+                serde_json::json!({"desktop_version": env!("CARGO_PKG_VERSION")})
+            }
             Command::ResolveManifest { url, text, referer, protected_credentials } => serde_json::to_value(engine.resolve_manifest(url, text, referer, protected_credentials).await?)?,
             Command::Resolve {
                 url,
@@ -176,7 +185,7 @@ pub async fn dispatch(engine: &Engine, request: Request) -> Response {
                     .inspect_media(url, referer, protected_credentials)
                     .await?,
             )?,
-            Command::ListPage { offset, limit } => {
+            Command::ListPage { offset, limit, .. } => {
                 ensure!(
                     (1..=50).contains(&limit),
                     "Page size must be between 1 and 50"
@@ -225,7 +234,7 @@ async fn task_page(engine: &Engine, offset: usize, limit: usize) -> Result<serde
     );
     let next_offset = offset.saturating_add(bounded.len());
     Ok(
-        serde_json::json!({"total":total,"tasks":bounded,"next_offset":next_offset,"has_more":next_offset<total}),
+        serde_json::json!({"total":total,"tasks":bounded,"next_offset":next_offset,"has_more":next_offset<total,"desktop_version":env!("CARGO_PKG_VERSION")}),
     )
 }
 pub async fn read_frame(reader: &mut (impl AsyncRead + Unpin)) -> Result<Option<Vec<u8>>> {
@@ -343,13 +352,30 @@ pub async fn serve(
                 let Ok(permit) = capacity.clone().try_acquire_owned() else { continue; };
                 let engine = engine.clone(); let token = token.clone();
                 peers.spawn(async move {
-                    let _permit = permit;
+                    let mut presence = None;
                     let result = tokio::time::timeout(std::time::Duration::from_secs(120), async {
                         let frame = read_frame(&mut stream).await?.ok_or_else(|| anyhow::anyhow!("Empty request"))?;
                         let input: AuthenticatedRequest = serde_json::from_slice(&frame)?;
                         ensure!(input.token.len() == token.len() && input.token.bytes().zip(token.bytes()).fold(0u8, |a, (b, c)| a | (b ^ c)) == 0, "Authentication failed");
-                        write_frame(&mut stream, &dispatch(&engine, input.request).await).await
+                        let extension_version = match &input.request.command {
+                            Command::BrowserConnect { extension_version } => Some(extension_version.clone()),
+                            _ => None,
+                        };
+                        let response = dispatch(&engine, input.request).await;
+                        if response.ok {
+                            if let Some(version) = extension_version {
+                                presence = Some(engine.browser_connections().connect(&version)?);
+                            }
+                        }
+                        write_frame(&mut stream, &response).await
                     }).await;
+                    drop(permit);
+                    if matches!(result, Ok(Ok(()))) && presence.is_some() {
+                        // The authenticated socket is owned by the Native Messaging process.
+                        // EOF (disable, uninstall or browser exit) immediately removes presence.
+                        let mut byte = [0u8; 1];
+                        let _ = stream.read(&mut byte).await;
+                    }
                     if let Ok(Err(error)) = result { eprintln!("Broker request rejected: {error}"); }
                 });
             }

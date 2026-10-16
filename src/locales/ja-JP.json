@@ -243,5 +243,12 @@
   "appearance": "外観",
   "theme": "テーマ",
   "theme_dark": "ダーク",
-  "theme_light": "ライト"
+  "theme_light": "ライト",
+  "bridge_connected": "ブラウザー拡張機能は接続済み",
+  "bridge_disconnected": "接続中の拡張機能がありません",
+  "bridge_connection_help": "ブラウザーとFlux拡張機能のポップアップを開いてください。必要に応じてGitHubから拡張機能をインストールして有効にしてください。",
+  "bridge_not_found": "接続中のFlux拡張機能が見つかりません。未インストール、無効、権限待ち、またはブラウザーが閉じている可能性があります。GitHubからインストールしてポップアップを開いてください。",
+  "extension_update_help": "接続中の拡張機能に更新があります。GitHubの新しいZIPに入れ替えて再接続してください。最新バージョン：",
+  "release_downloads": "GitHubからダウンロード",
+  "extension_versions": "接続中の拡張機能のバージョン"
 }

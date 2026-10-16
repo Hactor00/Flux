@@ -243,5 +243,12 @@
   "appearance": "Darstellung",
   "theme": "Design",
   "theme_dark": "Dunkel",
-  "theme_light": "Hell"
+  "theme_light": "Hell",
+  "bridge_connected": "Browser-Erweiterung verbunden",
+  "bridge_disconnected": "Keine Browser-Erweiterung verbunden",
+  "bridge_connection_help": "Öffnen Sie den Browser und das Flux-Popup. Installieren und aktivieren Sie die Erweiterung bei Bedarf über GitHub.",
+  "bridge_not_found": "Keine verbundene Flux-Erweiterung gefunden. Sie fehlt, ist deaktiviert, benötigt eine Berechtigung oder der Browser ist geschlossen. Installieren Sie sie von GitHub und öffnen Sie ihr Popup.",
+  "extension_update_help": "Eine verbundene Erweiterung benötigt ein Update. Laden Sie das neue ZIP von GitHub und ersetzen Sie die alte Erweiterung. Neueste Version:",
+  "release_downloads": "Downloads auf GitHub",
+  "extension_versions": "Verbundene Erweiterungsversionen"
 }

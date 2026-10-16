@@ -13,9 +13,14 @@ if ($prepared.Count -ne 1) { throw 'Candidate compilation was not successful.' }
 git fetch --no-tags --depth=1 origin $candidate.head_sha
 if ($LASTEXITCODE -ne 0) { throw 'Candidate source is unavailable.' }
 $paths = @('crates','src','src-tauri','extension','extension-firefox','native','vendor','.cargo','Cargo.toml','Cargo.lock','package.json','package-lock.json','scripts/build-torrent-runtime.ps1','scripts/prepare-torrent-runtime.py','scripts/build-extensions.mjs','scripts/prepare-release.ps1','scripts/build-release.ps1','scripts/build-media-runtime.sh','scripts/prepare-extractor.ps1')
-git diff --quiet $candidate.head_sha HEAD -- @paths
+$installerSources = @('src-tauri/installer-hooks.nsh','src-tauri/stop-browser-hosts.ps1')
+$installerExclusions = @($installerSources | ForEach-Object { ":(exclude)$_" })
+git diff --quiet $candidate.head_sha HEAD -- @paths @installerExclusions
 if ($LASTEXITCODE -ne 0) { throw 'Runtime or build sources changed; compile new packages instead.' }
-$coreChecks = @($jobs.jobs | ForEach-Object { $_.steps } | Where-Object { $_.name -eq 'Core and desktop checks' -and $_.conclusion -eq 'success' })
+git diff --quiet $candidate.head_sha HEAD -- @installerSources
+if ($LASTEXITCODE -notin @(0,1)) { throw 'Could not compare installer sources.' }
+$rebundleInstaller = $LASTEXITCODE -eq 1
+$coreChecks = @($jobs.jobs | ForEach-Object { $_.steps } | Where-Object { $_.name -in @('Core and desktop checks','Retain verified core test evidence') -and $_.conclusion -eq 'success' })
 if ($coreChecks.Count -eq 1) {
     $artifacts = Invoke-RestMethod -Uri "$base/actions/runs/$RunId/artifacts?per_page=100" -Headers $headers
     $coreArtifact = $artifacts.artifacts | Where-Object { $_.name -in @('core-validation-windows-x64','validation-diagnostics-windows-x64') -and -not $_.expired } | Select-Object -First 1
@@ -52,8 +57,21 @@ foreach ($entry in Get-ChildItem -LiteralPath $portable) {
 }
 foreach ($entry in Get-ChildItem -LiteralPath $portable -Filter '*.dll' -File) { Copy-Item -LiteralPath $entry.FullName -Destination "$workspace/target/debug" -Force }
 Copy-Item -LiteralPath "$workspace/release/Flux_${version}_x64-setup.exe" -Destination "$workspace/target/release/bundle/nsis" -Force
+if ($rebundleInstaller) {
+    # Installer scripts are not compiled into the application executables.
+    # Repackage them while retaining the source-verified application bytes.
+    $desktopHash = (Get-FileHash -LiteralPath "$workspace/target/release/flux-desktop.exe").Hash
+    npm run tauri -- bundle --config src-tauri/tauri.release.conf.json --bundles nsis --no-binary-patching --ci
+    if ($LASTEXITCODE -ne 0) { throw 'Installer rebundling failed.' }
+    if ((Get-FileHash -LiteralPath "$workspace/target/release/flux-desktop.exe").Hash -ne $desktopHash) { throw 'Rebundling modified the validated application binary.' }
+    & "$PSScriptRoot/export-release.ps1"
+}
 $provenancePath = Join-Path $workspace 'release/candidate-provenance.json'
 $provenance = if (Test-Path -LiteralPath $provenancePath) { Get-Content -LiteralPath $provenancePath -Raw | ConvertFrom-Json } else { @{build_run=$RunId; source_commit=$candidate.head_sha} }
+if ($rebundleInstaller) {
+    $provenance | Add-Member -NotePropertyName installer_source_commit -NotePropertyValue $env:GITHUB_SHA -Force
+    $provenance | Add-Member -NotePropertyName installer_build_run -NotePropertyValue $env:GITHUB_RUN_ID -Force
+}
 $provenance | ConvertTo-Json | Set-Content -LiteralPath $provenancePath -Encoding utf8
 $env:FLUX_BINARY_BUILD_RUN = [string]$provenance.build_run
 $env:FLUX_BINARY_SOURCE_COMMIT = [string]$provenance.source_commit

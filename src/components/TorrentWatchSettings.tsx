@@ -74,6 +74,7 @@ export function TorrentWatchSettings({
         </div>
       ))}
       <button
+        className="secondary"
         disabled={!desktop || value.folders.length >= 16}
         onClick={() => void choose()}
       >
@@ -104,7 +105,10 @@ export function TorrentWatchSettings({
           >
             <FolderOpen size={17} />
           </button>
-          <button onClick={() => onChange({ ...value, destination: null })}>
+          <button
+            className="secondary"
+            onClick={() => onChange({ ...value, destination: null })}
+          >
             {t("reset")}
           </button>
         </div>

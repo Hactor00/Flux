@@ -243,5 +243,12 @@
   "filename_prefix": "Filename prefix (optional)",
   "filename_prefix_hint": "Use / for subfolders. Your last 10 prefixes are saved.",
   "filename_prefix_preview": "Save as: {{path}}",
-  "filename_prefix_invalid": "Invalid prefix. Use relative subfolders and a valid filename, with no .. or absolute paths."
+  "filename_prefix_invalid": "Invalid prefix. Use relative subfolders and a valid filename, with no .. or absolute paths.",
+  "bridge_connected": "Browser extension connected",
+  "bridge_disconnected": "No browser extension connected",
+  "bridge_connection_help": "Open your browser and the Flux extension popup to connect. Install and enable the extension from GitHub if needed.",
+  "bridge_not_found": "No connected Flux extension was found. It may be missing, disabled, awaiting permission, or the browser may be closed. Download the extension from GitHub, enable it, then open its popup.",
+  "extension_update_help": "A connected extension needs an update. Download the new ZIP from GitHub, replace the old extension and reconnect. Latest version:",
+  "release_downloads": "Downloads on GitHub",
+  "extension_versions": "Connected extension versions"
 }

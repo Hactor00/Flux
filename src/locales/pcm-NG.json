@@ -243,5 +243,12 @@
   "appearance": "Appearance",
   "theme": "Theme",
   "theme_dark": "Dark",
-  "theme_light": "Light"
+  "theme_light": "Light",
+  "bridge_connected": "Browser extension don connect",
+  "bridge_disconnected": "No browser extension connect",
+  "bridge_connection_help": "Open your browser and Flux extension popup. If you never install am, get am from GitHub and enable am.",
+  "bridge_not_found": "Flux no see any connected extension. E fit never install, dey disabled, dey wait permission or browser don close. Install am from GitHub and open the popup.",
+  "extension_update_help": "Connected extension need update. Get new ZIP from GitHub, replace old extension and connect again. Latest version:",
+  "release_downloads": "Download for GitHub",
+  "extension_versions": "Connected extension versions"
 }

@@ -3,5 +3,9 @@
   "identifier": "updater",
   "description": "Signed application updates from local main and settings windows",
   "windows": ["main", "settings-*"],
-  "permissions": ["updater:default", "process:allow-restart"]
+  "permissions": [
+    "core:app:allow-version",
+    "updater:default",
+    "process:allow-restart"
+  ]
 }

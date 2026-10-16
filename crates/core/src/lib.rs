@@ -1,5 +1,6 @@
 mod batch;
 mod bencode_guard;
+pub mod browser_connection;
 pub mod debrid;
 mod disk;
 mod disk_writer;
@@ -18,6 +19,7 @@ mod media_progress;
 mod model;
 pub mod preferences;
 pub mod protocol;
+pub mod release;
 mod secrets;
 pub mod seeding;
 pub mod signing;

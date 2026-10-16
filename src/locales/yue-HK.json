@@ -243,5 +243,12 @@
   "appearance": "外觀",
   "theme": "主題",
   "theme_dark": "深色",
-  "theme_light": "淺色"
+  "theme_light": "淺色",
+  "bridge_connected": "瀏覽器擴充功能已連接",
+  "bridge_disconnected": "沒有已連接的瀏覽器擴充功能",
+  "bridge_connection_help": "請開啟瀏覽器及 Flux 擴充功能視窗。有需要時從 GitHub 安裝並啟用擴充功能。",
+  "bridge_not_found": "找不到已連接的 Flux 擴充功能。可能尚未安裝、已停用、等待權限，或瀏覽器已關閉。請從 GitHub 安裝並開啟擴充功能視窗。",
+  "extension_update_help": "已連接的擴充功能需要更新。請用 GitHub 的新版 ZIP 取代舊版並重新連接。最新版本：",
+  "release_downloads": "到 GitHub 下載",
+  "extension_versions": "已連接的擴充功能版本"
 }

@@ -129,5 +129,10 @@
   "noSubtitles": "Sem legendas",
   "queueCollection": "Adicionar coleção à fila",
   "collectionHint": "Envie até 500 itens de uma playlist ou canal para a fila de downloads do Flux.",
-  "showMediaButtons": "Mostrar botões de download de vídeo"
+  "showMediaButtons": "Mostrar botões de download de vídeo",
+  "updateAvailable": "Nova versão do Flux:",
+  "extensionUpdateHelp": "Substitua a extensão pelo novo ZIP do GitHub e reconecte. Instalações ZIP não atualizam automaticamente.",
+  "desktopUpdateHelp": "Atualize o Flux em Configurações → Atualizações ou pelo GitHub.",
+  "desktopRequired": "Não foi possível conectar ao Flux. Se estiver instalado, abra o Flux e verifique Configurações → Integração com o navegador. Caso contrário, baixe o aplicativo gratuito abaixo.",
+  "releaseDownloads": "Downloads no GitHub"
 }

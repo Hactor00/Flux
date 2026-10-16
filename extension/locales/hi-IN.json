@@ -129,5 +129,10 @@
   "noSubtitles": "उपशीर्षक नहीं",
   "queueCollection": "संग्रह कतार में जोड़ें",
   "collectionHint": "प्लेलिस्ट या चैनल के अधिकतम 500 आइटम Flux डाउनलोड कतार में भेजें।",
-  "showMediaButtons": "वीडियो डाउनलोड बटन दिखाएँ"
+  "showMediaButtons": "वीडियो डाउनलोड बटन दिखाएँ",
+  "updateAvailable": "Flux का नया संस्करण उपलब्ध है:",
+  "extensionUpdateHelp": "GitHub की नई ZIP से एक्सटेंशन बदलें। ZIP से इंस्टॉल एक्सटेंशन अपने आप अपडेट नहीं होते।",
+  "desktopUpdateHelp": "सेटिंग्स → अपडेट से Flux अपडेट करें या GitHub से डाउनलोड करें।",
+  "desktopRequired": "Flux डेस्कटॉप ऐप से कनेक्ट नहीं हो सका। इंस्टॉल है तो Flux खोलें और सेटिंग्स → ब्राउज़र एकीकरण में कनेक्शन जाँचें। अन्यथा नीचे से मुफ़्त ऐप डाउनलोड करें।",
+  "releaseDownloads": "GitHub से डाउनलोड करें"
 }

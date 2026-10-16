@@ -129,5 +129,10 @@
   "noSubtitles": "No subtitles",
   "queueCollection": "Queue collection",
   "collectionHint": "Send up to 500 playlist or channel items to the Flux download queue.",
-  "showMediaButtons": "Show video download buttons"
+  "showMediaButtons": "Show video download buttons",
+  "updateAvailable": "New Flux version available:",
+  "extensionUpdateHelp": "Download the new extension ZIP from GitHub, replace the old extension and reconnect. ZIP installations do not update automatically.",
+  "desktopUpdateHelp": "Update the Flux desktop app from Settings → Updates, or download the installer from GitHub.",
+  "desktopRequired": "Could not connect to the Flux desktop app. If installed, open Flux and check Settings → Browser integration. Otherwise, download the free desktop app below.",
+  "releaseDownloads": "Downloads on GitHub"
 }

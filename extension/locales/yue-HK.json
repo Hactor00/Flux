@@ -129,5 +129,10 @@
   "noSubtitles": "冇字幕",
   "queueCollection": "將合集加入佇列",
   "collectionHint": "將播放清單或者頻道最多500個項目傳送到Flux下載佇列。",
-  "showMediaButtons": "顯示影片下載掣"
+  "showMediaButtons": "顯示影片下載掣",
+  "updateAvailable": "Flux 有新版本：",
+  "extensionUpdateHelp": "請從 GitHub 下載新版 ZIP，取代舊擴充功能並重新連接。ZIP 安裝不會自動更新。",
+  "desktopUpdateHelp": "請經設定 → 更新來更新 Flux，或從 GitHub 下載。",
+  "desktopRequired": "連接唔到 Flux 桌面應用程式。如果已安裝，請開啟 Flux，喺設定 → 瀏覽器整合檢查連線。如果未安裝，請喺下方免費下載。",
+  "releaseDownloads": "到 GitHub 下載"
 }

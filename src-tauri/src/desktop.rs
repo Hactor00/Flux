@@ -24,6 +24,10 @@ pub fn open_release_page(app: tauri::AppHandle) -> Result<(), String> {
         .map_err(error)
 }
 #[tauri::command]
+pub async fn latest_release_version() -> Result<String, String> {
+    flux_core::release::latest_version().await.map_err(error)
+}
+#[tauri::command]
 pub async fn torrent_watch_report(
     state: State<'_, Backend>,
 ) -> Result<flux_core::WatchReport, String> {
@@ -337,26 +341,34 @@ pub async fn resolve_media(
 pub async fn register_browser(
     app: tauri::AppHandle,
     state: State<'_, crate::integration::BrowserIntegration>,
-) -> Result<String, String> {
-    let status = state.status(true).await?;
+    backend: State<'_, Backend>,
+) -> Result<crate::integration::IntegrationStatus, String> {
+    let mut status = state.status(true).await?;
+    status.extension_versions = backend.engine.browser_connections().versions();
+    status.connected = !status.extension_versions.is_empty();
     let _ = app.emit("browser-integration-changed", &status);
-    status
-        .extension_id
-        .ok_or_else(|| status.error.unwrap_or_else(|| "Registration failed".into()))
+    Ok(status)
 }
 #[tauri::command]
 pub async fn browser_integration(
     state: State<'_, crate::integration::BrowserIntegration>,
+    backend: State<'_, Backend>,
 ) -> Result<crate::integration::IntegrationStatus, String> {
-    state.status(false).await
+    let mut status = state.status(false).await?;
+    status.extension_versions = backend.engine.browser_connections().versions();
+    status.connected = !status.extension_versions.is_empty();
+    Ok(status)
 }
 #[tauri::command]
 pub async fn dismiss_browser_reminder(
     app: tauri::AppHandle,
     state: State<'_, crate::integration::BrowserIntegration>,
+    backend: State<'_, Backend>,
 ) -> Result<(), String> {
     state.dismiss().await?;
-    let status = state.status(false).await?;
+    let mut status = state.status(false).await?;
+    status.extension_versions = backend.engine.browser_connections().versions();
+    status.connected = !status.extension_versions.is_empty();
     let _ = app.emit("browser-integration-changed", status);
     Ok(())
 }

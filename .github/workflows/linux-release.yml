@@ -43,7 +43,8 @@ jobs:
         run: bash scripts/build-linux-release.sh
       - name: Install and exercise the RPM on Fedora
         run: |
-          docker run --rm --security-opt seccomp=unconfined --security-opt apparmor=unconfined -v "$PWD/release:/packages:ro" -v "$PWD/scripts/test-linux-package.py:/test-linux-package.py:ro" fedora:43 bash -euc '
+          version="$(node -p 'JSON.parse(require("fs").readFileSync("package.json")).version')"
+          docker run --rm --env FLUX_EXPECTED_VERSION="$version" --security-opt seccomp=unconfined --security-opt apparmor=unconfined -v "$PWD/release:/packages:ro" -v "$PWD/scripts/test-linux-package.py:/test-linux-package.py:ro" fedora:43 bash -euc '
             dnf install -y /packages/Flux-*-linux-x86_64.rpm
             if ldd /usr/bin/flux-desktop | grep -F "not found"; then exit 1; fi
             if ldd /usr/lib/flux/libflux_torrent.so | grep -F "not found"; then exit 1; fi

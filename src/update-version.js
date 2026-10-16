@@ -1,6 +1,7 @@
 export function compareVersions(left, right) {
   const parse = (value) => {
-    const match = value.match(/^\d+(?:\.\d+){0,3}/);
+    const match =
+      typeof value === "string" && value.match(/^\d+(?:\.\d+){0,3}$/);
     return match ? match[0].split(".").map(Number) : null;
   };
   const a = parse(left);

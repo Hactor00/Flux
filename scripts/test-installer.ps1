@@ -60,6 +60,26 @@ try {
     $repair = Start-Process -FilePath "$installDirectory/flux-desktop.exe" -ArgumentList '--register-browser' -WindowStyle Hidden -PassThru -Wait
     if ($repair.ExitCode -ne 0) { throw 'Registration after removal failed.' }
     foreach ($key in $keys) { $file = if ($key -like '*/Mozilla/*') {'io.flux.download.firefox.json'} else {'native-host.json'}; if ((Get-Item -LiteralPath $key).GetValue('') -ne "$localData\Flux\$file") { throw 'Repair did not restore a browser registration.' } }
+    # A browser can keep Native Messaging open while the desktop is closed.
+    $lockedHostInfo = [Diagnostics.ProcessStartInfo]::new((Join-Path $installDirectory 'flux-native-host.exe'))
+    $lockedHostInfo.UseShellExecute = $false
+    $lockedHostInfo.CreateNoWindow = $true
+    $lockedHostInfo.RedirectStandardInput = $true
+    $lockedHostInfo.RedirectStandardOutput = $true
+    $lockedHostInfo.RedirectStandardError = $true
+    $lockedHostInfo.ArgumentList.Add($manifest.allowed_origins[0])
+    $lockedHost = [Diagnostics.Process]::Start($lockedHostInfo)
+    try {
+        Start-Sleep -Milliseconds 300
+        if ($lockedHost.HasExited) { throw 'Native Messaging lock fixture exited early.' }
+        $upgrade = Start-Process -FilePath $installerPath -ArgumentList "/S /D=$installDirectory" -WindowStyle Hidden -PassThru -Wait
+        if ($upgrade.ExitCode -ne 0) { throw 'Reinstall with an active native host failed.' }
+        if (-not $lockedHost.WaitForExit(10000)) { throw 'Installer left its old native host running.' }
+        if ((Get-FileHash -LiteralPath "$installDirectory/flux-native-host.exe").Hash -ne (Get-FileHash -LiteralPath "$workspace/target/release/flux-native-host.exe").Hash) { throw 'Reinstalled native host differs from the tested build.' }
+    } finally {
+        if (-not $lockedHost.HasExited) { $lockedHost.Kill(); $lockedHost.WaitForExit() }
+        $lockedHost.Dispose()
+    }
     if (Test-Path -LiteralPath "$workspace/.tools/firefox/geckodriver.exe") {
         $legacyGecko = & "$PSScriptRoot/prepare-gecko-isolation.ps1" -Version '120.0'
         node "$PSScriptRoot/test-firefox.mjs" $installDirectory $legacyGecko "$workspace/.tools/firefox/geckodriver.exe"
@@ -138,6 +158,7 @@ $report.firefox_registration_verified = $true
 $report.idempotent_repair_remove_verified = $true
 $report.installed_extension_sources_verified = $true
 $report.installed_binary_hashes_verified = $true
+$report.active_native_host_upgrade_verified = $true
 $report.native_torrent_window_verified = $true
 $report.native_browser_bindings_verified = 5
 $report.automatic_startup_registration_verified = $true

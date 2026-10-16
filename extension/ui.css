@@ -241,3 +241,51 @@ code {
   flex: none;
   accent-color: #b6a2f4;
 }
+.update-notice {
+  padding: 12px;
+  border: 1px solid #b6a2f480;
+  border-radius: 10px;
+  background: #b6a2f414;
+}
+.update-notice p,
+#desktop-install-help {
+  line-height: 1.5;
+  font-size: 12px;
+}
+a {
+  color: #c6b4ff;
+}
+#desktop-install-help {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid #c4b0ff35;
+  border-radius: 10px;
+  background: #c4b0ff0c;
+  color: #c5c2d0;
+}
+.download-link {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 12px;
+  min-height: 38px;
+  padding: 9px 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #c1afff;
+  color: #211a36;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.download-link:hover {
+  background: #d1c3ff;
+}
+.download-link:focus-visible {
+  outline: 2px solid #ded2ff;
+  outline-offset: 3px;
+}
+.update-notice strong {
+  font-size: 13px;
+  letter-spacing: 0;
+}

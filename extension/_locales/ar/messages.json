@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "أرسل حتى 500 عنصر من قائمة تشغيل أو قناة إلى طابور تنزيل Flux."
+  },
+  "appearance": {
+    "message": "المظهر"
+  },
+  "theme": {
+    "message": "السمة"
+  },
+  "theme_dark": {
+    "message": "داكن"
+  },
+  "theme_light": {
+    "message": "فاتح"
+  },
+  "installed_version": {
+    "message": "الإصدار المثبّت"
+  },
+  "extension_version": {
+    "message": "إصدار الإضافة"
   }
 }

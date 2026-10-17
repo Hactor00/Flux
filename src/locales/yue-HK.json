@@ -250,5 +250,7 @@
   "bridge_not_found": "找不到已連接的 Flux 擴充功能。可能尚未安裝、已停用、等待權限，或瀏覽器已關閉。請從 GitHub 安裝並開啟擴充功能視窗。",
   "extension_update_help": "已連接的擴充功能需要更新。請用 GitHub 的新版 ZIP 取代舊版並重新連接。最新版本：",
   "release_downloads": "到 GitHub 下載",
-  "extension_versions": "已連接的擴充功能版本"
+  "extension_versions": "已連接的擴充功能版本",
+  "installed_version": "已安裝版本",
+  "extension_version": "擴充功能版本"
 }

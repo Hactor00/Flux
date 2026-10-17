@@ -22,15 +22,18 @@ export function Updater({ startup = false }: { startup?: boolean }) {
   const [total, setTotal] = useState<number | null>(null);
   const [linux, setLinux] = useState(false);
   const [releaseVersion, setReleaseVersion] = useState("");
+  const [installed, setInstalled] = useState("");
   async function inspect(silent = false) {
     if (!desktop || request.current) return;
     request.current = true;
     setBusy(true);
     if (!silent) setNotice(t("checking_updates"));
     try {
+      const installedVersion = await getVersion();
+      if (alive.current) setInstalled(installedVersion);
       if ((await api.runtimePlatform()) === "linux") {
         const latest = await api.latestReleaseVersion();
-        const newer = compareVersions(latest, await getVersion()) === 1;
+        const newer = compareVersions(latest, installedVersion) === 1;
         if (alive.current) {
           setLinux(true);
           setReleaseVersion(newer ? latest : "");
@@ -39,7 +42,6 @@ export function Updater({ startup = false }: { startup?: boolean }) {
         }
         return;
       }
-      const installedVersion = await getVersion();
       const next = await check({ timeout: 15000 });
       if (!alive.current) {
         await releaseUpdateResource(next);
@@ -81,6 +83,12 @@ export function Updater({ startup = false }: { startup?: boolean }) {
   }
   useEffect(() => {
     alive.current = true;
+    if (desktop)
+      void getVersion()
+        .then((version) => {
+          if (alive.current) setInstalled(version);
+        })
+        .catch(() => undefined);
     if (desktop)
       void api
         .runtimePlatform()
@@ -139,6 +147,12 @@ export function Updater({ startup = false }: { startup?: boolean }) {
     <>
       {!startup && (
         <div className="updater-panel">
+          {installed && (
+            <p>
+              <span className="muted">{t("installed_version")}</span> ·{" "}
+              <strong>{installed}</strong>
+            </p>
+          )}
           <p className="muted">
             {t(linux ? "rpm_updates_help" : "updates_help")}
           </p>
@@ -178,6 +192,12 @@ export function Updater({ startup = false }: { startup?: boolean }) {
               {linux ? releaseVersion : update?.version}
             </Dialog.Title>
             <Dialog.Description>
+              {installed && (
+                <>
+                  {t("installed_version")} · {installed}
+                  <br />
+                </>
+              )}
               {t(linux ? "rpm_updates_help" : "update_description")}
             </Dialog.Description>
             <pre className="update-notes">

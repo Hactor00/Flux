@@ -134,5 +134,11 @@
   "extensionUpdateHelp": "GitHub-এর নতুন ZIP দিয়ে এক্সটেনশন বদলান। ZIP থেকে ইনস্টল করা এক্সটেনশন স্বয়ংক্রিয়ভাবে আপডেট হয় না।",
   "desktopUpdateHelp": "সেটিংস → আপডেট থেকে Flux আপডেট করুন বা GitHub থেকে ডাউনলোড করুন।",
   "desktopRequired": "Flux ডেস্কটপ অ্যাপে সংযোগ করা যায়নি। ইনস্টল করা থাকলে Flux খুলে সেটিংস → ব্রাউজার ইন্টিগ্রেশনে সংযোগ পরীক্ষা করুন। না থাকলে নিচে বিনামূল্যের অ্যাপটি ডাউনলোড করুন।",
-  "releaseDownloads": "GitHub থেকে ডাউনলোড"
+  "releaseDownloads": "GitHub থেকে ডাউনলোড",
+  "installed_version": "ইনস্টল করা সংস্করণ",
+  "extension_version": "এক্সটেনশন সংস্করণ",
+  "appearance": "চেহারা",
+  "theme": "থিম",
+  "theme_dark": "গাঢ়",
+  "theme_light": "হালকা"
 }

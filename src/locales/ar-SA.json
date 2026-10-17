@@ -250,5 +250,7 @@
   "bridge_not_found": "لم يتم العثور على إضافة Flux متصلة. قد تكون غير مثبتة أو معطلة أو تنتظر إذنًا، أو المتصفح مغلقًا. ثبّتها من GitHub وافتح نافذتها.",
   "extension_update_help": "تحتاج إضافة متصلة إلى تحديث. استبدلها بملف ZIP الجديد من GitHub وأعد الاتصال. أحدث إصدار:",
   "release_downloads": "التنزيل من GitHub",
-  "extension_versions": "إصدارات الإضافات المتصلة"
+  "extension_versions": "إصدارات الإضافات المتصلة",
+  "installed_version": "الإصدار المثبّت",
+  "extension_version": "إصدار الإضافة"
 }

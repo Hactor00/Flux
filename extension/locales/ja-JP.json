@@ -134,5 +134,11 @@
   "extensionUpdateHelp": "GitHubの新しいZIPに入れ替えて再接続してください。ZIPからインストールした拡張機能は自動更新されません。",
   "desktopUpdateHelp": "設定 → 更新からFluxを更新するか、GitHubからダウンロードしてください。",
   "desktopRequired": "Fluxデスクトップアプリに接続できません。インストール済みの場合はFluxを開き、設定 → ブラウザー連携で接続を確認してください。未インストールの場合は下から無料アプリをダウンロードしてください。",
-  "releaseDownloads": "GitHubからダウンロード"
+  "releaseDownloads": "GitHubからダウンロード",
+  "installed_version": "インストール済みのバージョン",
+  "extension_version": "拡張機能のバージョン",
+  "appearance": "外観",
+  "theme": "テーマ",
+  "theme_dark": "ダーク",
+  "theme_light": "ライト"
 }

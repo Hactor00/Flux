@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "プレイリストやチャンネルの最大500件をFluxのダウンロードキューに送信します。"
+  },
+  "appearance": {
+    "message": "外観"
+  },
+  "theme": {
+    "message": "テーマ"
+  },
+  "theme_dark": {
+    "message": "ダーク"
+  },
+  "theme_light": {
+    "message": "ライト"
+  },
+  "installed_version": {
+    "message": "インストール済みのバージョン"
+  },
+  "extension_version": {
+    "message": "拡張機能のバージョン"
   }
 }

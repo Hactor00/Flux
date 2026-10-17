@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "將播放清單或者頻道最多500個項目傳送到Flux下載佇列。"
+  },
+  "appearance": {
+    "message": "外觀"
+  },
+  "theme": {
+    "message": "主題"
+  },
+  "theme_dark": {
+    "message": "深色"
+  },
+  "theme_light": {
+    "message": "淺色"
+  },
+  "installed_version": {
+    "message": "已安裝版本"
+  },
+  "extension_version": {
+    "message": "擴充功能版本"
   }
 }

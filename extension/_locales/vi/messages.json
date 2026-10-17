@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "Gửi tối đa 500 mục trong danh sách phát hoặc kênh vào hàng đợi tải xuống Flux."
+  },
+  "appearance": {
+    "message": "Giao diện"
+  },
+  "theme": {
+    "message": "Chủ đề"
+  },
+  "theme_dark": {
+    "message": "Tối"
+  },
+  "theme_light": {
+    "message": "Sáng"
+  },
+  "installed_version": {
+    "message": "Phiên bản đã cài đặt"
+  },
+  "extension_version": {
+    "message": "Phiên bản tiện ích"
   }
 }

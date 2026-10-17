@@ -250,5 +250,7 @@
   "bridge_not_found": "Nenhuma extensão Flux conectada foi encontrada. Ela pode estar ausente, desativada, aguardando permissão ou o navegador fechado. Instale-a pelo GitHub e abra seu popup.",
   "extension_update_help": "Uma extensão conectada precisa ser atualizada. Substitua-a pelo novo ZIP do GitHub e reconecte. Versão mais recente:",
   "release_downloads": "Downloads no GitHub",
-  "extension_versions": "Versões das extensões conectadas"
+  "extension_versions": "Versões das extensões conectadas",
+  "installed_version": "Versão instalada",
+  "extension_version": "Versão da extensão"
 }

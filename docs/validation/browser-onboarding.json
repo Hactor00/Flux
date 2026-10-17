@@ -15,5 +15,6 @@
   "light_dark_theme_persistence_verified": true,
   "application_version_read_verified": true,
   "registry_restoration_verified": true,
-  "time": "2026-10-16T14:46:36.740Z"
+  "time": "2026-10-16T14:46:36.740Z",
+  "local_paths_and_credentials_removed": true
 }

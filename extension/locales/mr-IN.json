@@ -134,5 +134,11 @@
   "extensionUpdateHelp": "GitHub च्या नवीन ZIP ने विस्तार बदला. ZIP मधून बसवलेले विस्तार आपोआप अद्यतनित होत नाहीत.",
   "desktopUpdateHelp": "सेटिंग्ज → अद्यतने मधून Flux अद्यतनित करा किंवा GitHub वरून डाउनलोड करा.",
   "desktopRequired": "Flux डेस्कटॉप ॲपशी कनेक्ट होता आले नाही. स्थापित असल्यास Flux उघडा आणि सेटिंग्ज → ब्राउझर एकत्रीकरणात कनेक्शन तपासा. अन्यथा खाली मोफत ॲप डाउनलोड करा.",
-  "releaseDownloads": "GitHub वरून डाउनलोड करा"
+  "releaseDownloads": "GitHub वरून डाउनलोड करा",
+  "installed_version": "स्थापित आवृत्ती",
+  "extension_version": "विस्ताराची आवृत्ती",
+  "appearance": "दिसणे",
+  "theme": "थीम",
+  "theme_dark": "गडद",
+  "theme_light": "हलके"
 }

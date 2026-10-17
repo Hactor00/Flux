@@ -100,5 +100,6 @@
     "No Flatpak/Snap browser integration certification",
     "Native file drag-out remains Windows-only",
     "Windows Authenticode certificate and Firefox permanent-install signing remain separate distribution requirements"
-  ]
+  ],
+  "local_paths_and_credentials_removed": true
 }

@@ -250,5 +250,7 @@
   "bridge_not_found": "Flux no see any connected extension. E fit never install, dey disabled, dey wait permission or browser don close. Install am from GitHub and open the popup.",
   "extension_update_help": "Connected extension need update. Get new ZIP from GitHub, replace old extension and connect again. Latest version:",
   "release_downloads": "Download for GitHub",
-  "extension_versions": "Connected extension versions"
+  "extension_versions": "Connected extension versions",
+  "installed_version": "Version wey you install",
+  "extension_version": "Extension version"
 }

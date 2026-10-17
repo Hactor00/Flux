@@ -250,5 +250,7 @@
   "bridge_not_found": "Không tìm thấy tiện ích Flux đang kết nối. Có thể chưa cài, bị tắt, đang chờ quyền hoặc trình duyệt đã đóng. Cài từ GitHub rồi mở cửa sổ tiện ích.",
   "extension_update_help": "Tiện ích đang kết nối cần cập nhật. Thay bằng ZIP mới từ GitHub và kết nối lại. Phiên bản mới nhất:",
   "release_downloads": "Tải trên GitHub",
-  "extension_versions": "Phiên bản tiện ích đã kết nối"
+  "extension_versions": "Phiên bản tiện ích đã kết nối",
+  "installed_version": "Phiên bản đã cài đặt",
+  "extension_version": "Phiên bản tiện ích"
 }

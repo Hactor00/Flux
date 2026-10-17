@@ -134,5 +134,11 @@
   "extensionUpdateHelp": "GitHub’dan yeni eklenti ZIP’ini indirip eski eklentinin yerine kurun ve yeniden bağlanın. ZIP ile kurulan eklentiler otomatik güncellenmez.",
   "desktopUpdateHelp": "Flux uygulamasını Ayarlar → Güncellemeler bölümünden güncelleyin veya GitHub’dan yeni kurulumu indirin.",
   "desktopRequired": "Flux masaüstü uygulamasına bağlanılamadı. Kuruluysa Flux’u açıp Ayarlar → Tarayıcı bütünleştirmesi bölümünden bağlantıyı kontrol edin. Kurulu değilse ücretsiz uygulamayı aşağıdan indirin.",
-  "releaseDownloads": "GitHub’dan indir"
+  "releaseDownloads": "GitHub’dan indir",
+  "installed_version": "Yüklü sürüm",
+  "extension_version": "Eklenti sürümü",
+  "appearance": "Görünüm",
+  "theme": "Tema",
+  "theme_dark": "Koyu",
+  "theme_light": "Açık"
 }

@@ -134,5 +134,11 @@
   "extensionUpdateHelp": "Get new extension ZIP from GitHub, replace old one and connect again. ZIP installation no dey update by itself.",
   "desktopUpdateHelp": "Update Flux for Settings → Updates or download installer from GitHub.",
   "desktopRequired": "Flux desktop app no connect. If you don install am, open Flux and check Settings → Browser integration. If you never install am, download the free app below.",
-  "releaseDownloads": "Download for GitHub"
+  "releaseDownloads": "Download for GitHub",
+  "installed_version": "Version wey you install",
+  "extension_version": "Extension version",
+  "appearance": "Appearance",
+  "theme": "Theme",
+  "theme_dark": "Dark",
+  "theme_light": "Light"
 }

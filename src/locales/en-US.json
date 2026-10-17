@@ -250,5 +250,7 @@
   "bridge_not_found": "No connected Flux extension was found. It may be missing, disabled, awaiting permission, or the browser may be closed. Download the extension from GitHub, enable it, then open its popup.",
   "extension_update_help": "A connected extension needs an update. Download the new ZIP from GitHub, replace the old extension and reconnect. Latest version:",
   "release_downloads": "Downloads on GitHub",
-  "extension_versions": "Connected extension versions"
+  "extension_versions": "Connected extension versions",
+  "installed_version": "Installed version",
+  "extension_version": "Extension version"
 }

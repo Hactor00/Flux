@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "प्लेलिस्ट या चैनल के अधिकतम 500 आइटम Flux डाउनलोड कतार में भेजें।"
+  },
+  "appearance": {
+    "message": "दिखावट"
+  },
+  "theme": {
+    "message": "थीम"
+  },
+  "theme_dark": {
+    "message": "गहरा"
+  },
+  "theme_light": {
+    "message": "हल्का"
+  },
+  "installed_version": {
+    "message": "इंस्टॉल किया गया संस्करण"
+  },
+  "extension_version": {
+    "message": "एक्सटेंशन संस्करण"
   }
 }

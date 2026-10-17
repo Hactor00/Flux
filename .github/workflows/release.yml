@@ -204,6 +204,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Torrent watch folder window tests failed.' }
           node ./scripts/test-chrome-hud.mjs
           if ($LASTEXITCODE -ne 0) { throw 'Chromium HUD layout failed.' }
+          node ./scripts/test-chrome-extension-ui.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Extension popup and settings interaction failed.' }
       - name: Record validation and verify package contents
         shell: pwsh
         run: |

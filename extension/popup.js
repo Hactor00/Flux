@@ -3,6 +3,7 @@ const api = getBrowserApi();
 import { localize, t } from "./i18n.js";
 import { isProviderUrl, isCollectionUrl, mediaKind } from "./shared.js";
 import { compareVersions } from "./release-update.js";
+import { initializeTheme } from "./ui-theme.js";
 
 let links = [];
 
@@ -10,6 +11,30 @@ let currentTab;
 let desktopVersion;
 let releaseVersion;
 let legacyDesktop = false;
+function empty(title, description) {
+  const node = document.createElement("div");
+  node.className = "empty";
+  const heading = document.createElement("strong"),
+    body = document.createElement("p");
+  heading.textContent = t(title);
+  body.textContent = t(description);
+  node.append(heading, body);
+  return node;
+}
+function selectTab(tab) {
+  for (const button of document.querySelectorAll('[role="tab"]')) {
+    const selected = button === tab;
+    button.setAttribute("aria-selected", String(selected));
+    button.tabIndex = selected ? 0 : -1;
+    document.getElementById(button.getAttribute("aria-controls")).hidden =
+      !selected;
+  }
+}
+function updateSelection() {
+  document.getElementById("download-links").disabled = !document.querySelector(
+    "#links input:checked",
+  );
+}
 function renderUpdate() {
   const extensionOld =
     compareVersions(releaseVersion, api.runtime.getManifest().version) === 1;
@@ -52,7 +77,16 @@ function item(name, detail, action) {
 
   if (action) {
     const button = document.createElement("button");
-    button.textContent = "↓";
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "1.7");
+    svg.setAttribute("aria-hidden", "true");
+    const path = document.createElementNS(svg.namespaceURI, "path");
+    path.setAttribute("d", "M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5");
+    svg.append(path);
+    button.append(svg);
     button.setAttribute("aria-label", t("start"));
     button.addEventListener("click", async () => {
       button.disabled = true;
@@ -75,6 +109,8 @@ async function refresh() {
   const state = await send({ type: "status" });
   desktopVersion = state.desktop_version;
   legacyDesktop = state.connected && state.legacy_desktop;
+  document.getElementById("desktop-version").textContent =
+    state.connected && desktopVersion ? `Flux ${desktopVersion}` : "";
   document.getElementById("desktop-install-help").hidden = state.connected;
   renderUpdate();
 
@@ -98,8 +134,10 @@ async function refresh() {
   for (const entry of state.outbox || [])
     tasks.append(item(entry.input.filename, t("waitingForDesktop")));
 
+  document.getElementById("tasks-count").textContent =
+    (state.tasks?.length || 0) + (state.outbox?.length || 0);
   if (!tasks.childElementCount)
-    tasks.append(item(t("empty_title"), t("empty_body")));
+    tasks.append(empty("empty_title", "empty_body"));
 
   if (state.lastTransfer?.error)
     document.getElementById("message").textContent = state.lastTransfer.error;
@@ -205,12 +243,47 @@ function renderLinks() {
       );
     checkbox.value = url;
     checkbox.setAttribute("aria-label", url);
+    checkbox.addEventListener("change", updateSelection);
     row.prepend(checkbox);
     parent.append(row);
   }
+  if (!parent.childElementCount)
+    parent.append(empty("no_results", "search_hint"));
+  document.getElementById("links-count").textContent = links.length;
+  updateSelection();
 }
 
 await localize();
+await initializeTheme();
+document.getElementById("extension-version").textContent =
+  api.runtime.getManifest().version;
+document.getElementById("extension-version").title = t("extension_version");
+for (const tab of document.querySelectorAll('[role="tab"]')) {
+  tab.addEventListener("click", () => selectTab(tab));
+  tab.addEventListener("keydown", (event) => {
+    const tabs = [...document.querySelectorAll('[role="tab"]')];
+    const direction = document.documentElement.dir === "rtl" ? -1 : 1;
+    const step =
+      event.key === "ArrowRight"
+        ? direction
+        : event.key === "ArrowLeft"
+          ? -direction
+          : 0;
+    const target =
+      event.key === "Home"
+        ? tabs[0]
+        : event.key === "End"
+          ? tabs.at(-1)
+          : step
+            ? tabs[(tabs.indexOf(tab) + step + tabs.length) % tabs.length]
+            : null;
+    if (target) {
+      event.preventDefault();
+      selectTab(target);
+      target.focus();
+    }
+  });
+}
 const hudToggle = document.getElementById("show-media-buttons");
 const preferences = await api.storage.local.get("showMediaButtons");
 hudToggle.checked = preferences.showMediaButtons ?? true;
@@ -227,9 +300,17 @@ document
   .getElementById("options")
   .addEventListener("click", () => api.runtime.openOptionsPage());
 
-document.getElementById("retry").addEventListener("click", async () => {
-  await send({ type: "retry" });
-  await refresh();
+document.getElementById("retry").addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  try {
+    await send({ type: "retry" });
+    await refresh();
+  } catch (error) {
+    document.getElementById("message").textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
 });
 
 document.getElementById("add").addEventListener("submit", async (event) => {
@@ -273,7 +354,7 @@ document
     } catch (error) {
       document.getElementById("message").textContent = error.message;
     } finally {
-      event.target.disabled = false;
+      updateSelection();
     }
   });
 document
@@ -320,6 +401,9 @@ try {
         { frameId: 0 },
       );
     } catch {}
+    const stored = await api.storage.session.get(`links:${tab.id}`);
+    links = stored[`links:${tab.id}`] || [];
+    renderLinks();
     const candidates = await send({ type: "candidates", tabId: tab.id });
     const parent = document.getElementById("media");
 
@@ -366,14 +450,17 @@ try {
         parent.append(item(t("noMedia"), t("mediaHint")));
     }
 
-    const stored = await api.storage.session.get(`links:${tab.id}`);
-    links = stored[`links:${tab.id}`] || [];
-
-    document.getElementById("links-section").hidden = !links.length;
     renderLinks();
   }
 
   await refresh();
 } catch (error) {
   document.getElementById("message").textContent = error.message;
+} finally {
+  const media = document.getElementById("media");
+  document.getElementById("media-count").textContent =
+    media.querySelectorAll(".item button").length;
+  if (!media.querySelector("button"))
+    media.replaceChildren(empty("noMedia", "mediaHint"));
+  if (!document.getElementById("links").childElementCount) renderLinks();
 }

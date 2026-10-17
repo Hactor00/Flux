@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "Kirim hingga 500 item playlist atau kanal ke antrean unduhan Flux."
+  },
+  "appearance": {
+    "message": "Tampilan"
+  },
+  "theme": {
+    "message": "Tema"
+  },
+  "theme_dark": {
+    "message": "Gelap"
+  },
+  "theme_light": {
+    "message": "Terang"
+  },
+  "installed_version": {
+    "message": "Versi terpasang"
+  },
+  "extension_version": {
+    "message": "Versi ekstensi"
   }
 }

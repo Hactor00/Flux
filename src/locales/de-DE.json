@@ -250,5 +250,7 @@
   "bridge_not_found": "Keine verbundene Flux-Erweiterung gefunden. Sie fehlt, ist deaktiviert, benötigt eine Berechtigung oder der Browser ist geschlossen. Installieren Sie sie von GitHub und öffnen Sie ihr Popup.",
   "extension_update_help": "Eine verbundene Erweiterung benötigt ein Update. Laden Sie das neue ZIP von GitHub und ersetzen Sie die alte Erweiterung. Neueste Version:",
   "release_downloads": "Downloads auf GitHub",
-  "extension_versions": "Verbundene Erweiterungsversionen"
+  "extension_versions": "Verbundene Erweiterungsversionen",
+  "installed_version": "Installierte Version",
+  "extension_version": "Erweiterungsversion"
 }

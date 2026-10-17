@@ -250,5 +250,7 @@
   "bridge_not_found": "Ekstensi Flux yang terhubung tidak ditemukan. Mungkin belum dipasang, dinonaktifkan, menunggu izin, atau browser ditutup. Pasang dari GitHub dan buka popup-nya.",
   "extension_update_help": "Ekstensi terhubung perlu diperbarui. Ganti dengan ZIP baru dari GitHub dan hubungkan lagi. Versi terbaru:",
   "release_downloads": "Unduh di GitHub",
-  "extension_versions": "Versi ekstensi terhubung"
+  "extension_versions": "Versi ekstensi terhubung",
+  "installed_version": "Versi terpasang",
+  "extension_version": "Versi ekstensi"
 }

@@ -134,5 +134,11 @@
   "extensionUpdateHelp": "GitHub کی نئی ZIP سے ایکسٹینشن تبدیل کریں۔ ZIP سے انسٹال ایکسٹینشن خود اپ ڈیٹ نہیں ہوتی۔",
   "desktopUpdateHelp": "ترتیبات ← اپ ڈیٹس سے Flux اپ ڈیٹ کریں یا GitHub سے ڈاؤن لوڈ کریں۔",
   "desktopRequired": "Flux ڈیسک ٹاپ ایپ سے رابطہ نہیں ہو سکا۔ اگر انسٹال ہے تو Flux کھولیں اور ترتیبات ← براؤزر انضمام میں کنکشن چیک کریں۔ ورنہ مفت ایپ نیچے سے ڈاؤن لوڈ کریں۔",
-  "releaseDownloads": "GitHub سے ڈاؤن لوڈ"
+  "releaseDownloads": "GitHub سے ڈاؤن لوڈ",
+  "installed_version": "نصب شدہ ورژن",
+  "extension_version": "ایکسٹینشن کا ورژن",
+  "appearance": "ظاہری شکل",
+  "theme": "تھیم",
+  "theme_dark": "گہرا",
+  "theme_light": "ہلکا"
 }

@@ -250,5 +250,7 @@
   "bridge_not_found": "接続中のFlux拡張機能が見つかりません。未インストール、無効、権限待ち、またはブラウザーが閉じている可能性があります。GitHubからインストールしてポップアップを開いてください。",
   "extension_update_help": "接続中の拡張機能に更新があります。GitHubの新しいZIPに入れ替えて再接続してください。最新バージョン：",
   "release_downloads": "GitHubからダウンロード",
-  "extension_versions": "接続中の拡張機能のバージョン"
+  "extension_versions": "接続中の拡張機能のバージョン",
+  "installed_version": "インストール済みのバージョン",
+  "extension_version": "拡張機能のバージョン"
 }

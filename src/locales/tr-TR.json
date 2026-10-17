@@ -250,5 +250,7 @@
   "bridge_not_found": "Bağlı bir Flux eklentisi bulunamadı. Eklenti kurulu olmayabilir, devre dışı olabilir, izin bekliyor olabilir veya tarayıcı kapalı olabilir. Eklentiyi GitHub’dan indirip etkinleştirin ve açılır penceresini açın.",
   "extension_update_help": "Bağlı eklentinin güncellenmesi gerekiyor. GitHub’dan yeni ZIP’i indirin, eski eklentinin yerine kurup yeniden bağlanın. Güncel sürüm:",
   "release_downloads": "GitHub’dan indir",
-  "extension_versions": "Bağlı eklenti sürümleri"
+  "extension_versions": "Bağlı eklenti sürümleri",
+  "installed_version": "Yüklü sürüm",
+  "extension_version": "Eklenti sürümü"
 }

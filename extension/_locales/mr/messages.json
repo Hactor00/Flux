@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "प्लेलिस्ट किंवा चॅनेलमधील जास्तीत जास्त 500 आयटम Flux डाउनलोड रांगेत पाठवा."
+  },
+  "appearance": {
+    "message": "दिसणे"
+  },
+  "theme": {
+    "message": "थीम"
+  },
+  "theme_dark": {
+    "message": "गडद"
+  },
+  "theme_light": {
+    "message": "हलके"
+  },
+  "installed_version": {
+    "message": "स्थापित आवृत्ती"
+  },
+  "extension_version": {
+    "message": "विस्ताराची आवृत्ती"
   }
 }

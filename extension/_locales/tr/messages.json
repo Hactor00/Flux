@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "Oynatma listesindeki veya kanaldaki en fazla 500 öğeyi Flux indirme kuyruğuna gönderin."
+  },
+  "appearance": {
+    "message": "Görünüm"
+  },
+  "theme": {
+    "message": "Tema"
+  },
+  "theme_dark": {
+    "message": "Koyu"
+  },
+  "theme_light": {
+    "message": "Açık"
+  },
+  "installed_version": {
+    "message": "Yüklü sürüm"
+  },
+  "extension_version": {
+    "message": "Eklenti sürümü"
   }
 }

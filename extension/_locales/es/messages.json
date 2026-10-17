@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "Envía hasta 500 elementos de una lista o canal a la cola de descargas de Flux."
+  },
+  "appearance": {
+    "message": "Apariencia"
+  },
+  "theme": {
+    "message": "Tema"
+  },
+  "theme_dark": {
+    "message": "Oscuro"
+  },
+  "theme_light": {
+    "message": "Claro"
+  },
+  "installed_version": {
+    "message": "Versión instalada"
+  },
+  "extension_version": {
+    "message": "Versión de la extensión"
   }
 }

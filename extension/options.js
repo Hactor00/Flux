@@ -1,11 +1,13 @@
 import { getBrowserApi, isGecko } from "./browser-api.js";
 const api = getBrowserApi();
 import { localize, t } from "./i18n.js";
+import { initializeTheme } from "./ui-theme.js";
 const languages = await (await fetch("languages.json")).json();
 const settings = await api.storage.local.get([
   "locale",
   "interceptDownloads",
   "nativeConsent",
+  "showMediaButtons",
 ]);
 let selected = settings.locale || "";
 const select = document.getElementById("language");
@@ -31,6 +33,12 @@ function render() {
   }
 }
 await localize();
+await initializeTheme(() => {
+  document.getElementById("saved").textContent = t("saved");
+});
+document.getElementById("extension-version").textContent =
+  api.runtime.getManifest().version;
+document.getElementById("extension-version").title = t("extension_version");
 render();
 select.setAttribute("aria-label", t("language"));
 document.getElementById("language-search").addEventListener("input", render);
@@ -38,7 +46,19 @@ select.addEventListener("change", async () => {
   selected = select.value;
   await api.storage.local.set({ locale: selected });
   await localize();
+  render();
   document.getElementById("saved").textContent = t("saved");
+});
+const hud = document.getElementById("show-media-buttons");
+hud.checked = settings.showMediaButtons ?? true;
+hud.addEventListener("change", async () => {
+  try {
+    await api.storage.local.set({ showMediaButtons: hud.checked });
+    document.getElementById("saved").textContent = t("saved");
+  } catch (error) {
+    hud.checked = !hud.checked;
+    document.getElementById("saved").textContent = error.message;
+  }
 });
 const intercept = document.getElementById("intercept");
 intercept.checked = settings.interceptDownloads ?? true;

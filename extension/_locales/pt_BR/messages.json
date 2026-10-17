@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "Envie até 500 itens de uma playlist ou canal para a fila de downloads do Flux."
+  },
+  "appearance": {
+    "message": "Aparência"
+  },
+  "theme": {
+    "message": "Tema"
+  },
+  "theme_dark": {
+    "message": "Escuro"
+  },
+  "theme_light": {
+    "message": "Claro"
+  },
+  "installed_version": {
+    "message": "Versão instalada"
+  },
+  "extension_version": {
+    "message": "Versão da extensão"
   }
 }

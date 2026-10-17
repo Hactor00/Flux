@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "Envoyez jusqu’à 500 éléments d’une liste ou d’une chaîne dans la file de téléchargement Flux."
+  },
+  "appearance": {
+    "message": "Apparence"
+  },
+  "theme": {
+    "message": "Thème"
+  },
+  "theme_dark": {
+    "message": "Sombre"
+  },
+  "theme_light": {
+    "message": "Clair"
+  },
+  "installed_version": {
+    "message": "Version installée"
+  },
+  "extension_version": {
+    "message": "Version de l’extension"
   }
 }

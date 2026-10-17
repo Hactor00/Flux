@@ -6,26 +6,47 @@
     <title>Flux</title>
     <link rel="stylesheet" href="ui.css" />
   </head>
-  <body>
+  <body class="popup">
     <main>
-      <header>
-        <div class="mark">↯</div>
-        <div>
-          <strong>FLUX</strong>
-          <p data-i18n="tagline"></p>
+      <header class="app-header">
+        <img class="mark" src="icons/128.png" alt="" width="36" height="36" />
+        <div class="brand">
+          <strong>Flux</strong
+          ><span id="extension-version" class="version"></span>
         </div>
-        <button id="options" class="icon" data-i18n-title="settings">⚙</button>
+        <button id="options" class="icon" data-i18n-title="settings">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            aria-hidden="true"
+          >
+            <path d="m9 3-1 3-3 1-2 5 2 5 3 1 1 3h6l1-3 3-1 2-5-2-5-3-1-1-3Z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        </button>
       </header>
-      <label class="hud-preference"
-        ><input id="show-media-buttons" type="checkbox" role="switch" /><span
-          data-i18n="showMediaButtons"
-        ></span
-      ></label>
-      <div class="connection">
-        <span id="dot"></span><span id="connection"></span
-        ><button id="retry" data-i18n="retry"></button>
-      </div>
-      <section id="update-notice" class="update-notice" role="status" hidden>
+      <section class="connection-card" aria-live="polite">
+        <div class="connection">
+          <span id="dot"></span>
+          <div class="connection-copy">
+            <strong id="connection"></strong
+            ><span id="desktop-version" class="caption"></span>
+          </div>
+          <button id="retry" class="quiet" data-i18n="retry"></button>
+        </div>
+        <label class="hud-preference"
+          ><span data-i18n="showMediaButtons"></span
+          ><input id="show-media-buttons" type="checkbox" role="switch"
+        /></label>
+      </section>
+      <section
+        id="update-notice"
+        class="notice update-notice"
+        role="status"
+        hidden
+      >
         <strong id="update-title"></strong>
         <p id="update-help"></p>
         <a
@@ -35,8 +56,8 @@
           data-i18n="releaseDownloads"
         ></a>
       </section>
-      <div id="desktop-install-help" role="status" hidden>
-        <span data-i18n="desktopRequired"></span>
+      <section id="desktop-install-help" class="notice" role="status" hidden>
+        <p data-i18n="desktopRequired"></p>
         <a
           class="download-link"
           href="https://github.com/Hactor00/Flux/releases/latest"
@@ -44,12 +65,8 @@
           rel="noopener noreferrer"
           data-i18n="releaseDownloads"
         ></a>
-      </div>
-      <section>
-        <h2 data-i18n="downloadMedia"></h2>
-        <div id="media" class="list"></div>
       </section>
-      <section>
+      <section class="quick-add">
         <h2 data-i18n="new_download"></h2>
         <form id="add">
           <input
@@ -57,30 +74,91 @@
             type="url"
             required
             data-i18n-placeholder="source_url"
+            data-i18n-title="source_url"
           /><button class="primary" data-i18n="start"></button>
         </form>
-        <p id="message" role="status"></p>
       </section>
-      <section id="collection-section" hidden>
-        <h2 data-i18n="queueCollection"></h2>
-        <p data-i18n="collectionHint"></p>
+      <p id="message" class="message" role="status" aria-live="polite"></p>
+      <div class="tabs" role="tablist" data-i18n-title="downloads">
         <button
-          id="download-collection"
-          class="primary"
-          data-i18n="queueCollection"
+          id="tab-media"
+          role="tab"
+          aria-controls="media-section"
+          aria-selected="true"
+          tabindex="0"
+        >
+          <span data-i18n="downloadMedia"></span
+          ><span id="media-count" class="count">0</span></button
+        ><button
+          id="tab-links"
+          role="tab"
+          aria-controls="links-section"
+          aria-selected="false"
+          tabindex="-1"
+        >
+          <span data-i18n="captureLinks"></span
+          ><span id="links-count" class="count">0</span></button
+        ><button
+          id="tab-queue"
+          role="tab"
+          aria-controls="queue-section"
+          aria-selected="false"
+          tabindex="-1"
+        >
+          <span data-i18n="transfer_queue"></span
+          ><span id="tasks-count" class="count">0</span>
+        </button>
+      </div>
+      <section
+        id="media-section"
+        class="tab-panel"
+        role="tabpanel"
+        aria-labelledby="tab-media"
+      >
+        <div id="media" class="list"></div>
+        <section id="collection-section" class="collection-card" hidden>
+          <h2 data-i18n="queueCollection"></h2>
+          <p data-i18n="collectionHint"></p>
+          <button
+            id="download-collection"
+            class="secondary"
+            data-i18n="queueCollection"
+          ></button>
+        </section>
+      </section>
+      <section
+        id="links-section"
+        class="tab-panel"
+        role="tabpanel"
+        aria-labelledby="tab-links"
+        hidden
+      >
+        <input
+          id="filter"
+          data-i18n-placeholder="wildcard"
+          data-i18n-title="wildcard"
+        />
+        <div id="links" class="list"></div>
+        <button
+          id="download-links"
+          class="primary full-width"
+          data-i18n="downloadSelected"
+          disabled
         ></button>
       </section>
-      <section id="links-section" hidden>
-        <h2 data-i18n="captureLinks"></h2>
-        <input id="filter" data-i18n-placeholder="wildcard" />
-        <div id="links" class="list"></div>
-        <button id="download-links" data-i18n="downloadSelected"></button>
-      </section>
-      <section>
-        <h2 data-i18n="transfer_queue"></h2>
+      <section
+        id="queue-section"
+        class="tab-panel"
+        role="tabpanel"
+        aria-labelledby="tab-queue"
+        hidden
+      >
         <div id="tasks" class="list"></div>
       </section>
-      <footer data-i18n="privacy"></footer>
+      <footer>
+        <span class="privacy-dot" aria-hidden="true"></span
+        ><span data-i18n="privacy"></span>
+      </footer>
     </main>
     <script type="module" src="popup.js"></script>
   </body>

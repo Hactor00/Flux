@@ -233,7 +233,10 @@ try {
           "moz:firefoxOptions": {
             binary: firefox,
             args: [
-              ...(process.env.GITHUB_ACTIONS === "true" ? [] : ["-headless"]),
+              // Hosted Windows runners do not provide a reliable interactive
+              // desktop for Gecko subprocess startup. Keep the same real-browser
+              // headless mode used by the local integration checks.
+              "-headless",
               "-no-remote",
               "-remote-allow-system-access",
             ],
@@ -358,7 +361,8 @@ if(message.action==='close'){root.querySelector('.close').click();dispatchEvent(
   assert.equal(panel.closed, true);
   assert.equal(panel.buttonVisible, true);
   assert.equal(panel.shadowClosed, true);
-  assert.equal(panel.padding, "9px");
+  assert.ok(panel.geometry.barHeight >= 28 && panel.geometry.barHeight <= 32,
+    `The compact toolbar must remain styled under the page CSP: ${panel.geometry.barHeight}`);
   assert.equal(panel.position, "fixed");
   assert.equal(panel.bodyPadding, "0px");
   assert.equal(panel.geometry.ready, true);
@@ -517,9 +521,10 @@ if(message.action==='close'){root.querySelector('.close').click();dispatchEvent(
   await new Promise((r) => fixture.close(r));
 }
 validation.registry_restoration_verified = true;
-await mkdir("docs/validation", { recursive: true });
+const validationDirectory = process.env.FLUX_VALIDATION_DIRECTORY || "docs/validation";
+await mkdir(validationDirectory, { recursive: true });
 await writeFile(
-  `docs/validation/firefox-${validation.firefox}.json`,
+  join(validationDirectory, `firefox-${validation.firefox}.json`),
   JSON.stringify(validation, null, 2) + "\n",
 );
 console.log(JSON.stringify(validation));

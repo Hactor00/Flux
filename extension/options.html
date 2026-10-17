@@ -1,1 +1,104 @@
-<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Flux</title><link rel="stylesheet" href="ui.css"></head><body class="options"><main><header><div class="mark">↯</div><div><strong>FLUX</strong><p data-i18n="settings"></p></div></header><section><h2 data-i18n="language"></h2><input id="language-search" data-i18n-placeholder="search_languages"><select id="language" size="6" aria-label="Language"></select></section><section id="native-consent-panel" hidden><h2 data-i18n="nativeConsent"></h2><p data-i18n="nativeConsentExplain"></p><label class="toggle"><span data-i18n="nativeConsent"></span><input id="native-consent" type="checkbox"></label></section><section class="toggle"><label for="intercept" data-i18n="interceptDownloads"></label><input id="intercept" type="checkbox"></section><p data-i18n="interceptExplanation"></p><section><h2 data-i18n="browserIntegration"></h2><p data-i18n="nativeInstallHelp"></p><code id="extension-id"></code></section><p id="saved" role="status"></p><footer data-i18n="privacy"></footer></main><script type="module" src="options.js"></script></body></html>
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Flux · Settings</title>
+    <link rel="stylesheet" href="ui.css" />
+  </head>
+  <body class="options">
+    <main>
+      <header class="app-header">
+        <img class="mark" src="icons/128.png" alt="" width="40" height="40" />
+        <div class="brand">
+          <strong>Flux</strong
+          ><span id="extension-version" class="version"></span>
+        </div>
+        <span class="header-label" data-i18n="settings"></span>
+      </header>
+      <div class="page-intro">
+        <h1 data-i18n="settings"></h1>
+        <p data-i18n="local_first"></p>
+        <span id="saved" class="saved" role="status" aria-live="polite"></span>
+      </div>
+      <div class="settings-grid">
+        <section class="settings-card appearance-card">
+          <h2 data-i18n="appearance"></h2>
+          <p data-i18n="theme"></p>
+          <div class="theme-choices" role="group" data-i18n-title="theme">
+            <button data-theme-choice="system" aria-pressed="false">
+              <span
+                class="theme-preview system-preview"
+                aria-hidden="true"
+              ></span
+              ><span data-i18n="automatic"></span></button
+            ><button data-theme-choice="light" aria-pressed="false">
+              <span
+                class="theme-preview light-preview"
+                aria-hidden="true"
+              ></span
+              ><span data-i18n="theme_light"></span></button
+            ><button data-theme-choice="dark" aria-pressed="false">
+              <span class="theme-preview dark-preview" aria-hidden="true"></span
+              ><span data-i18n="theme_dark"></span>
+            </button>
+          </div>
+        </section>
+        <section class="settings-card language-card">
+          <h2 data-i18n="language"></h2>
+          <p data-i18n="language_description"></p>
+          <input
+            id="language-search"
+            data-i18n-placeholder="search_languages"
+            data-i18n-title="search_languages"
+          /><select id="language" size="5" data-i18n-title="language"></select>
+        </section>
+        <section class="settings-card">
+          <h2 data-i18n="downloads"></h2>
+          <label class="setting-row"
+            ><span data-i18n="showMediaButtons"></span
+            ><input id="show-media-buttons" type="checkbox" role="switch"
+          /></label>
+          <p data-i18n="mediaHint"></p>
+          <label class="setting-row"
+            ><span data-i18n="interceptDownloads"></span
+            ><input id="intercept" type="checkbox" role="switch"
+          /></label>
+          <p data-i18n="interceptExplanation"></p>
+        </section>
+        <section class="settings-card">
+          <h2 data-i18n="browserIntegration"></h2>
+          <p data-i18n="nativeInstallHelp"></p>
+          <a
+            class="download-link"
+            href="https://github.com/Hactor00/Flux/releases/latest"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-i18n="releaseDownloads"
+          ></a>
+          <details>
+            <summary data-i18n="details"></summary>
+            <code id="extension-id"></code>
+          </details>
+        </section>
+        <section
+          id="native-consent-panel"
+          class="settings-card wide-card"
+          hidden
+        >
+          <h2 data-i18n="nativeConsent"></h2>
+          <p data-i18n="nativeConsentExplain"></p>
+          <label class="setting-row"
+            ><span data-i18n="nativeConsent"></span
+            ><input id="native-consent" type="checkbox" role="switch"
+          /></label>
+        </section>
+      </div>
+      <footer>
+        <span class="privacy-dot" aria-hidden="true"></span
+        ><span data-i18n="privacy"></span>
+      </footer>
+    </main>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

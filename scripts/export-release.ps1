@@ -63,7 +63,7 @@ foreach ($relative in $sourcePaths | Select-Object -Unique) {
     Copy-Item -LiteralPath $sourcePath -Destination $targetPath -Force
 }
 Write-Zip $sourceDirectory "$releaseDirectory/Flux-$version-source.zip" $false
-$checksums = Get-ChildItem -LiteralPath $releaseDirectory -File | Where-Object Extension -In '.zip','.exe' | Sort-Object Name | ForEach-Object {
+$checksums = Get-ChildItem -LiteralPath $releaseDirectory -File | Where-Object Extension -In '.zip','.exe','.rpm' | Sort-Object Name | ForEach-Object {
     (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() + '  ' + $_.Name
 }
 $checksums | Set-Content -LiteralPath "$releaseDirectory/SHA256SUMS.txt" -Encoding ascii

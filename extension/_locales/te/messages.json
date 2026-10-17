@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "ప్లేలిస్ట్ లేదా ఛానల్ నుండి గరిష్టంగా 500 అంశాలను Flux డౌన్‌లోడ్ క్యూకు పంపండి."
+  },
+  "appearance": {
+    "message": "రూపురేఖలు"
+  },
+  "theme": {
+    "message": "థీమ్"
+  },
+  "theme_dark": {
+    "message": "డార్క్"
+  },
+  "theme_light": {
+    "message": "లైట్"
+  },
+  "installed_version": {
+    "message": "ఇన్‌స్టాల్ చేసిన సంస్కరణ"
+  },
+  "extension_version": {
+    "message": "పొడిగింపు సంస్కరణ"
   }
 }

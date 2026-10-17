@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "پلے لسٹ یا چینل کے زیادہ سے زیادہ 500 آئٹمز Flux کی ڈاؤن لوڈ قطار میں بھیجیں۔"
+  },
+  "appearance": {
+    "message": "ظاہری شکل"
+  },
+  "theme": {
+    "message": "تھیم"
+  },
+  "theme_dark": {
+    "message": "گہرا"
+  },
+  "theme_light": {
+    "message": "ہلکا"
+  },
+  "installed_version": {
+    "message": "نصب شدہ ورژن"
+  },
+  "extension_version": {
+    "message": "ایکسٹینشن کا ورژن"
   }
 }

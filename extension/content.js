@@ -272,6 +272,41 @@
     });
     return promise;
   }
+  function modalContext() {
+    const focused = document.activeElement?.closest?.(
+      'dialog[open], [aria-modal="true"]',
+    );
+    if (focused && !focused.closest("[inert]")) return focused;
+    return [...document.querySelectorAll('dialog[open], [aria-modal="true"]')]
+      .filter((element) => {
+        const style = getComputedStyle(element);
+        return (
+          !element.hidden &&
+          element.getAttribute("aria-hidden") !== "true" &&
+          !element.closest("[inert]") &&
+          style.display !== "none" &&
+          style.visibility !== "hidden"
+        );
+      })
+      .at(-1);
+  }
+  function overlayRoot(video) {
+    const fullscreen = document.fullscreenElement;
+    const modal = video.closest(
+      'dialog[open], [role="dialog"], [aria-modal="true"]',
+    );
+    if (modal && (!fullscreen || fullscreen.contains(modal))) return modal;
+    if (fullscreen?.contains(video)) return fullscreen;
+    return document.documentElement;
+  }
+  function placeHost(overlay, video) {
+    const parent = overlayRoot(video);
+    if (overlay.host.parentElement === parent) return;
+    // A popover outside a modal remains inert even when painted above its backdrop.
+    if (hasPopover && overlay.host.matches(":popover-open"))
+      overlay.host.hidePopover();
+    parent.append(overlay.host);
+  }
   function schedule() {
     if (frame) return;
     frame = requestAnimationFrame(() => {
@@ -282,6 +317,9 @@
         reportedSources.clear();
         for (const overlay of overlays.values()) overlay.closePanel();
       }
+      const modal = modalContext();
+      for (const [video, overlay] of overlays)
+        if (video.isConnected) placeHost(overlay, video);
       const positions = [...overlays].map(([video, overlay]) => ({
         video,
         overlay,
@@ -292,6 +330,10 @@
       const eligible = positions.filter(
         ({ video, box }) =>
           video.isConnected &&
+          (!document.fullscreenElement ||
+            document.fullscreenElement.contains(video)) &&
+          (!modal || modal.contains(video)) &&
+          !video.closest("[inert]") &&
           !closed() &&
           box.width >= (video.tagName === "AUDIO" ? 160 : 200) &&
           box.height >= (video.tagName === "AUDIO" ? 24 : 100) &&
@@ -355,6 +397,14 @@
           ),
         );
         overlay.host.style.transform = `translate3d(${x}px,${y}px,0)`;
+        if (!hasPopover && visible) {
+          // Legacy Gecko uses fixed positioning inside the player's transformed modal.
+          overlay.host.style.transform = "none";
+          const origin = overlay.host.getBoundingClientRect();
+          const scaleX = origin.width / overlay.host.offsetWidth || 1;
+          const scaleY = origin.height / overlay.host.offsetHeight || 1;
+          overlay.host.style.transform = `translate3d(${(x - origin.left) / scaleX}px,${(y - origin.top) / scaleY}px,0)`;
+        }
         overlay.position = { x, y };
         const below = Math.max(0, innerHeight - y - height - margin - 6);
         const above = Math.max(0, y - margin - 6);
@@ -378,22 +428,70 @@
       "all:initial;font:12px system-ui,sans-serif;color-scheme:dark;position:fixed;inset:auto;margin:0;border:0;padding:0;background:transparent;width:max-content;max-width:calc(100vw - 16px);height:auto;max-height:none;overflow:visible;left:0;top:0;z-index:2147483646;pointer-events:auto;display:none";
     const shadow = host.attachShadow({ mode: "closed" }),
       style = document.createElement("style");
-    style.textContent =
-      ":host{color-scheme:dark;font:12px system-ui,sans-serif}*,*:before,*:after{box-sizing:border-box}.bar{display:flex;gap:1px;max-width:100%}button,select{font:12px system-ui;border:1px solid #ffffff24;color:#f1eef7;background:#191b23f5;padding:9px 12px;cursor:pointer}button:hover{background:#454052}button:disabled{opacity:.5;cursor:wait}button:focus-visible,select:focus-visible{outline:2px solid #b6a2f4;outline-offset:2px}.main{border-radius:0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.move{border-radius:7px 0 0 7px;flex:none}.close{border-radius:0 7px 7px 0;width:34px;padding:0;font-size:18px;flex:none}.panel{position:absolute;display:grid;gap:10px;background:#191b23fa;padding:14px;border:1px solid #ffffff24;border-radius:8px;box-shadow:0 10px 32px #0008;overflow-y:auto;overscroll-behavior:contain}.panel[hidden],.panel [hidden]{display:none}.panel[aria-busy=true] p[role=status]{min-height:38px;display:flex;align-items:center;gap:9px}.panel[aria-busy=true] p[role=status]:before{content:'';width:14px;height:14px;flex:none;border:2px solid #b6a2f433;border-top-color:#b6a2f4;border-radius:50%;animation:flux-spin .8s linear infinite}@keyframes flux-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.panel[aria-busy=true] p[role=status]:before{animation:none}}select{width:100%;min-width:0;border-radius:4px;padding:7px}p{font-size:11px;line-height:1.5;margin:0;color:#c1c1cf;overflow-wrap:anywhere}.title{font-size:13px;color:#fff;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.download{border-radius:5px;background:#b6a2f4;color:#17121f;font-weight:600}";
+    style.textContent = `
+      :host{color-scheme:dark;font:12px system-ui,sans-serif}
+      *,*:before,*:after{box-sizing:border-box}
+      .bar{display:flex;align-items:center;gap:0;max-width:100%;height:30px;border:1px solid #ffffff29;border-radius:8px;background:#15161df5;box-shadow:0 3px 12px #0003}
+      button,select{font:12px system-ui;border:1px solid #ffffff24;color:#f1eef7;background:#20222cf5;padding:7px 10px;cursor:pointer}
+      button:hover{background:#34313f}button:disabled{opacity:.5;cursor:wait}
+      button:focus-visible,select:focus-visible{outline:2px solid #b6a2f4;outline-offset:2px}
+      .bar button{height:28px;border:0;background:transparent;display:inline-flex;align-items:center;justify-content:center;padding:0 8px}
+      .bar button:hover{background:#ffffff12}.bar button:active{background:#ffffff20}
+      .main{border-radius:0;min-width:0;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;font-size:11px}
+      .main svg{width:13px;height:13px;flex:none;color:#c8b5ff}
+      .move{border-radius:7px 0 0 7px;flex:none;width:25px;color:#a2a0b1;cursor:grab;touch-action:none}
+      .move svg{width:12px;height:14px;pointer-events:none}
+      .close{border-radius:0 7px 7px 0;flex:none;width:26px;color:#a2a0b1}
+      .close svg{width:12px;height:12px;pointer-events:none}
+      .panel{position:absolute;display:grid;gap:10px;background:#191b23fc;padding:14px;border:1px solid #ffffff24;border-radius:12px;box-shadow:0 12px 40px #0006;overflow-y:auto;overscroll-behavior:contain}
+      .panel[hidden],.panel [hidden]{display:none}
+      .panel[aria-busy=true] p[role=status]{min-height:38px;display:flex;align-items:center;gap:9px}
+      .panel[aria-busy=true] p[role=status]:before{content:'';width:14px;height:14px;flex:none;border:2px solid #b6a2f433;border-top-color:#b6a2f4;border-radius:50%;animation:flux-spin .8s linear infinite}
+      @keyframes flux-spin{to{transform:rotate(360deg)}}
+      @media(prefers-reduced-motion:reduce){.panel[aria-busy=true] p[role=status]:before{animation:none}}
+      select{width:100%;min-width:0;border-radius:7px;padding:8px}
+      p{font-size:11px;line-height:1.5;margin:0;color:#c1c1cf;overflow-wrap:anywhere}
+      .title{font-size:13px;color:#fff;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+      .download{border-radius:7px;background:#b6a2f4;color:#17121f;font-weight:600;min-height:34px}
+    `;
+    function icon(paths) {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      for (const [key, value] of Object.entries({
+        viewBox: "0 0 24 24",
+        fill: "none",
+        stroke: "currentColor",
+        "stroke-width": "1.6",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        "aria-hidden": "true",
+      }))
+        svg.setAttribute(key, value);
+      for (const d of paths) {
+        const path = document.createElementNS(svg.namespaceURI, "path");
+        path.setAttribute("d", d);
+        svg.append(path);
+      }
+      return svg;
+    }
     const bar = document.createElement("div");
     bar.className = "bar";
     const button = document.createElement("button");
     button.type = "button";
     button.className = "main";
-    button.textContent = `↓ ${t("downloadMedia")}`;
+    button.append(
+      icon(["M12 3v12m-4-4 4 4 4-4", "M5 16v4h14v-4"]),
+      document.createTextNode(t("downloadMedia")),
+    );
+    button.setAttribute("aria-label", t("downloadMedia"));
     const close = document.createElement("button");
     const grip = document.createElement("button");
     grip.type = "button";
     grip.className = "move";
-    grip.textContent = "⠿";
+    grip.append(
+      icon(["M8 5h.01M16 5h.01M8 12h.01M16 12h.01M8 19h.01M16 19h.01"]),
+    );
     grip.title = t("moveHud");
     grip.setAttribute("aria-label", t("moveHud"));
-    grip.style.cssText = "cursor:grab;touch-action:none;padding:8px";
     let dragging = false;
     let pointerId;
     let grabOffset = { x: 0, y: 0 };
@@ -479,7 +577,7 @@
     });
     close.type = "button";
     close.className = "close";
-    close.textContent = "×";
+    close.append(icon(["m6 6 12 12M18 6 6 18"]));
     close.setAttribute("aria-label", t("close"));
     close.addEventListener("click", () => {
       closePanel();
@@ -696,10 +794,14 @@
       }
     });
     host.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && !panel.hidden) {
+        event.preventDefault();
+        event.stopPropagation();
         closePanel();
       }
     });
+    for (const type of ["pointerdown", "pointerup", "click", "dblclick"])
+      host.addEventListener(type, (event) => event.stopPropagation());
     panel.append(
       heading,
       quality,
@@ -740,7 +842,7 @@
       panel,
       bar,
       source: video.currentSrc || video.src,
-      dimensions: { width: 200, height: 38 },
+      dimensions: { width: 180, height: 30 },
       cleanup: () => removeEventListener("blur", onBlur),
     });
     if (!video.paused) warm();
@@ -866,7 +968,15 @@
         childList: true,
         subtree: true,
         attributes: true,
-        attributeFilter: ["src", "type"],
+        attributeFilter: [
+          "src",
+          "type",
+          "open",
+          "inert",
+          "aria-modal",
+          "aria-hidden",
+          "role",
+        ],
       });
       addEventListener("message", (event) => {
         const hint = event.data;
@@ -918,11 +1028,9 @@
       document.addEventListener("pointerdown", outside, true);
       document.addEventListener("click", outside, true);
       addEventListener("fullscreenchange", () => {
-        for (const { host } of overlays.values()) {
-          if (!hasPopover)
-            (document.fullscreenElement || document.documentElement).append(
-              host,
-            );
+        for (const [video, overlay] of overlays) {
+          placeHost(overlay, video);
+          const { host } = overlay;
           if (hasPopover && host.matches(":popover-open")) host.hidePopover();
         }
         schedule();

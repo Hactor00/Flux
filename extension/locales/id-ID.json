@@ -134,5 +134,11 @@
   "extensionUpdateHelp": "Ganti ekstensi lama dengan ZIP baru dari GitHub. Pemasangan ZIP tidak diperbarui otomatis.",
   "desktopUpdateHelp": "Perbarui Flux lewat Pengaturan → Pembaruan atau GitHub.",
   "desktopRequired": "Tidak dapat terhubung ke aplikasi desktop Flux. Jika sudah terpasang, buka Flux dan periksa Pengaturan → Integrasi browser. Jika belum, unduh aplikasi gratis di bawah.",
-  "releaseDownloads": "Unduh di GitHub"
+  "releaseDownloads": "Unduh di GitHub",
+  "installed_version": "Versi terpasang",
+  "extension_version": "Versi ekstensi",
+  "appearance": "Tampilan",
+  "theme": "Tema",
+  "theme_dark": "Gelap",
+  "theme_light": "Terang"
 }

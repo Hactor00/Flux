@@ -10,7 +10,10 @@ const executable = resolve(
   process.argv[2] || "C:/Program Files/Google/Chrome/Application/chrome.exe",
 );
 const root = await mkdtemp(join(tmpdir(), "flux-chrome-hud-"));
-const source = await readFile("extension/content.js", "utf8");
+const source = await readFile(
+  process.env.FLUX_HUD_SOURCE || "extension/content.js",
+  "utf8",
+);
 const words = JSON.parse(
   await readFile("extension/locales/en-US.json", "utf8"),
 );
@@ -56,7 +59,9 @@ async function until(predicate, timeout = 10000) {
     } catch {}
     await new Promise((r) => setTimeout(r, 50));
   }
-  throw Error(`Chrome HUD condition timed out (exit=${processHandle.exitCode}): ${browserErrors}`);
+  throw Error(
+    `Chrome HUD condition timed out (exit=${processHandle.exitCode}): ${browserErrors}`,
+  );
 }
 function call(method, params = {}) {
   return new Promise((resolveResult, reject) => {
@@ -118,6 +123,23 @@ async function clickSelector(selector) {
     `window.__roots[0].querySelector(${JSON.stringify(selector)}).click()`,
   );
 }
+async function nativeClick(selector) {
+  const point = await evaluate(
+    `(()=>{const r=window.__roots[0].querySelector(${JSON.stringify(selector)}).getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};})()`,
+  );
+  await call("Input.dispatchMouseEvent", {
+    type: "mousePressed",
+    ...point,
+    button: "left",
+    clickCount: 1,
+  });
+  await call("Input.dispatchMouseEvent", {
+    type: "mouseReleased",
+    ...point,
+    button: "left",
+    clickCount: 1,
+  });
+}
 async function dragTo(x, y) {
   const before = await evaluate(geometry);
   const startX = before.grip.left + before.grip.width / 2,
@@ -152,10 +174,11 @@ async function dragTo(x, y) {
   return evaluate(geometry);
 }
 try {
-  const active = await until(async () =>
-    (await readFile(join(root, "profile", "DevToolsActivePort"), "utf8")).split(
-      "\n",
-    ),
+  const active = await until(
+    async () =>
+      (
+        await readFile(join(root, "profile", "DevToolsActivePort"), "utf8")
+      ).split("\n"),
     60000,
   );
   const targets = await (
@@ -184,6 +207,10 @@ try {
   await new Promise((r) => setTimeout(r, 100));
   const initial = await evaluate(geometry);
   validatePanel(initial);
+  assert.ok(
+    initial.bar.height <= 32,
+    `Toolbar should be compact: ${initial.bar.height}`,
+  );
   const left = await dragTo(20, 20);
   assert.ok(left.host.left < 30 && left.host.top < 30, JSON.stringify(left));
   assert.equal(left.saved["hud-position:127.0.0.1"].space, "viewport");
@@ -228,8 +255,75 @@ try {
       "window.__calls.some(call=>call.type==='enqueue'&&call.options.filename==='HUD layout fixture.mp4')",
     ),
   );
-  await clickSelector(".close");
+  await call("Emulation.clearDeviceMetricsOverride");
+  await evaluate(
+    "document.body.click();document.querySelector('video').style.cssText='position:fixed;left:500px;top:80px;width:420px;height:600px'",
+  );
+  for (const native of [true, false]) {
+    await evaluate(`(()=>{
+      window.__viewerClicks=0;
+      const viewer=document.createElement(${native ? "'dialog'" : "'div'"});
+      viewer.id='viewer';viewer.setAttribute('role','dialog');viewer.setAttribute('aria-modal','true');
+      viewer.style.cssText='position:fixed;inset:0;width:1200px;height:800px;margin:0;transform:translate(12px,8px);background:#20242c';
+      viewer.addEventListener('click',()=>window.__viewerClicks++);
+      document.body.append(viewer);viewer.append(document.querySelector('video'));
+      ${native ? "viewer.showModal();" : ""}
+    })()`);
+    await until(() =>
+      evaluate(
+        "window.__roots[0].host.parentElement===document.getElementById('viewer')&&window.__roots[0].host.matches(':popover-open')",
+      ),
+    );
+    await nativeClick(".main");
+    await until(() =>
+      evaluate(
+        "!window.__roots[0].querySelector('.panel').hidden&&!window.__roots[0].querySelector('.download').disabled",
+      ),
+    );
+    validatePanel(await evaluate(geometry));
+    const moved = await dragTo(180, 220);
+    assert.ok(
+      moved.host.left < 200 && moved.host.top < 240,
+      JSON.stringify(moved),
+    );
+    await nativeClick(".main");
+    await until(() =>
+      evaluate("!window.__roots[0].querySelector('.panel').hidden"),
+    );
+    assert.equal(
+      await evaluate("window.__viewerClicks"),
+      0,
+      "HUD interaction must not reach the viewer",
+    );
+    await nativeClick(".close");
+    assert.equal(
+      await evaluate("window.__roots[0].host.style.display"),
+      "none",
+    );
+    await evaluate(
+      `(()=>{const viewer=document.getElementById('viewer');document.body.append(viewer.querySelector('video'));${native ? "viewer.close();" : ""}viewer.remove();sessionStorage.clear();dispatchEvent(new Event('resize'));})()`,
+    );
+    await until(() =>
+      evaluate(
+        "window.__roots[0].host.parentElement===document.documentElement&&window.__roots[0].host.matches(':popover-open')",
+      ),
+    );
+  }
+  const fullscreen = await call("Runtime.evaluate", {
+    expression: "(()=>{const player=document.createElement('div');player.id='fullscreen-player';document.body.append(player);player.append(document.querySelector('video'));return player.requestFullscreen();})()",
+    awaitPromise: true,
+    userGesture: true,
+  });
+  assert.ok(!fullscreen.exceptionDetails, "The isolated player must enter fullscreen");
+  await until(() => evaluate("document.fullscreenElement?.id==='fullscreen-player'&&window.__roots[0].host.parentElement===document.fullscreenElement&&window.__roots[0].host.matches(':popover-open')"));
+  await nativeClick(".main");
+  await until(() => evaluate("!window.__roots[0].querySelector('.panel').hidden&&!window.__roots[0].querySelector('.download').disabled"));
+  validatePanel(await evaluate(geometry));
+  const fullscreenDrag = await dragTo(100, 150);
+  assert.ok(fullscreenDrag.host.left < 120 && fullscreenDrag.host.top < 170);
+  await nativeClick(".close");
   assert.equal(await evaluate("window.__roots[0].host.style.display"), "none");
+  await evaluate("document.exitFullscreen()");
   const report = {
     browser: version.product,
     passed: true,
@@ -246,6 +340,11 @@ try {
     outside_click: true,
     enqueue_selection: true,
     close_button: true,
+    compact_toolbar: true,
+    native_modal_interaction: true,
+    transformed_modal_interaction: true,
+    viewer_click_isolation: true,
+    fullscreen_interaction: true,
     screenshot: join(root, "chrome-hud-bottom.png"),
     initial,
     bottomPanel,

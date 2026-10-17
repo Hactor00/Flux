@@ -134,5 +134,11 @@
   "extensionUpdateHelp": "请下载 GitHub 新版扩展 ZIP，替换旧扩展并重新连接。通过 ZIP 安装的扩展不会自动更新。",
   "desktopUpdateHelp": "请通过设置 → 更新来更新 Flux，或从 GitHub 下载。",
   "desktopRequired": "无法连接到 Flux 桌面应用。若已安装，请打开 Flux，在设置 → 浏览器集成中检查连接。若未安装，请从下方免费下载。",
-  "releaseDownloads": "前往 GitHub 下载"
+  "releaseDownloads": "前往 GitHub 下载",
+  "installed_version": "已安装版本",
+  "extension_version": "扩展版本",
+  "appearance": "外观",
+  "theme": "主题",
+  "theme_dark": "深色",
+  "theme_light": "浅色"
 }

@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "Send up to 500 playlist or channel items to the Flux download queue."
+  },
+  "appearance": {
+    "message": "Appearance"
+  },
+  "theme": {
+    "message": "Theme"
+  },
+  "theme_dark": {
+    "message": "Dark"
+  },
+  "theme_light": {
+    "message": "Light"
+  },
+  "installed_version": {
+    "message": "Installed version"
+  },
+  "extension_version": {
+    "message": "Extension version"
   }
 }

@@ -134,5 +134,11 @@
   "extensionUpdateHelp": "استبدل الإضافة بملف ZIP الجديد من GitHub وأعد الاتصال. التثبيت من ZIP لا يتحدث تلقائيًا.",
   "desktopUpdateHelp": "حدّث Flux من الإعدادات ← التحديثات أو من GitHub.",
   "desktopRequired": "تعذر الاتصال بتطبيق Flux. إذا كان مثبتًا، افتحه وتحقق من الإعدادات ← تكامل المتصفح. وإلا، نزّل تطبيق سطح المكتب المجاني أدناه.",
-  "releaseDownloads": "التنزيل من GitHub"
+  "releaseDownloads": "التنزيل من GitHub",
+  "installed_version": "الإصدار المثبّت",
+  "extension_version": "إصدار الإضافة",
+  "appearance": "المظهر",
+  "theme": "السمة",
+  "theme_dark": "داكن",
+  "theme_light": "فاتح"
 }

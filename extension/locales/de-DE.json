@@ -134,5 +134,11 @@
   "extensionUpdateHelp": "Laden Sie das neue ZIP von GitHub, ersetzen Sie die alte Erweiterung und verbinden Sie sich erneut. ZIP-Installationen werden nicht automatisch aktualisiert.",
   "desktopUpdateHelp": "Aktualisieren Sie Flux unter Einstellungen → Updates oder über GitHub.",
   "desktopRequired": "Keine Verbindung zur Flux-Desktop-App. Falls installiert, Flux öffnen und Einstellungen → Browser-Integration prüfen. Andernfalls die kostenlose App unten herunterladen.",
-  "releaseDownloads": "Downloads auf GitHub"
+  "releaseDownloads": "Downloads auf GitHub",
+  "installed_version": "Installierte Version",
+  "extension_version": "Erweiterungsversion",
+  "appearance": "Darstellung",
+  "theme": "Design",
+  "theme_dark": "Dunkel",
+  "theme_light": "Hell"
 }

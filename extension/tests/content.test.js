@@ -57,6 +57,14 @@ async function fixture({
     window.HTMLElement.prototype.hidePopover = function () {
       popovers.delete(this);
     };
+  // jsdom has no layout. Give the bar a measured size so drag tests exercise
+  // measured geometry rather than the production fallback for its first frame.
+  const elementRect = window.HTMLElement.prototype.getBoundingClientRect;
+  window.HTMLElement.prototype.getBoundingClientRect = function () {
+    return this.classList.contains("bar")
+      ? { width: 200, height: 38, top: 0, left: 0, right: 200, bottom: 38 }
+      : elementRect.call(this);
+  };
   window.HTMLVideoElement.prototype.getBoundingClientRect = () => ({
     width: 640,
     height: 360,
@@ -151,6 +159,60 @@ async function fixture({
     close: () => window.close(),
   };
 }
+test("HUD follows an existing player into a modal and back without leaking clicks to the viewer", async () => {
+  for (const popover of [true, false]) {
+    const f = await fixture({ popover, src: "https://film.test/movie.mp4" });
+    try {
+      const video = f.window.document.querySelector("video");
+      const root = f.roots[0],
+        host = root.host;
+      const modal = f.window.document.createElement("dialog");
+      modal.open = true;
+      f.window.document.body.append(modal);
+      modal.append(video);
+      await until(() => host.parentElement === modal);
+      let leaked = 0;
+      modal.addEventListener("click", () => leaked++);
+      root.querySelector(".main").click();
+      await until(() => !root.querySelector(".download").disabled);
+      assert.equal(root.querySelector(".panel").hidden, false);
+      assert.equal(leaked, 0);
+      f.window.document.body.append(video);
+      modal.remove();
+      await until(
+        () => host.parentElement === f.window.document.documentElement,
+      );
+      assert.equal(f.roots.length, 1);
+      root.querySelector(".close").click();
+      assert.equal(host.style.display, "none");
+    } finally {
+      f.close();
+    }
+  }
+});
+
+test("an active modal hides background players and keeps the modal player's HUD interactive", async () => {
+  const f = await fixture({ src: "https://film.test/movie.mp4" });
+  try {
+    const modal = f.window.document.createElement("div");
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    const video = f.window.document.createElement("video");
+    video.src = "https://film.test/expanded.mp4";
+    modal.append(video);
+    f.window.document.body.append(modal);
+    await until(
+      () => f.roots.length === 2 && f.roots[0].host.style.display === "none",
+    );
+    await until(() => f.roots[1].host.parentElement === modal);
+    assert.equal(f.roots[1].host.style.display, "block");
+    modal.remove();
+    await until(() => f.roots[0].host.style.display === "block");
+  } finally {
+    f.close();
+  }
+});
+
 test("toolbar preference hides and restores existing HUDs in Chromium and Gecko", async () => {
   for (const gecko of [false, true]) {
     const f = await fixture({

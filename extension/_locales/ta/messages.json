@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "பட்டியல் அல்லது சேனலிலிருந்து அதிகபட்சம் 500 உருப்படிகளை Flux பதிவிறக்க வரிசைக்கு அனுப்பவும்."
+  },
+  "appearance": {
+    "message": "தோற்றம்"
+  },
+  "theme": {
+    "message": "தீம்"
+  },
+  "theme_dark": {
+    "message": "இருண்ட"
+  },
+  "theme_light": {
+    "message": "வெளிர்"
+  },
+  "installed_version": {
+    "message": "நிறுவப்பட்ட பதிப்பு"
+  },
+  "extension_version": {
+    "message": "நீட்டிப்புப் பதிப்பு"
   }
 }

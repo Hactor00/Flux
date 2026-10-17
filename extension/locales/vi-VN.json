@@ -134,5 +134,11 @@
   "extensionUpdateHelp": "Thay tiện ích cũ bằng ZIP mới từ GitHub. Tiện ích cài từ ZIP không tự cập nhật.",
   "desktopUpdateHelp": "Cập nhật Flux qua Cài đặt → Cập nhật hoặc GitHub.",
   "desktopRequired": "Không thể kết nối với ứng dụng Flux. Nếu đã cài, hãy mở Flux và kiểm tra Cài đặt → Tích hợp trình duyệt. Nếu chưa, tải ứng dụng miễn phí bên dưới.",
-  "releaseDownloads": "Tải trên GitHub"
+  "releaseDownloads": "Tải trên GitHub",
+  "installed_version": "Phiên bản đã cài đặt",
+  "extension_version": "Phiên bản tiện ích",
+  "appearance": "Giao diện",
+  "theme": "Chủ đề",
+  "theme_dark": "Tối",
+  "theme_light": "Sáng"
 }

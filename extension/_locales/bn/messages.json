@@ -337,5 +337,23 @@
   },
   "collectionHint": {
     "message": "প্লেলিস্ট বা চ্যানেলের সর্বোচ্চ ৫০০টি আইটেম Flux ডাউনলোড সারিতে পাঠান।"
+  },
+  "appearance": {
+    "message": "চেহারা"
+  },
+  "theme": {
+    "message": "থিম"
+  },
+  "theme_dark": {
+    "message": "গাঢ়"
+  },
+  "theme_light": {
+    "message": "হালকা"
+  },
+  "installed_version": {
+    "message": "ইনস্টল করা সংস্করণ"
+  },
+  "extension_version": {
+    "message": "এক্সটেনশন সংস্করণ"
   }
 }

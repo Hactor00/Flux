@@ -312,10 +312,10 @@
     "message": "Toplam hız sınırı (bayt/sn, 0 = sınırsız)"
   },
   "appName": {
-    "message": "Flux"
+    "message": "Flux - İndirme Yöneticisi"
   },
   "appDescription": {
-    "message": "Yerel aktarım kuyruğunuza HTTP veya HTTPS dosyası ekleyin."
+    "message": "Dosyaları ve algılanan video/sesleri ücretsiz Flux masaüstü uygulamasına aktarın. Masaüstü uygulaması gereklidir."
   },
   "mediaReady": {
     "message": "Video kalitesini ve çıktı biçimini seçip Flux'a gönderin."

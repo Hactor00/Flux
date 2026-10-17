@@ -84,6 +84,11 @@ def main():
     run("flux-desktop", "--register-browser")
     manifest = json.loads((data / "native-host.json").read_text())
     assert manifest["path"] == "/usr/bin/flux-native-host"
+    expected_origins = {
+        "chrome-extension://iheejmamcoeigoallciifjminjnnnlbj/",
+        "chrome-extension://okimieponfbegjhmfdnnefnddofooipk/",
+    }
+    assert set(manifest["allowed_origins"]) == expected_origins
     assert (Path.home() / ".mozilla/native-messaging-hosts/io.flux.download.json").is_file()
     log = (root / "desktop.log").open("w")
     desktop = subprocess.Popen(["flux-desktop"], stdout=log, stderr=log)
@@ -105,6 +110,8 @@ def main():
                 break
             time.sleep(0.3)
         assert len(tasks) == 1 and tasks[0]["status"] == "queued", tasks
+        for origin in sorted(expected_origins):
+            assert len(native_list(origin)) == 1
         time.sleep(4)
         assert len(native_list(manifest["allowed_origins"][0])) == 1
         run("flux-desktop", "--shutdown")

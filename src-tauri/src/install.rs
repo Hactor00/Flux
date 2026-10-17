@@ -292,6 +292,9 @@ mod tests {
             include_str!("../../extension/extension-id.txt").trim()
         );
         assert!(origins.contains(&expected));
+        assert!(
+            origins.contains(&"chrome-extension://okimieponfbegjhmfdnnefnddofooipk/".to_owned())
+        );
         let unique: std::collections::HashSet<_> = origins.iter().collect();
         assert_eq!(unique.len(), origins.len());
     }

@@ -312,10 +312,10 @@
     "message": "Limite de velocidade total (bytes/s, 0 = ilimitado)"
   },
   "appName": {
-    "message": "Flux"
+    "message": "Flux - Gerenciador de Downloads"
   },
   "appDescription": {
-    "message": "Adicione um arquivo HTTP ou HTTPS à fila local."
+    "message": "Envie arquivos e mídias detectadas ao aplicativo gratuito Flux para desktop. Requer o aplicativo de desktop."
   },
   "mediaReady": {
     "message": "Escolha a qualidade do vídeo e o formato de saída e envie para o Flux."

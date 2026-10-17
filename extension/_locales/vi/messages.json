@@ -312,10 +312,10 @@
     "message": "Giới hạn tốc độ tổng (byte/giây, 0 = không giới hạn)"
   },
   "appName": {
-    "message": "Flux"
+    "message": "Flux - Trình quản lý tải xuống"
   },
   "appDescription": {
-    "message": "Thêm tệp HTTP hoặc HTTPS vào hàng đợi cục bộ."
+    "message": "Gửi tệp và nội dung đa phương tiện được phát hiện đến Flux miễn phí. Cần ứng dụng máy tính."
   },
   "mediaReady": {
     "message": "Chọn chất lượng video và định dạng đầu ra, rồi gửi đến Flux."

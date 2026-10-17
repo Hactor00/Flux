@@ -66,7 +66,7 @@ def main():
             raise RuntimeError("Linux validation record does not match its workflow run")
         subprocess.run(["git", "fetch", "--no-tags", "--depth=1", "origin", workflow["head_sha"]], check=True)
         runtime_paths = [
-            "crates", "src", "src-tauri", "extension", "extension-firefox", "native",
+            "crates", "src", "src-tauri", "extension", "extension-firefox", "native", "native-host",
             "vendor", ".cargo", "Cargo.toml", "Cargo.lock", "package.json", "package-lock.json",
             "scripts/build-torrent-runtime.ps1", "scripts/build-torrent-runtime.sh",
             "scripts/bootstrap-torrent-runtime.sh", "scripts/prepare-torrent-runtime.py",
@@ -81,7 +81,7 @@ def main():
         if Path(name).name != name or digest(stage / name) != checksum:
             raise RuntimeError("Original Windows artifact checksum mismatch")
         original_sums[name] = checksum
-    for suffix in ("windows-x64.zip", "chrome.zip", "firefox.zip", "firefox-120.zip", "source.zip"):
+    for suffix in ("windows-x64.zip", "chrome.zip", "chrome-store.zip", "firefox.zip", "firefox-120.zip", "source.zip"):
         if f"Flux-{version}-{suffix}" not in original_sums:
             raise RuntimeError(f"Original checksums omit {suffix}")
     installer = stage / f"Flux_{version}_x64-setup.exe"
@@ -142,7 +142,7 @@ def main():
     release_info.update({"source_commit": run("git", "rev-parse", "HEAD"), "platforms": ["Windows x64", "Linux x86_64 RPM"], "windows_run": os.environ["WINDOWS_RUN"], "linux_run": os.environ["LINUX_RUN"]})
     release_info["linux"] = {"distribution_tested": "Fedora 43", "architecture": "x86_64", "rpm_signed": False, "package_sha256": expected_rpm}
     (stage / "release-info.json").write_text(json.dumps(release_info, indent=2) + "\n")
-    names = [f"Flux_{version}_x64-setup.exe", f"Flux-{version}-windows-x64.zip", f"Flux-{version}-linux-x86_64.rpm", f"Flux-{version}-chrome.zip", f"Flux-{version}-firefox.zip", f"Flux-{version}-firefox-120.zip", f"Flux-{version}-source.zip", f"Flux_{version}_x64-setup.exe.sig", "latest.json", "release-info.json"]
+    names = [f"Flux_{version}_x64-setup.exe", f"Flux-{version}-windows-x64.zip", f"Flux-{version}-linux-x86_64.rpm", f"Flux-{version}-chrome.zip", f"Flux-{version}-chrome-store.zip", f"Flux-{version}-firefox.zip", f"Flux-{version}-firefox-120.zip", f"Flux-{version}-source.zip", f"Flux_{version}_x64-setup.exe.sig", "latest.json", "release-info.json"]
     checksums = {name: digest(stage / name) for name in names}
     (stage / "SHA256SUMS.txt").write_text("".join(f"{checksums[name]}  {name}\n" for name in sorted(names)))
     names.append("SHA256SUMS.txt")

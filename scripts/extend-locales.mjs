@@ -1,5 +1,11 @@
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from "node:fs";
 import { createHash, generateKeyPairSync } from "node:crypto";
+const storeMetadata = JSON.parse(
+  readFileSync(
+    new URL("./browser-store-metadata.json", import.meta.url),
+    "utf8",
+  ),
+);
 const keys =
   "downloadMedia|downloadWith|captureLinks|quality|automatic|inspecting|sentToDesktop|retry|wildcard|downloadSelected|interceptDownloads|interceptExplanation|browserIntegration|nativeInstallHelp|saved|desktopOffline|waitingForDesktop|noMedia|mediaHint|batch|priority|start_at|stop_at|media_processing|audio_url|duration_seconds|container|concurrent_tasks|download_directory|choose_folder|queue_enabled|clipboard_monitor|minimize_to_tray|notifications|save|open_file|reveal_file|remove|remove_description|confirm|inspect|queue_start|pause_all|install_bridge|installed|copy_hash".split(
     "|",
@@ -141,8 +147,14 @@ for (const [code, text] of Object.entries(catalogs)) {
     const messages = Object.fromEntries(
       Object.entries(dictionary).map(([key, message]) => [key, { message }]),
     );
-    messages.appName = { message: "Flux" };
-    messages.appDescription = { message: dictionary.add_description };
+    messages.appName = {
+      message: storeMetadata.names?.[chromeLocales[code]] || storeMetadata.name,
+    };
+    messages.appDescription = {
+      message:
+        storeMetadata.descriptions[chromeLocales[code]] ||
+        dictionary.add_description,
+    };
     writeFileSync(
       `${directory}/messages.json`,
       JSON.stringify(messages, null, 2) + "\n",

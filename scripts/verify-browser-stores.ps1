@@ -1,8 +1,9 @@
-param([string]$OutputDirectory)
+param([string]$OutputDirectory, [string]$ReportPath)
 $ErrorActionPreference = 'Stop'
 $workspace = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $workspace
 if (-not $OutputDirectory) { $OutputDirectory = Join-Path $workspace '.tools/browser-stores' }
+if (-not $ReportPath) { $ReportPath = Join-Path $workspace 'docs/validation/browser-stores.json' }
 $version = (Get-Content -LiteralPath package.json -Raw | ConvertFrom-Json).version
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $packages = @(
@@ -21,6 +22,12 @@ $records = foreach ($package in $packages) {
         }
     }
     $expected['LICENSE'] = (Get-FileHash -LiteralPath LICENSE).Hash
+    $storeManifest = $null
+    if ($package.Name -in @('chrome','edge')) {
+        $storeManifest = Get-Content -LiteralPath (Join-Path $source 'manifest.json') -Raw | ConvertFrom-Json
+        foreach ($property in 'key','update_url') { $storeManifest.PSObject.Properties.Remove($property) }
+        $storeManifest = $storeManifest | ConvertTo-Json -Depth 32 -Compress
+    }
     $zip = [IO.Compression.ZipFile]::OpenRead((Resolve-Path -LiteralPath $archivePath).Path)
     try {
         $entries = @($zip.Entries | Where-Object { -not $_.FullName.EndsWith('/') })
@@ -29,6 +36,15 @@ $records = foreach ($package in $packages) {
         foreach ($entry in $entries) {
             if (-not $expected.ContainsKey($entry.FullName) -or $seen.ContainsKey($entry.FullName)) { throw "Unexpected or duplicate store file: $($entry.FullName)" }
             $seen[$entry.FullName] = $true
+            if ($entry.FullName -eq 'manifest.json' -and $null -ne $storeManifest) {
+                $reader = [IO.StreamReader]::new($entry.Open())
+                try { $manifest = $reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose() }
+                foreach ($property in 'key','update_url') {
+                    if ($manifest.PSObject.Properties.Name -contains $property) { throw "Development-only manifest field in store package: $($package.Name)/$property" }
+                }
+                if (($manifest | ConvertTo-Json -Depth 32 -Compress) -ne $storeManifest) { throw "Store manifest differs beyond permitted identity fields: $($package.Name)" }
+                continue
+            }
             $stream = $entry.Open()
             try { $hash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream)) } finally { $stream.Dispose() }
             if ($hash -ne $expected[$entry.FullName]) { throw "Store source mismatch: $($package.Name)/$($entry.FullName)" }
@@ -36,6 +52,6 @@ $records = foreach ($package in $packages) {
         @{name=$package.Name;files=$entries.Count;sha256=(Get-FileHash -LiteralPath $archivePath).Hash.ToLowerInvariant()}
     } finally { $zip.Dispose() }
 }
-$report = @{version=$version;passed=$true;runtime_only=$true;source_hashes_verified=$true;packages=@($records);time=(Get-Date).ToUniversalTime().ToString('o')}
-$report | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath docs/validation/browser-stores.json -Encoding utf8
+$report = @{version=$version;passed=$true;runtime_only=$true;source_hashes_verified=$true;chromium_store_manifests_verified=$true;packages=@($records);time=(Get-Date).ToUniversalTime().ToString('o')}
+$report | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $ReportPath -Encoding utf8
 Write-Output ($report | ConvertTo-Json -Depth 4 -Compress)

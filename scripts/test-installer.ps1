@@ -52,6 +52,8 @@ try {
     $testBrowser = & "$PSScriptRoot/prepare-chrome-tests.ps1"
     & $nodeExecutable "$workspace/scripts/test-chrome-interception.mjs" $testBrowser "$installDirectory/extension" $installDirectory
     if ($LASTEXITCODE -ne 0) { throw 'Installed Chromium download handoff regression failed.' }
+    & $nodeExecutable "$workspace/scripts/test-chrome-interception.mjs" $testBrowser "$installDirectory/extension" $installDirectory --store
+    if ($LASTEXITCODE -ne 0) { throw 'Installed Chrome Web Store identity download handoff failed.' }
     $firefoxManifest = Get-Content -LiteralPath "$localData/Flux/io.flux.download.firefox.json" -Raw | ConvertFrom-Json
     if ($firefoxManifest.path -ne $manifest.path -or $firefoxManifest.allowed_extensions.Count -ne 1 -or $firefoxManifest.allowed_extensions[0] -ne 'flux@flux-download.local' -or $firefoxManifest.allowed_origins) { throw 'Firefox registration schema is invalid.' }
     1..2 | ForEach-Object { $repair = Start-Process -FilePath "$installDirectory/flux-desktop.exe" -ArgumentList '--register-browser' -WindowStyle Hidden -PassThru -Wait; if ($repair.ExitCode -ne 0) { throw 'Browser bridge repair failed.' } }

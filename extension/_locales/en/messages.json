@@ -312,10 +312,10 @@
     "message": "Total speed limit (bytes/s, 0 = unlimited)"
   },
   "appName": {
-    "message": "Flux"
+    "message": "Flux - Download Manager"
   },
   "appDescription": {
-    "message": "Add an HTTP or HTTPS file to your local transfer queue."
+    "message": "Send files and detected video/audio to the free Flux desktop app. Desktop app required."
   },
   "mediaReady": {
     "message": "Choose the video quality and output format, then send it to Flux."

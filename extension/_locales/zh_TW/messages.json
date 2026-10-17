@@ -312,10 +312,10 @@
     "message": "總速度限制（位元組/秒，0 = 無限制）"
   },
   "appName": {
-    "message": "Flux"
+    "message": "Flux - 下載管理員"
   },
   "appDescription": {
-    "message": "將HTTP或HTTPS檔案加入本機佇列。"
+    "message": "將檔案及偵測到的影片、音訊傳送至免費的 Flux 桌面應用程式。需另行安裝桌面應用程式。"
   },
   "mediaReady": {
     "message": "揀選影片畫質同輸出格式，再傳送到 Flux。"

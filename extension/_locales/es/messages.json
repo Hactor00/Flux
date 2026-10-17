@@ -312,10 +312,10 @@
     "message": "Límite de velocidad total (bytes/s, 0 = sin límite)"
   },
   "appName": {
-    "message": "Flux"
+    "message": "Flux - Gestor de descargas"
   },
   "appDescription": {
-    "message": "Añade un archivo HTTP o HTTPS a tu cola local."
+    "message": "Envía archivos y medios detectados a la app gratuita de Flux para escritorio. Requiere la app de escritorio."
   },
   "mediaReady": {
     "message": "Elige la calidad del vídeo y el formato de salida y envíalo a Flux."

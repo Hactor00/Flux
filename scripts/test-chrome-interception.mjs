@@ -2,14 +2,47 @@ import assert from "node:assert/strict";
 import { spawn, execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { createServer } from "node:http";
-import { mkdir, mkdtemp, writeFile, readdir, readFile } from "node:fs/promises";
+import {
+  mkdir,
+  mkdtemp,
+  writeFile,
+  readdir,
+  readFile,
+  cp,
+} from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 
 const executable =
   process.argv[2] || "C:/Program Files/Google/Chrome/Application/chrome.exe";
-const extension = resolve(process.argv[3] || "extension");
+let extension = resolve(process.argv[3] || "extension");
 const root = await mkdtemp(join(tmpdir(), "flux-chrome-capture-"));
+const storeMode = process.argv.includes("--store");
+if (storeMode) {
+  const storeExtension = join(root, "store-extension");
+  await cp(extension, storeExtension, { recursive: true });
+  const manifest = JSON.parse(
+    await readFile(join(storeExtension, "manifest.json")),
+  );
+  manifest.key = (
+    await readFile("native-host/chrome-store-public-key.txt", "utf8")
+  ).trim();
+  const identity = [
+    ...createHash("sha256")
+      .update(Buffer.from(manifest.key, "base64"))
+      .digest("hex")
+      .slice(0, 32),
+  ]
+    .map((nibble) => String.fromCharCode(97 + parseInt(nibble, 16)))
+    .join("");
+  assert.equal(identity, "okimieponfbegjhmfdnnefnddofooipk");
+  await writeFile(
+    join(storeExtension, "manifest.json"),
+    JSON.stringify(manifest),
+  );
+  extension = storeExtension;
+}
 const profile = join(root, "profile");
 const downloads = join(root, "browser-downloads");
 await mkdir(join(profile, "Default"), { recursive: true });
@@ -128,6 +161,12 @@ async function until(callback, milliseconds = 20000) {
 try {
   const version = await call("Browser.getVersion");
   const { id } = await call("Extensions.loadUnpacked", { path: extension });
+  assert.equal(
+    id,
+    storeMode
+      ? "okimieponfbegjhmfdnnefnddofooipk"
+      : (await readFile("extension/extension-id.txt", "utf8")).trim(),
+  );
   const inventory = await call("Extensions.getExtensions");
   assert.deepEqual(
     inventory.extensions.filter((item) => item.enabled).map((item) => item.id),
@@ -283,6 +322,8 @@ try {
     passed: true,
     browser: version.product,
     production_extension: extension,
+    extension_id: id,
+    distribution: storeMode ? "chrome-store-identity" : "github-unpacked",
     browser_prompt_for_download: true,
     attachment_navigation: true,
     browser_transfer_cancelled: true,
@@ -296,7 +337,9 @@ try {
   };
   await mkdir("docs/validation", { recursive: true });
   await writeFile(
-    "docs/validation/chrome-interception.json",
+    storeMode
+      ? "docs/validation/chrome-store-interception.json"
+      : "docs/validation/chrome-interception.json",
     JSON.stringify(report, null, 2) + "\n",
   );
   console.log(JSON.stringify(report));

@@ -30,7 +30,13 @@ foreach ($entry in $entries) {
     if ($manifest.version -ne $version -or $manifest.manifest_version -ne 3) { throw 'Store extension version or manifest mismatch.' }
     if ($entry.Name -eq 'firefox') {
         if (-not $manifest.browser_specific_settings.gecko.id -or $manifest.background.service_worker -or -not $manifest.browser_specific_settings.gecko.data_collection_permissions) { throw 'Invalid production Gecko manifest.' }
-    } elseif (-not $manifest.background.service_worker -or $manifest.browser_specific_settings) { throw 'Invalid Chromium service-worker manifest.' }
+    } else {
+        if (-not $manifest.background.service_worker -or $manifest.browser_specific_settings) { throw 'Invalid Chromium service-worker manifest.' }
+        # Store signing assigns the extension identity and update channel. Keep the
+        # development key only in unpacked/GitHub packages for native-host pairing.
+        foreach ($property in 'key','update_url') { $manifest.PSObject.Properties.Remove($property) }
+        $manifest | ConvertTo-Json -Depth 32 | Set-Content -LiteralPath (Join-Path $stage 'manifest.json') -Encoding utf8NoBOM
+    }
     $archive = Join-Path $output "Flux-$version-$($entry.Name)-store.zip"
     Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $archive -Force
     Write-Output "Store package prepared: $archive"

@@ -21,6 +21,13 @@ if ($Signed) {
         if ($files.Count -ne 1 -or (Get-AuthenticodeSignature -LiteralPath $files[0].FullName).Status -ne 'Valid') { throw "Portable executable has no valid Authenticode signature: $name" }
     }
 }
+$storeName = "Flux-$version-chrome-store.zip"
+$storePackage = Join-Path $workspace ".tools/browser-stores/$storeName"
+$storeReport = Get-Content -LiteralPath (Join-Path $workspace 'docs/validation/browser-stores.json') -Raw | ConvertFrom-Json
+$chromeRecord = $storeReport.packages | Where-Object name -eq 'chrome'
+if (-not $storeReport.passed -or $storeReport.version -ne $version -or (Get-FileHash -LiteralPath $storePackage).Hash.ToLowerInvariant() -ne $chromeRecord.sha256) { throw 'Chrome store package differs from the verified artifact.' }
+Copy-Item -LiteralPath $storePackage -Destination (Join-Path $destination $storeName) -Force
+$names += $storeName
 $releaseNotes = Join-Path $workspace "docs/releases/v$version.md"
 if (-not (Test-Path -LiteralPath $releaseNotes)) { throw "Release notes are missing for version $version." }
 & "$PSScriptRoot/sign-update.ps1" -Artifact (Join-Path $destination "Flux_${version}_x64-setup.exe") -OutputDirectory $destination -NotesFile $releaseNotes

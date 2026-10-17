@@ -8,7 +8,7 @@ Flux is preparing to use the SignPath Foundation program for official Windows re
 
 Free code signing provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org).
 
-Foundation approval and production signing configuration are pending. Flux 2.4.2 Windows packages do not carry an Authenticode publisher certificate. The cryptographic signature used by Flux's updater is a separate mechanism and does not establish Foundation approval. Linux RPMs are distributed without an RPM signing certificate and include SHA-256 checksums.
+Foundation approval and production signing configuration are pending. Flux 2.4.3 Windows packages do not carry an Authenticode publisher certificate. The cryptographic signature used by Flux's updater is a separate mechanism and does not establish Foundation approval. Linux RPMs are distributed without an RPM signing certificate and include SHA-256 checksums.
 
 ## Project roles
 

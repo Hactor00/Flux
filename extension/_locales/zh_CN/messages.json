@@ -312,10 +312,10 @@
     "message": "总速度限制（字节/秒，0 = 不限）"
   },
   "appName": {
-    "message": "Flux"
+    "message": "Flux - 下载管理器"
   },
   "appDescription": {
-    "message": "将HTTP或HTTPS文件添加到本地传输队列。"
+    "message": "将文件及检测到的视频、音频发送到免费的 Flux 桌面应用。需另行安装桌面应用。"
   },
   "mediaReady": {
     "message": "选择视频画质和输出格式，然后发送到 Flux。"

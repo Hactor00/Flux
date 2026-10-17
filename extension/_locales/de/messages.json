@@ -312,10 +312,10 @@
     "message": "Gesamtes Geschwindigkeitslimit (Byte/s, 0 = unbegrenzt)"
   },
   "appName": {
-    "message": "Flux"
+    "message": "Flux - Download-Manager"
   },
   "appDescription": {
-    "message": "Füge eine HTTP- oder HTTPS-Datei zur lokalen Warteschlange hinzu."
+    "message": "Dateien und erkannte Medien an die kostenlose Flux-Desktop-App senden. Desktop-App erforderlich."
   },
   "mediaReady": {
     "message": "Wähle Videoqualität und Ausgabeformat und sende das Video an Flux."

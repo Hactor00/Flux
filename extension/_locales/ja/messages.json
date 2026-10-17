@@ -312,10 +312,10 @@
     "message": "合計速度制限（バイト/秒、0 = 無制限）"
   },
   "appName": {
-    "message": "Flux"
+    "message": "Flux - ダウンロードマネージャー"
   },
   "appDescription": {
-    "message": "HTTPまたはHTTPSファイルをローカルキューに追加します。"
+    "message": "ファイルや検出した動画・音声を無料の Flux デスクトップアプリに送信します。デスクトップアプリが必要です。"
   },
   "mediaReady": {
     "message": "画質と出力形式を選択して、Flux に送信してください。"

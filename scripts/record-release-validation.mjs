@@ -26,6 +26,7 @@ const records = Object.fromEntries(
       "firefox-120.0",
       "firefox-157.0.1",
       "chrome-interception",
+      "chrome-store-interception",
       "browser-onboarding",
     ].map(async (name) => [name, await json(`docs/validation/${name}.json`)]),
   ),
@@ -39,6 +40,7 @@ for (const [name, record] of Object.entries(records)) {
         "torrent-watch-window",
         "browser-stores",
         "chrome-interception",
+        "chrome-store-interception",
         "browser-onboarding",
       ].includes(name)) &&
     record.version !== version
@@ -47,6 +49,9 @@ for (const [name, record] of Object.entries(records)) {
 }
 if (
   !records.installer.installed_binary_hashes_verified ||
+  records["chrome-store-interception"].extension_id !==
+    "okimieponfbegjhmfdnnefnddofooipk" ||
+  !records["chrome-store-interception"].hud_media_native_acknowledged ||
   !records.installer.active_native_host_upgrade_verified ||
   !records["browser-onboarding"].missing_registry_and_outdated_host_repaired ||
   !records["browser-onboarding"].dismissal_persisted_after_restart ||

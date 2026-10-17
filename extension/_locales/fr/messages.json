@@ -312,10 +312,10 @@
     "message": "Limite de débit total (octets/s, 0 = illimité)"
   },
   "appName": {
-    "message": "Flux"
+    "message": "Flux - Gestionnaire de téléchargements"
   },
   "appDescription": {
-    "message": "Ajoutez un fichier HTTP ou HTTPS à la file locale."
+    "message": "Envoyez fichiers et médias détectés vers Flux sur votre ordinateur. Application de bureau gratuite requise."
   },
   "mediaReady": {
     "message": "Choisissez la qualité vidéo et le format de sortie, puis envoyez la vidéo à Flux."

@@ -6,9 +6,15 @@ Chromium host manifests contain `allowed_origins`; Firefox uses `allowed_extensi
 
 Run `./scripts/package-browser-stores.ps1` to create runtime-only Chrome, Edge and Firefox store ZIPs, then `./scripts/verify-browser-stores.ps1` to verify their exact file set and source hashes. Chrome and Brave use the Chrome Web Store distribution; Edge can use its own reviewed store listing or the Chrome Web Store version. The `Prepare browser store packages` workflow validates the production Gecko manifest and prepares the same ZIPs. It can request an unlisted Mozilla signed XPI when explicitly enabled with repository secrets `AMO_JWT_ISSUER` and `AMO_JWT_SECRET`.
 
+Upload `Flux-<version>-chrome-store.zip` to the Chrome Web Store. The store packager removes the development `key` and any self-hosted `update_url` from Chromium store manifests. GitHub/unpacked packages keep their stable development key. The verifier permits only these manifest differences and checks all other runtime files against the shared sources. The store assigns its own item ID: record that ID in the desktop native-host allowlist before distributing the store extension to users. Uploading an ordinary `Flux-<version>-chrome.zip` is not the store packaging path.
+
 Normal Windows Chrome installations require a Web Store listing for consumer installation without developer mode. Standard Firefox requires Mozilla signing for permanent installation. Store publication and signing depend on the account's permissions and review; the application does not bypass these checks or force browser enterprise policies. Native host registration is automatic once the application is installed. The prepared local ZIPs have no store signature.
 
 The Firefox 140+ package declares authentication, browsing and website content transfer for its local desktop integration. Firefox 120–139 uses explicit native-transfer consent in its settings and a DOM/network fallback where MAIN-world script injection is unavailable. The modern manifest declares Firefox for Android 142 as its minimum schema version; distributed desktop hosts target Windows x64 and Linux x86_64. Browser installation tests run on Windows. The Linux package checks per-user host manifests and authenticated Native Messaging separately; Flatpak/Snap browser confinement is outside that test scope.
+
+## Chrome Web Store draft identity
+
+The Chrome Web Store listing uses `okimieponfbegjhmfdnnefnddofooipk`. This exact identity is included in the desktop allowlist alongside the existing unpacked identity. Previously published 2.4.2 desktop packages predate this store identity and do not acquire the updated allowlist from an extension upload. Flux 2.4.3 desktop packages include both identities; Windows installer tests and installed Linux RPM tests cover both origins. The store listing remains subject to Google review. Do not work around the missing identity with wildcard origins or browser enterprise policies.
 
 ## Privacy disclosure for store listings
 

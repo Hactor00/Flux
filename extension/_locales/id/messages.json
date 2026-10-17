@@ -312,10 +312,10 @@
     "message": "Batas kecepatan total (byte/dtk, 0 = tanpa batas)"
   },
   "appName": {
-    "message": "Flux"
+    "message": "Flux - Pengelola Unduhan"
   },
   "appDescription": {
-    "message": "Tambahkan berkas HTTP atau HTTPS ke antrean lokal."
+    "message": "Kirim berkas dan media yang terdeteksi ke aplikasi desktop Flux gratis. Aplikasi desktop diperlukan."
   },
   "mediaReady": {
     "message": "Pilih kualitas video dan format keluaran, lalu kirim ke Flux."

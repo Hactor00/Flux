@@ -2,7 +2,7 @@
 
 The release workflow builds Windows x64 on a GitHub-hosted runner. Tags must match the version in `package.json`. Manual runs produce artifacts by default; publication creates a draft GitHub release.
 
-The current release is **2.4.3**, with a Windows x64 installer/portable runtime and a Linux x86_64 RPM. Keep both README files, package versions, extension manifests and `docs/releases/v2.4.3.md` aligned. Historical documents retain their original version and evidence dates. The [Linux build and platform guide](release-2.4.md) describes RPM dependencies, installation and validation.
+The current release is **2.4.4**, with a Windows x64 installer/portable runtime and a Linux x86_64 RPM. Keep both README files, package versions, extension manifests and `docs/releases/v2.4.4.md` aligned. Historical documents retain their original version and evidence dates. The [Linux build and platform guide](release-2.4.md) describes RPM dependencies, installation and validation.
 
 ## Clean build
 

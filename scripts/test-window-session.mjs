@@ -60,6 +60,15 @@ fixture.listen(0, "127.0.0.1");
 await once(fixture, "listening");
 const automatic = process.argv.includes("--automatic");
 let driver;
+async function verifyUpdateResourcePermission(window) {
+  // An unknown ID exercises the real command ACL without closing another feature's resource.
+  const result = await window.evaluate(
+    "window.__TAURI_INTERNALS__.invoke('plugin:resources|close',{rid:4294967295}).then(()=>null,error=>String(error))",
+  );
+  assert.equal(typeof result, "string");
+  assert.match(result, /resource/i);
+  assert.doesNotMatch(result, /ACL|not allowed|denied/i);
+}
 const env = {
   ...process.env,
   LOCALAPPDATA: root,
@@ -290,6 +299,8 @@ try {
       3,
     );
     await openSettingsTab("updates");
+    await verifyUpdateResourcePermission(main);
+    await verifyUpdateResourcePermission(settings);
     assert.ok(
       await settings.evaluate(
         "!!document.querySelector('.updater-panel button:not(:disabled)')",
@@ -317,6 +328,7 @@ try {
       settings_window_verified: true,
       top_menu_settings_verified: true,
       seeding_accounts_updates_panels_verified: true,
+      updater_resource_close_main_and_settings_verified: true,
       start_timestamp_verified: true,
     };
     console.log(

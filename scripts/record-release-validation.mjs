@@ -61,6 +61,7 @@ if (
   !records["browser-onboarding"].settings_navigation_and_rtl_layout_verified ||
   !records["browser-onboarding"].light_dark_theme_persistence_verified ||
   !records["browser-onboarding"].application_version_read_verified ||
+  !records.windows.updater_resource_close_main_and_settings_verified ||
   !records["torrent-window"].torrent_file_row_visible
 )
   throw Error(
@@ -138,6 +139,8 @@ const report = {
   automated_tests: rustTests + extensionTests + uiTests,
   browser_interception: records["chrome-interception"],
   browser_setup: records["browser-onboarding"],
+  updater_resource_close_main_and_settings_verified:
+    records.windows.updater_resource_close_main_and_settings_verified,
   test_evidence: {
     core_run_id:
       process.env.FLUX_CORE_TEST_RUN || process.env.GITHUB_RUN_ID || null,

@@ -5,6 +5,7 @@
   "windows": ["main", "settings-*"],
   "permissions": [
     "core:app:allow-version",
+    "core:resources:allow-close",
     "updater:default",
     "process:allow-restart"
   ]

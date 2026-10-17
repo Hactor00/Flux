@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Hactor00/Flux/releases/tag/v2.4.3"><img alt="Flux 2.4.3" src="https://img.shields.io/badge/release-2.4.3-bda8ff"></a>
+  <a href="https://github.com/Hactor00/Flux/releases/tag/v2.4.4"><img alt="Flux 2.4.4" src="https://img.shields.io/badge/release-2.4.4-bda8ff"></a>
   <a href="https://github.com/Hactor00/Flux/actions/workflows/ci.yml"><img alt="Doğrulama" src="https://github.com/Hactor00/Flux/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <img alt="Windows and Linux" src="https://img.shields.io/badge/platform-Windows_%7C_Linux-0078D4">
   <a href="LICENSE"><img alt="MIT lisansı" src="https://img.shields.io/badge/license-MIT-84d6ba"></a>
@@ -17,7 +17,7 @@
 
 <p align="center">
   <a href="README.md">English</a> · <strong>Türkçe</strong><br>
-  <a href="#i%CC%87ndir">İndir</a> · <a href="#242deki-yenilikler">Yenilikler</a> · <a href="#özellikler">Özellikler</a> · <a href="#kurulum">Kurulum</a> · <a href="#doğrulama">Doğrulama</a> · <a href="#geliştirme">Geliştirme</a>
+  <a href="#i%CC%87ndir">İndir</a> · <a href="#244teki-yenilikler">Yenilikler</a> · <a href="#özellikler">Özellikler</a> · <a href="#kurulum">Kurulum</a> · <a href="#doğrulama">Doğrulama</a> · <a href="#geliştirme">Geliştirme</a>
 </p>
 
 Flux; çok bağlantılı HTTP indirmelerini, erişilebilir video/ses yakalamayı, yerleşik BitTorrent motorlarını, kalıcı yerel geçmişi ve ayrı masaüstü onay pencerelerini birleştirir. Tauri 2, React 19, Tokio ve SQLite WAL üzerine kuruludur. Adı “akış” fikrinden gelir: tarayıcıdaki dosya ve medyanın indirme kuyruğuna akması.
@@ -26,32 +26,31 @@ Flux; çok bağlantılı HTTP indirmelerini, erişilebilir video/ses yakalamayı
 
 ## İndir
 
-**Güncel sürüm: [Flux 2.4.3](https://github.com/Hactor00/Flux/releases/tag/v2.4.3), Windows x64 ve Linux x86_64 (RPM).**
+**Güncel sürüm: [Flux 2.4.4](https://github.com/Hactor00/Flux/releases/tag/v2.4.4), Windows x64 ve Linux x86_64 (RPM).**
 
 [Kod imzalama politikası (Code signing policy)](docs/code-signing-policy.md) · [Gizlilik politikası](docs/browser-stores.md#privacy-disclosure-for-store-listings)
 
 | Paket | Kullanımı |
 | --- | --- |
-| **[Windows kurulumu](https://github.com/Hactor00/Flux/releases/download/v2.4.3/Flux_2.4.3_x64-setup.exe)** | Önerilen; kullanıcı hesabına kurulum ve otomatik yerel köprü kaydı |
-| **[Linux RPM](https://github.com/Hactor00/Flux/releases/download/v2.4.3/Flux-2.4.3-linux-x86_64.rpm)** | Fedora x86_64; masaüstü, yerel köprü ve torrent bileşeni; medya bağımlılıklarını dnf kurar |
-| [Taşınabilir uygulama](https://github.com/Hactor00/Flux/releases/download/v2.4.3/Flux-2.4.3-windows-x64.zip) | Masaüstü uygulaması, eklentiler ve medya araçları |
-| [Chromium eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.4.3/Flux-2.4.3-chrome.zip) | Chrome, Edge, Brave ve uyumlu Chromium tarayıcıları |
-| [Chrome mağazası yükleme ZIP’i](https://github.com/Hactor00/Flux/releases/download/v2.4.3/Flux-2.4.3-chrome-store.zip) | Mağazaya yüklemek için; kullanıcılar normal GitHub ZIP’ini veya onaylanan mağaza girişini seçebilir |
-| [Firefox 140+ eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.4.3/Flux-2.4.3-firefox.zip) | Güncel Firefox |
-| [Firefox 120–139 eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.4.3/Flux-2.4.3-firefox-120.zip) | Desteklenen eski Firefox sürümleri |
-| [Kaynak kod arşivi](https://github.com/Hactor00/Flux/releases/download/v2.4.3/Flux-2.4.3-source.zip) | Kaynaklar, derleme betikleri, testler ve yayın belgeleri |
-| [SHA-256 özetleri](https://github.com/Hactor00/Flux/releases/download/v2.4.3/SHA256SUMS.txt) | İndirilen paketlerin dosya kimliğini doğrulama |
+| **[Windows kurulumu](https://github.com/Hactor00/Flux/releases/download/v2.4.4/Flux_2.4.4_x64-setup.exe)** | Önerilen; kullanıcı hesabına kurulum ve otomatik yerel köprü kaydı |
+| **[Linux RPM](https://github.com/Hactor00/Flux/releases/download/v2.4.4/Flux-2.4.4-linux-x86_64.rpm)** | Fedora x86_64; masaüstü, yerel köprü ve torrent bileşeni; medya bağımlılıklarını dnf kurar |
+| [Taşınabilir uygulama](https://github.com/Hactor00/Flux/releases/download/v2.4.4/Flux-2.4.4-windows-x64.zip) | Masaüstü uygulaması, eklentiler ve medya araçları |
+| [Chromium eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.4.4/Flux-2.4.4-chrome.zip) | Chrome, Edge, Brave ve uyumlu Chromium tarayıcıları |
+| [Chrome mağazası yükleme ZIP’i](https://github.com/Hactor00/Flux/releases/download/v2.4.4/Flux-2.4.4-chrome-store.zip) | Mağazaya yüklemek için; kullanıcılar normal GitHub ZIP’ini veya onaylanan mağaza girişini seçebilir |
+| [Firefox 140+ eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.4.4/Flux-2.4.4-firefox.zip) | Güncel Firefox |
+| [Firefox 120–139 eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.4.4/Flux-2.4.4-firefox-120.zip) | Desteklenen eski Firefox sürümleri |
+| [Kaynak kod arşivi](https://github.com/Hactor00/Flux/releases/download/v2.4.4/Flux-2.4.4-source.zip) | Kaynaklar, derleme betikleri, testler ve yayın belgeleri |
+| [SHA-256 özetleri](https://github.com/Hactor00/Flux/releases/download/v2.4.4/SHA256SUMS.txt) | İndirilen paketlerin dosya kimliğini doğrulama |
 
 Güncelleme paketleri, Flux içindeki doğrulama anahtarıyla kontrol edilen imzayı taşır. Windows kurulum dosyası ve çalıştırılabilir dosyalarda **Authenticode yayıncı sertifikası yoktur**; Windows yayıncı veya SmartScreen uyarısı gösterebilir. Firefox ZIP'leri imzasızdır, kalıcı kurulum Mozilla imzası gerektirir. Ayrıntılar: [yayın ve imzalama](docs/release.md), [tarayıcı dağıtımı](docs/browser-stores.md).
 
 Önceki [2.3.0](https://github.com/Hactor00/Flux/releases/tag/v2.3.0), [2.0.0](https://github.com/Hactor00/Flux/releases/tag/v2.0.0) ve [1.7.0](https://github.com/Hactor00/Flux/releases/tag/v1.7.0) paketleri erişilebilir durumdadır.
 
-## 2.4.3'teki yenilikler
+## 2.4.4'teki yenilikler
 
-- **GitHub ve Chrome Web Mağazası uyumu:** masaüstü köprüsü hem GitHub eklentisinin sabit kimliğini hem de Chrome mağazası kimliğini tanır. Tercih ettiğiniz tek dağıtımı kurarak aynı programı kullanabilirsiniz.
-- **Yerelleştirilmiş eklenti bilgileri:** başlıklar ve kısa açıklamalar Chrome'un desteklediği 19 dile çevrildi; eklentinin 20 arayüz dili korunur.
-- **Ayrı mağaza paketi:** Chrome mağazası arşivinde geliştirme kimliği/güncelleme alanları bulunmaz. GitHub ZIP'i sabit kimliğini korur; iki dağıtım aynı çalışma zamanı kodlarını kullanır.
-- **İki dağıtımın kontrolü:** Windows paket testleri her iki kimlikle Chromium dosya ve medya aktarımını sınar; Fedora'ya kurulan RPM her iki yerel köprü kimliğini kontrol eder.
+- **Tekrarlanan güncelleme kontrolü düzeltildi:** ana pencere ve Ayarlar, önceki güncelleme kaydını ACL hatası almadan kapatabilir.
+- **Daha dayanıklı güncelleme akışı:** “Daha sonra” deyip yeniden denetlemek, eski kaydın temizliği başarısız olsa bile yeni güncellemenin görünmesini engellemez.
+- **Tarayıcı uyumu korunur:** GitHub ve Chrome mağazası eklentileri aynı masaüstü uygulamasına bağlanabilir.
 
 ## 2.4 serisinin öne çıkanları
 
@@ -61,7 +60,7 @@ Güncelleme paketleri, Flux içindeki doğrulama anahtarıyla kontrol edilen imz
 - **Güvenli yol kontrolü:** Mutlak yollar ve indirme klasörünün dışına çıkan yollar kuyruğa alınmadan reddedilir.
 - **Mevcut özellikler korunur:** Paralel HTTP ve sürdürme, medya algılama/işleme, yerel torrent ve izleme klasörleri, Linux RPM, tarayıcı aktarımı, geçmiş ve yirmi dil.
 
-[2.4.3 yayın notları](docs/releases/v2.4.3.md), [derleme ve platform kılavuzu](docs/release-2.4.md) ve [doğrulama](docs/validation-2.4.3.md) ayrıntıları içerir.
+[2.4.4 yayın notları](docs/releases/v2.4.4.md), [derleme ve platform kılavuzu](docs/release-2.4.md) ve [doğrulama](docs/validation-2.4.4.md) ayrıntıları içerir.
 ## Özellikler
 
 | Alan | İşlevler |
@@ -127,7 +126,7 @@ Görseller, izole Windows profilinde çalışan gerçek 2.4.2 arayüzünden alı
 
 ### Windows masaüstü
 
-1. `Flux_2.4.3_x64-setup.exe` dosyasını çalıştır; kurulum kullanıcı hesabına yapılır.
+1. `Flux_2.4.4_x64-setup.exe` dosyasını çalıştır; kurulum kullanıcı hesabına yapılır.
 2. FFmpeg, FFprobe, yt-dlp, Node ve torrent çalışma zamanları pakettedir. WebView2 yoksa Microsoft kurulum aracı internet ister.
 3. **Chrome, Edge, Brave, Chromium ve Firefox** için Native Messaging kaydedilir. Köprü kaydı tarayıcı eklentisini kurmaz.
 4. Eklentiyi kurduktan sonra Flux'u bir kez aç. Kurulu ve taşınabilir sürüm, köprüyü açılışta otomatik kaydeder/onarır. İzinler veya eksik dosyalar kaydı engellerse **Ayarlar → Tarayıcı bütünleşmesi → Tarayıcı köprüsünü onar** kullanılabilir.
@@ -141,7 +140,7 @@ Yayımlanan 1.7/2.0 paketlerinden geçişte güncel kurulumu elle çalıştır. 
 Fedora x86_64 üzerinde kurulum veya yükseltme:
 
 ```bash
-sudo dnf install ./Flux-2.4.3-linux-x86_64.rpm
+sudo dnf install ./Flux-2.4.4-linux-x86_64.rpm
 flux-desktop
 ```
 
@@ -224,7 +223,7 @@ Zorunlu medya testleri için FFmpeg/FFprobe ve sabit örnek üreticisini [katkı
 
 | Belge | İçerik |
 | --- | --- |
-| [2.4 yayın notları](docs/releases/v2.4.3.md) | İngilizce/Türkçe sürüm özeti |
+| [2.4 yayın notları](docs/releases/v2.4.4.md) | İngilizce/Türkçe sürüm özeti |
 | [2.4 derleme ve platform kılavuzu](docs/release-2.4.md) | Klasör izleme, RPM paketleme ve platform farkları |
 | [Mimari](docs/architecture.md) · [IPC](docs/protocol.md) | Motor sahipliği, kalıcılık ve tarayıcı protokolü |
 | [Doğrulama](docs/validation.md) | Güncel ve tarihsel kanıtlar |
@@ -242,6 +241,6 @@ Flux'un kendi kodu [MIT](LICENSE) lisanslıdır. FFmpeg/LAME LGPL, libxml2 MIT, 
 
 SignPath onaylı, imzalı yayınlarda kullanılacak bildirim: **“This project uses SignPath Foundation for code signing.”**
 
-Flux, [SignPath.io](https://signpath.io) üzerinden ücretsiz kod imzalamaya ve [SignPath Foundation](https://signpath.org) tarafından sağlanan sertifikaya hazırlanıyor. Foundation onayı ve üretim imzalama yapılandırması bekleniyor; mevcut 2.4.3 Windows paketlerinde Authenticode yayıncı sertifikası bulunmuyor. Uygulama içi güncelleme imzası ayrı bir doğrulamadır.
+Flux, [SignPath.io](https://signpath.io) üzerinden ücretsiz kod imzalamaya ve [SignPath Foundation](https://signpath.org) tarafından sağlanan sertifikaya hazırlanıyor. Foundation onayı ve üretim imzalama yapılandırması bekleniyor; mevcut 2.4.4 Windows paketlerinde Authenticode yayıncı sertifikası bulunmuyor. Uygulama içi güncelleme imzası ayrı bir doğrulamadır.
 
 İmzalama kapsamı, geliştirici/onaylayan rolleri ve yayın doğrulaması [kod imzalama politikasında](docs/code-signing-policy.md) açıklanır. **Privacy Policy URL:** [Flux gizlilik açıklaması](https://github.com/Hactor00/Flux/blob/main/docs/browser-stores.md#privacy-disclosure-for-store-listings).

@@ -6,6 +6,7 @@ import { getVersion } from "@tauri-apps/api/app";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { api, desktop } from "../api";
 import { compareVersions } from "../update-version.js";
+import { releaseUpdateResource } from "../update-resource";
 import { ArrowDownToLine, RefreshCw } from "lucide-react";
 
 export function Updater({ startup = false }: { startup?: boolean }) {
@@ -38,19 +39,24 @@ export function Updater({ startup = false }: { startup?: boolean }) {
         }
         return;
       }
+      const installedVersion = await getVersion();
       const next = await check({ timeout: 15000 });
       if (!alive.current) {
-        await next?.close();
+        await releaseUpdateResource(next);
         return;
       }
-      await resource.current?.close();
+      const previous = resource.current;
       resource.current = null;
-      const installedVersion = await getVersion();
+      await releaseUpdateResource(previous);
+      if (!alive.current) {
+        await releaseUpdateResource(next);
+        return;
+      }
       const versionOrder = next
         ? compareVersions(next.version, installedVersion)
         : null;
       if (next && (versionOrder === null || versionOrder <= 0)) {
-        await next.close();
+        await releaseUpdateResource(next);
         resource.current = null;
         setUpdate(null);
         setVisible(false);
@@ -62,7 +68,10 @@ export function Updater({ startup = false }: { startup?: boolean }) {
       if (next) {
         setNotice("");
         setVisible(true);
-      } else if (!silent) setNotice(t("up_to_date"));
+      } else {
+        setVisible(false);
+        if (!silent) setNotice(t("up_to_date"));
+      }
     } catch (error) {
       if (!silent && alive.current) setNotice(String(error));
     } finally {
@@ -87,8 +96,9 @@ export function Updater({ startup = false }: { startup?: boolean }) {
     return () => {
       alive.current = false;
       clearTimeout(timer);
-      void resource.current?.close();
+      const previous = resource.current;
       resource.current = null;
+      void releaseUpdateResource(previous);
     };
   }, [startup]);
   async function install() {

@@ -252,5 +252,17 @@
   "release_downloads": "Download for GitHub",
   "extension_versions": "Connected extension versions",
   "installed_version": "Version wey you install",
-  "extension_version": "Extension version"
+  "extension_version": "Extension version",
+  "download_size": "Download size",
+  "size_source_hint": "Some sources no dey show size before download.",
+  "torrent_action": "Torrent action",
+  "torrent_download_contents": "Download wetin dey inside",
+  "torrent_save_file": "Save only di .torrent file",
+  "torrent_select_files": "Choose di files wey you wan download.",
+  "torrent_magnet_selection": "For magnet links, choose files for task details after metadata arrive.",
+  "media_preview": "Video preview",
+  "preview_not_ready": "Readable video data never reach. Try again later.",
+  "refresh_preview": "Refresh preview",
+  "preview_download_hint": "One frame from di data wey don download. E depend on di video format.",
+  "portable_updates_help": "Portable update go open download page. Close Flux, replace di app files and keep di Data folder."
 }

@@ -252,5 +252,17 @@
   "release_downloads": "GitHub থেকে ডাউনলোড",
   "extension_versions": "সংযুক্ত এক্সটেনশনের সংস্করণ",
   "installed_version": "ইনস্টল করা সংস্করণ",
-  "extension_version": "এক্সটেনশন সংস্করণ"
+  "extension_version": "এক্সটেনশন সংস্করণ",
+  "download_size": "ডাউনলোডের আকার",
+  "size_source_hint": "কিছু উৎস ডাউনলোডের আগে আকার জানায় না।",
+  "torrent_action": "টরেন্টের কাজ",
+  "torrent_download_contents": "বিষয়বস্তু ডাউনলোড করুন",
+  "torrent_save_file": "শুধু .torrent ফাইল সংরক্ষণ করুন",
+  "torrent_select_files": "ডাউনলোডের জন্য ফাইল বাছুন।",
+  "torrent_magnet_selection": "ম্যাগনেট লিংকে মেটাডেটা পাওয়ার পরে কাজের বিবরণে ফাইল বাছুন।",
+  "media_preview": "ভিডিও প্রিভিউ",
+  "preview_not_ready": "এখনও পর্যাপ্ত পাঠযোগ্য ভিডিও ডেটা নেই। পরে আবার চেষ্টা করুন।",
+  "refresh_preview": "প্রিভিউ রিফ্রেশ করুন",
+  "preview_download_hint": "ডাউনলোড করা ডেটার একটি ফ্রেম। প্রাপ্যতা ভিডিওর বিন্যাসের ওপর নির্ভর করে।",
+  "portable_updates_help": "পোর্টেবল আপডেট ডাউনলোড পাতা খোলে। Flux বন্ধ করে অ্যাপের ফাইল বদলান এবং Data ফোল্ডার রাখুন।"
 }

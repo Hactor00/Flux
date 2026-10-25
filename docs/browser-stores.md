@@ -25,3 +25,7 @@ Flux detects media requests and media elements on HTTP(S) pages. Native transfer
 Sources: [Chrome Native Messaging](https://developer.chrome.com/docs/extensions/develop/concepts/native-messaging), [Edge Native Messaging](https://learn.microsoft.com/en-us/microsoft-edge/extensions/developer-guide/native-messaging), [Mozilla signing and distribution](https://extensionworkshop.com/documentation/publish/signing-and-distribution-overview/).
 
 GitHub serves release metadata and packages according to its [privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement). Optional Debrid services and download providers receive the requests needed for the user's selected transfer; their privacy policies apply to those requests. The prepared [code signing policy](code-signing-policy.md) uses SignPath for maintainer release infrastructure after approval. Signing does not send users' downloaded files, browser cookies or session credentials to SignPath; maintainers' use of that service is covered by [SignPath's privacy policy](https://signpath.io/privacy-policy).
+
+## Flux 2.6.0 distribution identities
+
+The Firefox store ID is `firefox@fluxdownload.org`, while GitHub packages retain `flux@flux-download.local`. Desktop 2.6.0 authorizes both explicitly in host registration and caller validation. Chrome store identity remains `okimieponfbegjhmfdnnefnddofooipk`. Store submission ZIPs are publisher build artifacts and are not public GitHub release assets. Neither store approval nor browser update delivery is immediate.

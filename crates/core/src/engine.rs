@@ -100,6 +100,166 @@ struct TransferContext {
 }
 
 impl Engine {
+    pub async fn source_info(
+        &self,
+        url: String,
+        path: Option<PathBuf>,
+        task_id: Option<String>,
+    ) -> Result<crate::source_info::SourceInfo> {
+        use crate::source_info::SourceInfo;
+        if let Some(path) = path {
+            let files = crate::torrent::inspect_file(&path).await?;
+            return Ok(SourceInfo {
+                size: Some(files.iter().map(|f| f.length).sum()),
+                content_type: "application/x-bittorrent".into(),
+                files,
+            });
+        }
+        let request = if let Some(id) = task_id {
+            self.task(&id).await?.request
+        } else {
+            DownloadRequest {
+                url,
+                filename: "inspection.bin".into(),
+                ..Default::default()
+            }
+        };
+        model::validate_url(&request.url)?;
+        let metadata = tokio::time::timeout(
+            Duration::from_secs(12),
+            http::probe(
+                &self.0.client,
+                &request.url,
+                request.referer.as_deref(),
+                &request.credentials,
+            ),
+        )
+        .await
+        .context("Source inspection timed out")??;
+        let mut files = Vec::new();
+        if crate::torrent::is_torrent(&request)
+            || metadata
+                .content_type
+                .split(';')
+                .next()
+                .is_some_and(|v| v.trim().eq_ignore_ascii_case("application/x-bittorrent"))
+        {
+            let mut fetch = http::authenticate(
+                self.0.client.get(&request.url),
+                &request.url,
+                &request.credentials,
+            )?;
+            if let Some(referer) = request.referer {
+                fetch = fetch.header(header::REFERER, referer);
+            }
+            let bytes = tokio::time::timeout(Duration::from_secs(15), async {
+                let response = fetch.send().await?.error_for_status()?;
+                ensure!(
+                    response
+                        .content_length()
+                        .is_none_or(|n| n <= 8 * 1024 * 1024),
+                    "Torrent metadata exceeds eight MiB"
+                );
+                let mut stream = response.bytes_stream();
+                let mut bytes = Vec::new();
+                while let Some(chunk) = stream.next().await {
+                    let chunk = chunk?;
+                    ensure!(
+                        bytes.len() + chunk.len() <= 8 * 1024 * 1024,
+                        "Torrent metadata exceeds eight MiB"
+                    );
+                    bytes.extend_from_slice(&chunk);
+                }
+                anyhow::Ok(bytes)
+            })
+            .await
+            .context("Torrent inspection timed out")??;
+            files = crate::torrent::inspect_bytes(&bytes)?;
+        }
+        Ok(SourceInfo {
+            size: metadata.total,
+            content_type: metadata.content_type,
+            files,
+        })
+    }
+
+    /// Decode only a local downloaded file; preview never fetches remote resources.
+    pub async fn preview_frame(&self, id: &str) -> Result<String> {
+        use base64::Engine as _;
+        static PREVIEWS: Semaphore = Semaphore::const_new(1);
+        let _permit = tokio::time::timeout(Duration::from_secs(3), PREVIEWS.acquire())
+            .await
+            .context("Another media preview is being generated")??;
+        uuid::Uuid::parse_str(id)?;
+        let task = self.task(id).await?;
+        ensure!(
+            task.request.media.is_some()
+                || matches!(
+                    task.destination
+                        .extension()
+                        .and_then(|s| s.to_str())
+                        .map(str::to_ascii_lowercase)
+                        .as_deref(),
+                    Some("mp4" | "mkv" | "webm" | "mov" | "ts")
+                ),
+            "This task has no video preview"
+        );
+        let candidates = [
+            task.destination.clone(),
+            self.directory(id).join("media-output"),
+            crate::disk::staging_path(&task.destination, id)?,
+        ];
+        let path = candidates
+            .into_iter()
+            .find(|path| path.is_file())
+            .context("No downloaded video data is available yet")?;
+        let mut command = crate::media::command("ffmpeg");
+        command
+            .args([
+                "-v",
+                "error",
+                "-protocol_whitelist",
+                "file,pipe",
+                "-threads",
+                "1",
+                "-i",
+            ])
+            .arg(path)
+            .args([
+                "-map",
+                "0:v:0",
+                "-frames:v",
+                "1",
+                "-vf",
+                "scale=640:-2",
+                "-f",
+                "image2pipe",
+                "-c:v",
+                "mjpeg",
+                "pipe:1",
+            ]);
+        let mut child = command.spawn().context("Media preview could not start")?;
+        let stdout = child.stdout.take().context("Missing preview output")?;
+        let stderr = child.stderr.take().context("Missing preview diagnostics")?;
+        let output = tokio::time::timeout(Duration::from_secs(8), async {
+            let (status, image, _) = tokio::try_join!(
+                async { anyhow::Ok(child.wait().await?) },
+                crate::media::bounded_output(stdout, 1024 * 1024),
+                crate::media::bounded_output(stderr, 4096)
+            )?;
+            ensure!(
+                status.success() && image.starts_with(&[0xff, 0xd8]) && image.len() < 1024 * 1024,
+                "A preview is not available from the downloaded data yet"
+            );
+            anyhow::Ok(image)
+        })
+        .await
+        .context("Media preview timed out")??;
+        Ok(format!(
+            "data:image/jpeg;base64,{}",
+            base64::engine::general_purpose::STANDARD.encode(output)
+        ))
+    }
     pub async fn open(data: impl AsRef<Path>, downloads: impl AsRef<Path>) -> Result<Self> {
         let downloads = downloads.as_ref().to_path_buf();
         Self::open_with_category_root(data, &downloads, &downloads).await
@@ -125,6 +285,7 @@ impl Engine {
             .context("Another engine owns this data directory")?;
         let db_path = data.join("tasks.sqlite");
         let store = tokio::task::spawn_blocking(move || Store::open(&db_path)).await??;
+        crate::portable::restore_location(&store, &data).await?;
         store.recover().await?;
         store.restore_update_session().await?;
         let preferences = store.settings().await?;

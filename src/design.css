@@ -13,6 +13,78 @@
   --ui-hover: #ffffff08;
   --ui-shadow: 0 16px 48px #00000028;
 }
+.source-summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 20px;
+  margin: 6px 0 22px;
+  padding: 18px 20px;
+  border: 1px solid var(--ui-line);
+  border-radius: 14px;
+  background: var(--ui-raised);
+}
+.source-summary > span {
+  color: var(--ui-muted);
+}
+.source-summary > strong {
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+.source-summary > small {
+  grid-column: 1 / -1;
+  color: var(--ui-muted);
+  line-height: 1.6;
+}
+.torrent-intent {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 14px 0 20px;
+}
+.torrent-intent button {
+  flex: 1 1 180px;
+  min-height: 46px;
+  border-radius: 12px;
+  line-height: 1.4;
+}
+.torrent-intent button.selected {
+  box-shadow: 0 0 0 2px var(--ui-accent);
+}
+.torrent-preflight {
+  padding: 16px;
+  border: 1px solid var(--ui-line);
+  border-radius: 14px;
+  margin-bottom: 20px;
+}
+.torrent-preflight h3 {
+  margin-top: 0;
+}
+.torrent-preflight .selection-list {
+  max-height: 240px;
+}
+.media-preview {
+  margin: 18px 0;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--ui-line);
+  background: var(--ui-raised);
+}
+.media-preview-heading {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.media-preview img {
+  display: block;
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  margin-top: 14px;
+  border-radius: 10px;
+  background: #0b0c10;
+}
 :root[data-theme="light"] {
   --ui-bg: #f3f4f8;
   --ui-panel: #ffffff;

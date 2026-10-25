@@ -252,5 +252,17 @@
   "release_downloads": "GitHub’dan indir",
   "extension_versions": "Bağlı eklenti sürümleri",
   "installed_version": "Yüklü sürüm",
-  "extension_version": "Eklenti sürümü"
+  "extension_version": "Eklenti sürümü",
+  "download_size": "İndirilecek boyut",
+  "size_source_hint": "Bazı kaynaklar indirmeden önce boyut bilgisi sunmaz.",
+  "torrent_action": "Torrent işlemi",
+  "torrent_download_contents": "İçeriği indir",
+  "torrent_save_file": "Yalnızca .torrent dosyasını kaydet",
+  "torrent_select_files": "İndirmek istediğiniz dosyaları seçin.",
+  "torrent_magnet_selection": "Magnet bağlantılarında metadata alındıktan sonra görev ayrıntılarından dosya seçebilirsiniz.",
+  "media_preview": "Video önizlemesi",
+  "preview_not_ready": "Henüz okunabilir video verisi yeterli değil. Biraz sonra tekrar deneyin.",
+  "refresh_preview": "Önizlemeyi yenile",
+  "preview_download_hint": "İndirilen veriden bir kare. Kullanılabilirlik video biçimine bağlıdır.",
+  "portable_updates_help": "Portable güncellemeleri indirme sayfasını açar. Flux’u kapatıp uygulama dosyalarını değiştirin; Data klasörünü koruyun."
 }

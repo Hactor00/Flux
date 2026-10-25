@@ -1,6 +1,7 @@
 mod batch;
 mod bencode_guard;
 pub mod browser_connection;
+pub mod browser_identity;
 pub mod debrid;
 mod disk;
 mod disk_writer;
@@ -17,12 +18,14 @@ mod media_assets;
 mod media_cache;
 mod media_progress;
 mod model;
+pub mod portable;
 pub mod preferences;
 pub mod protocol;
 pub mod release;
 mod secrets;
 pub mod seeding;
 pub mod signing;
+pub mod source_info;
 mod store;
 mod torrent;
 mod torrent_native;
@@ -52,6 +55,9 @@ pub fn bundled_runtime(name: &str) -> Option<std::path::PathBuf> {
     candidates.into_iter().find(|path| path.is_file())
 }
 pub fn default_data_directory() -> anyhow::Result<std::path::PathBuf> {
+    if let Some(root) = portable::root() {
+        return Ok(root.join("Data/Flux"));
+    }
     #[cfg(windows)]
     let directory = std::env::var_os("LOCALAPPDATA").map(std::path::PathBuf::from);
     #[cfg(not(windows))]

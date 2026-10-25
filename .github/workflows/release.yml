@@ -10,7 +10,7 @@ on:
         description: Revalidate unchanged packages from a previous compiled candidate
       rebuild_media:
         type: boolean
-        default: false
+        default: true
         description: Rebuild the pinned LGPL tools instead of reusing the verified released runtime
       sign:
         type: boolean
@@ -98,11 +98,11 @@ jobs:
         shell: pwsh
         run: ./scripts/prepare-test-runtime.ps1
       - name: Build pinned LGPL media runtime
-        if: inputs.rebuild_media
+        if: inputs.rebuild_media || github.ref_type == 'tag'
         shell: pwsh
         run: ./scripts/bootstrap-media-toolchain.ps1 -PkgconfBin (Join-Path '${{ steps.msys2.outputs.msys2-location }}' 'ucrt64/bin') -Bash (Join-Path '${{ steps.msys2.outputs.msys2-location }}' 'usr/bin/bash.exe')
       - name: Verify released LGPL media runtime
-        if: ${{ !inputs.rebuild_media && !inputs.candidate_run }}
+        if: ${{ !inputs.rebuild_media && github.ref_type != 'tag' && !inputs.candidate_run }}
         shell: pwsh
         run: ./scripts/prepare-released-media.ps1
       - name: Download compiled candidates
@@ -120,7 +120,7 @@ jobs:
         run: |
           if ('${{ inputs.candidate_run }}' -ne '') {
             ./scripts/restore-release-candidate.ps1 -RunId '${{ inputs.candidate_run }}'
-          } elseif ('${{ inputs.rebuild_media }}' -eq 'true') {
+          } elseif ('${{ inputs.rebuild_media }}' -eq 'true' -or $env:GITHUB_REF_TYPE -eq 'tag') {
             ./scripts/build-release.ps1
           } else {
             ./scripts/build-release.ps1 -RuntimePackage (Get-Content .tools/released-media-path.txt -Raw)
@@ -142,6 +142,8 @@ jobs:
           path: |
             release/Flux_${{ steps.plan.outputs.version }}_x64-setup.exe
             release/Flux-${{ steps.plan.outputs.version }}-windows-x64.zip
+            release/Flux-${{ steps.plan.outputs.version }}-portableapps.zip
+            release/Flux-${{ steps.plan.outputs.version }}-media-source.zip
             release/Flux-${{ steps.plan.outputs.version }}-chrome.zip
             release/Flux-${{ steps.plan.outputs.version }}-firefox.zip
             release/Flux-${{ steps.plan.outputs.version }}-firefox-120.zip
@@ -195,7 +197,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Firefox 120 integration failed.' }
           node ./scripts/test-firefox.mjs target/release $modernGecko .tools/firefox/geckodriver.exe --modern
           if ($LASTEXITCODE -ne 0) { throw 'Modern Firefox integration failed.' }
+          node ./scripts/test-firefox.mjs target/release $modernGecko .tools/firefox/geckodriver.exe --modern --store
+          if ($LASTEXITCODE -ne 0) { throw 'Mozilla store identity integration failed.' }
           ./scripts/test-installer.ps1
+          ./scripts/test-upgrade.ps1
           node ./scripts/test-daily-use.mjs target/release
           if ($LASTEXITCODE -ne 0) { throw 'Native daily-use tests failed.' }
           node ./scripts/test-torrent-window.mjs target/release
@@ -223,6 +228,8 @@ jobs:
           path: |
             release/Flux_${{ steps.plan.outputs.version }}_x64-setup.exe
             release/Flux-${{ steps.plan.outputs.version }}-windows-x64.zip
+            release/Flux-${{ steps.plan.outputs.version }}-portableapps.zip
+            release/Flux-${{ steps.plan.outputs.version }}-media-source.zip
             release/Flux-${{ steps.plan.outputs.version }}-chrome.zip
             release/Flux-${{ steps.plan.outputs.version }}-firefox.zip
             release/Flux-${{ steps.plan.outputs.version }}-firefox-120.zip

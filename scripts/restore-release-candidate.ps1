@@ -52,8 +52,12 @@ foreach ($name in 'flux-desktop.exe','flux-cli.exe','flux-native-host.exe','ffmp
 }
 New-Item -ItemType Directory -Force target/release,target/debug,.tools/package,target/release/bundle/nsis | Out-Null
 foreach ($entry in Get-ChildItem -LiteralPath $portable) {
+    if ($entry.Name -in @('.flux-portable','Data')) { continue }
     Copy-Item -LiteralPath $entry.FullName -Destination "$workspace/target/release" -Recurse -Force
     if ($entry.Name -notin @('README.md','README.tr.md','docs')) { Copy-Item -LiteralPath $entry.FullName -Destination "$workspace/.tools/package" -Recurse -Force }
+}
+if (Test-Path -LiteralPath "$workspace/release/Flux-$version-media-source.zip") {
+    Expand-Archive -LiteralPath "$workspace/release/Flux-$version-media-source.zip" -DestinationPath "$workspace/.tools/package/media-source" -Force
 }
 foreach ($entry in Get-ChildItem -LiteralPath $portable -Filter '*.dll' -File) { Copy-Item -LiteralPath $entry.FullName -Destination "$workspace/target/debug" -Force }
 Copy-Item -LiteralPath "$workspace/release/Flux_${version}_x64-setup.exe" -Destination "$workspace/target/release/bundle/nsis" -Force

@@ -143,6 +143,8 @@ async fn exercise(format: &str) {
         .unwrap();
     assert_eq!(task.status, Status::Complete, "{:?}", task.error);
     assert!(task.completed > 1000 && task.sha256.as_ref().is_some_and(|hash| hash.len() == 64));
+    let preview = engine.preview_frame(&task.id).await.unwrap();
+    assert!(preview.starts_with("data:image/jpeg;base64,/9j/"));
     let output = Command::new(std::env::var_os("FLUX_FFPROBE").unwrap_or_else(|| "ffprobe".into()))
         .args([
             "-v",

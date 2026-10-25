@@ -1,5 +1,6 @@
 import { invoke as tauriInvoke, isTauri } from "@tauri-apps/api/core";
 export interface Input {
+  save_torrent_file?: boolean;
   url: string;
   filename: string;
   connections: number;
@@ -303,6 +304,16 @@ export interface BrowserIntegrationStatus {
   reminder_dismissed: boolean;
 }
 export const api = {
+  sourceInfo: (
+    url: string,
+    path: string | null = null,
+    taskId: string | null = null,
+  ) =>
+    invoke<{ size: number | null; content_type: string; files: TorrentFile[] }>(
+      "inspect_source",
+      { url, path, taskId },
+    ),
+  previewFrame: (id: string) => invoke<string>("preview_frame", { id }),
   surface: (
     view: "download" | "settings" | "details" | "power",
     id: string | null = null,
@@ -376,6 +387,7 @@ export const api = {
   torrentWatchReport: () =>
     invoke<{ imported: number; error: string | null }>("torrent_watch_report"),
   runtimePlatform: () => invoke<string>("runtime_platform"),
+  installationMode: () => invoke<string>("installation_mode"),
   openReleasePage: () => invoke<void>("open_release_page"),
   latestReleaseVersion: () => invoke<string>("latest_release_version"),
   expand: (input: string) => invoke<string[]>("expand_batch", { input }),

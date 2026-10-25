@@ -252,5 +252,17 @@
   "release_downloads": "GitHub से डाउनलोड करें",
   "extension_versions": "जुड़े एक्सटेंशन के संस्करण",
   "installed_version": "इंस्टॉल किया गया संस्करण",
-  "extension_version": "एक्सटेंशन संस्करण"
+  "extension_version": "एक्सटेंशन संस्करण",
+  "download_size": "डाउनलोड का आकार",
+  "size_source_hint": "कुछ स्रोत डाउनलोड से पहले आकार नहीं बताते।",
+  "torrent_action": "टोरेंट कार्रवाई",
+  "torrent_download_contents": "सामग्री डाउनलोड करें",
+  "torrent_save_file": "केवल .torrent फ़ाइल सहेजें",
+  "torrent_select_files": "डाउनलोड करने वाली फ़ाइलें चुनें।",
+  "torrent_magnet_selection": "मैग्नेट लिंक में मेटाडेटा मिलने के बाद कार्य विवरण में फ़ाइलें चुनें।",
+  "media_preview": "वीडियो पूर्वावलोकन",
+  "preview_not_ready": "अभी पढ़ने योग्य वीडियो डेटा पर्याप्त नहीं है। बाद में फिर प्रयास करें।",
+  "refresh_preview": "पूर्वावलोकन ताज़ा करें",
+  "preview_download_hint": "डाउनलोड किए गए डेटा का एक फ़्रेम। उपलब्धता वीडियो प्रारूप पर निर्भर है।",
+  "portable_updates_help": "पोर्टेबल अपडेट डाउनलोड पेज खोलता है। Flux बंद करके ऐप की फ़ाइलें बदलें और Data फ़ोल्डर सुरक्षित रखें।"
 }

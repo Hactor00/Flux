@@ -948,6 +948,7 @@ api.runtime.onMessage.addListener((message, sender, respond) => {
   return true;
 });
 api.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "flux-release-check") void releaseChecker.check();
   if (alarm.name === "flux-outbox") {
     void announceConnection();
     void outbox.pump();
@@ -955,6 +956,8 @@ api.alarms.onAlarm.addListener((alarm) => {
   }
 });
 api.runtime.onStartup.addListener(async () => {
+  await api.alarms.create("flux-release-check", { periodInMinutes: 360 });
+  void releaseChecker.check();
   await api.alarms.create("flux-outbox", {
     periodInMinutes: isGecko(api) ? 1 : 0.5,
   });
@@ -965,3 +968,5 @@ void recoverDrafts()
   .then(() => outbox.pump())
   .catch(console.warn);
 void announceConnection();
+void api.alarms.create("flux-release-check", { periodInMinutes: 360 });
+void releaseChecker.check();

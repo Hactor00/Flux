@@ -21,6 +21,7 @@ export function Updater({ startup = false }: { startup?: boolean }) {
   const [downloaded, setDownloaded] = useState(0);
   const [total, setTotal] = useState<number | null>(null);
   const [linux, setLinux] = useState(false);
+  const [portable, setPortable] = useState(false);
   const [releaseVersion, setReleaseVersion] = useState("");
   const [installed, setInstalled] = useState("");
   async function inspect(silent = false) {
@@ -31,11 +32,14 @@ export function Updater({ startup = false }: { startup?: boolean }) {
     try {
       const installedVersion = await getVersion();
       if (alive.current) setInstalled(installedVersion);
-      if ((await api.runtimePlatform()) === "linux") {
+      const isLinux = (await api.runtimePlatform()) === "linux";
+      const isPortable = (await api.installationMode()) === "portable";
+      if (isLinux || isPortable) {
         const latest = await api.latestReleaseVersion();
         const newer = compareVersions(latest, installedVersion) === 1;
         if (alive.current) {
-          setLinux(true);
+          setLinux(isLinux);
+          setPortable(isPortable);
           setReleaseVersion(newer ? latest : "");
           setVisible(newer);
           if (!silent) setNotice(newer ? "" : t("up_to_date"));
@@ -110,7 +114,7 @@ export function Updater({ startup = false }: { startup?: boolean }) {
     };
   }, [startup]);
   async function install() {
-    if (linux && releaseVersion) {
+    if ((linux || portable) && releaseVersion) {
       await api.openReleasePage().catch((error) => setNotice(String(error)));
       return;
     }
@@ -154,7 +158,13 @@ export function Updater({ startup = false }: { startup?: boolean }) {
             </p>
           )}
           <p className="muted">
-            {t(linux ? "rpm_updates_help" : "updates_help")}
+            {t(
+              portable
+                ? "portable_updates_help"
+                : linux
+                  ? "rpm_updates_help"
+                  : "updates_help",
+            )}
           </p>
           <button
             className="secondary"
@@ -189,7 +199,7 @@ export function Updater({ startup = false }: { startup?: boolean }) {
             </span>
             <Dialog.Title>
               {t("update_available")} ·{" "}
-              {linux ? releaseVersion : update?.version}
+              {linux || portable ? releaseVersion : update?.version}
             </Dialog.Title>
             <Dialog.Description>
               {installed && (
@@ -198,7 +208,13 @@ export function Updater({ startup = false }: { startup?: boolean }) {
                   <br />
                 </>
               )}
-              {t(linux ? "rpm_updates_help" : "update_description")}
+              {t(
+                portable
+                  ? "portable_updates_help"
+                  : linux
+                    ? "rpm_updates_help"
+                    : "update_description",
+              )}
             </Dialog.Description>
             <pre className="update-notes">
               {update?.body?.slice(0, 16384) || t("update_description")}
@@ -224,7 +240,7 @@ export function Updater({ startup = false }: { startup?: boolean }) {
                 onClick={() => void install()}
               >
                 <ArrowDownToLine size={16} />
-                {t(linux ? "release_downloads" : "update_now")}
+                {t(linux || portable ? "release_downloads" : "update_now")}
               </button>
             </div>
           </Dialog.Content>

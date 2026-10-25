@@ -3,5 +3,5 @@
   "description": "Flux Native Messaging Bridge for Firefox",
   "path": "flux-native-host.exe",
   "type": "stdio",
-  "allowed_extensions": ["flux@flux-download.local"]
+  "allowed_extensions": ["flux@flux-download.local", "firefox@fluxdownload.org"]
 }

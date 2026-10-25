@@ -8,7 +8,50 @@ use std::{
 
 #[derive(Clone)]
 pub(crate) struct Store(Arc<Mutex<Connection>>, Arc<crate::secrets::Secrets>);
+
 impl Store {
+    pub async fn relocate_portable(
+        &self,
+        old: std::path::PathBuf,
+        new: std::path::PathBuf,
+    ) -> Result<()> {
+        self.run(move |db, _| {
+            let transaction = db.transaction()?;
+            let tasks: Vec<(String, String)> = {
+                let mut statement = transaction.prepare("SELECT id,body FROM tasks")?;
+                let rows = statement.query_map([], |row| Ok((row.get(0)?, row.get(1)?)))?;
+                rows.collect::<rusqlite::Result<_>>()?
+            };
+            for (id, body) in tasks {
+                let mut value: serde_json::Value = serde_json::from_str(&body)?;
+                crate::portable::relocate(&mut value, &old, &new);
+                transaction.execute(
+                    "UPDATE tasks SET body=?2,destination=?3 WHERE id=?1",
+                    params![
+                        id,
+                        serde_json::to_string(&value)?,
+                        value["destination"]
+                            .as_str()
+                            .context("Missing task destination")?
+                    ],
+                )?;
+            }
+            let settings: Option<String> = transaction
+                .query_row("SELECT body FROM settings WHERE id=1", [], |row| row.get(0))
+                .ok();
+            if let Some(body) = settings {
+                let mut value = serde_json::from_str(&body)?;
+                crate::portable::relocate(&mut value, &old, &new);
+                transaction.execute(
+                    "UPDATE settings SET body=?1 WHERE id=1",
+                    [serde_json::to_string(&value)?],
+                )?;
+            }
+            transaction.commit()?;
+            Ok(())
+        })
+        .await
+    }
     pub fn open(path: &Path) -> Result<Self> {
         let conn = Connection::open(path)?;
         let schema: u32 = conn.query_row("PRAGMA user_version", [], |row| row.get(0))?;
@@ -414,5 +457,53 @@ impl Store {
             }
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod portable_tests {
+    use super::*;
+    #[tokio::test]
+    async fn relocating_portable_data_preserves_external_paths_and_encrypted_sessions() {
+        let temporary = tempfile::tempdir().unwrap();
+        let store = Store::open(&temporary.path().join("tasks.sqlite")).unwrap();
+        let old = temporary.path().join("Original");
+        let new = temporary.path().join("Moved");
+        let original = serde_json::json!({"destination":old.join("Data/Downloads/movie.mp4"),"protected_credentials":"unchanged-ciphertext","external":temporary.path().join("outside.mp4")});
+        let body = serde_json::to_string(&original).unwrap();
+        let destination = original["destination"].as_str().unwrap().to_owned();
+        store
+            .run(move |db, _| {
+                db.execute(
+                    "INSERT INTO tasks(id,destination,body) VALUES('sample',?1,?2)",
+                    params![destination, body],
+                )?;
+                Ok(())
+            })
+            .await
+            .unwrap();
+        store.relocate_portable(old, new.clone()).await.unwrap();
+        let body: String = store
+            .run(|db, _| {
+                Ok(
+                    db.query_row("SELECT body FROM tasks WHERE id='sample'", [], |row| {
+                        row.get(0)
+                    })?,
+                )
+            })
+            .await
+            .unwrap();
+        let moved: serde_json::Value = serde_json::from_str(&body).unwrap();
+        assert_eq!(
+            moved["destination"],
+            new.join("Data/Downloads/movie.mp4")
+                .to_string_lossy()
+                .as_ref()
+        );
+        assert_eq!(
+            moved["protected_credentials"],
+            original["protected_credentials"]
+        );
+        assert_eq!(moved["external"], original["external"]);
     }
 }

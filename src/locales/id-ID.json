@@ -252,5 +252,17 @@
   "release_downloads": "Unduh di GitHub",
   "extension_versions": "Versi ekstensi terhubung",
   "installed_version": "Versi terpasang",
-  "extension_version": "Versi ekstensi"
+  "extension_version": "Versi ekstensi",
+  "download_size": "Ukuran unduhan",
+  "size_source_hint": "Sebagian sumber tidak memberikan ukuran sebelum diunduh.",
+  "torrent_action": "Tindakan torrent",
+  "torrent_download_contents": "Unduh isi",
+  "torrent_save_file": "Simpan hanya berkas .torrent",
+  "torrent_select_files": "Pilih berkas yang ingin diunduh.",
+  "torrent_magnet_selection": "Untuk tautan magnet, pilih berkas di detail tugas setelah metadata diperoleh.",
+  "media_preview": "Pratinjau video",
+  "preview_not_ready": "Data video yang dapat dibaca belum cukup. Coba lagi nanti.",
+  "refresh_preview": "Segarkan pratinjau",
+  "preview_download_hint": "Satu bingkai dari data yang diunduh. Ketersediaan bergantung pada format video.",
+  "portable_updates_help": "Pembaruan portabel membuka halaman unduhan. Tutup Flux, ganti berkas aplikasi, dan pertahankan folder Data."
 }

@@ -11,8 +11,33 @@ fn error(error: impl std::fmt::Display) -> String {
     error.to_string()
 }
 #[tauri::command]
+pub async fn inspect_source(
+    url: String,
+    path: Option<std::path::PathBuf>,
+    task_id: Option<String>,
+    state: State<'_, Backend>,
+) -> Result<flux_core::source_info::SourceInfo, String> {
+    state
+        .engine
+        .source_info(url, path, task_id)
+        .await
+        .map_err(error)
+}
+#[tauri::command]
+pub async fn preview_frame(id: String, state: State<'_, Backend>) -> Result<String, String> {
+    state.engine.preview_frame(&id).await.map_err(error)
+}
+#[tauri::command]
 pub fn runtime_platform() -> &'static str {
     std::env::consts::OS
+}
+#[tauri::command]
+pub fn installation_mode() -> &'static str {
+    if flux_core::portable::root().is_some() {
+        "portable"
+    } else {
+        "installed"
+    }
 }
 #[tauri::command]
 pub fn open_release_page(app: tauri::AppHandle) -> Result<(), String> {
@@ -395,7 +420,8 @@ pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
         .or_else(|_| app.path().home_dir().map(|home| home.join("Downloads")))?;
     #[cfg(not(target_os = "linux"))]
     let category_root = app.path().download_dir()?;
-    let downloads = category_root.join("Flux");
+    let downloads = flux_core::portable::downloads().unwrap_or_else(|| category_root.join("Flux"));
+    let category_root = flux_core::portable::downloads().unwrap_or(category_root);
     let engine = tauri::async_runtime::block_on(tauri::async_runtime::spawn(async move {
         Engine::open_with_category_root(engine_data, downloads, category_root).await
     }))??;

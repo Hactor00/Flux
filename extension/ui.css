@@ -156,6 +156,8 @@ input::placeholder {
   background: transparent;
 }
 .connection-card {
+  box-shadow: 0 8px 24px #0000000a;
+  border-inline-start: 3px solid var(--accent);
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--surface);
@@ -308,6 +310,7 @@ form button {
   scrollbar-width: thin;
 }
 .item {
+  transition: border-color 140ms ease, background 140ms ease;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -320,6 +323,12 @@ form button {
   flex: 1;
   min-width: 0;
 }
+.item:hover { border-color: var(--accent); }
+.empty { border: 1px dashed var(--line); border-radius: 12px; background: var(--soft); }
+.options .app-header { padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+.options button { min-height: 38px; border-radius: 10px; }
+.popup .tabs button { border-radius: 9px; min-height: 38px; }
+@media (prefers-reduced-motion: reduce) { .item { transition: none; } }
 .item strong {
   font-size: 12px;
   font-weight: 550;

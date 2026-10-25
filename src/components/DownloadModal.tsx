@@ -14,6 +14,7 @@ import {
   type ResolvedMedia,
   type CollectionEntry,
   type TorrentOptions,
+  type TorrentFile,
 } from "../api";
 import {
   collectionInputs,
@@ -27,6 +28,7 @@ import {
   mediaFormatKey,
 } from "../downloads";
 import { CollectionPicker } from "./CollectionPicker";
+import { SelectionList } from "./SelectionList";
 import { Choice } from "./primitives";
 import { MediaExtras, type MediaExtrasValue } from "./MediaExtras";
 import {
@@ -89,6 +91,14 @@ export function DownloadModal({
   const connectionsEdited = useRef(false);
   const [transport, setTransport] = useState("auto");
   const [torrentPath, setTorrentPath] = useState("");
+  const [saveTorrentFile, setSaveTorrentFile] = useState(false);
+  const [sourceInfo, setSourceInfo] = useState<{
+    size: number | null;
+    content_type: string;
+    files: TorrentFile[];
+  } | null>(null);
+  const [sourceChecking, setSourceChecking] = useState(false);
+  const [torrentFiles, setTorrentFiles] = useState<Set<number>>(new Set());
   const [collectionEntries, setCollectionEntries] = useState<CollectionEntry[]>(
     [],
   );
@@ -127,6 +137,8 @@ export function DownloadModal({
             : "single",
       );
       setTorrentPath("");
+      setSaveTorrentFile(proposal?.request.save_torrent_file || false);
+      setSourceInfo(null);
       setCollectionEntries([]);
       setCollectionBusy(false);
       setInspecting(false);
@@ -195,6 +207,71 @@ export function DownloadModal({
       active = false;
     };
   }, [visible, name, directoryEdited, proposal]);
+  useEffect(() => {
+    setSourceInfo(null);
+    if (
+      !visible ||
+      !desktop ||
+      provider ||
+      !["single", "torrent"].includes(mode) ||
+      (!torrentPath && !/^https?:\/\//i.test(url.trim()))
+    ) {
+      setSourceChecking(false);
+      return;
+    }
+    let active = true;
+    setSourceChecking(true);
+    const timer = setTimeout(() => {
+      void api
+        .sourceInfo(url.trim(), torrentPath || null, proposal?.id || null)
+        .then((value) => {
+          if (!active) return;
+          setSourceInfo(value);
+          if (
+            value.files.length &&
+            mode === "single" &&
+            !proposal?.request.save_torrent_file
+          )
+            setMode("torrent");
+          setTorrentFiles(
+            new Set(
+              value.files
+                .filter(
+                  (file) =>
+                    !proposal?.request.torrent?.only_files.length ||
+                    proposal.request.torrent.only_files.includes(file.index),
+                )
+                .map((file) => file.index),
+            ),
+          );
+        })
+        .catch(() => {
+          if (active) setSourceInfo(null);
+        })
+        .finally(() => {
+          if (active) setSourceChecking(false);
+        });
+    }, 450);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [visible, url, torrentPath, mode, provider, proposal?.id]);
+  const selectedSourceFormat = resolved?.formats.find(
+    (item) => mediaFormatKey(item) === format,
+  );
+  const sourceSize =
+    sourceInfo?.files.length && !saveTorrentFile
+      ? sourceInfo.files
+          .filter((file) => torrentFiles.has(file.index))
+          .reduce((sum, file) => sum + file.length, 0)
+      : mode === "media"
+        ? selectedSourceFormat?.size
+        : sourceInfo?.size;
+  const readableSize = (value: number) => {
+    const unit = Math.min(4, Math.floor(Math.log2(Math.max(1, value)) / 10));
+    return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(value / 1024 ** unit)} ${["B", "KB", "MB", "GB", "TB"][unit]}`;
+  };
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -218,7 +295,11 @@ export function DownloadModal({
       const torrentOptions: TorrentOptions = {
         upload_limit: Number(form.get("upload_limit") || 0),
         peer_limit: Number(form.get("peer_limit") || 80),
-        only_files: proposal?.request.torrent?.only_files || [],
+        only_files: sourceInfo?.files.length
+          ? torrentFiles.size === sourceInfo.files.length
+            ? []
+            : [...torrentFiles].sort((a, b) => a - b)
+          : proposal?.request.torrent?.only_files || [],
         initial_peers: String(form.get("initial_peers") || "")
           .split(/\r?\n/)
           .map((value) => value.trim())
@@ -226,11 +307,19 @@ export function DownloadModal({
       };
       if (
         mode === "torrent" &&
+        !saveTorrentFile &&
         [Number(form.get("limit")), torrentOptions.upload_limit].some(
           (value) => value > 0 && value < 16384,
         )
       )
         throw new Error(t("torrent_min_limit", { count: 16384 }));
+      if (
+        mode === "torrent" &&
+        !saveTorrentFile &&
+        sourceInfo?.files.length &&
+        !torrentFiles.size
+      )
+        throw new Error(t("torrent_select_files"));
       const urls =
         mode === "batch"
           ? await api.expand(String(form.get("batch")))
@@ -264,7 +353,9 @@ export function DownloadModal({
           browser_source: proposal?.request.browser_source || null,
           transport: transport as "auto" | "tcp" | "http3",
           content_type: proposal?.request.content_type || null,
-          torrent: mode === "torrent" ? torrentOptions : null,
+          torrent:
+            mode === "torrent" && !saveTorrentFile ? torrentOptions : null,
+          save_torrent_file: mode === "torrent" && saveTorrentFile,
           media:
             mode === "media"
               ? {
@@ -567,6 +658,62 @@ export function DownloadModal({
                   </button>
                 )}
                 <p className="form-hint">{t("torrent_source_hint")}</p>
+                {!torrentPath && /^https?:\/\//i.test(url) && (
+                  <div
+                    className="torrent-intent"
+                    role="group"
+                    aria-label={t("torrent_action")}
+                  >
+                    <button
+                      type="button"
+                      className={!saveTorrentFile ? "selected" : "secondary"}
+                      aria-pressed={!saveTorrentFile}
+                      onClick={() => setSaveTorrentFile(false)}
+                    >
+                      {t("torrent_download_contents")}
+                    </button>
+                    <button
+                      type="button"
+                      className={saveTorrentFile ? "selected" : "secondary"}
+                      aria-pressed={saveTorrentFile}
+                      onClick={() => {
+                        setSaveTorrentFile(true);
+                        setName(filename(url, false));
+                      }}
+                    >
+                      {t("torrent_save_file")}
+                    </button>
+                  </div>
+                )}
+                {!saveTorrentFile && !!sourceInfo?.files.length && (
+                  <section className="torrent-preflight">
+                    <h3>{t("torrent_files")}</h3>
+                    <p className="form-hint">{t("torrent_select_files")}</p>
+                    <SelectionList
+                      label={t("torrent_files")}
+                      disabled={busy}
+                      items={sourceInfo.files.map((file) => ({
+                        key: file.index,
+                        title: file.path,
+                        detail: readableSize(file.length),
+                        selected: torrentFiles.has(file.index),
+                      }))}
+                      onToggle={(index, checked) =>
+                        setTorrentFiles((previous) => {
+                          const next = new Set(previous);
+                          if (checked) next.add(index);
+                          else next.delete(index);
+                          return next;
+                        })
+                      }
+                    />
+                  </section>
+                )}
+                {!saveTorrentFile &&
+                  !sourceInfo?.files.length &&
+                  url.startsWith("magnet:") && (
+                    <p className="form-hint">{t("torrent_magnet_selection")}</p>
+                  )}
                 <label>
                   {t("torrent_folder")}
                   <input
@@ -875,6 +1022,19 @@ export function DownloadModal({
                 </button>
               </div>
             </label>
+            <div className="source-summary" aria-live="polite">
+              <span>{t("download_size")}</span>
+              <strong>
+                {sourceChecking
+                  ? t("inspecting")
+                  : sourceSize != null
+                    ? `${mode === "media" ? "≈ " : ""}${readableSize(sourceSize)}`
+                    : t("unknown_size")}
+              </strong>
+              {sourceSize == null && !sourceChecking && (
+                <small>{t("size_source_hint")}</small>
+              )}
+            </div>
             <div className="form-grid">
               {mode !== "torrent" && (
                 <label>

@@ -31,3 +31,7 @@ The HUD uses a closed Shadow DOM and constructed stylesheets. Firefox 120 uses a
 ## Validation
 
 `scripts/prepare-firefox-tests.ps1` prepares checksum-pinned, isolated Firefox and geckodriver runtimes. `scripts/test-firefox.mjs` tests native framing, protected cookies, SHA-256 downloads, browser ownership, explicit consent, consent withdrawal, strict page CSP, closed shadow roots, outside clicks, real pointer dragging, resizing, fullscreen and dismissal. No personal Firefox profile is used. The Mozilla registry entry is restored after each test.
+
+## Flux 2.6.0
+
+The GitHub build retains `flux@flux-download.local`; the Mozilla store package uses `firefox@fluxdownload.org`. Desktop 2.6.0 registers and authorizes both IDs. Both distributions contain the shared periodic and popup release checker. AMO delivers approved store updates through Firefox; temporary/unpacked extensions are updated manually.

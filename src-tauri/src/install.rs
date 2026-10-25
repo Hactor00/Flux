@@ -26,7 +26,7 @@ pub fn register() -> InstallResult<String> {
         "description": "Flux Native Messaging Bridge for Firefox",
         "path": host,
         "type": "stdio",
-        "allowed_extensions": [include_str!("../../extension-firefox/extension-id.txt").trim()]
+        "allowed_extensions": flux_core::browser_identity::firefox_ids()?
     });
     write_changed(
         &firefox_manifest_path,

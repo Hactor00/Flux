@@ -40,9 +40,9 @@ export PKG_CONFIG_LIBDIR="$(cygpath -m "$prefix/lib/pkgconfig")"
   --enable-network --enable-schannel --enable-libxml2 --enable-libmp3lame --disable-pthreads --enable-w32threads \
   --enable-protocol=file,pipe,http,https,tcp,tls,crypto \
   --enable-demuxer=mov,matroska,mpegts,hls,dash,concat,mp3,aac,flac,ogg,avi,asf,flv,wav,webm_dash_manifest,webvtt,srt,ffmetadata \
-  --enable-muxer=mp4,matroska,mp3,srt,webvtt,null --enable-encoder=libmp3lame,aac,movtext,srt,webvtt,pcm_s16le --enable-decoders --enable-parsers \
+  --enable-muxer=mp4,matroska,mp3,srt,webvtt,null,image2pipe --enable-encoder=libmp3lame,aac,movtext,srt,webvtt,pcm_s16le,mjpeg --enable-decoders --enable-parsers \
   --enable-bsf=aac_adtstoasc,h264_mp4toannexb,hevc_mp4toannexb,extract_extradata,av1_metadata,vp9_superframe \
-  --enable-filter=null,anull,format,aformat,aresample,loudnorm \
+  --enable-filter=null,anull,format,aformat,aresample,loudnorm,scale \
   --extra-cflags="-I$prefix/include -I$prefix/include/libxml2 -DLIBXML_STATIC" \
   --extra-ldflags="-L$prefix/lib" >"$work/ffmpeg-configure.log" 2>&1
 mingw32-make -j8 SHELL="$shell" ffmpeg.exe ffprobe.exe >"$work/ffmpeg-build.log" 2>&1

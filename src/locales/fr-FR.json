@@ -252,5 +252,17 @@
   "release_downloads": "Télécharger sur GitHub",
   "extension_versions": "Versions des extensions connectées",
   "installed_version": "Version installée",
-  "extension_version": "Version de l’extension"
+  "extension_version": "Version de l’extension",
+  "download_size": "Taille du téléchargement",
+  "size_source_hint": "Certaines sources ne fournissent pas la taille avant le téléchargement.",
+  "torrent_action": "Action torrent",
+  "torrent_download_contents": "Télécharger le contenu",
+  "torrent_save_file": "Enregistrer uniquement le fichier .torrent",
+  "torrent_select_files": "Sélectionnez les fichiers à télécharger.",
+  "torrent_magnet_selection": "Pour les liens magnet, sélectionnez les fichiers dans les détails après réception des métadonnées.",
+  "media_preview": "Aperçu vidéo",
+  "preview_not_ready": "Les données vidéo lisibles sont encore insuffisantes. Réessayez plus tard.",
+  "refresh_preview": "Actualiser l’aperçu",
+  "preview_download_hint": "Une image des données téléchargées. La disponibilité dépend du format vidéo.",
+  "portable_updates_help": "Les mises à jour portables ouvrent la page de téléchargement. Fermez Flux, remplacez les fichiers de l’application et conservez le dossier Data."
 }

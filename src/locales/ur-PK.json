@@ -252,5 +252,17 @@
   "release_downloads": "GitHub سے ڈاؤن لوڈ",
   "extension_versions": "منسلک ایکسٹینشن کے ورژن",
   "installed_version": "نصب شدہ ورژن",
-  "extension_version": "ایکسٹینشن کا ورژن"
+  "extension_version": "ایکسٹینشن کا ورژن",
+  "download_size": "ڈاؤن لوڈ کا حجم",
+  "size_source_hint": "کچھ ذرائع ڈاؤن لوڈ سے پہلے حجم نہیں بتاتے۔",
+  "torrent_action": "ٹورینٹ کی کارروائی",
+  "torrent_download_contents": "مواد ڈاؤن لوڈ کریں",
+  "torrent_save_file": "صرف .torrent فائل محفوظ کریں",
+  "torrent_select_files": "ڈاؤن لوڈ کرنے والی فائلیں منتخب کریں۔",
+  "torrent_magnet_selection": "میگنیٹ لنکس میں میٹا ڈیٹا ملنے کے بعد ٹاسک کی تفصیلات سے فائلیں منتخب کریں۔",
+  "media_preview": "ویڈیو کا پیش منظر",
+  "preview_not_ready": "ابھی قابل مطالعہ ویڈیو ڈیٹا ناکافی ہے۔ بعد میں دوبارہ کوشش کریں۔",
+  "refresh_preview": "پیش منظر تازہ کریں",
+  "preview_download_hint": "ڈاؤن لوڈ شدہ ڈیٹا کا ایک فریم۔ دستیابی ویڈیو فارمیٹ پر منحصر ہے۔",
+  "portable_updates_help": "پورٹیبل اپ ڈیٹ ڈاؤن لوڈ صفحہ کھولتی ہے۔ Flux بند کریں، ایپ فائلیں بدلیں اور Data فولڈر محفوظ رکھیں۔"
 }

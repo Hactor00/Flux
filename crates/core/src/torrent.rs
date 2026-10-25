@@ -31,6 +31,13 @@ const MAX_METAINFO: usize = 8 * 1024 * 1024;
 const MAX_FILES: usize = 10000;
 
 pub(crate) fn is_torrent(request: &DownloadRequest) -> bool {
+    if request.save_torrent_file
+        && request.torrent.is_none()
+        && request.media.is_none()
+        && (request.url.starts_with("https://") || request.url.starts_with("http://"))
+    {
+        return false;
+    }
     request.torrent.is_some()
         || request.url.starts_with("magnet:")
         || request.url.starts_with("torrent:")
@@ -1045,6 +1052,23 @@ fn validate_metainfo(bytes: &[u8]) -> Result<()> {
     let info = parsed.info.data.validate()?;
     files_from_info(&info, &TorrentOptions::default())?;
     Ok(())
+}
+
+pub(crate) fn inspect_bytes(bytes: &[u8]) -> Result<Vec<TorrentFile>> {
+    validate_metainfo(bytes)?;
+    if metainfo_version(bytes)?.is_some() {
+        files_from_native(
+            crate::torrent_native::Session::describe(bytes)?,
+            &TorrentOptions::default(),
+        )
+    } else {
+        let parsed = librqbit::torrent_from_bytes(bytes)?;
+        files_from_info(&parsed.info.data.validate()?, &TorrentOptions::default())
+    }
+}
+
+pub(crate) async fn inspect_file(path: &Path) -> Result<Vec<TorrentFile>> {
+    inspect_bytes(&read_bounded(path).await?)
 }
 
 fn files_from_native(

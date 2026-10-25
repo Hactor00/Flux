@@ -252,5 +252,17 @@
   "release_downloads": "Загрузки на GitHub",
   "extension_versions": "Версии подключённых расширений",
   "installed_version": "Установленная версия",
-  "extension_version": "Версия расширения"
+  "extension_version": "Версия расширения",
+  "download_size": "Размер загрузки",
+  "size_source_hint": "Некоторые источники не сообщают размер до начала загрузки.",
+  "torrent_action": "Действие с торрентом",
+  "torrent_download_contents": "Скачать содержимое",
+  "torrent_save_file": "Сохранить только файл .torrent",
+  "torrent_select_files": "Выберите файлы для загрузки.",
+  "torrent_magnet_selection": "Для magnet-ссылок выберите файлы в сведениях о задаче после получения метаданных.",
+  "media_preview": "Предпросмотр видео",
+  "preview_not_ready": "Пока недостаточно читаемых видеоданных. Повторите позже.",
+  "refresh_preview": "Обновить предпросмотр",
+  "preview_download_hint": "Кадр из загруженных данных. Доступность зависит от формата видео.",
+  "portable_updates_help": "Для портативной версии открывается страница загрузки. Закройте Flux, замените файлы приложения и сохраните папку Data."
 }

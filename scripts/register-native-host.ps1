@@ -19,8 +19,9 @@ $utf8 = [Text.UTF8Encoding]::new($false)
 [IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json -Depth 4), $utf8)
 [IO.File]::WriteAllText((Join-Path $dataDir 'allowed-origins.json'), (ConvertTo-Json -InputObject $origins), $utf8)
 $firefoxId = (Get-Content -LiteralPath "$PSScriptRoot/../extension-firefox/extension-id.txt" -Raw).Trim()
+$firefoxIds = @(Get-Content -LiteralPath "$PSScriptRoot/../native-host/firefox-extension-ids.json" -Raw | ConvertFrom-Json)
 $firefoxPath = Join-Path $dataDir 'io.flux.download.firefox.json'
-$firefox = @{ name='io.flux.download'; description='Flux Native Messaging Bridge for Firefox'; path=$hostPath; type='stdio'; allowed_extensions=@($firefoxId) }
+$firefox = @{ name='io.flux.download'; description='Flux Native Messaging Bridge for Firefox'; path=$hostPath; type='stdio'; allowed_extensions=$firefoxIds }
 [IO.File]::WriteAllText($firefoxPath, ($firefox | ConvertTo-Json -Depth 4), $utf8)
 foreach ($browser in 'Google\Chrome','Microsoft\Edge','BraveSoftware\Brave-Browser','Chromium','Mozilla') {
     $registryPath = "HKCU:\Software\$browser\NativeMessagingHosts\io.flux.download"

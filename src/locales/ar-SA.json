@@ -252,5 +252,17 @@
   "release_downloads": "التنزيل من GitHub",
   "extension_versions": "إصدارات الإضافات المتصلة",
   "installed_version": "الإصدار المثبّت",
-  "extension_version": "إصدار الإضافة"
+  "extension_version": "إصدار الإضافة",
+  "download_size": "حجم التنزيل",
+  "size_source_hint": "بعض المصادر لا تعرض الحجم قبل التنزيل.",
+  "torrent_action": "إجراء التورنت",
+  "torrent_download_contents": "تنزيل المحتوى",
+  "torrent_save_file": "حفظ ملف .torrent فقط",
+  "torrent_select_files": "حدد الملفات المطلوب تنزيلها.",
+  "torrent_magnet_selection": "لروابط المغناطيس، حدد الملفات من تفاصيل المهمة بعد جلب البيانات الوصفية.",
+  "media_preview": "معاينة الفيديو",
+  "preview_not_ready": "لا تتوفر بيانات فيديو قابلة للقراءة كافية بعد. حاول لاحقًا.",
+  "refresh_preview": "تحديث المعاينة",
+  "preview_download_hint": "إطار من البيانات المنزلة. يعتمد توفره على تنسيق الفيديو.",
+  "portable_updates_help": "تفتح تحديثات النسخة المحمولة صفحة التنزيل. أغلق Flux واستبدل ملفات التطبيق مع الاحتفاظ بمجلد Data."
 }

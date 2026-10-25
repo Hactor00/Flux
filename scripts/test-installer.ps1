@@ -55,7 +55,8 @@ try {
     & $nodeExecutable "$workspace/scripts/test-chrome-interception.mjs" $testBrowser "$installDirectory/extension" $installDirectory --store
     if ($LASTEXITCODE -ne 0) { throw 'Installed Chrome Web Store identity download handoff failed.' }
     $firefoxManifest = Get-Content -LiteralPath "$localData/Flux/io.flux.download.firefox.json" -Raw | ConvertFrom-Json
-    if ($firefoxManifest.path -ne $manifest.path -or $firefoxManifest.allowed_extensions.Count -ne 1 -or $firefoxManifest.allowed_extensions[0] -ne 'flux@flux-download.local' -or $firefoxManifest.allowed_origins) { throw 'Firefox registration schema is invalid.' }
+    $expectedFirefoxIds = @(Get-Content -LiteralPath "$workspace/native-host/firefox-extension-ids.json" -Raw | ConvertFrom-Json)
+    if ($firefoxManifest.path -ne $manifest.path -or (Compare-Object $firefoxManifest.allowed_extensions $expectedFirefoxIds) -or $firefoxManifest.allowed_origins) { throw 'Firefox registration schema is invalid.' }
     1..2 | ForEach-Object { $repair = Start-Process -FilePath "$installDirectory/flux-desktop.exe" -ArgumentList '--register-browser' -WindowStyle Hidden -PassThru -Wait; if ($repair.ExitCode -ne 0) { throw 'Browser bridge repair failed.' } }
     1..2 | ForEach-Object { $remove = Start-Process -FilePath "$installDirectory/flux-desktop.exe" -ArgumentList '--unregister-browser' -WindowStyle Hidden -PassThru -Wait; if ($remove.ExitCode -ne 0) { throw 'Repeated browser unregister failed.' } }
     foreach ($key in $keys) { if (Test-Path -LiteralPath $key) { throw 'Explicit unregister left a browser key behind.' } }

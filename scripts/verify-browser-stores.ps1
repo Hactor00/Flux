@@ -23,9 +23,13 @@ $records = foreach ($package in $packages) {
     }
     $expected['LICENSE'] = (Get-FileHash -LiteralPath LICENSE).Hash
     $storeManifest = $null
-    if ($package.Name -in @('chrome','edge')) {
+    if ($package.Name -in @('chrome','edge','firefox')) {
         $storeManifest = Get-Content -LiteralPath (Join-Path $source 'manifest.json') -Raw | ConvertFrom-Json
         foreach ($property in 'key','update_url') { $storeManifest.PSObject.Properties.Remove($property) }
+        if ($package.Name -eq 'firefox') {
+            $storeManifest.browser_specific_settings.gecko.id = 'firefox@fluxdownload.org'
+            $storeManifest.browser_specific_settings.PSObject.Properties.Remove('gecko_android')
+        }
         $storeManifest = $storeManifest | ConvertTo-Json -Depth 32 -Compress
     }
     $zip = [IO.Compression.ZipFile]::OpenRead((Resolve-Path -LiteralPath $archivePath).Path)

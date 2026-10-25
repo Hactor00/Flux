@@ -26,6 +26,7 @@ await mkdir(output);
 const extensionDirectory = process.argv.includes("--modern")
   ? "extension-firefox-modern"
   : "extension-firefox";
+const extensionId = process.argv.includes("--store") ? "firefox@fluxdownload.org" : "flux@flux-download.local";
 let addonSource = join(binary, extensionDirectory);
 await access(addonSource).catch(() => {
   addonSource = resolve(extensionDirectory);
@@ -119,7 +120,7 @@ await writeFile(
     type: "stdio",
     description: "Flux Native Messaging Bridge for Firefox",
     path: join(binary, "flux-native-host.exe"),
-    allowed_extensions: ["flux@flux-download.local"],
+    allowed_extensions: ["flux@flux-download.local", "firefox@fluxdownload.org"],
   }),
 );
 function registry(mode, value) {
@@ -291,13 +292,14 @@ if(message.action==='close'){root.querySelector('.close').click();dispatchEvent(
   );
   assert.ok(hudScript, "The isolated HUD content script is missing");
   hudScript.js = ["test-content.js", "content.js"];
+  manifest.browser_specific_settings.gecko.id = extensionId;
   await writeFile(join(addon, "manifest.json"), JSON.stringify(manifest));
   assert.equal(
     await wd("POST", prefix + "/moz/addon/install", {
       path: addon,
       temporary: true,
     }),
-    "flux@flux-download.local",
+    extensionId,
   );
   let ready;
   try {
@@ -521,10 +523,11 @@ if(message.action==='close'){root.querySelector('.close').click();dispatchEvent(
   await new Promise((r) => fixture.close(r));
 }
 validation.registry_restoration_verified = true;
+validation.extension_id = extensionId;
 const validationDirectory = process.env.FLUX_VALIDATION_DIRECTORY || "docs/validation";
 await mkdir(validationDirectory, { recursive: true });
 await writeFile(
-  join(validationDirectory, `firefox-${validation.firefox}.json`),
+  join(validationDirectory, `firefox-${validation.firefox}${process.argv.includes("--store") ? "-store" : ""}.json`),
   JSON.stringify(validation, null, 2) + "\n",
 );
 console.log(JSON.stringify(validation));

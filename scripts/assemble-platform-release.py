@@ -73,6 +73,7 @@ def main():
             "scripts/build-linux-release.sh", "scripts/build-extensions.mjs",
             "scripts/build-media-runtime.sh", "scripts/prepare-release.ps1",
             "scripts/build-release.ps1", "scripts/prepare-extractor.ps1",
+            "scripts/portable-launcher.rs",
         ]
         subprocess.run(["git", "diff", "--quiet", workflow["head_sha"], "HEAD", "--", *runtime_paths], check=True)
     original_sums = {}
@@ -81,7 +82,7 @@ def main():
         if Path(name).name != name or digest(stage / name) != checksum:
             raise RuntimeError("Original Windows artifact checksum mismatch")
         original_sums[name] = checksum
-    for suffix in ("windows-x64.zip", "chrome.zip", "chrome-store.zip", "firefox.zip", "firefox-120.zip", "source.zip"):
+    for suffix in ("windows-x64.zip", "portableapps.zip", "media-source.zip", "chrome.zip", "firefox.zip", "firefox-120.zip", "source.zip"):
         if f"Flux-{version}-{suffix}" not in original_sums:
             raise RuntimeError(f"Original checksums omit {suffix}")
     installer = stage / f"Flux_{version}_x64-setup.exe"
@@ -107,7 +108,6 @@ def main():
             with source.open(entry) as incoming, output.open(entry, "w") as destination:
                 shutil.copyfileobj(incoming, destination)
         paths = [Path("README.md"), Path("README.tr.md")]
-        paths.extend(Path(name) for name in run("git", "ls-files", "docs").splitlines())
         for path in paths:
             entry = zipfile.ZipInfo(prefix + path.as_posix(), (1980, 1, 1, 0, 0, 0))
             entry.compress_type = zipfile.ZIP_DEFLATED
@@ -142,7 +142,7 @@ def main():
     release_info.update({"source_commit": run("git", "rev-parse", "HEAD"), "platforms": ["Windows x64", "Linux x86_64 RPM"], "windows_run": os.environ["WINDOWS_RUN"], "linux_run": os.environ["LINUX_RUN"]})
     release_info["linux"] = {"distribution_tested": "Fedora 43", "architecture": "x86_64", "rpm_signed": False, "package_sha256": expected_rpm}
     (stage / "release-info.json").write_text(json.dumps(release_info, indent=2) + "\n")
-    names = [f"Flux_{version}_x64-setup.exe", f"Flux-{version}-windows-x64.zip", f"Flux-{version}-linux-x86_64.rpm", f"Flux-{version}-chrome.zip", f"Flux-{version}-chrome-store.zip", f"Flux-{version}-firefox.zip", f"Flux-{version}-firefox-120.zip", f"Flux-{version}-source.zip", f"Flux_{version}_x64-setup.exe.sig", "latest.json", "release-info.json"]
+    names = [f"Flux_{version}_x64-setup.exe", f"Flux-{version}-windows-x64.zip", f"Flux-{version}-portableapps.zip", f"Flux-{version}-media-source.zip", f"Flux-{version}-linux-x86_64.rpm", f"Flux-{version}-chrome.zip", f"Flux-{version}-firefox.zip", f"Flux-{version}-firefox-120.zip", f"Flux-{version}-source.zip", f"Flux_{version}_x64-setup.exe.sig", "latest.json", "release-info.json"]
     checksums = {name: digest(stage / name) for name in names}
     (stage / "SHA256SUMS.txt").write_text("".join(f"{checksums[name]}  {name}\n" for name in sorted(names)))
     names.append("SHA256SUMS.txt")

@@ -1,6 +1,7 @@
 use anyhow::{ensure, Context, Result};
 use std::path::Path;
 
+#[cfg(test)]
 pub const FIREFOX_ID: &str =
     include_str!("../../../extension-firefox/extension-id.txt").trim_ascii();
 
@@ -22,8 +23,9 @@ pub fn authorize(data: &Path, executable: &Path, arguments: &[String]) -> Result
         arguments.len() == 2,
         "Firefox launcher arguments are required"
     );
+    let firefox_ids = flux_core::browser_identity::firefox_ids()?;
     ensure!(
-        arguments[1] == FIREFOX_ID,
+        firefox_ids.contains(&arguments[1]),
         "Firefox extension is not authorized"
     );
     let registered = data.join("io.flux.download.firefox.json");
@@ -61,7 +63,7 @@ pub fn authorize(data: &Path, executable: &Path, arguments: &[String]) -> Result
         "Invalid Firefox host manifest"
     );
     ensure!(
-        manifest["allowed_extensions"] == serde_json::json!([FIREFOX_ID]),
+        manifest["allowed_extensions"] == serde_json::json!(firefox_ids),
         "Invalid Firefox authorization list"
     );
     let host = manifest["path"]
@@ -86,7 +88,7 @@ mod tests {
         let host = root.path().join("flux-native-host.exe");
         std::fs::write(&host, []).unwrap();
         let manifest = root.path().join("io.flux.download.firefox.json");
-        std::fs::write(&manifest, serde_json::to_vec(&serde_json::json!({"name":"io.flux.download","type":"stdio","path":host,"allowed_extensions":[FIREFOX_ID]})).unwrap()).unwrap();
+        std::fs::write(&manifest, serde_json::to_vec(&serde_json::json!({"name":"io.flux.download","type":"stdio","path":host,"allowed_extensions":flux_core::browser_identity::firefox_ids().unwrap()})).unwrap()).unwrap();
         let args = vec![manifest.to_string_lossy().into_owned(), FIREFOX_ID.into()];
         (root, host, args)
     }
@@ -94,6 +96,9 @@ mod tests {
     fn accepts_registered_firefox_caller() {
         let (root, host, args) = fixture();
         authorize(root.path(), &host, &args).unwrap();
+        let mut store_args = args;
+        store_args[1] = "firefox@fluxdownload.org".into();
+        authorize(root.path(), &host, &store_args).unwrap();
     }
     #[test]
     fn rejects_wrong_extension_and_missing_arguments() {

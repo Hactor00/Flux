@@ -252,5 +252,17 @@
   "release_downloads": "到 GitHub 下載",
   "extension_versions": "已連接的擴充功能版本",
   "installed_version": "已安裝版本",
-  "extension_version": "擴充功能版本"
+  "extension_version": "擴充功能版本",
+  "download_size": "下載大小",
+  "size_source_hint": "部分來源唔會喺下載前提供大小資料。",
+  "torrent_action": "種子操作",
+  "torrent_download_contents": "下載內容",
+  "torrent_save_file": "只儲存 .torrent 檔案",
+  "torrent_select_files": "揀選要下載嘅檔案。",
+  "torrent_magnet_selection": "磁力連結取得中繼資料後，可以喺工作詳情揀檔案。",
+  "media_preview": "影片預覽",
+  "preview_not_ready": "暫時未有足夠可讀取嘅影片資料，請稍後再試。",
+  "refresh_preview": "更新預覽",
+  "preview_download_hint": "已下載資料嘅畫面，能否預覽視乎影片格式。",
+  "portable_updates_help": "便攜版更新會開啟下載頁面。請關閉 Flux，更換程式檔案並保留 Data 資料夾。"
 }

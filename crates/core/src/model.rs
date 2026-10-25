@@ -49,6 +49,8 @@ pub struct DownloadRequest {
     pub transport: TransportPreference,
     #[serde(default)]
     pub content_type: Option<String>,
+    #[serde(default)]
+    pub save_torrent_file: bool,
 }
 fn default_connections() -> u8 {
     0
@@ -74,6 +76,7 @@ impl Default for DownloadRequest {
             browser_source: None,
             transport: TransportPreference::Auto,
             content_type: None,
+            save_torrent_file: false,
         }
     }
 }

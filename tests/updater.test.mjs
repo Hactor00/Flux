@@ -44,7 +44,7 @@ const dependencies = {
   ),
   "@tauri-apps/plugin-process": moduleUrl("export const relaunch=async()=>{};"),
   "../api": moduleUrl(
-    "export const desktop=true; export const api={runtimePlatform:async()=>'windows'};",
+    "export const desktop=true; export const api={runtimePlatform:async()=>'windows',installationMode:async()=>globalThis.fluxUpdaterFixture.mode||'installed',latestReleaseVersion:async()=>'2.6.0',openReleasePage:async()=>{globalThis.fluxUpdaterFixture.opened=true;}};",
   ),
   "../update-version.js": new URL("../src/update-version.js", import.meta.url)
     .href,
@@ -90,6 +90,17 @@ async function click(label) {
   await act(async () => button.click());
 }
 const dialog = () => document.querySelector('[role="dialog"]');
+
+test("portable 2.5 upgrade opens the portable release instead of running an installed-app updater", async () => {
+  const fixture = {version:'2.5.0',mode:'portable',check:async()=>{throw Error('Installer updater must not run for portable data');}};
+  await mount(fixture,async()=>{
+    await click('check_updates');
+    assert.match(dialog().textContent,/2\.6\.0/);
+    assert.match(document.body.textContent,/portable_updates_help/);
+    await click('release_downloads');
+    assert.equal(fixture.opened,true);
+  });
+});
 
 test("checking again after Later keeps the replacement available even if old resource cleanup fails", async () => {
   let checks = 0;

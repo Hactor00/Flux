@@ -252,5 +252,17 @@
   "release_downloads": "Downloads no GitHub",
   "extension_versions": "Versões das extensões conectadas",
   "installed_version": "Versão instalada",
-  "extension_version": "Versão da extensão"
+  "extension_version": "Versão da extensão",
+  "download_size": "Tamanho do download",
+  "size_source_hint": "Algumas fontes não informam o tamanho antes do download.",
+  "torrent_action": "Ação do torrent",
+  "torrent_download_contents": "Baixar conteúdo",
+  "torrent_save_file": "Salvar apenas o arquivo .torrent",
+  "torrent_select_files": "Selecione os arquivos para baixar.",
+  "torrent_magnet_selection": "Em links magnet, selecione os arquivos nos detalhes após obter os metadados.",
+  "media_preview": "Prévia do vídeo",
+  "preview_not_ready": "Ainda não há dados de vídeo legíveis suficientes. Tente novamente mais tarde.",
+  "refresh_preview": "Atualizar prévia",
+  "preview_download_hint": "Um quadro dos dados baixados. A disponibilidade depende do formato do vídeo.",
+  "portable_updates_help": "Atualizações portáteis abrem a página de download. Feche o Flux, substitua os arquivos do aplicativo e mantenha a pasta Data."
 }

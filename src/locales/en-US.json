@@ -252,5 +252,17 @@
   "release_downloads": "Downloads on GitHub",
   "extension_versions": "Connected extension versions",
   "installed_version": "Installed version",
-  "extension_version": "Extension version"
+  "extension_version": "Extension version",
+  "download_size": "Download size",
+  "size_source_hint": "Some sources do not report a size before download.",
+  "torrent_action": "Torrent action",
+  "torrent_download_contents": "Download contents",
+  "torrent_save_file": "Save only the .torrent file",
+  "torrent_select_files": "Select the files to download.",
+  "torrent_magnet_selection": "For magnets, select files in task details after metadata is retrieved.",
+  "media_preview": "Video preview",
+  "preview_not_ready": "Not enough readable video data yet. Try again later.",
+  "refresh_preview": "Refresh preview",
+  "preview_download_hint": "A frame from downloaded data. Availability depends on the video format.",
+  "portable_updates_help": "Portable updates open the download page. Close Flux and replace the App files; keep the Data folder."
 }

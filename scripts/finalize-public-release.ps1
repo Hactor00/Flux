@@ -6,7 +6,7 @@ $source = Join-Path $workspace $(if ($Signed) {'signed'} else {'release'})
 $destination = if ($OutputDirectory) { [IO.Path]::GetFullPath((Join-Path $workspace $OutputDirectory)) } else { Join-Path $workspace 'public-release' }
 if (-not $destination.StartsWith($workspace + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) { throw 'Release destination must stay inside the workspace.' }
 New-Item -ItemType Directory -Force -Path $destination | Out-Null
-$names = @("Flux_${version}_x64-setup.exe","Flux-$version-windows-x64.zip","Flux-$version-chrome.zip","Flux-$version-firefox.zip","Flux-$version-firefox-120.zip","Flux-$version-source.zip")
+$names = @("Flux_${version}_x64-setup.exe","Flux-$version-windows-x64.zip","Flux-$version-portableapps.zip","Flux-$version-media-source.zip","Flux-$version-chrome.zip","Flux-$version-firefox.zip","Flux-$version-firefox-120.zip","Flux-$version-source.zip")
 foreach ($name in $names) {
     $files = @(Get-ChildItem -LiteralPath $source -File -Recurse | Where-Object Name -eq $name)
     if ($files.Count -ne 1) { throw "Expected exactly one release file: $name" }
@@ -26,8 +26,7 @@ $storePackage = Join-Path $workspace ".tools/browser-stores/$storeName"
 $storeReport = Get-Content -LiteralPath (Join-Path $workspace 'docs/validation/browser-stores.json') -Raw | ConvertFrom-Json
 $chromeRecord = $storeReport.packages | Where-Object name -eq 'chrome'
 if (-not $storeReport.passed -or $storeReport.version -ne $version -or (Get-FileHash -LiteralPath $storePackage).Hash.ToLowerInvariant() -ne $chromeRecord.sha256) { throw 'Chrome store package differs from the verified artifact.' }
-Copy-Item -LiteralPath $storePackage -Destination (Join-Path $destination $storeName) -Force
-$names += $storeName
+# Store archives stay in publisher build artifacts; release assets contain user packages.
 $releaseNotes = Join-Path $workspace "docs/releases/v$version.md"
 if (-not (Test-Path -LiteralPath $releaseNotes)) { throw "Release notes are missing for version $version." }
 & "$PSScriptRoot/sign-update.ps1" -Artifact (Join-Path $destination "Flux_${version}_x64-setup.exe") -OutputDirectory $destination -NotesFile $releaseNotes

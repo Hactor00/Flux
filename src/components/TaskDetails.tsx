@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { Copy, FolderOpen, Trash2, X, Pause, Play } from "lucide-react";
@@ -25,6 +25,10 @@ export function TaskDetails({
   const [priority, setPriority] = useState(0);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
+  const [preview, setPreview] = useState("");
+  const [previewBusy, setPreviewBusy] = useState(false);
+  const [previewNotice, setPreviewNotice] = useState("");
+  const previewRequest = useRef(0);
   const view = task ? transferView(task, progress) : null;
   const percent = view?.percent;
   const size = (value: number) => {
@@ -40,6 +44,13 @@ export function TaskDetails({
   useEffect(() => {
     setPriority(task?.request.priority ?? 0);
     setNotice("");
+    setPreview("");
+    setPreviewNotice("");
+    setPreviewBusy(false);
+    previewRequest.current++;
+    return () => {
+      previewRequest.current++;
+    };
   }, [task?.id, task?.request.priority]);
   async function action(operation: () => Promise<unknown>) {
     setBusy(true);
@@ -154,6 +165,51 @@ export function TaskDetails({
                   )}
                 </div>
               </div>
+              {(task.request.media ||
+                /\.(mp4|mkv|webm|mov|ts)$/i.test(task.destination)) && (
+                <div className="media-preview">
+                  <div className="media-preview-heading">
+                    <strong>{t("media_preview")}</strong>
+                    <button
+                      type="button"
+                      className="secondary"
+                      disabled={previewBusy || !desktop || task.completed === 0}
+                      onClick={() => {
+                        const id = task.id,
+                          generation = ++previewRequest.current;
+                        setPreviewBusy(true);
+                        setPreviewNotice("");
+                        void api
+                          .previewFrame(id)
+                          .then((image) => {
+                            if (generation === previewRequest.current)
+                              setPreview(image);
+                          })
+                          .catch(() => {
+                            if (generation === previewRequest.current)
+                              setPreviewNotice(t("preview_not_ready"));
+                          })
+                          .finally(() => {
+                            if (generation === previewRequest.current)
+                              setPreviewBusy(false);
+                          });
+                      }}
+                    >
+                      {t(
+                        previewBusy
+                          ? "inspecting"
+                          : preview
+                            ? "refresh_preview"
+                            : "media_preview",
+                      )}
+                    </button>
+                  </div>
+                  {preview && <img src={preview} alt={t("media_preview")} />}
+                  <p className="form-hint">
+                    {previewNotice || t("preview_download_hint")}
+                  </p>
+                </div>
+              )}
               <dl className="task-details">
                 <dt>{t("status")}</dt>
                 <dd>{t(task.status)}</dd>

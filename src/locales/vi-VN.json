@@ -252,5 +252,17 @@
   "release_downloads": "Tải trên GitHub",
   "extension_versions": "Phiên bản tiện ích đã kết nối",
   "installed_version": "Phiên bản đã cài đặt",
-  "extension_version": "Phiên bản tiện ích"
+  "extension_version": "Phiên bản tiện ích",
+  "download_size": "Dung lượng tải xuống",
+  "size_source_hint": "Một số nguồn không cung cấp dung lượng trước khi tải.",
+  "torrent_action": "Thao tác torrent",
+  "torrent_download_contents": "Tải nội dung",
+  "torrent_save_file": "Chỉ lưu tệp .torrent",
+  "torrent_select_files": "Chọn các tệp cần tải.",
+  "torrent_magnet_selection": "Với liên kết magnet, chọn tệp trong chi tiết tác vụ sau khi nhận siêu dữ liệu.",
+  "media_preview": "Xem trước video",
+  "preview_not_ready": "Chưa đủ dữ liệu video có thể đọc. Hãy thử lại sau.",
+  "refresh_preview": "Làm mới bản xem trước",
+  "preview_download_hint": "Một khung hình từ dữ liệu đã tải. Khả năng xem phụ thuộc định dạng video.",
+  "portable_updates_help": "Bản di động mở trang tải để cập nhật. Đóng Flux, thay các tệp ứng dụng và giữ lại thư mục Data."
 }

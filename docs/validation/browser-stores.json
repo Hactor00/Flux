@@ -1,25 +1,25 @@
 {
-  "runtime_only": true,
-  "time": "2026-10-15T13:26:26.6506607Z",
+  "version": "2.6.0",
   "source_hashes_verified": true,
+  "time": "2026-10-25T13:43:20.0810743Z",
+  "chromium_store_manifests_verified": true,
+  "runtime_only": true,
   "passed": true,
   "packages": [
     {
+      "files": 61,
       "name": "chrome",
-      "files": 59,
-      "sha256": "3a72cee1b143633280cef221e334f4b6c30f73acd0dd8e472c9a5d3975a0298f"
+      "sha256": "0783d8b5c8d3def8edce65c5f6834701723bee76e864a8c037946dc69693391e"
     },
     {
+      "files": 61,
       "name": "edge",
-      "files": 59,
-      "sha256": "3a72cee1b143633280cef221e334f4b6c30f73acd0dd8e472c9a5d3975a0298f"
+      "sha256": "277db89104ac46c4787ba1966522bb45ad87b81fd74256ef82461e7723232048"
     },
     {
+      "files": 61,
       "name": "firefox",
-      "files": 59,
-      "sha256": "5d766bfa09f3611bc038e7392cb99584c15e6fcf411ce1b4d687bcb24ae1e6a3"
+      "sha256": "ce7a11d41c0b92b52de621fa7b9cf4be689818961c6014d5afbaca0ecb0d620e"
     }
-  ],
-  "version": "2.3.0",
-  "local_paths_and_credentials_removed": true
+  ]
 }

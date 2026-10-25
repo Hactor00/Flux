@@ -7,12 +7,12 @@ pub fn root_for(executable: &Path) -> Option<PathBuf> {
         return None;
     }
     // PortableApps layout: FluxPortable/App/Flux/<executable>.
-    let root = parent.parent()?.parent()?;
-    Some(if parent == root.join("App/Flux") {
-        root.to_owned()
-    } else {
-        parent.to_owned()
-    })
+    let root = parent
+        .parent()
+        .and_then(Path::parent)
+        .filter(|root| parent == root.join("App/Flux"))
+        .unwrap_or(parent);
+    Some(root.to_owned())
 }
 
 pub fn root() -> Option<PathBuf> {
@@ -95,6 +95,8 @@ mod tests {
             root_for(&root.join("App/Flux/flux-native-host.exe")),
             Some(root.clone())
         );
+        std::fs::write(root.join(".flux-portable"), []).unwrap();
+        assert_eq!(root_for(&root.join("flux-desktop.exe")), Some(root.clone()));
         let moved = temp.path().join("Moved");
         let external = temp.path().join("external/file.mp4");
         let mut value = serde_json::json!({"destination":root.join("Data/Downloads/movie.mp4"),"external":external});

@@ -115,7 +115,9 @@ try {
       `document.querySelector('.source-summary strong')?.textContent.includes('2 MB')`,
     ),
   );
-  await approval.evaluate(`window.__TAURI_INTERNALS__.invoke('close_surface')`);
+  await approval.evaluate(
+    `setTimeout(() => document.querySelector('.modal-close').click(), 50); true`,
+  );
   await driver.absent("download");
   const task = await invoke("add_download_to", {
     input: base,
@@ -141,7 +143,9 @@ try {
     "output/260-refresh/completion-window.png",
     Buffer.from(shot.data, "base64"),
   );
-  await popup.evaluate(`window.__TAURI_INTERNALS__.invoke('close_surface')`);
+  await popup.evaluate(
+    `setTimeout(() => document.querySelector('.modal-close').click(), 50); true`,
+  );
   await driver.absent("complete");
   const select = async (name) => {
     await until(() =>

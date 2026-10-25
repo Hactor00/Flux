@@ -1,7 +1,7 @@
 use anyhow::{ensure, Context, Result};
 use std::path::Path;
 
-#[cfg(test)]
+#[cfg(all(test, windows))]
 pub const FIREFOX_ID: &str =
     include_str!("../../../extension-firefox/extension-id.txt").trim_ascii();
 

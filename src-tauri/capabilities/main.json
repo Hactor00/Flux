@@ -2,6 +2,6 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "main",
   "description": "Local main window event subscription only",
-  "windows": ["main", "download-*", "settings-*", "details-*"],
+  "windows": ["main", "download-*", "settings-*", "details-*", "complete-*"],
   "permissions": ["core:event:allow-listen", "core:event:allow-unlisten", "dialog:allow-open", "clipboard-manager:allow-write-text"]
 }

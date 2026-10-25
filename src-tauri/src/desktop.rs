@@ -261,6 +261,8 @@ pub async fn save_settings(
             Some("settings")
         } else if label.starts_with("power-") {
             Some("completion_action")
+        } else if label.starts_with("complete-") {
+            Some("download_finished")
         } else {
             None
         };
@@ -518,9 +520,20 @@ pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                     shown_proposals.insert(task.id.clone());
                 }
                 if task.status == Status::Complete
-                    && completed.insert(task.id)
+                    && completed.insert(task.id.clone())
                     && settings.notifications
                 {
+                    let completion_handle = handle.clone();
+                    let id = task.id.clone();
+                    match tauri::async_runtime::spawn_blocking(move || {
+                        crate::windows::show(&completion_handle, "complete", Some(&id), None)
+                    })
+                    .await
+                    {
+                        Ok(Ok(())) => {}
+                        Ok(Err(error)) => eprintln!("Cannot open completion window: {error}"),
+                        Err(error) => eprintln!("Cannot open completion window: {error}"),
+                    }
                     let _ = handle
                         .notification()
                         .builder()

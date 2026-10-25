@@ -8,6 +8,10 @@ on:
       linux_run:
         required: true
         description: Successful Linux RPM workflow run ID
+      refresh_version:
+        required: false
+        default: ""
+        description: Explicit version to refresh an existing release after validation; leave empty for a new release
 permissions:
   contents: read
   actions: read
@@ -43,7 +47,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WINDOWS_RUN: ${{ inputs.windows_run }}
           LINUX_RUN: ${{ inputs.linux_run }}
+          REFRESH_VERSION: ${{ inputs.refresh_version }}
         run: python3 scripts/assemble-platform-release.py .tools/platform-release
+      - uses: actions/upload-artifact@v4
+        if: always() && inputs.refresh_version != ''
+        with:
+          name: previous-published-packages
+          path: .tools/platform-release/previous-published/
+          if-no-files-found: ignore
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         with:
           name: release-manifest

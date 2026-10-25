@@ -9,7 +9,10 @@ pub fn show(
     id: Option<&str>,
     initial_url: Option<&str>,
 ) -> Result<(), String> {
-    if !matches!(view, "download" | "settings" | "details" | "power") {
+    if !matches!(
+        view,
+        "download" | "settings" | "details" | "power" | "complete"
+    ) {
         return Err("Unknown window".into());
     }
     if let Some(id) = id {
@@ -42,6 +45,8 @@ pub fn show(
         "settings"
     } else if view == "power" {
         "completion_action"
+    } else if view == "complete" {
+        "download_finished"
     } else {
         "details"
     };
@@ -53,12 +58,32 @@ pub fn show(
     )
     .title(title)
     .inner_size(
-        if view == "power" { 480.0 } else { 680.0 },
-        if view == "power" { 280.0 } else { 660.0 },
+        if matches!(view, "power" | "complete") {
+            520.0
+        } else {
+            680.0
+        },
+        if view == "power" {
+            280.0
+        } else if view == "complete" {
+            360.0
+        } else {
+            660.0
+        },
     )
     .min_inner_size(
-        if view == "power" { 400.0 } else { 570.0 },
-        if view == "power" { 220.0 } else { 440.0 },
+        if matches!(view, "power" | "complete") {
+            400.0
+        } else {
+            570.0
+        },
+        if view == "power" {
+            220.0
+        } else if view == "complete" {
+            300.0
+        } else {
+            440.0
+        },
     )
     .background_color(tauri::window::Color(20, 22, 28, 255))
     .focused(true)

@@ -1,8 +1,19 @@
 # Browser distribution
 
+## Official installation links
+
+- **Chrome, Edge and Brave:** [Install Flux from the Chrome Web Store](https://chromewebstore.google.com/detail/flux-download-manager/okimieponfbegjhmfdnnefnddofooipk).
+- **Firefox:** [Flux on Mozilla Add-ons](https://addons.mozilla.org/firefox/addon/flux-download-manager/).
+
+Status checked on **25 October 2026**: Chrome 2.5.0 is public and its 2.6.0 update is awaiting review. Firefox 2.6.0 is awaiting Mozilla review; its public listing and installation may not be available until approval. Use Flux desktop **2.6.0 or later** with the Firefox store extension. The [desktop app and manual ZIP packages](https://github.com/Hactor00/Flux/releases/latest) remain available for Windows and Linux.
+
+Store installations receive approved updates through the browser. GitHub ZIP installations are updated manually. The extension requires the desktop app; start Flux once to register the local bridge, enable the extension's required permissions and check its popup connection status.
+
+## Native host registration and packaging
+
 The NSIS installer registers the same bounded Native Messaging host for Chrome, Edge, Brave, Chromium and Firefox under the current user's account. Repeated installation and runtime repair replace only Flux's manifest values; uninstallation removes registrations owned by the installed executable. Browser cookies and download history remain in the browser profile.
 
-Chromium host manifests contain `allowed_origins`; Firefox uses `allowed_extensions` and the stable `flux@flux-download.local` identity. The host independently checks launcher arguments before reading its four-byte framed input. Chromium store IDs can differ: put the approved IDs in `native-host/chromium-extension-ids.json` before building the desktop release. The shared unpacked extension ID remains included. Do not put OAuth credentials or Mozilla signing tokens in this file.
+Chromium host manifests contain `allowed_origins`; Firefox uses `allowed_extensions` with the GitHub identity `flux@flux-download.local` and store identity `firefox@fluxdownload.org`. Desktop 2.6.0 authorizes both Firefox identities. The host independently checks launcher arguments before reading its four-byte framed input. Chromium store IDs can differ: put the approved IDs in `native-host/chromium-extension-ids.json` before building the desktop release. The shared unpacked extension ID remains included. Do not put OAuth credentials or Mozilla signing tokens in this file.
 
 Run `./scripts/package-browser-stores.ps1` to create runtime-only Chrome, Edge and Firefox store ZIPs, then `./scripts/verify-browser-stores.ps1` to verify their exact file set and source hashes. Chrome and Brave use the Chrome Web Store distribution; Edge can use its own reviewed store listing or the Chrome Web Store version. The `Prepare browser store packages` workflow validates the production Gecko manifest and prepares the same ZIPs. It can request an unlisted Mozilla signed XPI when explicitly enabled with repository secrets `AMO_JWT_ISSUER` and `AMO_JWT_SECRET`.
 
@@ -12,7 +23,7 @@ Normal Windows Chrome installations require a Web Store listing for consumer ins
 
 The Firefox 140+ package declares authentication, browsing and website content transfer for its local desktop integration. Firefox 120–139 uses explicit native-transfer consent in its settings and a DOM/network fallback where MAIN-world script injection is unavailable. The modern manifest declares Firefox for Android 142 as its minimum schema version; distributed desktop hosts target Windows x64 and Linux x86_64. Browser installation tests run on Windows. The Linux package checks per-user host manifests and authenticated Native Messaging separately; Flatpak/Snap browser confinement is outside that test scope.
 
-## Chrome Web Store draft identity
+## Chrome Web Store identity
 
 The Chrome Web Store listing uses `okimieponfbegjhmfdnnefnddofooipk`. This exact identity is included in the desktop allowlist alongside the existing unpacked identity. Previously published 2.4.2 desktop packages predate this store identity and do not acquire the updated allowlist from an extension upload. Flux 2.4.3 desktop packages include both identities; Windows installer tests and installed Linux RPM tests cover both origins. The store listing remains subject to Google review. Do not work around the missing identity with wildcard origins or browser enterprise policies.
 

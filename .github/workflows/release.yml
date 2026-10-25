@@ -217,6 +217,8 @@ jobs:
           ./scripts/test-upgrade.ps1
           node ./scripts/test-daily-use.mjs target/release
           if ($LASTEXITCODE -ne 0) { throw 'Native daily-use tests failed.' }
+          node ./scripts/test-download-feedback.mjs target/release
+          if ($LASTEXITCODE -ne 0) { throw 'Download size, completion and selection tests failed.' }
           node ./scripts/test-torrent-window.mjs target/release
           if ($LASTEXITCODE -ne 0) { throw 'Native torrent window tests failed.' }
           node ./scripts/test-torrent-watch-window.mjs target/release

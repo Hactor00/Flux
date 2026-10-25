@@ -264,5 +264,6 @@
   "preview_not_ready": "暫時未有足夠可讀取嘅影片資料，請稍後再試。",
   "refresh_preview": "更新預覽",
   "preview_download_hint": "已下載資料嘅畫面，能否預覽視乎影片格式。",
-  "portable_updates_help": "便攜版更新會開啟下載頁面。請關閉 Flux，更換程式檔案並保留 Data 資料夾。"
+  "portable_updates_help": "便攜版更新會開啟下載頁面。請關閉 Flux，更換程式檔案並保留 Data 資料夾。",
+  "download_finished": "下載完成"
 }

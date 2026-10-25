@@ -24,7 +24,7 @@ import { useTranslation } from "react-i18next";
 import { isTauri } from "@tauri-apps/api/core";
 import { getVersion } from "@tauri-apps/api/app";
 import packageInfo from "../package.json";
-import { isTorrentTask } from "./downloads";
+import { isTorrentTask, canPauseTask, canResumeTask } from "./downloads";
 import * as Menu from "@radix-ui/react-dropdown-menu";
 import * as Context from "@radix-ui/react-context-menu";
 import * as Alert from "@radix-ui/react-alert-dialog";
@@ -232,14 +232,32 @@ export default function App() {
     (sum, task) => sum + (live[task.id]?.bytes_per_second || 0),
     0,
   );
-  const selectedTasks = tasks.filter((task) => selected.has(task.id));
+  const selectedTasks = shown.filter((task) => selected.has(task.id));
+  const canPause = selectedTasks.some(canPauseTask);
+  const canResume = selectedTasks.some(canResumeTask);
+  const canStartQueue = tasks.some((task) =>
+    ["queued", "paused"].includes(task.status),
+  );
+  const canPauseAll = tasks.some(canPauseTask);
+  useEffect(() => {
+    setSelected(new Set());
+  }, [filter, search]);
   const selectedTransfer = async (action: "pause" | "resume") => {
     for (const task of selectedTasks)
-      if (!["complete", "awaiting_approval", "cancelled"].includes(task.status))
+      if ((action === "pause" ? canPauseTask : canResumeTask)(task))
         await api[action](task.id);
   };
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
+      if (
+        event.key === "Escape" &&
+        !document.querySelector(
+          '[role="dialog"], [role="alertdialog"], [role="menu"]',
+        )
+      ) {
+        setSelected(new Set());
+        return;
+      }
       if (
         (event.target as HTMLElement).closest('input,textarea,[role="dialog"]')
       )
@@ -250,13 +268,7 @@ export default function App() {
       } else if (event.key === "Delete" && selected.size) setRemoveOpen(true);
       else if (event.key === " " && selected.size) {
         event.preventDefault();
-        void run(() =>
-          selectedTransfer(
-            selectedTasks.some((task) => task.status === "running")
-              ? "pause"
-              : "resume",
-          ),
-        );
+        void run(() => selectedTransfer(canPause ? "pause" : "resume"));
       } else if (event.ctrlKey && event.key.toLowerCase() === "a") {
         event.preventDefault();
         setSelected(new Set(shown.map((task) => task.id)));
@@ -322,7 +334,17 @@ export default function App() {
     </Menu.Item>
   );
   return (
-    <div className="desktop-shell">
+    <div
+      className="desktop-shell"
+      onPointerDownCapture={(event) => {
+        if (
+          !(event.target as HTMLElement).closest(
+            '.desktop-row,.desktop-toolbar,.desktop-inspector,.desktop-menu,[role="dialog"],[role="alertdialog"],[role="menu"]',
+          )
+        )
+          setSelected(new Set());
+      }}
+    >
       <div className="desktop-menu">
         <span className="desktop-logo">
           <Download size={16} />
@@ -352,9 +374,13 @@ export default function App() {
               {menuItem(
                 "queue_start",
                 () => void run(api.startQueue),
-                !desktop,
+                !desktop || !canStartQueue,
               )}
-              {menuItem("pause_all", () => void run(api.pauseAll), !desktop)}
+              {menuItem(
+                "pause_all",
+                () => void run(api.pauseAll),
+                !desktop || !canPauseAll,
+              )}
             </Menu.Content>
           </Menu.Portal>
         </Menu.Root>
@@ -371,28 +397,37 @@ export default function App() {
         <span className="toolbar-divider" />
         <button
           onClick={() => void run(() => selectedTransfer("resume"))}
-          disabled={!selected.size}
+          disabled={!desktop || !canResume}
         >
           <Play size={17} />
           {t("resume")}
         </button>
         <button
           onClick={() => void run(() => selectedTransfer("pause"))}
-          disabled={!selected.size}
+          disabled={!desktop || !canPause}
         >
           <Pause size={17} />
           {t("pause")}
         </button>
-        <button onClick={() => setRemoveOpen(true)} disabled={!selected.size}>
+        <button
+          onClick={() => setRemoveOpen(true)}
+          disabled={!desktop || !selectedTasks.length}
+        >
           <Trash2 size={17} />
           {t("remove")}
         </button>
         <span className="toolbar-divider" />
-        <button onClick={() => void run(api.startQueue)} disabled={!desktop}>
+        <button
+          onClick={() => void run(api.startQueue)}
+          disabled={!desktop || !canStartQueue}
+        >
           <Clock size={17} />
           {t("queue_start")}
         </button>
-        <button onClick={() => void run(api.pauseAll)} disabled={!desktop}>
+        <button
+          onClick={() => void run(api.pauseAll)}
+          disabled={!desktop || !canPauseAll}
+        >
           <Pause size={17} />
           {t("pause_all")}
         </button>
@@ -671,19 +706,19 @@ export default function App() {
                           </Context.Item>
                           <Context.Item
                             className="desktop-menu-item"
-                            disabled={[
-                              "complete",
-                              "awaiting_approval",
-                            ].includes(task.status)}
+                            disabled={
+                              !desktop ||
+                              !(canPauseTask(task) || canResumeTask(task))
+                            }
                             onSelect={() =>
                               void run(() =>
-                                api[
-                                  task.status === "running" ? "pause" : "resume"
-                                ](task.id),
+                                api[canPauseTask(task) ? "pause" : "resume"](
+                                  task.id,
+                                ),
                               )
                             }
                           >
-                            {t(task.status === "running" ? "pause" : "resume")}
+                            {t(canPauseTask(task) ? "pause" : "resume")}
                           </Context.Item>
                           <Context.Item
                             className="desktop-menu-item"

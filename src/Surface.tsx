@@ -5,6 +5,7 @@ import { DownloadModal } from "./components/DownloadModal";
 import { SettingsModal } from "./components/SettingsModal";
 import { TaskDetails } from "./components/TaskDetails";
 import { PowerCountdown } from "./components/PowerCountdown";
+import { DownloadComplete } from "./components/DownloadComplete";
 
 export default function Surface() {
   const { i18n, t } = useTranslation();
@@ -81,6 +82,9 @@ export default function Surface() {
   return (
     <>
       {view === "power" && <PowerCountdown />}
+      {view === "complete" && task && (
+        <DownloadComplete task={task} onClose={close} />
+      )}
       {view === "download" && (
         <DownloadModal
           visible

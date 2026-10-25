@@ -264,5 +264,6 @@
   "preview_not_ready": "Henüz okunabilir video verisi yeterli değil. Biraz sonra tekrar deneyin.",
   "refresh_preview": "Önizlemeyi yenile",
   "preview_download_hint": "İndirilen veriden bir kare. Kullanılabilirlik video biçimine bağlıdır.",
-  "portable_updates_help": "Portable güncellemeleri indirme sayfasını açar. Flux’u kapatıp uygulama dosyalarını değiştirin; Data klasörünü koruyun."
+  "portable_updates_help": "Portable güncellemeleri indirme sayfasını açar. Flux’u kapatıp uygulama dosyalarını değiştirin; Data klasörünü koruyun.",
+  "download_finished": "İndirme tamamlandı"
 }

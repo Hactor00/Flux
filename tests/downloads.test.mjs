@@ -10,6 +10,8 @@ import {
   capturedMedia,
   approvalSource,
   mediaFormatKey,
+  canPauseTask,
+  canResumeTask,
 } from "../src/downloads.ts";
 
 const base = {
@@ -50,6 +52,10 @@ test("captured provider media is immediately selectable and approval retains its
     mediaFormatKey({ id: "highest", height: 2160 }),
   );
   assert.equal(captured.formats[0].id, "136");
+  assert.equal(
+    capturedMedia({ ...task, total: 706111078 }).formats[0].size,
+    706111078,
+  );
   assert.equal(captured.formats[0].audio_url, task.request.media.audio_url);
   assert.equal(
     approvalSource(task, "https://cdn.example/video?signature=renewed", ""),
@@ -64,6 +70,32 @@ test("captured provider media is immediately selectable and approval retains its
     "https://cdn.example/new",
   );
   assert.equal(capturedMedia({ request: { media: null } }), null);
+});
+test("transfer actions follow task state, including completed torrent sharing", () => {
+  for (const status of ["complete", "awaiting_approval", "cancelled"]) {
+    assert.equal(canPauseTask({ status }), false);
+    assert.equal(canResumeTask({ status }), false);
+  }
+  for (const status of ["running", "verifying", "queued"]) {
+    assert.equal(canPauseTask({ status }), true);
+    assert.equal(canResumeTask({ status }), false);
+  }
+  for (const status of ["paused", "failed"]) {
+    assert.equal(canPauseTask({ status }), false);
+    assert.equal(canResumeTask({ status }), true);
+  }
+  assert.equal(
+    canPauseTask({ status: "complete", torrent: { state: "seeding" } }),
+    true,
+  );
+  assert.equal(
+    canResumeTask({ status: "complete", torrent: { state: "seeding" } }),
+    false,
+  );
+  assert.equal(
+    canResumeTask({ status: "complete", torrent: { state: "paused" } }),
+    true,
+  );
 });
 test("desktop provider recognition matches browser hosts without accepting spoofed origins", () => {
   for (const value of [

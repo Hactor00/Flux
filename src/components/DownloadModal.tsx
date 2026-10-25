@@ -94,6 +94,7 @@ export function DownloadModal({
   const [saveTorrentFile, setSaveTorrentFile] = useState(false);
   const [sourceInfo, setSourceInfo] = useState<{
     size: number | null;
+    estimated: boolean;
     content_type: string;
     files: TorrentFile[];
   } | null>(null);
@@ -212,8 +213,14 @@ export function DownloadModal({
     if (
       !visible ||
       !desktop ||
-      provider ||
-      !["single", "torrent"].includes(mode) ||
+      (provider && !proposal?.request.media) ||
+      (mode === "media" &&
+        (proposal?.total != null ||
+          providerSource(url) ||
+          ["hls", "dash"].includes(proposal?.request.media?.kind || "") ||
+          !!proposal?.request.media?.segment_urls?.length ||
+          /\.(m3u8|mpd)(?:\?|$)/i.test(url))) ||
+      !["single", "torrent", "media"].includes(mode) ||
       (!torrentPath && !/^https?:\/\//i.test(url.trim()))
     ) {
       setSourceChecking(false);
@@ -266,7 +273,9 @@ export function DownloadModal({
           .filter((file) => torrentFiles.has(file.index))
           .reduce((sum, file) => sum + file.length, 0)
       : mode === "media"
-        ? selectedSourceFormat?.size
+        ? (selectedSourceFormat?.size ??
+          (!resolved ? proposal?.total : null) ??
+          sourceInfo?.size)
         : sourceInfo?.size;
   const readableSize = (value: number) => {
     const unit = Math.min(4, Math.floor(Math.log2(Math.max(1, value)) / 10));
@@ -1025,10 +1034,10 @@ export function DownloadModal({
             <div className="source-summary" aria-live="polite">
               <span>{t("download_size")}</span>
               <strong>
-                {sourceChecking
-                  ? t("inspecting")
-                  : sourceSize != null
-                    ? `${mode === "media" ? "≈ " : ""}${readableSize(sourceSize)}`
+                {sourceSize != null
+                  ? `${mode === "media" || sourceInfo?.estimated ? "≈ " : ""}${readableSize(sourceSize)}`
+                  : sourceChecking
+                    ? t("inspecting")
                     : t("unknown_size")}
               </strong>
               {sourceSize == null && !sourceChecking && (

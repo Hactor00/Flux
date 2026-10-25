@@ -31,6 +31,19 @@ Flux combines segmented HTTP transfers, accessible video/audio capture, native B
 
 [Code signing policy](docs/code-signing-policy.md) · [Privacy policy](docs/browser-stores.md#privacy-disclosure-for-store-listings)
 
+### Browser extensions
+
+| Browser | Official store |
+| --- | --- |
+| Chrome, Edge and Brave | **[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/flux-download-manager/okimieponfbegjhmfdnnefnddofooipk)** |
+| Firefox | **[Mozilla Add-ons](https://addons.mozilla.org/firefox/addon/flux-download-manager/)** — review pending |
+
+**Store status checked on 25 October 2026:** Chrome 2.5.0 is available; its 2.6.0 update is awaiting review. Firefox 2.6.0 is awaiting Mozilla review, so its store page may not be available until approval. Both store extensions work with the Flux 2.6.0 desktop app on Windows and Linux. Install and launch the desktop app as well; the extension requires it.
+
+Store-installed extensions receive approved updates through the browser. The ZIP packages below remain available for manual installation and updates.
+
+### Desktop and ZIP packages
+
 | Package | Purpose |
 | --- | --- |
 | **[Windows installer](https://github.com/Hactor00/Flux/releases/download/v2.6.0/Flux_2.6.0_x64-setup.exe)** | Recommended; per-user installation and automatic native-host registration |
@@ -151,7 +164,7 @@ sudo dnf install ./Flux-2.6.0-linux-x86_64.rpm
 flux-desktop
 ```
 
-The package includes the CLI, native host, pinned yt-dlp and the native torrent bridge. `dnf` resolves WebKitGTK 4.1, GTK, AppIndicator, OpenSSL 3, FFmpeg, Python 3.10+ and Node 20+. Launch Flux once as your normal user to register the browser bridge. Install the same Chromium/Firefox extension ZIPs listed above. Sandboxed Flatpak/Snap browsers may need host integration outside the package's scope.
+The package includes the CLI, native host, pinned yt-dlp and the native torrent bridge. `dnf` resolves WebKitGTK 4.1, GTK, AppIndicator, OpenSSL 3, FFmpeg, Python 3.10+ and Node 20+. Launch Flux once as your normal user to register the browser bridge. Install an extension using the [store links or ZIP packages above](#browser-extensions). Sandboxed Flatpak/Snap browsers may need host integration outside the package's scope.
 
 Linux preferences/history use `~/.local/share/Flux` by default, following XDG data settings. Watch folders run while Flux is open, including in the tray. RPM updates are installed with `dnf`; in-app update controls open the current GitHub release. Native file drag-out is Windows-only. Systemd power actions require an authorized desktop session; they are disabled by default.
 
@@ -161,6 +174,10 @@ Open **Settings → Torrent watch folders**, add one or more folders, enable mon
 
 ### Chromium browsers
 
+**Recommended:** [Install Flux from the Chrome Web Store](https://chromewebstore.google.com/detail/flux-download-manager/okimieponfbegjhmfdnnefnddofooipk). Chrome, Edge and Brave can use this listing; accept the browser's extension/site permissions, launch Flux and check the connection in the popup. Store updates are handled by the browser.
+
+**Manual ZIP installation:**
+
 1. Extract the Chromium extension ZIP or use the installed `extension` directory.
 2. Open `chrome://extensions` or `edge://extensions`, enable **Developer mode**, select **Load unpacked**, and choose that directory.
 3. The unpacked ID is `iheejmamcoeigoallciifjminjnnnlbj`. Enable interception in extension settings and check the desktop connection.
@@ -168,9 +185,11 @@ Open **Settings → Torrent watch folders**, add one or more folders, enable mon
 
 ### Firefox
 
-Use the matching **140+** or **120–139** package. Open `about:debugging#/runtime/this-firefox`, select **Load Temporary Add-on**, and choose the extracted `manifest.json`. Enable local Flux data transfer in extension settings and grant site access when requested.
+**Store installation:** [Flux on Mozilla Add-ons](https://addons.mozilla.org/firefox/addon/flux-download-manager/). The 2.6.0 submission is awaiting review as of 25 October 2026; installation from the store becomes available after approval. Use Flux desktop **2.6.0 or later** for this store identity. Firefox delivers approved store updates automatically.
 
-Temporary add-ons disappear after restarting Firefox. Standard Firefox requires a Mozilla-signed XPI for permanent installation. Store publication is separate; these ZIPs do not imply a public store listing. See [Firefox setup](extension-firefox/README.md).
+**Manual ZIP installation:** use the matching **140+** or **120–139** package. Open `about:debugging#/runtime/this-firefox`, select **Load Temporary Add-on**, and choose the extracted `manifest.json`. Enable local Flux data transfer in extension settings and grant site access when requested.
+
+Temporary add-ons disappear after restarting Firefox and require manual updates. The GitHub ZIPs are unsigned; permanent installation in standard Firefox requires a Mozilla-signed extension. See [Firefox setup](extension-firefox/README.md).
 
 **Another download manager installed?** Disable its automatic capture in the browser Flux will handle. A system-wide hook can capture requests before Flux's extension sees them. Flux does not alter another application's settings.
 

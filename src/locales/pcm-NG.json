@@ -264,5 +264,6 @@
   "preview_not_ready": "Readable video data never reach. Try again later.",
   "refresh_preview": "Refresh preview",
   "preview_download_hint": "One frame from di data wey don download. E depend on di video format.",
-  "portable_updates_help": "Portable update go open download page. Close Flux, replace di app files and keep di Data folder."
+  "portable_updates_help": "Portable update go open download page. Close Flux, replace di app files and keep di Data folder.",
+  "download_finished": "Download don finish"
 }

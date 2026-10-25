@@ -31,6 +31,19 @@ Flux; çok bağlantılı HTTP indirmelerini, erişilebilir video/ses yakalamayı
 
 [Kod imzalama politikası (Code signing policy)](docs/code-signing-policy.md) · [Gizlilik politikası](docs/browser-stores.md#privacy-disclosure-for-store-listings)
 
+### Tarayıcı eklentileri
+
+| Tarayıcı | Resmî mağaza |
+| --- | --- |
+| Chrome, Edge ve Brave | **[Chrome Web Mağazası'ndan yükle](https://chromewebstore.google.com/detail/flux-download-manager/okimieponfbegjhmfdnnefnddofooipk)** |
+| Firefox | **[Mozilla Eklentileri](https://addons.mozilla.org/firefox/addon/flux-download-manager/)** — inceleme bekliyor |
+
+**25 Ekim 2026'da kontrol edilen mağaza durumu:** Chrome'da 2.5.0 yayında; 2.6.0 güncellemesi inceleme bekliyor. Firefox 2.6.0 da Mozilla incelemesinde olduğundan mağaza sayfası onaydan önce açılmayabilir. İki mağaza eklentisi de Windows ve Linux'ta Flux 2.6.0 masaüstü uygulamasıyla çalışır. Eklentinin çalışması için masaüstü uygulamasını da kurup açın.
+
+Mağazadan kurulan eklentilerin onaylanan güncellemelerini tarayıcı yükler. Elle kurmak ve güncellemek isteyenler için aşağıdaki ZIP paketleri de kullanılabilir.
+
+### Masaüstü ve ZIP paketleri
+
 | Paket | Kullanımı |
 | --- | --- |
 | **[Windows kurulumu](https://github.com/Hactor00/Flux/releases/download/v2.6.0/Flux_2.6.0_x64-setup.exe)** | Önerilen; kullanıcı hesabına kurulum ve otomatik yerel köprü kaydı |
@@ -149,7 +162,7 @@ sudo dnf install ./Flux-2.6.0-linux-x86_64.rpm
 flux-desktop
 ```
 
-Paket; CLI, yerel köprü, sabitlenmiş yt-dlp ve torrent bileşenini içerir. WebKitGTK 4.1, GTK, AppIndicator, OpenSSL 3, FFmpeg, Python 3.10+ ve Node 20+ bağımlılıklarını `dnf` çözer. Tarayıcı köprüsünün kaydolması için Flux'u normal kullanıcı hesabınızla bir kez açın. Yukarıdaki aynı Chromium/Firefox eklentileri kullanılır. Flatpak/Snap tarayıcıları, paket kapsamı dışında ek ana sistem bağlantısı gerektirebilir.
+Paket; CLI, yerel köprü, sabitlenmiş yt-dlp ve torrent bileşenini içerir. WebKitGTK 4.1, GTK, AppIndicator, OpenSSL 3, FFmpeg, Python 3.10+ ve Node 20+ bağımlılıklarını `dnf` çözer. Tarayıcı köprüsünün kaydolması için Flux'u normal kullanıcı hesabınızla bir kez açın. Eklentiyi [yukarıdaki mağaza bağlantıları veya ZIP paketleriyle](#tarayıcı-eklentileri) kurabilirsiniz. Flatpak/Snap tarayıcıları, paket kapsamı dışında ek ana sistem bağlantısı gerektirebilir.
 
 Geçmiş ve ayarlar varsayılan olarak `~/.local/share/Flux` altında, XDG veri ayarlarına uygun tutulur. Klasör izleme Flux açıkken, sistem tepsisindeyken de çalışır. Güncellemeler `dnf` ile kurulur; programdaki güncelleme düğmesi güncel GitHub sürümünü açar. Dışarı dosya sürükleme Windows'a özeldir. Systemd güç işlemleri masaüstü oturumu iznine bağlıdır ve varsayılan olarak kapalıdır.
 
@@ -159,6 +172,10 @@ Geçmiş ve ayarlar varsayılan olarak `~/.local/share/Flux` altında, XDG veri 
 
 ### Chromium tarayıcıları
 
+**Önerilen:** [Flux'u Chrome Web Mağazası'ndan yükle](https://chromewebstore.google.com/detail/flux-download-manager/okimieponfbegjhmfdnnefnddofooipk). Chrome, Edge ve Brave bu mağaza kaydını kullanabilir. Tarayıcının eklenti/site izinlerini ver, Flux'u aç ve eklenti penceresinde bağlantıyı kontrol et. Mağaza güncellemelerini tarayıcı yükler.
+
+**ZIP ile elle kurulum:**
+
 1. Chromium ZIP'ini çıkar veya kurulum içindeki `extension` klasörünü kullan.
 2. `chrome://extensions` ya da `edge://extensions` sayfasında **Geliştirici modu**nu aç; **Paketlenmemiş öğe yükle** ile klasörü seç.
 3. Kimlik `iheejmamcoeigoallciifjminjnnnlbj` olur. Eklenti ayarlarında indirme yakalamayı aç ve masaüstü bağlantısını kontrol et.
@@ -166,9 +183,11 @@ Geçmiş ve ayarlar varsayılan olarak `~/.local/share/Flux` altında, XDG veri 
 
 ### Firefox
 
-**140+** veya **120–139** paketini kullan. `about:debugging#/runtime/this-firefox` sayfasında **Geçici eklenti yükle** ile çıkarılan `manifest.json` dosyasını seç. Eklenti ayarlarında yerel Flux aktarımını aç ve istendiğinde site erişimi ver.
+**Mağazadan kurulum:** [Mozilla Eklentileri'nde Flux](https://addons.mozilla.org/firefox/addon/flux-download-manager/). 25 Ekim 2026 itibarıyla 2.6.0 başvurusu incelemede; mağazadan kurulum onaydan sonra açılacak. Bu mağaza kimliği için masaüstünde **Flux 2.6.0 veya üstü** gerekir. Firefox, onaylanan mağaza güncellemelerini otomatik yükler.
 
-Geçici eklentiler Firefox yeniden başlatılınca kaldırılır. Standart Firefox'ta kalıcı kurulum Mozilla imzalı XPI gerektirir. Mağaza yayını ayrı süreçtir; ZIP'ler mağaza yayını anlamına gelmez. [Firefox kurulumu](extension-firefox/README.md) ayrıntıları içerir.
+**ZIP ile elle kurulum:** **140+** veya **120–139** paketini kullan. `about:debugging#/runtime/this-firefox` sayfasında **Geçici eklenti yükle** ile çıkarılan `manifest.json` dosyasını seç. Eklenti ayarlarında yerel Flux aktarımını aç ve istendiğinde site erişimi ver.
+
+Geçici eklentiler Firefox yeniden başlatılınca kaldırılır ve elle güncellenir. GitHub ZIP'leri imzasızdır; standart Firefox'ta kalıcı kurulum Mozilla imzalı eklenti gerektirir. [Firefox kurulumu](extension-firefox/README.md) ayrıntıları içerir.
 
 **Başka indirme yöneticisi kurulu mu?** Flux'un yöneteceği tarayıcıda diğer uygulamanın otomatik yakalamasını kapat. Sistem genelindeki kanca isteği Flux eklentisinden önce yakalayabilir. Flux diğer uygulamanın ayarlarını değiştirmez.
 

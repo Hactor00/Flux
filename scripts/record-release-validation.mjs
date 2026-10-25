@@ -17,6 +17,7 @@ const records = Object.fromEntries(
       "installer",
       "upgrade",
       "daily-use",
+      "download-feedback",
       "windows",
       "desktop-integration",
       "media-window",
@@ -55,7 +56,8 @@ if (
   records.upgrade.from_version !== "2.5.0" ||
   !records.upgrade.history_preserved ||
   !records.upgrade.settings_preserved ||
-  records["firefox-157.0.1-store"].extension_id !== "firefox@fluxdownload.org" ||
+  records["firefox-157.0.1-store"].extension_id !==
+    "firefox@fluxdownload.org" ||
   records["chrome-store-interception"].extension_id !==
     "okimieponfbegjhmfdnnefnddofooipk" ||
   !records["chrome-store-interception"].hud_media_native_acknowledged ||
@@ -149,6 +151,7 @@ const report = {
   updater_resource_close_main_and_settings_verified:
     records.windows.updater_resource_close_main_and_settings_verified,
   upgrade_from_2_5_0: records.upgrade,
+  download_feedback: records["download-feedback"],
   test_evidence: {
     core_run_id:
       process.env.FLUX_CORE_TEST_RUN || process.env.GITHUB_RUN_ID || null,

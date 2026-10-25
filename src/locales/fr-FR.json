@@ -264,5 +264,6 @@
   "preview_not_ready": "Les données vidéo lisibles sont encore insuffisantes. Réessayez plus tard.",
   "refresh_preview": "Actualiser l’aperçu",
   "preview_download_hint": "Une image des données téléchargées. La disponibilité dépend du format vidéo.",
-  "portable_updates_help": "Les mises à jour portables ouvrent la page de téléchargement. Fermez Flux, remplacez les fichiers de l’application et conservez le dossier Data."
+  "portable_updates_help": "Les mises à jour portables ouvrent la page de téléchargement. Fermez Flux, remplacez les fichiers de l’application et conservez le dossier Data.",
+  "download_finished": "Téléchargement terminé"
 }

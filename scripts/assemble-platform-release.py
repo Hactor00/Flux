@@ -40,6 +40,61 @@ def identities(releases):
     return [(item["id"], [(asset["id"], asset["name"], asset["size"], asset.get("digest")) for asset in item["assets"]]) for item in releases if not item["draft"]]
 
 
+def refresh_published(stage, names, existing, version, release_info, previous):
+    """Replace only an explicitly requested version, retaining verified rollback files."""
+    tag = f"v{version}"
+    if os.environ.get("REFRESH_VERSION") != version or existing.get("immutable"):
+        raise RuntimeError("Published release refresh was not explicitly authorized or the release is immutable")
+    if {asset["name"] for asset in existing["assets"]} != set(names):
+        raise RuntimeError("Existing release contains an unexpected asset set")
+    release_id = existing["id"]
+    backup = stage / "previous-published"
+    backup.mkdir(exist_ok=True)
+    old_ref = api(f"git/ref/tags/{tag}")
+    (backup / "release-metadata.json").write_text(json.dumps(existing, indent=2) + "\n")
+    (backup / "tag-reference.json").write_text(json.dumps(old_ref, indent=2) + "\n")
+    subprocess.run(["gh", "release", "download", tag, "--dir", str(backup)], check=True)
+    for asset in existing["assets"]:
+        path = backup / asset["name"]
+        if path.stat().st_size != asset["size"] or asset.get("digest") != "sha256:" + digest(path):
+            raise RuntimeError("Previously published package backup could not be verified")
+    others = [item for item in previous if item[0] != release_id]
+    # Keep the old signed feed until all replacement installer/package uploads are verified.
+    ordered = [name for name in names if name != "latest.json"] + ["latest.json"]
+    changed = False
+    try:
+        for name in ordered:
+            current = api(f"releases/{release_id}")
+            if current["draft"] or current["tag_name"] != tag:
+                raise RuntimeError("Published release state changed during refresh")
+            asset = next(item for item in current["assets"] if item["name"] == name)
+            if asset.get("digest") == "sha256:" + digest(stage / name):
+                continue
+            changed = True
+            subprocess.run(["gh", "release", "upload", tag, str(stage / name), "--clobber"], check=True)
+            uploaded = next(item for item in api(f"releases/{release_id}")["assets"] if item["name"] == name)
+            if uploaded.get("digest") != "sha256:" + digest(stage / name) or uploaded["size"] != (stage / name).stat().st_size:
+                raise RuntimeError(f"Refreshed package identity mismatch: {name}")
+        api(f"git/refs/tags/{tag}", "PATCH", {"sha": release_info["source_commit"], "force": True})
+        api(f"releases/{release_id}", "PATCH", {
+            "target_commitish": release_info["source_commit"],
+            "body": Path(f"docs/releases/{tag}.md").read_text(),
+        })
+        if others != [item for item in identities(api("releases?per_page=100")) if item[0] != release_id]:
+            raise RuntimeError("Another published release changed during refresh")
+        final = api(f"releases/{release_id}")
+        if {asset["name"] for asset in final["assets"]} != set(names) or final["draft"]:
+            raise RuntimeError("Refreshed release asset set is incomplete")
+        print(f"Verified refreshed {tag} packages; previous files retained as a rollback artifact.")
+    except Exception:
+        if changed:
+            for name in ordered:
+                subprocess.run(["gh", "release", "upload", tag, str(backup / name), "--clobber"], check=True)
+            api(f"git/refs/tags/{tag}", "PATCH", {"sha": old_ref["object"]["sha"], "force": True})
+            api(f"releases/{release_id}", "PATCH", {"target_commitish": existing["target_commitish"], "body": existing["body"]})
+        raise
+
+
 def main():
     stage = Path(sys.argv[1]).resolve()
     version = read_json("package.json")["version"]
@@ -156,7 +211,8 @@ def main():
     releases = api("releases?per_page=100")
     existing = next((item for item in releases if item["tag_name"] == tag), None)
     if existing and not existing["draft"]:
-        raise RuntimeError("Published releases cannot be overwritten")
+        refresh_published(stage, names, existing, version, release_info, previous)
+        return
     if not existing:
         existing = api("releases", "POST", {
             "tag_name": tag, "draft": True, "target_commitish": release_info["source_commit"],

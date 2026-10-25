@@ -23,6 +23,29 @@
   border-radius: 14px;
   background: var(--ui-raised);
 }
+
+.completion-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 18px;
+  border-radius: 16px;
+  color: var(--ui-accent);
+  background: var(--ui-tint);
+}
+.download-complete .completion-path {
+  overflow-wrap: anywhere;
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 18px 0 24px;
+}
+.download-complete .details-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 .source-summary > span {
   color: var(--ui-muted);
 }

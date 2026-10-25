@@ -264,5 +264,6 @@
   "preview_not_ready": "Chưa đủ dữ liệu video có thể đọc. Hãy thử lại sau.",
   "refresh_preview": "Làm mới bản xem trước",
   "preview_download_hint": "Một khung hình từ dữ liệu đã tải. Khả năng xem phụ thuộc định dạng video.",
-  "portable_updates_help": "Bản di động mở trang tải để cập nhật. Đóng Flux, thay các tệp ứng dụng và giữ lại thư mục Data."
+  "portable_updates_help": "Bản di động mở trang tải để cập nhật. Đóng Flux, thay các tệp ứng dụng và giữ lại thư mục Data.",
+  "download_finished": "Tải xuống hoàn tất"
 }

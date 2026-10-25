@@ -309,13 +309,15 @@ export const api = {
     path: string | null = null,
     taskId: string | null = null,
   ) =>
-    invoke<{ size: number | null; content_type: string; files: TorrentFile[] }>(
-      "inspect_source",
-      { url, path, taskId },
-    ),
+    invoke<{
+      size: number | null;
+      estimated: boolean;
+      content_type: string;
+      files: TorrentFile[];
+    }>("inspect_source", { url, path, taskId }),
   previewFrame: (id: string) => invoke<string>("preview_frame", { id }),
   surface: (
-    view: "download" | "settings" | "details" | "power",
+    view: "download" | "settings" | "details" | "power" | "complete",
     id: string | null = null,
     initialUrl: string | null = null,
   ) => invoke<void>("open_surface", { view, id, initialUrl }),

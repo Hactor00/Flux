@@ -264,5 +264,6 @@
   "preview_not_ready": "可读取的视频数据还不够，请稍后重试。",
   "refresh_preview": "刷新预览",
   "preview_download_hint": "来自已下载数据的画面，是否可用取决于视频格式。",
-  "portable_updates_help": "便携版更新会打开下载页面。请关闭 Flux，替换程序文件并保留 Data 文件夹。"
+  "portable_updates_help": "便携版更新会打开下载页面。请关闭 Flux，替换程序文件并保留 Data 文件夹。",
+  "download_finished": "下载完成"
 }

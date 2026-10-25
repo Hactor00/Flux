@@ -264,5 +264,6 @@
   "preview_not_ready": "読み取り可能な動画データがまだ不足しています。後でもう一度お試しください。",
   "refresh_preview": "プレビューを更新",
   "preview_download_hint": "ダウンロード済みデータのフレームです。表示の可否は動画形式によります。",
-  "portable_updates_help": "ポータブル版の更新はダウンロードページを開きます。Flux を終了し、アプリのファイルを置き換えて Data フォルダーは保持してください。"
+  "portable_updates_help": "ポータブル版の更新はダウンロードページを開きます。Flux を終了し、アプリのファイルを置き換えて Data フォルダーは保持してください。",
+  "download_finished": "ダウンロード完了"
 }

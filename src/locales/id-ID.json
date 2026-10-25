@@ -264,5 +264,6 @@
   "preview_not_ready": "Data video yang dapat dibaca belum cukup. Coba lagi nanti.",
   "refresh_preview": "Segarkan pratinjau",
   "preview_download_hint": "Satu bingkai dari data yang diunduh. Ketersediaan bergantung pada format video.",
-  "portable_updates_help": "Pembaruan portabel membuka halaman unduhan. Tutup Flux, ganti berkas aplikasi, dan pertahankan folder Data."
+  "portable_updates_help": "Pembaruan portabel membuka halaman unduhan. Tutup Flux, ganti berkas aplikasi, dan pertahankan folder Data.",
+  "download_finished": "Unduhan selesai"
 }

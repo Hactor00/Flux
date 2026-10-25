@@ -1,5 +1,13 @@
 # Flux for Firefox
 
+## Install from Mozilla Add-ons
+
+**[Flux on Mozilla Add-ons](https://addons.mozilla.org/firefox/addon/flux-download-manager/)** is the official Firefox store listing. As of 25 October 2026, version 2.6.0 is awaiting review; the public listing and store installation may remain unavailable until approval. Firefox installs approved store updates automatically.
+
+The store extension requires **Flux desktop 2.6.0 or later** on Windows or Linux. Download the desktop app from [GitHub Releases](https://github.com/Hactor00/Flux/releases/latest), launch it once, then enable local data transfer and check the connection in the extension popup. For a temporary manual installation, use the GitHub ZIP packages below.
+
+## Shared sources
+
 The shared JavaScript, styles, icons and twenty language catalogs are generated with `npm run build:extensions`. Edit `extension/` for common behavior; do not edit generated runtime files.
 
 ## Packages

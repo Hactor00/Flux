@@ -12,6 +12,16 @@ export function mediaFormatKey(format: ResolvedFormat) {
     : `format-${format.id || "auto"}`;
 }
 
+export const canPauseTask = (task: Task) =>
+  ["running", "verifying", "queued"].includes(task.status) ||
+  task.torrent?.state === "seeding";
+
+export const canResumeTask = (task: Task) =>
+  ["paused", "failed"].includes(task.status) ||
+  (task.status === "complete" &&
+    !!task.torrent &&
+    task.torrent.state !== "seeding");
+
 export function capturedMedia(task?: Task): ResolvedMedia | null {
   const media = task?.request.media;
   if (!task || !media?.provider) return null;

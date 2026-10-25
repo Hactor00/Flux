@@ -264,5 +264,6 @@
   "preview_not_ready": "Noch nicht genügend lesbare Videodaten. Versuchen Sie es später erneut.",
   "refresh_preview": "Vorschau aktualisieren",
   "preview_download_hint": "Ein Bild aus den heruntergeladenen Daten. Die Verfügbarkeit hängt vom Videoformat ab.",
-  "portable_updates_help": "Portable Updates öffnen die Downloadseite. Schließen Sie Flux, ersetzen Sie die App-Dateien und behalten Sie den Data-Ordner."
+  "portable_updates_help": "Portable Updates öffnen die Downloadseite. Schließen Sie Flux, ersetzen Sie die App-Dateien und behalten Sie den Data-Ordner.",
+  "download_finished": "Download abgeschlossen"
 }

@@ -264,5 +264,6 @@
   "preview_not_ready": "Ainda não há dados de vídeo legíveis suficientes. Tente novamente mais tarde.",
   "refresh_preview": "Atualizar prévia",
   "preview_download_hint": "Um quadro dos dados baixados. A disponibilidade depende do formato do vídeo.",
-  "portable_updates_help": "Atualizações portáteis abrem a página de download. Feche o Flux, substitua os arquivos do aplicativo e mantenha a pasta Data."
+  "portable_updates_help": "Atualizações portáteis abrem a página de download. Feche o Flux, substitua os arquivos do aplicativo e mantenha a pasta Data.",
+  "download_finished": "Download concluído"
 }

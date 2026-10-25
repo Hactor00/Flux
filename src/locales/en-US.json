@@ -264,5 +264,6 @@
   "preview_not_ready": "Not enough readable video data yet. Try again later.",
   "refresh_preview": "Refresh preview",
   "preview_download_hint": "A frame from downloaded data. Availability depends on the video format.",
-  "portable_updates_help": "Portable updates open the download page. Close Flux and replace the App files; keep the Data folder."
+  "portable_updates_help": "Portable updates open the download page. Close Flux and replace the App files; keep the Data folder.",
+  "download_finished": "Download complete"
 }

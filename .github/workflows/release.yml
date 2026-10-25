@@ -31,7 +31,12 @@ concurrency:
   group: release-${{ github.ref }}-${{ inputs.media_run || 'fresh' }}
   cancel-in-progress: false
 jobs:
+  media:
+    if: ${{ !inputs.media_run && !inputs.candidate_run && (inputs.rebuild_media || github.ref_type == 'tag') }}
+    uses: ./.github/workflows/windows-media.yml
   build:
+    needs: media
+    if: ${{ always() && !cancelled() && (needs.media.result == 'success' || needs.media.result == 'skipped') }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -101,10 +106,6 @@ jobs:
       - name: Prepare pinned fixture encoder
         shell: pwsh
         run: ./scripts/prepare-test-runtime.ps1
-      - name: Build pinned LGPL media runtime
-        if: ${{ (inputs.rebuild_media || github.ref_type == 'tag') && inputs.media_run == '' }}
-        shell: pwsh
-        run: ./scripts/bootstrap-media-toolchain.ps1 -PkgconfBin (Join-Path '${{ steps.msys2.outputs.msys2-location }}' 'ucrt64/bin') -Bash (Join-Path '${{ steps.msys2.outputs.msys2-location }}' 'usr/bin/bash.exe')
       - name: Verify released LGPL media runtime
         if: ${{ !inputs.rebuild_media && github.ref_type != 'tag' && !inputs.candidate_run && !inputs.media_run }}
         shell: pwsh
@@ -118,11 +119,14 @@ jobs:
           run-id: ${{ inputs.candidate_run }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify reusable pinned media artifact
-        if: inputs.media_run != ''
+        if: inputs.media_run != '' || needs.media.result == 'success'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: pwsh
-        run: ./scripts/reuse-media-runtime.ps1 -RunId '${{ inputs.media_run }}'
+        run: |
+          $mediaRun = '${{ inputs.media_run }}'
+          if (-not $mediaRun) { $mediaRun = $env:GITHUB_RUN_ID }
+          ./scripts/reuse-media-runtime.ps1 -RunId $mediaRun
       - name: Prepare Windows packages
         shell: pwsh
         env:
@@ -130,10 +134,8 @@ jobs:
         run: |
           if ('${{ inputs.candidate_run }}' -ne '') {
             ./scripts/restore-release-candidate.ps1 -RunId '${{ inputs.candidate_run }}'
-          } elseif ('${{ inputs.media_run }}' -ne '') {
+          } elseif ('${{ inputs.media_run }}' -ne '' -or '${{ needs.media.result }}' -eq 'success') {
             ./scripts/build-release.ps1 -RuntimePackage (Get-Content .tools/reused-media-path.txt -Raw)
-          } elseif ('${{ inputs.rebuild_media }}' -eq 'true' -or $env:GITHUB_REF_TYPE -eq 'tag') {
-            ./scripts/build-release.ps1
           } else {
             ./scripts/build-release.ps1 -RuntimePackage (Get-Content .tools/released-media-path.txt -Raw)
           }

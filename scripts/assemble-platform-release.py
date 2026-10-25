@@ -75,6 +75,12 @@ def main():
             "scripts/build-release.ps1", "scripts/prepare-extractor.ps1",
             "scripts/portable-launcher.rs",
         ]
+        if platform == "linux":
+            runtime_paths = [path for path in runtime_paths if path not in (
+                "scripts/build-media-runtime.sh", "scripts/prepare-release.ps1",
+                "scripts/build-release.ps1", "scripts/prepare-extractor.ps1",
+                "scripts/portable-launcher.rs",
+            )]
         subprocess.run(["git", "diff", "--quiet", workflow["head_sha"], "HEAD", "--", *runtime_paths], check=True)
     original_sums = {}
     for line in (stage / "SHA256SUMS.txt").read_text(encoding="utf-8-sig").splitlines():

@@ -59,6 +59,7 @@ mod connection_tests {
 pub struct Engine(Arc<Inner>);
 struct Inner {
     browser_connections: crate::browser_connection::BrowserConnections,
+    media_sizes: crate::source_info::MediaSizes,
     store: Store,
     client: Client,
     data: PathBuf,
@@ -111,6 +112,7 @@ impl Engine {
             let files = crate::torrent::inspect_file(&path).await?;
             return Ok(SourceInfo {
                 size: Some(files.iter().map(|f| f.length).sum()),
+                estimated: false,
                 content_type: "application/x-bittorrent".into(),
                 files,
             });
@@ -125,6 +127,20 @@ impl Engine {
             }
         };
         model::validate_url(&request.url)?;
+        if let Some(media) = &request.media {
+            let cached = self.0.media_sizes.get(&request);
+            let manifest = matches!(media.kind.as_deref(), Some("hls" | "dash"))
+                || !media.segment_urls.is_empty()
+                || crate::extractor::is_provider_url(&request.url);
+            if cached.is_some() || manifest {
+                return Ok(SourceInfo {
+                    size: cached,
+                    estimated: true,
+                    content_type: String::new(),
+                    files: Vec::new(),
+                });
+            }
+        }
         let metadata = tokio::time::timeout(
             Duration::from_secs(12),
             http::probe(
@@ -149,7 +165,7 @@ impl Engine {
                 &request.url,
                 &request.credentials,
             )?;
-            if let Some(referer) = request.referer {
+            if let Some(referer) = &request.referer {
                 fetch = fetch.header(header::REFERER, referer);
             }
             let bytes = tokio::time::timeout(Duration::from_secs(15), async {
@@ -176,8 +192,32 @@ impl Engine {
             .context("Torrent inspection timed out")??;
             files = crate::torrent::inspect_bytes(&bytes)?;
         }
+        let mut size = metadata.total;
+        if let Some(audio) = request
+            .media
+            .as_ref()
+            .and_then(|media| media.audio_url.as_ref())
+        {
+            if audio != &request.url {
+                let audio = tokio::time::timeout(
+                    Duration::from_secs(12),
+                    http::probe(
+                        &self.0.client,
+                        audio,
+                        request.referer.as_deref(),
+                        &request.credentials,
+                    ),
+                )
+                .await
+                .context("Audio inspection timed out")??;
+                size = size
+                    .zip(audio.total)
+                    .and_then(|(video, audio)| video.checked_add(audio));
+            }
+        }
         Ok(SourceInfo {
-            size: metadata.total,
+            size,
+            estimated: request.media.is_some(),
             content_type: metadata.content_type,
             files,
         })
@@ -301,6 +341,7 @@ impl Engine {
             .with_host_resolver(hosts.clone());
         Ok(Self(Arc::new(Inner {
             browser_connections: Default::default(),
+            media_sizes: Default::default(),
             store,
             client,
             hosts,
@@ -441,7 +482,10 @@ impl Engine {
         };
         self.decode_credentials(&mut request)?;
         model::validate(&request)?;
-        crate::extractor::resolve_with_session(&request.url, &request.credentials).await
+        let resolved =
+            crate::extractor::resolve_with_session(&request.url, &request.credentials).await?;
+        self.0.media_sizes.remember(&resolved);
+        Ok(resolved)
     }
     pub async fn resolve_manifest(
         &self,
@@ -502,7 +546,10 @@ impl Engine {
             .context("Manifest body timed out")??;
             (url, text)
         };
-        tokio::task::spawn_blocking(move || crate::manifest::parse(&url, &text)).await?
+        let resolved =
+            tokio::task::spawn_blocking(move || crate::manifest::parse(&url, &text)).await??;
+        self.0.media_sizes.remember(&resolved);
+        Ok(resolved)
     }
     pub async fn resolve_collection_authenticated(
         &self,
@@ -1228,6 +1275,7 @@ impl Engine {
         let destination = self
             .reserve_destination(&directory, &id, request, &mut reserved)
             .await?;
+        let media_size = self.0.media_sizes.get(request);
         let task = Task {
             media_outputs: Vec::new(),
             direct_write: false,
@@ -1243,8 +1291,8 @@ impl Engine {
             },
             request: request.clone(),
             status,
-            total: None,
-            total_estimated: false,
+            total: media_size,
+            total_estimated: media_size.is_some(),
             media_progress: None,
             torrent: None,
             completed: 0,
@@ -2757,4 +2805,55 @@ async fn publish_exclusive(source: &Path, destination: &Path) -> Result<()> {
         .await
         .context("Cannot publish file exclusively")?;
     Ok(())
+}
+
+#[cfg(test)]
+mod approval_size_tests {
+    use super::*;
+    #[tokio::test]
+    async fn resolved_browser_size_reaches_pending_approval_and_source_inspection() {
+        let root = tempfile::tempdir().unwrap();
+        let engine = Engine::open(root.path().join("data"), root.path().join("downloads"))
+            .await
+            .unwrap();
+        let metadata: crate::extractor::ResolvedMedia = serde_json::from_value(serde_json::json!({
+            "title":"Video", "duration":10, "formats":[{
+                "id":"137", "url":"https://cdn.example/video", "audio_url":"https://cdn.example/audio",
+                "height":1080, "fps":30, "audio_only":false, "audio_codec":"aac", "codec":"h264",
+                "size":706111078, "container":"mp4"
+            }]
+        })).unwrap();
+        engine.0.media_sizes.remember(&metadata);
+        let task = engine
+            .propose_id(
+                uuid::Uuid::new_v4().to_string(),
+                DownloadRequest {
+                    url: "https://cdn.example/video".into(),
+                    filename: "Video.mp4".into(),
+                    media: Some(crate::MediaOptions {
+                        audio_url: Some("https://cdn.example/audio".into()),
+                        provider: Some(crate::MediaProvider {
+                            url: "https://www.youtube.com/watch?v=fixture".into(),
+                            format_id: Some("137".into()),
+                            height: Some(1080),
+                            audio_format_id: None,
+                        }),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+        assert_eq!(task.status, Status::AwaitingApproval);
+        assert_eq!(task.total, Some(706111078));
+        assert!(task.total_estimated);
+        let inspected = engine
+            .source_info(task.request.url.clone(), None, Some(task.id.clone()))
+            .await
+            .unwrap();
+        assert_eq!(inspected.size, task.total);
+        assert!(inspected.estimated);
+        assert_eq!(engine.task(&task.id).await.unwrap().total, task.total);
+    }
 }

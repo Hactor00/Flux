@@ -1,25 +1,25 @@
 {
-  "version": "2.6.0",
-  "source_hashes_verified": true,
-  "time": "2026-10-25T13:43:20.0810743Z",
-  "chromium_store_manifests_verified": true,
-  "runtime_only": true,
   "passed": true,
+  "source_hashes_verified": true,
   "packages": [
     {
       "files": 61,
-      "name": "chrome",
-      "sha256": "0783d8b5c8d3def8edce65c5f6834701723bee76e864a8c037946dc69693391e"
+      "sha256": "4811f1aaa96f910cfdc34a0d906dfa9bad138caf80600d1ddcb26d8721347164",
+      "name": "chrome"
     },
     {
       "files": 61,
-      "name": "edge",
-      "sha256": "277db89104ac46c4787ba1966522bb45ad87b81fd74256ef82461e7723232048"
+      "sha256": "4811f1aaa96f910cfdc34a0d906dfa9bad138caf80600d1ddcb26d8721347164",
+      "name": "edge"
     },
     {
       "files": 61,
-      "name": "firefox",
-      "sha256": "ce7a11d41c0b92b52de621fa7b9cf4be689818961c6014d5afbaca0ecb0d620e"
+      "sha256": "b9ae5d534e526bd196f6436ec751bce603d45afd73cdb1b69718d2f4de698089",
+      "name": "firefox"
     }
-  ]
+  ],
+  "time": "2026-10-26T16:56:14.8529231Z",
+  "version": "2.6.5",
+  "chromium_store_manifests_verified": true,
+  "runtime_only": true
 }

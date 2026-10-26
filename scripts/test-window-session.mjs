@@ -194,6 +194,9 @@ try {
       "document.querySelector('form').requestSubmit(); true",
     );
     let details = await driver.connect("details");
+    await details.evaluate(
+      "document.querySelector('.transfer-details-button').click(); true",
+    );
     const detailsInstances = new Set([details.id]);
     await driver.absent("download");
     let startedTask = await details.evaluate(

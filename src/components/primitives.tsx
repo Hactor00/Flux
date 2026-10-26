@@ -35,6 +35,7 @@ export function Choice({
               <Select.Item
                 key={option.value}
                 value={option.value}
+                data-value={option.value}
                 className="choice-item"
               >
                 <Select.ItemText>{option.label}</Select.ItemText>

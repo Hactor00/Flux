@@ -1,8 +1,9 @@
 import { once } from "node:events";
 export class DesktopDriver {
-  constructor(port) {
+  constructor(port, { preserveStatisticsPrompt = false } = {}) {
     this.base = `http://127.0.0.1:${port}`;
     this.sockets = [];
+    this.preserveStatisticsPrompt = preserveStatisticsPrompt;
   }
   async absent(view) {
     const deadline = Date.now() + 5000;
@@ -116,11 +117,18 @@ export class DesktopDriver {
     const ready = Date.now() + 30000;
     while (
       !(await evaluate(
-        "!!(document.querySelector('#root')?.children.length || document.querySelector('[role=dialog],.surface-loading'))",
+        "!document.querySelector('.surface-loading') && !!(document.querySelector('#root')?.children.length || document.querySelector('[role=dialog]'))",
       ))
     ) {
       if (Date.now() > ready) throw Error("Native renderer did not load");
       await new Promise((r) => setTimeout(r, 100));
+    }
+    if (view === "main" && !this.preserveStatisticsPrompt) {
+      // Existing tests use disposable profiles and explicitly decline measurement.
+      // The dedicated consent test keeps the real first-run prompt enabled.
+      await evaluate(
+        'window.__TAURI_INTERNALS__.invoke("statistics_choice", {choice:"never"})',
+      ).catch(() => {});
     }
     return { call, evaluate, id: target.id };
   }

@@ -66,6 +66,9 @@ if ($RuntimePackage) {
         Copy-Item -LiteralPath (Join-Path $RuntimePackage "media-source/$name") -Destination $sourceDirectory -Force
     }
     Copy-Item -LiteralPath "$PSScriptRoot/build-media-runtime.sh" -Destination $sourceDirectory -Force
+    if (Test-Path -LiteralPath "$RuntimePackage/media-source/build-windows-media.sh") {
+        Copy-Item -LiteralPath "$RuntimePackage/media-source/build-windows-media.sh" -Destination $sourceDirectory -Force
+    }
 } else {
 Copy-Item -LiteralPath "$workspace/.tools/media-sources/ffmpeg-9.0.2.tar.xz" -Destination $sourceDirectory -Force
 Copy-Item -LiteralPath "$workspace/.tools/media-sources/libxml2-2.15.4.tar.xz" -Destination $sourceDirectory -Force

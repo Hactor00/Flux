@@ -1,3 +1,29 @@
+pub fn supported(locale: &str) -> bool {
+    matches!(
+        locale,
+        "en-US"
+            | "zh-CN"
+            | "hi-IN"
+            | "es-ES"
+            | "ar-SA"
+            | "fr-FR"
+            | "bn-BD"
+            | "pt-BR"
+            | "ru-RU"
+            | "ur-PK"
+            | "id-ID"
+            | "de-DE"
+            | "ja-JP"
+            | "pcm-NG"
+            | "mr-IN"
+            | "te-IN"
+            | "tr-TR"
+            | "ta-IN"
+            | "yue-HK"
+            | "vi-VN"
+    )
+}
+
 pub fn words(locale: &str) -> serde_json::Value {
     let source = match locale {
         "en-US" => include_str!("../../src/locales/en-US.json"),

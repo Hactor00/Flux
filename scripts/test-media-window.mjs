@@ -255,6 +255,9 @@ try {
   }
   if (suite) {
     await download.evaluate(
+      "document.querySelector('.download-details-button').click(); true",
+    );
+    await download.evaluate(
       "document.querySelector('.media-extras').open=true; document.querySelector('.media-extras [role=combobox]').click(); true",
     );
     await download.evaluate(

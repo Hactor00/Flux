@@ -1,22 +1,30 @@
 # Flux for Firefox
 
+## Install from Mozilla Add-ons
+
+**[Flux on Mozilla Add-ons](https://addons.mozilla.org/firefox/addon/flux-download-manager/)** is the official Firefox store listing. As of 25 October 2026, version 2.6.0 is awaiting review; the public listing and store installation may remain unavailable until approval. Firefox installs approved store updates automatically.
+
+The store extension requires **Flux desktop 2.6.0 or later** on Windows or Linux. Download the desktop app from [GitHub Releases](https://github.com/Hactor00/Flux/releases/latest), launch it once, then enable local data transfer and check the connection in the extension popup. For a temporary manual installation, use the GitHub ZIP packages below.
+
+## Shared sources
+
 The shared JavaScript, styles, icons and twenty language catalogs are generated with `npm run build:extensions`. Edit `extension/` for common behavior; do not edit generated runtime files.
 
 ## Packages
 
 - `Flux-<version>-firefox.zip` targets Firefox 140 and later. Its generated manifest includes Mozilla's native data-transfer declarations.
-- `Flux-<version>-firefox-120.zip` targets Firefox 120–139. These versions reject the newer manifest field, so this package uses the explicit local data-transfer consent in the extension settings.
+- `Flux-<version>-firefox-120.zip` targets Firefox 120â€“139. These versions reject the newer manifest field, so this package uses the explicit local data-transfer consent in the extension settings.
 - Both packages have the same add-on ID, `flux@flux-download.local`, and share the Native Messaging host `io.flux.download`.
 
 Local packages are unsigned. For development, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select the extracted package's `manifest.json`. Firefox removes temporary add-ons after restarting. Permanent distribution requires a Mozilla-signed XPI; ZIP packaging and local validation do not provide that signature.
 
-Launch Flux once to register the browser bridge automatically, or use **Settings → Browser integration → Repair browser bridge**. On Windows, the current-user Mozilla registry key points to `%LOCALAPPDATA%/Flux/io.flux.download.firefox.json`. On Linux, Flux writes `~/.mozilla/native-messaging-hosts/io.flux.download.json`. Host executable paths are absolute. Windows installation, repair and removal are also handled by NSIS. Sandboxed browser packages may need additional host access.
+Launch Flux once to register the browser bridge automatically, or use **Settings â†’ Browser integration â†’ Repair browser bridge**. On Windows, the current-user Mozilla registry key points to `%LOCALAPPDATA%/Flux/io.flux.download.firefox.json`. On Linux, Flux writes `~/.mozilla/native-messaging-hosts/io.flux.download.json`. Host executable paths are absolute. Windows installation, repair and removal are also handled by NSIS. Sandboxed browser packages may need additional host access.
 
 Enable local Flux data transfer in the extension settings and accept Firefox's site-access prompt if shown. This permits selected URLs, media titles and necessary session headers to reach the local Flux application. Consent can be withdrawn in the same settings. Credentials stay in session storage until sealed by the native host; the durable outbox stores encrypted envelopes.
 
 ## Connection and update notices
 
-The free Flux desktop app is required. Download it from [GitHub Releases](https://github.com/Hactor00/Flux/releases/latest), start Flux, grant local-transfer consent and open the extension popup. **Settings → Browser integration** shows a live extension connection separately from local host registration. Repair does not install the extension.
+The free Flux desktop app is required. Download it from [GitHub Releases](https://github.com/Hactor00/Flux/releases/latest), start Flux, grant local-transfer consent and open the extension popup. **Settings â†’ Browser integration** shows a live extension connection separately from local host registration. Repair does not install the extension.
 
 Since 2.4.2 the popup checks GitHub release metadata with a six-hour cache and offline backoff. It links to the official release when the extension or desktop is outdated. ZIP installations require manual replacement; permanent Firefox distribution still requires Mozilla signing.
 
@@ -32,6 +40,8 @@ The HUD uses a closed Shadow DOM and constructed stylesheets. Firefox 120 uses a
 
 `scripts/prepare-firefox-tests.ps1` prepares checksum-pinned, isolated Firefox and geckodriver runtimes. `scripts/test-firefox.mjs` tests native framing, protected cookies, SHA-256 downloads, browser ownership, explicit consent, consent withdrawal, strict page CSP, closed shadow roots, outside clicks, real pointer dragging, resizing, fullscreen and dismissal. No personal Firefox profile is used. The Mozilla registry entry is restored after each test.
 
-## Flux 2.6.0
+## Flux 2.6.5
 
 The GitHub build retains `flux@flux-download.local`; the Mozilla store package uses `firefox@fluxdownload.org`. Desktop 2.6.0 registers and authorizes both IDs. Both distributions contain the shared periodic and popup release checker. AMO delivers approved store updates through Firefox; temporary/unpacked extensions are updated manually.
+
+Version 2.6.5 refreshes the popup and settings layout while preserving both desktop bridge identities and all 20 UI languages. Extension release checks use a six-hour cache. Optional desktop usage statistics are separate and are never sent by this extension.

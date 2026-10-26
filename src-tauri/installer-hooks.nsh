@@ -1,4 +1,5 @@
 !define FLUX_INSTALLER_HOOK_DIR "${__FILEDIR__}"
+!include "${FLUX_INSTALLER_HOOK_DIR}\installer-locale.nsh"
 !macro STOP_FLUX_BROWSER_HOSTS
   Push $R9
   InitPluginsDir
@@ -30,6 +31,7 @@
 !macroend
 
 !macro NSIS_HOOK_POSTINSTALL
+  !insertmacro FLUX_SAVE_INSTALLER_LOCALE
   ExecWait '"$INSTDIR\flux-desktop.exe" --register-browser' $0
   ${If} $0 != 0
     DetailPrint "Chrome, Edge, Brave, Chromium and Firefox bridge registration failed ($0). Reconnect from Flux settings."

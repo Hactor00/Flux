@@ -259,9 +259,9 @@ try {
     await evaluate("document.getElementById('desktop-install-help').hidden"),
     false,
   );
-  assert.match(
+  assert.equal(
     await evaluate("document.querySelector('#desktop-install-help a').href"),
-    /github.com\/Hactor00\/Flux/,
+    "https://fluxdownload.org/download/",
   );
   await screenshot("popup-offline.png");
   for (const { code } of languages) {

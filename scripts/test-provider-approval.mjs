@@ -159,6 +159,9 @@ try {
     );
     if (container === "mp3") {
       await window.evaluate(
+        "document.querySelector('.download-details-button').click(); true",
+      );
+      await window.evaluate(
         "[...document.querySelectorAll('button')].find(button=>/Inspect streams|Akışları incele/.test(button.textContent)).click(); true",
       );
       await until(

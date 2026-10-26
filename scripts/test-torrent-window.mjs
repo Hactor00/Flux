@@ -250,6 +250,9 @@ try {
   await invoke(main, "resume_download", { id: task.id });
   await invoke(main, "open_surface", { view: "details", id: task.id });
   let details = await driver.connect("details");
+  await details.evaluate(
+    "document.querySelector('.transfer-details-button').click(); true",
+  );
   await until(async () => {
     const value = await invoke(details, "get_task", { id: task.id });
     if (value.status === "failed") throw Error(value.error);
@@ -270,6 +273,9 @@ try {
   await driver.absent("details");
   await invoke(main, "open_surface", { view: "details", id: task.id });
   details = await driver.connect("details");
+  await details.evaluate(
+    "document.querySelector('.transfer-details-button').click(); true",
+  );
   await until(() =>
     details.evaluate("!!document.querySelector('.torrent-details')"),
   );

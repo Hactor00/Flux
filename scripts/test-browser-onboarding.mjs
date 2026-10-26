@@ -99,7 +99,15 @@ async function inspectSettingsLayout(settings, main) {
   // Exercise the real settings controls with representative long and RTL labels.
   for (const locale of ["tr-TR", "de-DE", "ar-SA", "en-US"]) {
     await settings.evaluate(
-      `document.querySelector('.theme-option.dark').focus(); [...document.querySelectorAll('.languages button')].find(button => button.dataset.locale === '${locale}').click(); true`,
+      `document.querySelector('.language-setting [role=combobox]').click(); true`,
+    );
+    await wait(() =>
+      settings.evaluate(
+        `!!document.querySelector('.choice-item[data-value="${locale}"]')`,
+      ),
+    );
+    await settings.evaluate(
+      `document.querySelector('.choice-item[data-value="${locale}"]').click(); true`,
     );
     await wait(() =>
       settings.evaluate(`document.documentElement.lang === '${locale}'`),
@@ -142,6 +150,7 @@ async function inspectSettingsLayout(settings, main) {
     await settings.evaluate(
       "document.querySelector('.settings-footer .primary').click(); true",
     );
+    await wait(async () => (await invoke(main, "get_settings")).theme === theme);
     await wait(() =>
       settings.evaluate(
         `document.documentElement.dataset.theme === '${theme}'`,

@@ -23,7 +23,7 @@ Requests originate from the version-controlled [release workflow](../.github/wor
 
 ## Privacy policy
 
-[Flux privacy disclosure](https://github.com/Hactor00/Flux/blob/main/docs/browser-stores.md#privacy-disclosure-for-store-listings) describes local browser transfer, source connections, torrent traffic, optional Debrid APIs and GitHub update checks. Signing does not introduce an analytics endpoint or transfer the user's downloads, cookies or credentials to SignPath.
+[Flux privacy disclosure](https://github.com/Hactor00/Flux/blob/main/docs/browser-stores.md#privacy-disclosure-for-store-listings) describes local browser transfer, source connections, torrent traffic, optional Debrid APIs and GitHub update checks. Signing does not transfer users’ downloads, cookies or credentials to SignPath. Optional desktop usage statistics are described separately in the [usage notice](usage-statistics.md).
 
 Project maintainers use GitHub and SignPath for release infrastructure: [GitHub privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement), [SignPath privacy policy](https://signpath.io/privacy-policy).
 

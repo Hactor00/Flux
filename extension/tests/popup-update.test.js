@@ -52,10 +52,7 @@ test("popup shows actionable extension/desktop updates and the desktop installat
   const downloadButton = document.querySelector(
     "#desktop-install-help .download-link",
   );
-  assert.equal(
-    downloadButton.href,
-    "https://github.com/Hactor00/Flux/releases/latest",
-  );
+  assert.equal(downloadButton.href, "https://fluxdownload.org/download/");
   assert.match(
     document.getElementById("desktop-install-help").textContent,
     /If installed/,

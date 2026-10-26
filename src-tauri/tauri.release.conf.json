@@ -49,13 +49,42 @@
         "installMode": "currentUser",
         "languages": [
           "English",
-          "Turkish"
+          "SimpChinese",
+          "Hindi",
+          "Spanish",
+          "Arabic",
+          "French",
+          "Bengali",
+          "PortugueseBR",
+          "Russian",
+          "Urdu",
+          "Indonesian",
+          "German",
+          "Japanese",
+          "NigerianPidgin",
+          "Marathi",
+          "Telugu",
+          "Turkish",
+          "Tamil",
+          "TradChinese",
+          "Vietnamese"
         ],
         "displayLanguageSelector": true,
         "sidebarImage": "installer-assets/sidebar.bmp",
         "headerImage": "installer-assets/header.bmp",
         "installerIcon": "icons/icon.ico",
-        "installerHooks": "installer-hooks.nsh"
+        "installerHooks": "installer-hooks.nsh",
+        "template": "installer-template.nsi",
+        "customLanguageFiles": {
+          "Bengali": "installer-languages/Bengali-Tauri.nsh",
+          "Urdu": "installer-languages/Urdu-Tauri.nsh",
+          "NigerianPidgin": "installer-languages/NigerianPidgin-Tauri.nsh",
+          "Marathi": "installer-languages/Marathi-Tauri.nsh",
+          "Telugu": "installer-languages/Telugu-Tauri.nsh",
+          "Tamil": "installer-languages/Tamil-Tauri.nsh",
+          "Hindi": "installer-languages/Hindi-Tauri.nsh",
+          "Indonesian": "installer-languages/Indonesian-Tauri.nsh"
+        }
       }
     }
   }

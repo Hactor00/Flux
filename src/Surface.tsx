@@ -5,6 +5,8 @@ import { DownloadModal } from "./components/DownloadModal";
 import { SettingsModal } from "./components/SettingsModal";
 import { TaskDetails } from "./components/TaskDetails";
 import { PowerCountdown } from "./components/PowerCountdown";
+import { DownloadComplete } from "./components/DownloadComplete";
+import { applyTheme } from "./theme";
 
 export default function Surface() {
   const { i18n, t } = useTranslation();
@@ -22,8 +24,7 @@ export default function Surface() {
     void api
       .settings()
       .then((settings) => {
-        document.documentElement.dataset.theme = settings.theme;
-        localStorage.setItem("flux-theme", settings.theme);
+        applyTheme(settings.theme);
         void i18n.changeLanguage(settings.locale);
       })
       .catch((error) => setError(String(error)));
@@ -33,8 +34,7 @@ export default function Surface() {
         .then(setTask)
         .catch((error) => setError(String(error)));
     const preferences = subscribe<Settings>("settings-changed", (event) => {
-      document.documentElement.dataset.theme = event.payload.theme;
-      localStorage.setItem("flux-theme", event.payload.theme);
+      applyTheme(event.payload.theme);
       void i18n.changeLanguage(event.payload.locale);
     });
     return () => {
@@ -81,6 +81,9 @@ export default function Surface() {
   return (
     <>
       {view === "power" && <PowerCountdown />}
+      {view === "complete" && task && (
+        <DownloadComplete task={task} onClose={close} />
+      )}
       {view === "download" && (
         <DownloadModal
           visible

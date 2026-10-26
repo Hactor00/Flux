@@ -35,18 +35,18 @@ body {
   margin: 0;
 }
 body.popup {
-  width: 410px;
+  width: 390px;
   max-height: 600px;
   overflow-y: auto;
 }
 main {
-  padding: 20px;
+  padding: 16px;
 }
 .app-header {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 .mark {
   flex: none;
@@ -310,7 +310,9 @@ form button {
   scrollbar-width: thin;
 }
 .item {
-  transition: border-color 140ms ease, background 140ms ease;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -323,12 +325,31 @@ form button {
   flex: 1;
   min-width: 0;
 }
-.item:hover { border-color: var(--accent); }
-.empty { border: 1px dashed var(--line); border-radius: 12px; background: var(--soft); }
-.options .app-header { padding-bottom: 20px; border-bottom: 1px solid var(--line); }
-.options button { min-height: 38px; border-radius: 10px; }
-.popup .tabs button { border-radius: 9px; min-height: 38px; }
-@media (prefers-reduced-motion: reduce) { .item { transition: none; } }
+.item:hover {
+  border-color: var(--accent);
+}
+.empty {
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: var(--soft);
+}
+.options .app-header {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.options button {
+  min-height: 38px;
+  border-radius: 10px;
+}
+.popup .tabs button {
+  border-radius: 9px;
+  min-height: 38px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    transition: none;
+  }
+}
 .item strong {
   font-size: 12px;
   font-weight: 550;
@@ -585,5 +606,218 @@ code {
   *,
   *::after {
     transition: none !important;
+  }
+}
+
+/* Shared, compact surfaces for Chromium and Firefox. */
+.popup .brand strong {
+  font-size: 21px;
+}
+.popup .mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+}
+.current-site {
+  margin-inline-start: auto;
+  max-width: 125px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--muted);
+  font-size: 10px;
+}
+.popup .icon {
+  margin-inline-start: 0;
+  border-color: transparent;
+}
+.connection-card {
+  border-radius: 12px;
+  box-shadow: none;
+  background: var(--surface);
+}
+.connection {
+  padding: 12px;
+}
+.connection .quiet {
+  border-radius: 7px;
+  border-color: var(--line);
+}
+.hud-preference {
+  padding: 10px 12px;
+  background: var(--soft);
+}
+.popup .quick-add {
+  margin-top: 17px;
+}
+.popup h2 {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+.popup form input {
+  height: 36px;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+.popup form button {
+  border-radius: 8px;
+  min-width: 77px;
+}
+.popup .tabs {
+  margin-top: 17px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 10px;
+  gap: 2px;
+}
+.popup .tabs button {
+  min-height: 33px;
+  border-radius: 7px;
+  font-size: 10px;
+  gap: 4px;
+}
+.popup .tabs button[aria-selected="true"] {
+  background: var(--input);
+  color: var(--text);
+  box-shadow: 0 1px 3px #00000018;
+}
+.popup .tabs button[aria-selected="true"] .count {
+  color: var(--accent);
+}
+.popup .list {
+  max-height: 230px;
+  gap: 8px;
+}
+.popup .item {
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--surface);
+}
+.popup .item button {
+  width: 32px;
+  height: 32px;
+  border-color: transparent;
+  border-radius: 8px;
+}
+.popup .empty {
+  min-height: 126px;
+  background: transparent;
+  border-style: solid;
+  padding: 22px;
+}
+.popup .empty strong {
+  font-size: 12px;
+}
+.popup .empty p {
+  line-height: 1.6;
+  color: var(--muted);
+  font-size: 11px;
+}
+.popup .notice {
+  border-inline-start: 3px solid var(--accent);
+  border-radius: 9px;
+}
+.popup footer {
+  justify-content: flex-start;
+  margin-top: 16px;
+  padding-top: 12px;
+  font-size: 9px;
+}
+.popup footer a {
+  margin-inline-start: auto;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.options main {
+  max-width: 1000px;
+  margin: 28px auto;
+  padding: 24px;
+}
+.options-layout {
+  display: grid;
+  grid-template-columns: 155px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.options-navigation {
+  position: sticky;
+  top: 20px;
+  display: grid;
+  gap: 5px;
+}
+.options-navigation a {
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: none;
+  padding: 12px;
+  border-radius: 8px;
+}
+.options-navigation a:hover,
+.options-navigation a:focus-visible {
+  background: var(--soft);
+  color: var(--accent);
+}
+.options .settings-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+.options .settings-card {
+  padding: 22px;
+  border-radius: 12px;
+  scroll-margin-top: 20px;
+}
+.options .settings-card h2 {
+  font-size: 15px;
+  margin: 0 0 12px;
+  color: var(--text);
+}
+.options .settings-card p {
+  line-height: 1.7;
+}
+.options .page-intro {
+  margin-bottom: 26px;
+}
+.options .theme-preview {
+  height: 65px;
+}
+.options #language-search {
+  margin-bottom: 3px;
+}
+.options #language {
+  margin-top: 6px;
+  height: 40px;
+}
+.options .setting-row {
+  min-height: 42px;
+}
+.options footer {
+  margin-inline-start: 179px;
+  justify-content: flex-start;
+}
+@media (max-width: 660px) {
+  .options main {
+    margin-top: 0;
+    padding: 16px;
+  }
+  .options-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 15px;
+  }
+  .options-navigation {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 10px;
+  }
+  .options-navigation a {
+    padding: 8px;
+  }
+  .options footer {
+    margin-inline-start: 0;
   }
 }

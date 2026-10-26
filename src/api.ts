@@ -1,4 +1,5 @@
 import { invoke as tauriInvoke, isTauri } from "@tauri-apps/api/core";
+import type { Theme } from "./theme";
 export interface Input {
   save_torrent_file?: boolean;
   url: string;
@@ -114,7 +115,8 @@ export interface Settings {
   minimize_to_tray: boolean;
   notifications: boolean;
   locale: string;
-  theme: "dark" | "light";
+  theme: Theme;
+  compact_list: boolean;
   download_directory: string | null;
   completion_action: ShutdownAction;
   auto_categorize: boolean;
@@ -193,7 +195,8 @@ export const defaultSettings: Settings = {
   minimize_to_tray: true,
   notifications: true,
   locale: "en-US",
-  theme: "dark",
+  theme: "system",
+  compact_list: false,
   download_directory: null,
   completion_action: "none",
   auto_categorize: false,
@@ -303,19 +306,50 @@ export interface BrowserIntegrationStatus {
   error: string | null;
   reminder_dismissed: boolean;
 }
+export type UsageChoice =
+  "unasked" | "enabled" | "later" | "declined" | "never";
+export interface UsageStatus {
+  choice: UsageChoice;
+  enabled: boolean;
+  prompt_due: boolean;
+  remind_after: number;
+  last_success: number | null;
+  deletion_pending: boolean;
+  notice_version: string;
+}
 export const api = {
+  statisticsStatus: () =>
+    desktop
+      ? invoke<UsageStatus>("statistics_status")
+      : Promise.resolve<UsageStatus>({
+          choice: "unasked",
+          enabled: false,
+          prompt_due: false,
+          remind_after: 0,
+          last_success: null,
+          deletion_pending: false,
+          notice_version: "2026-10-26",
+        }),
+  statisticsChoice: (choice: UsageChoice) =>
+    invoke<UsageStatus>("statistics_choice", { choice }),
+  statisticsTick: () => invoke<UsageStatus>("statistics_tick"),
+  resizeSurface: (height: number) => invoke<void>("resize_surface", { height }),
+  openExtensionStore: (browser: "chrome" | "firefox") =>
+    invoke<void>("open_extension_store", { browser }),
   sourceInfo: (
     url: string,
     path: string | null = null,
     taskId: string | null = null,
   ) =>
-    invoke<{ size: number | null; content_type: string; files: TorrentFile[] }>(
-      "inspect_source",
-      { url, path, taskId },
-    ),
+    invoke<{
+      size: number | null;
+      estimated: boolean;
+      content_type: string;
+      files: TorrentFile[];
+    }>("inspect_source", { url, path, taskId }),
   previewFrame: (id: string) => invoke<string>("preview_frame", { id }),
   surface: (
-    view: "download" | "settings" | "details" | "power",
+    view: "download" | "settings" | "details" | "power" | "complete",
     id: string | null = null,
     initialUrl: string | null = null,
   ) => invoke<void>("open_surface", { view, id, initialUrl }),
@@ -389,6 +423,16 @@ export const api = {
   runtimePlatform: () => invoke<string>("runtime_platform"),
   installationMode: () => invoke<string>("installation_mode"),
   openReleasePage: () => invoke<void>("open_release_page"),
+  openUsagePrivacy: () =>
+    desktop
+      ? invoke<void>("open_usage_privacy")
+      : Promise.resolve(
+          window.open(
+            "https://fluxdownload.org/privacy/",
+            "_blank",
+            "noopener",
+          ),
+        ),
   latestReleaseVersion: () => invoke<string>("latest_release_version"),
   expand: (input: string) => invoke<string[]>("expand_batch", { input }),
   registerBrowser: () => invoke<BrowserIntegrationStatus>("register_browser"),

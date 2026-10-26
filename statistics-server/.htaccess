@@ -1,0 +1,7 @@
+Options -Indexes
+<Files "lib.php">
+  Require all denied
+</Files>
+<FilesMatch "\.(json|sqlite|sqlite3|txt|log|bak)$">
+  Require all denied
+</FilesMatch>

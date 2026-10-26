@@ -9,6 +9,7 @@ if (-not $env:TAURI_SIGNING_PRIVATE_KEY) {
     $env:TAURI_SIGNING_PRIVATE_KEY = $signingPath
 }
 & "$PSScriptRoot/prepare-release.ps1" -SkipCompile:$SkipCompile -UseLocalToolchain:$UseLocalToolchain -MediaRuntime $MediaRuntime -RuntimePackage $RuntimePackage
+& "$PSScriptRoot/generate-installer-art.ps1"
 $configuration = @('--config', 'src-tauri/tauri.release.conf.json')
 if ($SigningThumbprint) {
     & "$PSScriptRoot/sign-windows.ps1" -Files @("$workspace/target/release/flux-cli.exe", "$workspace/target/release/flux-native-host.exe", "$workspace/target/release/FluxTorrentBridge.dll") -Thumbprint $SigningThumbprint

@@ -1,4 +1,4 @@
-param([Parameter(Mandatory)][string]$RunId)
+param([Parameter(Mandatory)][string]$RunId, [string]$MediaRuntime)
 $ErrorActionPreference = 'Stop'
 if ($RunId -notmatch '^\d+$') { throw 'A numeric candidate workflow run ID is required.' }
 $workspace = [IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
@@ -60,6 +60,28 @@ if (Test-Path -LiteralPath "$workspace/release/Flux-$version-media-source.zip") 
     Expand-Archive -LiteralPath "$workspace/release/Flux-$version-media-source.zip" -DestinationPath "$workspace/.tools/package/media-source" -Force
 }
 foreach ($entry in Get-ChildItem -LiteralPath $portable -Filter '*.dll' -File) { Copy-Item -LiteralPath $entry.FullName -Destination "$workspace/target/debug" -Force }
+if ($MediaRuntime) {
+    $MediaRuntime = (Resolve-Path -LiteralPath $MediaRuntime).Path
+    if (-not $MediaRuntime.StartsWith($workspace + [IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'Verified media runtime must be staged inside the workspace.' }
+    $encoders = & (Join-Path $MediaRuntime 'ffmpeg.exe') -encoders 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0 -or $encoders -notmatch '\bmjpeg\b') { throw 'Verified media runtime must encode video previews.' }
+    if ((Get-FileHash -LiteralPath (Join-Path $MediaRuntime 'ffmpeg.exe')).Hash -ne (Get-FileHash -LiteralPath "$workspace/target/release/ffmpeg.exe").Hash) {
+        foreach ($name in 'ffmpeg.exe','ffprobe.exe','libunwind.dll') {
+            Copy-Item -LiteralPath (Join-Path $MediaRuntime $name) -Destination "$workspace/target/release/$name" -Force
+            Copy-Item -LiteralPath (Join-Path $MediaRuntime $name) -Destination "$workspace/.tools/package/$name" -Force
+        }
+        Copy-Item -LiteralPath (Join-Path $MediaRuntime 'libunwind.dll') -Destination "$workspace/target/debug/libunwind.dll" -Force
+        $sourceStage = [IO.Path]::GetFullPath((Join-Path $workspace '.tools/package/media-source'))
+        $sourceBackup = [IO.Path]::GetFullPath((Join-Path $workspace ('.tools/candidate-previous-media-source-' + [guid]::NewGuid().ToString('N'))))
+        foreach ($targetPath in @($sourceStage,$sourceBackup)) {
+            if (-not $targetPath.StartsWith($workspace + [IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'Media source staging escaped the workspace.' }
+        }
+        if (Test-Path -LiteralPath $sourceStage) { Move-Item -LiteralPath $sourceStage -Destination $sourceBackup }
+        Copy-Item -LiteralPath (Join-Path $MediaRuntime 'media-source') -Destination $sourceStage -Recurse
+        $rebundleInstaller = $true
+        Write-Output 'Retained compiled application bytes and replaced the media tools with the verified preview-capable runtime.'
+    }
+}
 Copy-Item -LiteralPath "$workspace/release/Flux_${version}_x64-setup.exe" -Destination "$workspace/target/release/bundle/nsis" -Force
 if ($rebundleInstaller) {
     # Installer scripts are not compiled into the application executables.

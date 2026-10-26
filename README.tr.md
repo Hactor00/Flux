@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Hactor00/Flux/releases/tag/v2.6.0"><img alt="Flux 2.6.0" src="https://img.shields.io/badge/release-2.6.0-bda8ff"></a>
+  <a href="https://github.com/Hactor00/Flux/releases/tag/v2.6.5"><img alt="Flux 2.6.5" src="https://img.shields.io/badge/release-2.6.5-bda8ff"></a>
   <a href="https://github.com/Hactor00/Flux/actions/workflows/ci.yml"><img alt="Doğrulama" src="https://github.com/Hactor00/Flux/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <img alt="Windows and Linux" src="https://img.shields.io/badge/platform-Windows_%7C_Linux-0078D4">
   <a href="LICENSE"><img alt="MIT lisansı" src="https://img.shields.io/badge/license-MIT-84d6ba"></a>
@@ -27,34 +27,47 @@ Flux; çok bağlantılı HTTP indirmelerini, erişilebilir video/ses yakalamayı
 
 ## İndir
 
-**Güncel sürüm: [Flux 2.6.0](https://github.com/Hactor00/Flux/releases/tag/v2.6.0), Windows x64 ve Linux x86_64 (RPM).**
+**Güncel sürüm: [Flux 2.6.5](https://github.com/Hactor00/Flux/releases/tag/v2.6.5), Windows x64 ve Linux x86_64 (RPM).**
 
 [Kod imzalama politikası (Code signing policy)](docs/code-signing-policy.md) · [Gizlilik politikası](docs/browser-stores.md#privacy-disclosure-for-store-listings)
 
+### Tarayıcı eklentileri
+
+| Tarayıcı | Resmî mağaza |
+| --- | --- |
+| Chrome, Edge ve Brave | **[Chrome Web Mağazası'ndan yükle](https://chromewebstore.google.com/detail/flux-download-manager/okimieponfbegjhmfdnnefnddofooipk)** |
+| Firefox | **[Mozilla Eklentileri](https://addons.mozilla.org/firefox/addon/flux-download-manager/)** — inceleme bekliyor |
+
+**25 Ekim 2026'da kontrol edilen mağaza durumu:** Chrome'da 2.5.0 yayında; 2.6.5 güncellemesi inceleme bekliyor. Firefox 2.6.5 da Mozilla incelemesinde olduğundan mağaza sayfası onaydan önce açılmayabilir. İki mağaza eklentisi de Windows ve Linux'ta Flux 2.6.5 masaüstü uygulamasıyla çalışır. Eklentinin çalışması için masaüstü uygulamasını da kurup açın.
+
+Mağazadan kurulan eklentilerin onaylanan güncellemelerini tarayıcı yükler. Elle kurmak ve güncellemek isteyenler için aşağıdaki ZIP paketleri de kullanılabilir.
+
+### Masaüstü ve ZIP paketleri
+
 | Paket | Kullanımı |
 | --- | --- |
-| **[Windows kurulumu](https://github.com/Hactor00/Flux/releases/download/v2.6.0/Flux_2.6.0_x64-setup.exe)** | Önerilen; kullanıcı hesabına kurulum ve otomatik yerel köprü kaydı |
-| **[Linux RPM](https://github.com/Hactor00/Flux/releases/download/v2.6.0/Flux-2.6.0-linux-x86_64.rpm)** | Fedora x86_64; masaüstü, yerel köprü ve torrent bileşeni; medya bağımlılıklarını dnf kurar |
-| [Taşınabilir uygulama](https://github.com/Hactor00/Flux/releases/download/v2.6.0/Flux-2.6.0-windows-x64.zip) | Masaüstü uygulaması, eklentiler ve medya araçları |
-| [PortableApps düzeni](https://github.com/Hactor00/Flux/releases/download/v2.6.0/Flux-2.6.0-portableapps.zip) | App/Data/Other düzeninde taşınabilir paket; PortableApps.com tarafından onaylanmış değildir |
-| [Chromium eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.6.0/Flux-2.6.0-chrome.zip) | Chrome, Edge, Brave ve uyumlu Chromium tarayıcıları |
-| [Firefox 140+ eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.6.0/Flux-2.6.0-firefox.zip) | Güncel Firefox |
-| [Firefox 120–139 eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.6.0/Flux-2.6.0-firefox-120.zip) | Desteklenen eski Firefox sürümleri |
-| [Kaynak kod arşivi](https://github.com/Hactor00/Flux/releases/download/v2.6.0/Flux-2.6.0-source.zip) | Kaynaklar, derleme betikleri, testler ve yayın belgeleri |
-| [SHA-256 özetleri](https://github.com/Hactor00/Flux/releases/download/v2.6.0/SHA256SUMS.txt) | İndirilen paketlerin dosya kimliğini doğrulama |
+| **[Windows kurulumu](https://github.com/Hactor00/Flux/releases/download/v2.6.5/Flux_2.6.5_x64-setup.exe)** | Önerilen; kullanıcı hesabına kurulum ve otomatik yerel köprü kaydı |
+| **[Linux RPM](https://github.com/Hactor00/Flux/releases/download/v2.6.5/Flux-2.6.5-linux-x86_64.rpm)** | Fedora x86_64; masaüstü, yerel köprü ve torrent bileşeni; medya bağımlılıklarını dnf kurar |
+| [Taşınabilir uygulama](https://github.com/Hactor00/Flux/releases/download/v2.6.5/Flux-2.6.5-windows-x64.zip) | Masaüstü uygulaması, eklentiler ve medya araçları |
+| [PortableApps düzeni](https://github.com/Hactor00/Flux/releases/download/v2.6.5/Flux-2.6.5-portableapps.zip) | App/Data/Other düzeninde taşınabilir paket; PortableApps.com tarafından onaylanmış değildir |
+| [Chromium eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.6.5/Flux-2.6.5-chrome.zip) | Chrome, Edge, Brave ve uyumlu Chromium tarayıcıları |
+| [Firefox 140+ eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.6.5/Flux-2.6.5-firefox.zip) | Güncel Firefox |
+| [Firefox 120–139 eklentisi](https://github.com/Hactor00/Flux/releases/download/v2.6.5/Flux-2.6.5-firefox-120.zip) | Desteklenen eski Firefox sürümleri |
+| [Kaynak kod arşivi](https://github.com/Hactor00/Flux/releases/download/v2.6.5/Flux-2.6.5-source.zip) | Kaynaklar, derleme betikleri, testler ve yayın belgeleri |
+| [SHA-256 özetleri](https://github.com/Hactor00/Flux/releases/download/v2.6.5/SHA256SUMS.txt) | İndirilen paketlerin dosya kimliğini doğrulama |
 
 Güncelleme paketleri, Flux içindeki doğrulama anahtarıyla kontrol edilen imzayı taşır. Windows kurulum dosyası ve çalıştırılabilir dosyalarda **Authenticode yayıncı sertifikası yoktur**; Windows yayıncı veya SmartScreen uyarısı gösterebilir. Firefox ZIP'leri imzasızdır, kalıcı kurulum Mozilla imzası gerektirir. Ayrıntılar: [yayın ve imzalama](docs/release.md), [tarayıcı dağıtımı](docs/browser-stores.md).
 
 Önceki [2.3.0](https://github.com/Hactor00/Flux/releases/tag/v2.3.0), [2.0.0](https://github.com/Hactor00/Flux/releases/tag/v2.0.0) ve [1.7.0](https://github.com/Hactor00/Flux/releases/tag/v1.7.0) paketleri erişilebilir durumdadır.
 
-## 2.6.0'daki yenilikler
+## 2.6.5 ile gelenler
 
-- **İki Firefox dağıtımıyla bağlantı:** Mozilla mağazası ve mevcut GitHub eklenti kimliği aynı masaüstü uygulamasına bağlanır. Güncellemeden sonra Flux’u bir kez açın.
-- **İndirmeden önce bilgi:** kaynak sunuyorsa dosya boyutunu görün; torrent içindeki dosyaları baştan seçin. HTTP torrent bağlantılarında yalnızca .torrent dosyasını kaydetmek de mümkündür.
-- **Video önizlemesi:** görev ayrıntılarında indirilmiş veriden bir kare alın. Veri henüz yeterli değilse veya biçim desteklemiyorsa önizleme bekler.
-- **Gerçek portable veri düzeni:** ayarlar/geçmiş Data/Flux, varsayılan indirmeler Data/Downloads içinde tutulur. Klasör içindeki kayıtlı yollar taşınınca yenilenir. PortableApps düzenli ek ZIP de vardır.
-- **Güvenli sürüm geçişi:** kurulu Windows uygulaması imzalı kurulumla güncellenir; portable sürüm veri klasörünü korumak için indirme sayfasını açar. Eklentiler yeni sürümü hem açılışta hem periyodik olarak kontrol eder.
-- **Paketler:** Windows, Linux, Chromium ve Firefox 2.6.0’a geçti. Yayıncıya özel mağaza ZIP’leri GitHub kullanıcı indirmelerinden ayrıldı.
+- **Kısa indirme pencereleri:** dosya adı, klasör seçme düğmesi, kalite ve bilinen boyut ilk ekranda. Gelişmiş seçenekler Ayrıntılar ile açılır. İlerleme penceresinde bitince kapatma seçeneği görünür.
+- **Uyumlu arayüz:** dar ve kısa pencerelere uyarlanan liste, isteğe bağlı kompakt satırlar, sistem/açık/koyu tema ve seçimsizken yer kaplamayan alt bölüm.
+- **İsteğe bağlı kullanım istatistikleri:** izin öncesi ölçüm yok. Daha sonra 7 gün, şimdi değil 45 gün sonra hatırlatır; kalıcı hatırlatma kapatma seçeneği de vardır. Paylaşım her zaman kapatılabilir. [Veri ve sunucu bilgisi](docs/usage-statistics.md).
+- **20 dil:** uygulama ve eklentilerde tüm diller korunur. Windows kurulumunda 20 dil seçilebilir, ilk profil seçilen dille açılır. Bazı teknik kurulum iletileri İngilizceye döner. Sessiz güncelleme mevcut tercihleri korur. Linux paket yöneticisinin dili dağıtıma bağlıdır; Flux arayüzünde 20 dil vardır.
+- **Eklentiler:** yenilenen pencere ve ayarlar, açık bağlantı durumu, doğrudan mağaza bağlantıları ve Chromium/Firefox sürüm kontrolü. ZIP güncellemeleri elle, onaylı mağaza güncellemeleri tarayıcı üzerinden yapılır.
+- **Güncelleme:** mevcut doğrulama anahtarı korunur. Kurulu Windows sürümünde 2.6.0’dan güncellenebilir; taşınabilir sürüm veri klasörünü korumak için yayın sayfasını açar. Linux güncellemeleri paket yöneticisiyle yapılır.
 
 ## 2.4 serisinin öne çıkanları
 
@@ -64,7 +77,7 @@ Güncelleme paketleri, Flux içindeki doğrulama anahtarıyla kontrol edilen imz
 - **Güvenli yol kontrolü:** Mutlak yollar ve indirme klasörünün dışına çıkan yollar kuyruğa alınmadan reddedilir.
 - **Mevcut özellikler korunur:** Paralel HTTP ve sürdürme, medya algılama/işleme, yerel torrent ve izleme klasörleri, Linux RPM, tarayıcı aktarımı, geçmiş ve yirmi dil.
 
-[2.6.0 yayın notları](docs/releases/v2.6.0.md), [derleme ve platform kılavuzu](docs/release-2.4.md) ve [doğrulama](docs/validation-2.6.0.md) ayrıntıları içerir.
+[2.6.5 yayın notları](docs/releases/v2.6.5.md), [derleme ve platform kılavuzu](docs/release-2.4.md) ve [doğrulama](docs/validation-2.6.5.md) ayrıntıları içerir.
 
 ## Özellikler
 
@@ -131,7 +144,7 @@ Görseller, izole Windows profilinde çalışan gerçek 2.4.2 arayüzünden alı
 
 ### Windows masaüstü
 
-1. `Flux_2.6.0_x64-setup.exe` dosyasını çalıştır; kurulum kullanıcı hesabına yapılır.
+1. `Flux_2.6.5_x64-setup.exe` dosyasını çalıştır; kurulum kullanıcı hesabına yapılır.
 2. FFmpeg, FFprobe, yt-dlp, Node ve torrent çalışma zamanları pakettedir. WebView2 yoksa Microsoft kurulum aracı internet ister.
 3. **Chrome, Edge, Brave, Chromium ve Firefox** için Native Messaging kaydedilir. Köprü kaydı tarayıcı eklentisini kurmaz.
 4. Eklentiyi kurduktan sonra Flux'u bir kez aç. Kurulu ve taşınabilir sürüm, köprüyü açılışta otomatik kaydeder/onarır. İzinler veya eksik dosyalar kaydı engellerse **Ayarlar → Tarayıcı bütünleşmesi → Tarayıcı köprüsünü onar** kullanılabilir.
@@ -145,11 +158,11 @@ Yayımlanan 1.7/2.0 paketlerinden geçişte güncel kurulumu elle çalıştır. 
 Fedora x86_64 üzerinde kurulum veya yükseltme:
 
 ```bash
-sudo dnf install ./Flux-2.6.0-linux-x86_64.rpm
+sudo dnf install ./Flux-2.6.5-linux-x86_64.rpm
 flux-desktop
 ```
 
-Paket; CLI, yerel köprü, sabitlenmiş yt-dlp ve torrent bileşenini içerir. WebKitGTK 4.1, GTK, AppIndicator, OpenSSL 3, FFmpeg, Python 3.10+ ve Node 20+ bağımlılıklarını `dnf` çözer. Tarayıcı köprüsünün kaydolması için Flux'u normal kullanıcı hesabınızla bir kez açın. Yukarıdaki aynı Chromium/Firefox eklentileri kullanılır. Flatpak/Snap tarayıcıları, paket kapsamı dışında ek ana sistem bağlantısı gerektirebilir.
+Paket; CLI, yerel köprü, sabitlenmiş yt-dlp ve torrent bileşenini içerir. WebKitGTK 4.1, GTK, AppIndicator, OpenSSL 3, FFmpeg, Python 3.10+ ve Node 20+ bağımlılıklarını `dnf` çözer. Tarayıcı köprüsünün kaydolması için Flux'u normal kullanıcı hesabınızla bir kez açın. Eklentiyi [yukarıdaki mağaza bağlantıları veya ZIP paketleriyle](#tarayıcı-eklentileri) kurabilirsiniz. Flatpak/Snap tarayıcıları, paket kapsamı dışında ek ana sistem bağlantısı gerektirebilir.
 
 Geçmiş ve ayarlar varsayılan olarak `~/.local/share/Flux` altında, XDG veri ayarlarına uygun tutulur. Klasör izleme Flux açıkken, sistem tepsisindeyken de çalışır. Güncellemeler `dnf` ile kurulur; programdaki güncelleme düğmesi güncel GitHub sürümünü açar. Dışarı dosya sürükleme Windows'a özeldir. Systemd güç işlemleri masaüstü oturumu iznine bağlıdır ve varsayılan olarak kapalıdır.
 
@@ -159,6 +172,10 @@ Geçmiş ve ayarlar varsayılan olarak `~/.local/share/Flux` altında, XDG veri 
 
 ### Chromium tarayıcıları
 
+**Önerilen:** [Flux'u Chrome Web Mağazası'ndan yükle](https://chromewebstore.google.com/detail/flux-download-manager/okimieponfbegjhmfdnnefnddofooipk). Chrome, Edge ve Brave bu mağaza kaydını kullanabilir. Tarayıcının eklenti/site izinlerini ver, Flux'u aç ve eklenti penceresinde bağlantıyı kontrol et. Mağaza güncellemelerini tarayıcı yükler.
+
+**ZIP ile elle kurulum:**
+
 1. Chromium ZIP'ini çıkar veya kurulum içindeki `extension` klasörünü kullan.
 2. `chrome://extensions` ya da `edge://extensions` sayfasında **Geliştirici modu**nu aç; **Paketlenmemiş öğe yükle** ile klasörü seç.
 3. Kimlik `iheejmamcoeigoallciifjminjnnnlbj` olur. Eklenti ayarlarında indirme yakalamayı aç ve masaüstü bağlantısını kontrol et.
@@ -166,9 +183,11 @@ Geçmiş ve ayarlar varsayılan olarak `~/.local/share/Flux` altında, XDG veri 
 
 ### Firefox
 
-**140+** veya **120–139** paketini kullan. `about:debugging#/runtime/this-firefox` sayfasında **Geçici eklenti yükle** ile çıkarılan `manifest.json` dosyasını seç. Eklenti ayarlarında yerel Flux aktarımını aç ve istendiğinde site erişimi ver.
+**Mağazadan kurulum:** [Mozilla Eklentileri'nde Flux](https://addons.mozilla.org/firefox/addon/flux-download-manager/). 25 Ekim 2026 itibarıyla 2.6.5 başvurusu incelemede; mağazadan kurulum onaydan sonra açılacak. Bu mağaza kimliği için masaüstünde **Flux 2.6.5 veya üstü** gerekir. Firefox, onaylanan mağaza güncellemelerini otomatik yükler.
 
-Geçici eklentiler Firefox yeniden başlatılınca kaldırılır. Standart Firefox'ta kalıcı kurulum Mozilla imzalı XPI gerektirir. Mağaza yayını ayrı süreçtir; ZIP'ler mağaza yayını anlamına gelmez. [Firefox kurulumu](extension-firefox/README.md) ayrıntıları içerir.
+**ZIP ile elle kurulum:** **140+** veya **120–139** paketini kullan. `about:debugging#/runtime/this-firefox` sayfasında **Geçici eklenti yükle** ile çıkarılan `manifest.json` dosyasını seç. Eklenti ayarlarında yerel Flux aktarımını aç ve istendiğinde site erişimi ver.
+
+Geçici eklentiler Firefox yeniden başlatılınca kaldırılır ve elle güncellenir. GitHub ZIP'leri imzasızdır; standart Firefox'ta kalıcı kurulum Mozilla imzalı eklenti gerektirir. [Firefox kurulumu](extension-firefox/README.md) ayrıntıları içerir.
 
 **Başka indirme yöneticisi kurulu mu?** Flux'un yöneteceği tarayıcıda diğer uygulamanın otomatik yakalamasını kapat. Sistem genelindeki kanca isteği Flux eklentisinden önce yakalayabilir. Flux diğer uygulamanın ayarlarını değiştirmez.
 
@@ -228,7 +247,7 @@ Zorunlu medya testleri için FFmpeg/FFprobe ve sabit örnek üreticisini [katkı
 
 | Belge | İçerik |
 | --- | --- |
-| [2.4 yayın notları](docs/releases/v2.6.0.md) | İngilizce/Türkçe sürüm özeti |
+| [2.4 yayın notları](docs/releases/v2.6.5.md) | İngilizce/Türkçe sürüm özeti |
 | [2.4 derleme ve platform kılavuzu](docs/release-2.4.md) | Klasör izleme, RPM paketleme ve platform farkları |
 | [Mimari](docs/architecture.md) · [IPC](docs/protocol.md) | Motor sahipliği, kalıcılık ve tarayıcı protokolü |
 | [Doğrulama](docs/validation.md) | Güncel ve tarihsel kanıtlar |
@@ -246,6 +265,6 @@ Flux'un kendi kodu [MIT](LICENSE) lisanslıdır. FFmpeg/LAME LGPL, libxml2 MIT, 
 
 SignPath onaylı, imzalı yayınlarda kullanılacak bildirim: **“This project uses SignPath Foundation for code signing.”**
 
-Flux, [SignPath.io](https://signpath.io) üzerinden ücretsiz kod imzalamaya ve [SignPath Foundation](https://signpath.org) tarafından sağlanan sertifikaya hazırlanıyor. Foundation onayı ve üretim imzalama yapılandırması bekleniyor; mevcut 2.6.0 Windows paketlerinde Authenticode yayıncı sertifikası bulunmuyor. Uygulama içi güncelleme imzası ayrı bir doğrulamadır.
+Flux, [SignPath.io](https://signpath.io) üzerinden ücretsiz kod imzalamaya ve [SignPath Foundation](https://signpath.org) tarafından sağlanan sertifikaya hazırlanıyor. Foundation onayı ve üretim imzalama yapılandırması bekleniyor; mevcut 2.6.5 Windows paketlerinde Authenticode yayıncı sertifikası bulunmuyor. Uygulama içi güncelleme imzası ayrı bir doğrulamadır.
 
 İmzalama kapsamı, geliştirici/onaylayan rolleri ve yayın doğrulaması [kod imzalama politikasında](docs/code-signing-policy.md) açıklanır. **Privacy Policy URL:** [Flux gizlilik açıklaması](https://github.com/Hactor00/Flux/blob/main/docs/browser-stores.md#privacy-disclosure-for-store-listings).

@@ -9,7 +9,10 @@ pub fn show(
     id: Option<&str>,
     initial_url: Option<&str>,
 ) -> Result<(), String> {
-    if !matches!(view, "download" | "settings" | "details" | "power") {
+    if !matches!(
+        view,
+        "download" | "settings" | "details" | "power" | "complete"
+    ) {
         return Err("Unknown window".into());
     }
     if let Some(id) = id {
@@ -42,6 +45,8 @@ pub fn show(
         "settings"
     } else if view == "power" {
         "completion_action"
+    } else if view == "complete" {
+        "download_finished"
     } else {
         "details"
     };
@@ -53,12 +58,40 @@ pub fn show(
     )
     .title(title)
     .inner_size(
-        if view == "power" { 480.0 } else { 680.0 },
-        if view == "power" { 280.0 } else { 660.0 },
+        if matches!(view, "power" | "complete") {
+            520.0
+        } else if matches!(view, "download" | "details") {
+            640.0
+        } else {
+            680.0
+        },
+        if view == "power" {
+            280.0
+        } else if view == "complete" {
+            360.0
+        } else if matches!(view, "download" | "details") {
+            320.0
+        } else {
+            660.0
+        },
     )
     .min_inner_size(
-        if view == "power" { 400.0 } else { 570.0 },
-        if view == "power" { 220.0 } else { 440.0 },
+        if matches!(view, "power" | "complete") {
+            400.0
+        } else if matches!(view, "download" | "details") {
+            540.0
+        } else {
+            570.0
+        },
+        if view == "power" {
+            220.0
+        } else if view == "complete" {
+            300.0
+        } else if matches!(view, "download" | "details") {
+            220.0
+        } else {
+            440.0
+        },
     )
     .background_color(tauri::window::Color(20, 22, 28, 255))
     .focused(true)
@@ -67,6 +100,42 @@ pub fn show(
     .map_err(|e| e.to_string())?;
     window.show().map_err(|e| e.to_string())?;
     window.set_focus().map_err(|e| e.to_string())?;
+    Ok(())
+}
+#[tauri::command]
+pub fn resize_surface(window: tauri::WebviewWindow, height: f64) -> Result<(), String> {
+    if !window.label().starts_with("download-") && !window.label().starts_with("details-") {
+        return Err("Only download and progress windows can fit their contents".into());
+    }
+    if !height.is_finite() {
+        return Err("Invalid window height".into());
+    }
+    let monitor = window.current_monitor().map_err(|e| e.to_string())?;
+    let maximum = monitor
+        .as_ref()
+        .map(|m| m.size().height as f64 / m.scale_factor() - 100.0)
+        .unwrap_or(800.0)
+        .max(220.0);
+    let width = window
+        .inner_size()
+        .map_err(|e| e.to_string())?
+        .to_logical::<f64>(window.scale_factor().map_err(|e| e.to_string())?)
+        .width;
+    window
+        .set_size(tauri::LogicalSize::new(width, height.clamp(220.0, maximum)))
+        .map_err(|e| e.to_string())?;
+    if let (Some(monitor), Ok(position)) = (monitor, window.outer_position()) {
+        let limit = monitor.position().y + monitor.size().height as i32
+            - ((height.clamp(220.0, maximum) + 55.0) * monitor.scale_factor()) as i32;
+        if position.y > limit {
+            window
+                .set_position(tauri::PhysicalPosition::new(
+                    position.x,
+                    limit.max(monitor.position().y),
+                ))
+                .map_err(|e| e.to_string())?;
+        }
+    }
     Ok(())
 }
 #[tauri::command]

@@ -17,6 +17,8 @@ const records = Object.fromEntries(
       "installer",
       "upgrade",
       "daily-use",
+      "download-feedback",
+      "statistics-window",
       "windows",
       "desktop-integration",
       "media-window",
@@ -45,6 +47,7 @@ for (const [name, record] of Object.entries(records)) {
         "chrome-store-interception",
         "browser-onboarding",
         "upgrade",
+        "statistics-window",
       ].includes(name)) &&
     record.version !== version
   )
@@ -52,10 +55,11 @@ for (const [name, record] of Object.entries(records)) {
 }
 if (
   !records.installer.installed_binary_hashes_verified ||
-  records.upgrade.from_version !== "2.5.0" ||
+  records.upgrade.from_version !== "2.6.0" ||
   !records.upgrade.history_preserved ||
   !records.upgrade.settings_preserved ||
-  records["firefox-157.0.1-store"].extension_id !== "firefox@fluxdownload.org" ||
+  records["firefox-157.0.1-store"].extension_id !==
+    "firefox@fluxdownload.org" ||
   records["chrome-store-interception"].extension_id !==
     "okimieponfbegjhmfdnnefnddofooipk" ||
   !records["chrome-store-interception"].hud_media_native_acknowledged ||
@@ -148,7 +152,9 @@ const report = {
   browser_setup: records["browser-onboarding"],
   updater_resource_close_main_and_settings_verified:
     records.windows.updater_resource_close_main_and_settings_verified,
-  upgrade_from_2_5_0: records.upgrade,
+  upgrade_from_2_6_0: records.upgrade,
+  usage_statistics: records["statistics-window"],
+  download_feedback: records["download-feedback"],
   test_evidence: {
     core_run_id:
       process.env.FLUX_CORE_TEST_RUN || process.env.GITHUB_RUN_ID || null,

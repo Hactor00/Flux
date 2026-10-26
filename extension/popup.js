@@ -389,6 +389,13 @@ try {
   const [tab] = await api.tabs.query({ active: true, currentWindow: true });
 
   currentTab = tab;
+  if (tab?.url) {
+    try {
+      document.getElementById("current-site").textContent = new URL(
+        tab.url,
+      ).hostname.replace(/^www\./, "");
+    } catch {}
+  }
 
   if (tab) {
     document.getElementById("collection-section").hidden = !isCollectionUrl(

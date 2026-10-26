@@ -24,7 +24,7 @@ jobs:
         with:
           cache-on-failure: true
       - if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg cmake ninja-build pkg-config libboost-dev libssl-dev
+        run: bash scripts/ci-apt-install.sh ffmpeg cmake ninja-build pkg-config libboost-dev libssl-dev
       - if: runner.os == 'macOS'
         run: |
           brew install ffmpeg-full boost openssl@3 cmake ninja pkg-config
@@ -64,9 +64,21 @@ jobs:
       - run: npm run tauri build -- --debug --no-bundle
       - run: cargo build --locked -p flux-cli -p flux-native-host
       - run: node scripts/test-browser-onboarding.mjs target/debug
+      - run: node scripts/test-statistics-window.mjs target/debug
       - run: node scripts/test-native.mjs target/debug
       - run: node scripts/test-window-session.mjs target/debug --automatic
       - run: node scripts/test-media-window.mjs target/debug
       - run: node scripts/test-media-window.mjs target/debug --suite
       - run: node scripts/test-torrent-window.mjs target/debug
       - run: node scripts/test-torrent-watch-window.mjs target/debug
+
+  statistics-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check optional statistics server
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y php-cli php-sqlite3
+          php statistics-server/tests.php
+          python3 scripts/test-statistics-server.py

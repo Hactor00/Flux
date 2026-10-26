@@ -256,6 +256,28 @@ export function BrowserIntegrationSettings() {
       <p>{t("bridge_automatic")}</p>
       <p>{t("bridge_extension_step")}</p>
       <p>{t("bridge_repair_help")}</p>
+      <div className="browser-store-links">
+        <button
+          className="secondary"
+          onClick={() =>
+            void api
+              .openExtensionStore("chrome")
+              .catch((error) => setOpenError(String(error)))
+          }
+        >
+          Chrome · Edge · Brave <span aria-hidden="true">↗</span>
+        </button>
+        <button
+          className="secondary"
+          onClick={() =>
+            void api
+              .openExtensionStore("firefox")
+              .catch((error) => setOpenError(String(error)))
+          }
+        >
+          Firefox <span aria-hidden="true">↗</span>
+        </button>
+      </div>
       <button
         className="primary"
         disabled={!desktop || busy}

@@ -4,6 +4,10 @@ on:
     tags: ["v*"]
   workflow_dispatch:
     inputs:
+      media_run:
+        type: string
+        default: ""
+        description: Reuse an immutable media runtime artifact with unchanged media build sources
       candidate_run:
         type: string
         default: ""
@@ -24,10 +28,15 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-${{ github.ref }}-${{ inputs.media_run || 'fresh' }}
   cancel-in-progress: false
 jobs:
+  media:
+    if: ${{ !inputs.media_run && !inputs.candidate_run && (inputs.rebuild_media || github.ref_type == 'tag') }}
+    uses: ./.github/workflows/windows-media.yml
   build:
+    needs: media
+    if: ${{ always() && !cancelled() && (needs.media.result == 'success' || needs.media.result == 'skipped') }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -97,12 +106,8 @@ jobs:
       - name: Prepare pinned fixture encoder
         shell: pwsh
         run: ./scripts/prepare-test-runtime.ps1
-      - name: Build pinned LGPL media runtime
-        if: inputs.rebuild_media || github.ref_type == 'tag'
-        shell: pwsh
-        run: ./scripts/bootstrap-media-toolchain.ps1 -PkgconfBin (Join-Path '${{ steps.msys2.outputs.msys2-location }}' 'ucrt64/bin') -Bash (Join-Path '${{ steps.msys2.outputs.msys2-location }}' 'usr/bin/bash.exe')
       - name: Verify released LGPL media runtime
-        if: ${{ !inputs.rebuild_media && github.ref_type != 'tag' && !inputs.candidate_run }}
+        if: ${{ !inputs.rebuild_media && github.ref_type != 'tag' && !inputs.media_run }}
         shell: pwsh
         run: ./scripts/prepare-released-media.ps1
       - name: Download compiled candidates
@@ -113,15 +118,25 @@ jobs:
           path: release
           run-id: ${{ inputs.candidate_run }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify reusable pinned media artifact
+        if: inputs.media_run != '' || needs.media.result == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: |
+          $mediaRun = '${{ inputs.media_run }}'
+          if (-not $mediaRun) { $mediaRun = $env:GITHUB_RUN_ID }
+          ./scripts/reuse-media-runtime.ps1 -RunId $mediaRun
       - name: Prepare Windows packages
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if ('${{ inputs.candidate_run }}' -ne '') {
-            ./scripts/restore-release-candidate.ps1 -RunId '${{ inputs.candidate_run }}'
-          } elseif ('${{ inputs.rebuild_media }}' -eq 'true' -or $env:GITHUB_REF_TYPE -eq 'tag') {
-            ./scripts/build-release.ps1
+            $verifiedMedia = if (Test-Path .tools/reused-media-path.txt) { (Get-Content .tools/reused-media-path.txt -Raw).Trim() } elseif (Test-Path .tools/released-media-path.txt) { (Get-Content .tools/released-media-path.txt -Raw).Trim() } else { $null }
+            ./scripts/restore-release-candidate.ps1 -RunId '${{ inputs.candidate_run }}' -MediaRuntime $verifiedMedia
+          } elseif ('${{ inputs.media_run }}' -ne '' -or '${{ needs.media.result }}' -eq 'success') {
+            ./scripts/build-release.ps1 -RuntimePackage (Get-Content .tools/reused-media-path.txt -Raw)
           } else {
             ./scripts/build-release.ps1 -RuntimePackage (Get-Content .tools/released-media-path.txt -Raw)
           }
@@ -177,7 +192,7 @@ jobs:
         shell: pwsh
         run: |
           $log = Get-Content .tools/validated-core/core-tests.log -Raw
-          if ($log -match 'test result: FAILED' -or $log -notmatch 'test result: ok\. 4 passed') { throw 'Candidate core test evidence is incomplete.' }
+          if ($log -match 'test result: FAILED' -or $log -notmatch 'test result: ok\. [1-9][0-9]* passed' -or $log -notmatch 'statistics::tests::') { throw 'Candidate core test evidence is incomplete.' }
           Copy-Item -LiteralPath .tools/validated-core/core-tests.log -Destination .tools/core-tests.log -Force
           Write-Output "Retained successful Rust, desktop, formatting and Clippy checks from source-equivalent run $env:FLUX_CORE_TEST_RUN."
       - name: Save core validation evidence
@@ -203,6 +218,10 @@ jobs:
           ./scripts/test-upgrade.ps1
           node ./scripts/test-daily-use.mjs target/release
           if ($LASTEXITCODE -ne 0) { throw 'Native daily-use tests failed.' }
+          node ./scripts/test-download-feedback.mjs target/release
+          if ($LASTEXITCODE -ne 0) { throw 'Download size, completion and selection tests failed.' }
+          node ./scripts/test-statistics-window.mjs target/release
+          if ($LASTEXITCODE -ne 0) { throw 'Statistics consent and responsive layout tests failed.' }
           node ./scripts/test-torrent-window.mjs target/release
           if ($LASTEXITCODE -ne 0) { throw 'Native torrent window tests failed.' }
           node ./scripts/test-torrent-watch-window.mjs target/release

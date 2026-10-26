@@ -7,6 +7,7 @@ mod localization;
 mod power;
 mod shutdown;
 mod startup;
+mod statistics;
 mod windows;
 use flux_core::{DownloadRequest, Engine, Task};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -145,12 +146,18 @@ fn main() {
             desktop::latest_release_version,
             desktop::browser_integration,
             desktop::dismiss_browser_reminder,
+            statistics::statistics_status,
+            statistics::statistics_choice,
+            statistics::statistics_tick,
             desktop::suggest_directory,
             desktop::prepare_download_prefix,
             power::pending_power,
             power::cancel_power,
             file_drag::drag_completed,
             windows::open_surface,
+            windows::resize_surface,
+            desktop::open_extension_store,
+            desktop::open_usage_privacy,
             windows::close_surface,
             windows::get_task,
             windows::approve_download,

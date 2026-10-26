@@ -264,6 +264,7 @@ pub struct Settings {
     pub notifications: bool,
     pub locale: String,
     pub theme: String,
+    pub compact_list: bool,
     pub download_directory: Option<PathBuf>,
     pub completion_action: crate::ShutdownAction,
     pub auto_categorize: bool,
@@ -285,7 +286,8 @@ impl Default for Settings {
             minimize_to_tray: true,
             notifications: true,
             locale: crate::locale::system().into(),
-            theme: "dark".into(),
+            theme: "system".into(),
+            compact_list: false,
             download_directory: None,
             completion_action: crate::ShutdownAction::None,
             auto_categorize: false,
@@ -323,7 +325,7 @@ impl Settings {
             "Unsupported language"
         );
         anyhow::ensure!(
-            ["dark", "light"].contains(&self.theme.as_str()),
+            ["dark", "light", "system"].contains(&self.theme.as_str()),
             "Unsupported theme"
         );
         if let Some(path) = &self.download_directory {
@@ -342,11 +344,11 @@ mod settings_tests {
         let mut legacy = serde_json::to_value(Settings::default()).unwrap();
         legacy.as_object_mut().unwrap().remove("theme");
         let migrated: Settings = serde_json::from_value(legacy).unwrap();
-        assert_eq!(migrated.theme, "dark");
+        assert_eq!(migrated.theme, "system");
         assert!(migrated.validate().is_ok());
 
         let invalid = Settings {
-            theme: "system".into(),
+            theme: "sepia".into(),
             ..Settings::default()
         };
         assert!(invalid.validate().is_err());

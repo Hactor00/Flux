@@ -2,7 +2,14 @@ import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { isTauri } from "@tauri-apps/api/core";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Tabs from "@radix-ui/react-tabs";
-import { Download, X, FolderOpen } from "lucide-react";
+import {
+  Download,
+  X,
+  FolderOpen,
+  SlidersHorizontal,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useTranslation } from "react-i18next";
 import {
@@ -31,6 +38,7 @@ import { CollectionPicker } from "./CollectionPicker";
 import { SelectionList } from "./SelectionList";
 import { Choice } from "./primitives";
 import { MediaExtras, type MediaExtrasValue } from "./MediaExtras";
+import { useSurfaceSize } from "../use-surface-size";
 import {
   filenamePrefixHistory,
   filenamePrefixPreview,
@@ -67,6 +75,10 @@ export function DownloadModal({
     chapters: true,
   });
   const [mode, setMode] = useState("single");
+  const [expanded, setExpanded] = useState(false);
+  const windowContent = useRef<HTMLDivElement>(null);
+  useSurfaceSize(windowContent, visible);
+  const compact = mode === "single" || mode === "media";
   const [url, setUrl] = useState(initialUrl);
   const [name, setName] = useState("");
   const [prefix, setPrefix] = useState("");
@@ -94,6 +106,7 @@ export function DownloadModal({
   const [saveTorrentFile, setSaveTorrentFile] = useState(false);
   const [sourceInfo, setSourceInfo] = useState<{
     size: number | null;
+    estimated: boolean;
     content_type: string;
     files: TorrentFile[];
   } | null>(null);
@@ -114,6 +127,7 @@ export function DownloadModal({
   } catch {}
   useEffect(() => {
     if (visible) {
+      setExpanded(false);
       let active = true;
       inspectionGeneration.current++;
       connectionsEdited.current = false;
@@ -212,8 +226,14 @@ export function DownloadModal({
     if (
       !visible ||
       !desktop ||
-      provider ||
-      !["single", "torrent"].includes(mode) ||
+      (provider && !proposal?.request.media) ||
+      (mode === "media" &&
+        (proposal?.total != null ||
+          providerSource(url) ||
+          ["hls", "dash"].includes(proposal?.request.media?.kind || "") ||
+          !!proposal?.request.media?.segment_urls?.length ||
+          /\.(m3u8|mpd)(?:\?|$)/i.test(url))) ||
+      !["single", "torrent", "media"].includes(mode) ||
       (!torrentPath && !/^https?:\/\//i.test(url.trim()))
     ) {
       setSourceChecking(false);
@@ -266,7 +286,9 @@ export function DownloadModal({
           .filter((file) => torrentFiles.has(file.index))
           .reduce((sum, file) => sum + file.length, 0)
       : mode === "media"
-        ? selectedSourceFormat?.size
+        ? (selectedSourceFormat?.size ??
+          (!resolved ? proposal?.total : null) ??
+          sourceInfo?.size)
         : sourceInfo?.size;
   const readableSize = (value: number) => {
     const unit = Math.min(4, Math.floor(Math.log2(Math.max(1, value)) / 10));
@@ -536,228 +558,24 @@ export function DownloadModal({
     <Dialog.Root open={visible} onOpenChange={onClose}>
       <Dialog.Portal>
         <Dialog.Overlay className="modal-overlay" />
-        <Dialog.Content className="modal download-modal">
-          <Dialog.Title>{t("new_download")}</Dialog.Title>
-          <Dialog.Description>{t("add_description")}</Dialog.Description>
-          <Dialog.Close
-            className="modal-close icon-button"
-            aria-label={t("close")}
-          >
-            <X size={18} />
-          </Dialog.Close>
-          <form onSubmit={(event) => void submit(event)}>
-            <Tabs.Root
-              value={mode}
-              onValueChange={(value) => {
-                setMode(value);
-                inspectionGeneration.current++;
-                setInspecting(false);
-                if (value === "media" && name)
-                  setName(
-                    name.replace(/\.(m3u8|mpd|mp4|mkv|mp3|mka)$/i, "") +
-                      "." +
-                      container,
-                  );
-              }}
+        <Dialog.Content
+          className={`modal download-modal ${compact ? "compact-download" : ""} ${expanded ? "is-expanded" : ""}`}
+        >
+          <div className="download-window-content" ref={windowContent}>
+            <Dialog.Title>{t("new_download")}</Dialog.Title>
+            <Dialog.Description>{t("add_description")}</Dialog.Description>
+            <Dialog.Close
+              className="modal-close icon-button"
+              aria-label={t("close")}
             >
-              <Tabs.List className="tabs" aria-label={t("downloads")}>
-                <Tabs.Trigger value="single" disabled={busy}>
-                  {t("file")}
-                </Tabs.Trigger>
-                {!proposal && (
-                  <Tabs.Trigger value="batch" disabled={busy}>
-                    {t("batch")}
-                  </Tabs.Trigger>
-                )}
-                {!proposal && (
-                  <Tabs.Trigger value="collection" disabled={busy}>
-                    {t("collection")}
-                  </Tabs.Trigger>
-                )}
-                <Tabs.Trigger value="media" disabled={busy}>
-                  {t("downloadMedia")}
-                </Tabs.Trigger>
-                <Tabs.Trigger value="torrent" disabled={busy}>
-                  {t("torrent")}
-                </Tabs.Trigger>
-              </Tabs.List>
-              <Tabs.Content value="batch">
-                <label>
-                  {t("source_url")}
-                  <textarea
-                    name="batch"
-                    required={mode === "batch"}
-                    rows={5}
-                    placeholder="https://example.com/file[001-010].zip"
-                  />
-                </label>
-              </Tabs.Content>
-              <Tabs.Content value="collection">
-                <CollectionPicker
-                  onChange={setCollectionEntries}
-                  onBusy={setCollectionBusy}
-                />
-              </Tabs.Content>
-              <Tabs.Content value="torrent">
-                <label>
-                  {t("torrent_source")}
-                  <div className="folder-field">
-                    <input
-                      value={torrentPath || url}
-                      readOnly={!!torrentPath || !!proposal}
-                      required={mode === "torrent"}
-                      onChange={(event) => {
-                        setUrl(event.target.value);
-                        setName(filename(event.target.value, false));
-                      }}
-                      placeholder="magnet:?xt=urn:btih:"
-                    />
-                    {!proposal && (
-                      <button
-                        type="button"
-                        aria-label={t("choose_torrent")}
-                        onClick={async () => {
-                          try {
-                            const path = await open({
-                              multiple: false,
-                              filters: [
-                                { name: "BitTorrent", extensions: ["torrent"] },
-                              ],
-                            });
-                            if (typeof path === "string") {
-                              setTorrentPath(path);
-                              setName(
-                                sanitizeFilename(
-                                  path
-                                    .split(/[\\/]/)
-                                    .pop()
-                                    ?.replace(/\.torrent$/i, "") || "torrent",
-                                ),
-                              );
-                            }
-                          } catch (error) {
-                            setLocalError(String(error));
-                          }
-                        }}
-                      >
-                        <FolderOpen size={17} />
-                      </button>
-                    )}
-                  </div>
-                </label>
-                {torrentPath && (
-                  <button
-                    type="button"
-                    className="text-button"
-                    onClick={() => {
-                      setTorrentPath("");
-                      setUrl("");
-                    }}
-                  >
-                    {t("reset")}
-                  </button>
-                )}
-                <p className="form-hint">{t("torrent_source_hint")}</p>
-                {!torrentPath && /^https?:\/\//i.test(url) && (
-                  <div
-                    className="torrent-intent"
-                    role="group"
-                    aria-label={t("torrent_action")}
-                  >
-                    <button
-                      type="button"
-                      className={!saveTorrentFile ? "selected" : "secondary"}
-                      aria-pressed={!saveTorrentFile}
-                      onClick={() => setSaveTorrentFile(false)}
-                    >
-                      {t("torrent_download_contents")}
-                    </button>
-                    <button
-                      type="button"
-                      className={saveTorrentFile ? "selected" : "secondary"}
-                      aria-pressed={saveTorrentFile}
-                      onClick={() => {
-                        setSaveTorrentFile(true);
-                        setName(filename(url, false));
-                      }}
-                    >
-                      {t("torrent_save_file")}
-                    </button>
-                  </div>
-                )}
-                {!saveTorrentFile && !!sourceInfo?.files.length && (
-                  <section className="torrent-preflight">
-                    <h3>{t("torrent_files")}</h3>
-                    <p className="form-hint">{t("torrent_select_files")}</p>
-                    <SelectionList
-                      label={t("torrent_files")}
-                      disabled={busy}
-                      items={sourceInfo.files.map((file) => ({
-                        key: file.index,
-                        title: file.path,
-                        detail: readableSize(file.length),
-                        selected: torrentFiles.has(file.index),
-                      }))}
-                      onToggle={(index, checked) =>
-                        setTorrentFiles((previous) => {
-                          const next = new Set(previous);
-                          if (checked) next.add(index);
-                          else next.delete(index);
-                          return next;
-                        })
-                      }
-                    />
-                  </section>
-                )}
-                {!saveTorrentFile &&
-                  !sourceInfo?.files.length &&
-                  url.startsWith("magnet:") && (
-                    <p className="form-hint">{t("torrent_magnet_selection")}</p>
-                  )}
-                <label>
-                  {t("torrent_folder")}
-                  <input
-                    required
-                    value={name}
-                    maxLength={200}
-                    onChange={(event) => setName(event.target.value)}
-                  />
-                </label>
-              </Tabs.Content>
-              {["single", "media"].map((tab) => (
-                <Tabs.Content key={tab} value={tab}>
-                  <label>
-                    {t("source_url")}
-                    <input
-                      name="url"
-                      type="url"
-                      required={mode !== "batch" && !segments.trim()}
-                      value={url}
-                      readOnly={!!proposal}
-                      onChange={(event) => {
-                        setUrl(event.target.value);
-                        inspectionGeneration.current++;
-                        setInspecting(false);
-                        setName(filename(event.target.value, mode === "media"));
-                        setStreams(null);
-                        setResolved(null);
-                        setVideo("auto");
-                        setAudio("auto");
-                        setAudioTrack("auto");
-                        if (torrentSource(event.target.value))
-                          setMode("torrent");
-                        if (
-                          mode === "single" &&
-                          (providerSource(event.target.value) ||
-                            /\.(m3u8|mpd)(?:\?|$)/i.test(event.target.value))
-                        ) {
-                          setMode("media");
-                          setName(filename(event.target.value, true));
-                        }
-                      }}
-                      placeholder="https://"
-                    />
-                  </label>
+              <X size={18} />
+            </Dialog.Close>
+            <form onSubmit={(event) => void submit(event)}>
+              {compact && (
+                <div className="download-identity">
+                  <span className="download-file-icon">
+                    <Download size={20} />
+                  </span>
                   <label>
                     {t("filename")}
                     <input
@@ -768,108 +586,315 @@ export function DownloadModal({
                       maxLength={200}
                     />
                   </label>
+                  <strong className="download-total" aria-live="polite">
+                    {sourceSize != null
+                      ? `${mode === "media" || sourceInfo?.estimated ? "≈ " : ""}${readableSize(sourceSize)}`
+                      : t(sourceChecking ? "inspecting" : "unknown_size")}
+                  </strong>
+                </div>
+              )}
+              <Tabs.Root
+                className="download-tabs"
+                value={mode}
+                onValueChange={(value) => {
+                  setMode(value);
+                  inspectionGeneration.current++;
+                  setInspecting(false);
+                  if (value === "media" && name)
+                    setName(
+                      name.replace(/\.(m3u8|mpd|mp4|mkv|mp3|mka)$/i, "") +
+                        "." +
+                        container,
+                    );
+                }}
+              >
+                <Tabs.List
+                  className="tabs download-mode-tabs"
+                  aria-label={t("downloads")}
+                  hidden={!!proposal && !expanded}
+                >
+                  <Tabs.Trigger value="single" disabled={busy}>
+                    {t("file")}
+                  </Tabs.Trigger>
+                  {!proposal && (
+                    <Tabs.Trigger value="batch" disabled={busy}>
+                      {t("batch")}
+                    </Tabs.Trigger>
+                  )}
+                  {!proposal && (
+                    <Tabs.Trigger value="collection" disabled={busy}>
+                      {t("collection")}
+                    </Tabs.Trigger>
+                  )}
+                  <Tabs.Trigger value="media" disabled={busy}>
+                    {t("downloadMedia")}
+                  </Tabs.Trigger>
+                  <Tabs.Trigger value="torrent" disabled={busy}>
+                    {t("torrent")}
+                  </Tabs.Trigger>
+                </Tabs.List>
+                <Tabs.Content value="batch">
                   <label>
-                    {t("filename_prefix")}
-                    <input
-                      value={prefix}
-                      onChange={(event) => setPrefix(event.target.value)}
-                      list={`${prefixList}-${tab}`}
-                      maxLength={512}
-                      disabled={busy}
-                      autoComplete="off"
-                      placeholder="Courses/lesson-"
-                      aria-describedby={`${prefixList}-${tab}-hint`}
+                    {t("source_url")}
+                    <textarea
+                      name="batch"
+                      required={mode === "batch"}
+                      rows={5}
+                      placeholder="https://example.com/file[001-010].zip"
                     />
-                    <datalist id={`${prefixList}-${tab}`}>
-                      {prefixes.map((value) => (
-                        <option key={value} value={value} />
-                      ))}
-                    </datalist>
                   </label>
-                  <p className="form-hint" id={`${prefixList}-${tab}-hint`}>
-                    {t("filename_prefix_hint")}
-                  </p>
-                  {prefixPreview && (
-                    <p className="form-hint prefix-preview">
-                      {t("filename_prefix_preview", { path: prefixPreview })}
-                    </p>
-                  )}
-                  {provider && (
-                    <button
-                      type="button"
-                      className="secondary"
-                      disabled={inspecting}
-                      onClick={() => void inspect()}
-                    >
-                      {t(inspecting ? "inspecting" : "inspect")}
-                    </button>
-                  )}
-                  {resolved && (
-                    <label>
-                      {t("quality")}
-                      <Choice
-                        label={t("quality")}
-                        value={format}
-                        onChange={(value) => {
-                          setFormat(value);
+                </Tabs.Content>
+                <Tabs.Content value="collection">
+                  <CollectionPicker
+                    onChange={setCollectionEntries}
+                    onBusy={setCollectionBusy}
+                  />
+                </Tabs.Content>
+                <Tabs.Content value="torrent">
+                  <label>
+                    {t("torrent_source")}
+                    <div className="folder-field">
+                      <input
+                        value={torrentPath || url}
+                        readOnly={!!torrentPath || !!proposal}
+                        required={mode === "torrent"}
+                        onChange={(event) => {
+                          setUrl(event.target.value);
+                          setName(filename(event.target.value, false));
                         }}
-                        options={resolved.formats.map((value) => ({
-                          value: mediaFormatKey(value),
-                          label: `${value.audio_only ? t("audio_only") : value.height ? `${value.height}p` : t("automatic")}${value.fps ? ` · ${value.fps} fps` : ""} · ${value.container.toUpperCase()}${value.size ? ` · ${(value.size / 1048576).toFixed(1)} MB` : ""}`,
-                        }))}
+                        placeholder="magnet:?xt=urn:btih:"
                       />
-                    </label>
-                  )}
-                  {!!resolved?.audio_tracks?.length && (
-                    <label>
-                      {t("audio_track")}
-                      <Choice
-                        label={t("audio_track")}
-                        value={audioTrack}
-                        onChange={setAudioTrack}
-                        options={[
-                          { value: "auto", label: t("automatic") },
-                          ...resolved.audio_tracks.map((track) => ({
-                            value: track.id,
-                            label: `${track.language || t("audio_only")} · ${track.codec}${track.bitrate ? ` · ${Math.round(track.bitrate)} kb/s` : ""}`,
-                          })),
-                        ]}
-                      />
-                    </label>
-                  )}
-                  {resolved && (
-                    <label>
-                      {t("container")}
-                      <Choice
-                        label={t("container")}
-                        value={container}
-                        onChange={(value) => {
-                          setContainer(value);
-                          setName(
-                            name.replace(/\.(mp4|mkv|mp3|mka)$/i, "") +
-                              "." +
-                              value,
-                          );
-                        }}
-                        options={[
-                          { value: "mp4", label: "MP4" },
-                          { value: "mkv", label: "MKV" },
-                          { value: "mp3", label: "MP3" },
-                          { value: "mka", label: t("lossless_audio") },
-                        ]}
-                      />
-                    </label>
-                  )}
-                  {tab === "media" && !resolved && !provider && (
-                    <>
-                      <div className="media-inspect">
+                      {!proposal && (
                         <button
                           type="button"
-                          disabled={!desktop || !url || inspecting}
-                          onClick={() => void inspect()}
+                          aria-label={t("choose_torrent")}
+                          onClick={async () => {
+                            try {
+                              const path = await open({
+                                multiple: false,
+                                filters: [
+                                  {
+                                    name: "BitTorrent",
+                                    extensions: ["torrent"],
+                                  },
+                                ],
+                              });
+                              if (typeof path === "string") {
+                                setTorrentPath(path);
+                                setName(
+                                  sanitizeFilename(
+                                    path
+                                      .split(/[\\/]/)
+                                      .pop()
+                                      ?.replace(/\.torrent$/i, "") || "torrent",
+                                  ),
+                                );
+                              }
+                            } catch (error) {
+                              setLocalError(String(error));
+                            }
+                          }}
                         >
-                          {t(inspecting ? "inspecting" : "inspect")}
+                          <FolderOpen size={17} />
                         </button>
+                      )}
+                    </div>
+                  </label>
+                  {torrentPath && (
+                    <button
+                      type="button"
+                      className="text-button"
+                      onClick={() => {
+                        setTorrentPath("");
+                        setUrl("");
+                      }}
+                    >
+                      {t("reset")}
+                    </button>
+                  )}
+                  <p className="form-hint">{t("torrent_source_hint")}</p>
+                  {!torrentPath && /^https?:\/\//i.test(url) && (
+                    <div
+                      className="torrent-intent"
+                      role="group"
+                      aria-label={t("torrent_action")}
+                    >
+                      <button
+                        type="button"
+                        className={!saveTorrentFile ? "selected" : "secondary"}
+                        aria-pressed={!saveTorrentFile}
+                        onClick={() => setSaveTorrentFile(false)}
+                      >
+                        {t("torrent_download_contents")}
+                      </button>
+                      <button
+                        type="button"
+                        className={saveTorrentFile ? "selected" : "secondary"}
+                        aria-pressed={saveTorrentFile}
+                        onClick={() => {
+                          setSaveTorrentFile(true);
+                          setName(filename(url, false));
+                        }}
+                      >
+                        {t("torrent_save_file")}
+                      </button>
+                    </div>
+                  )}
+                  {!saveTorrentFile && !!sourceInfo?.files.length && (
+                    <section className="torrent-preflight">
+                      <h3>{t("torrent_files")}</h3>
+                      <p className="form-hint">{t("torrent_select_files")}</p>
+                      <SelectionList
+                        label={t("torrent_files")}
+                        disabled={busy}
+                        items={sourceInfo.files.map((file) => ({
+                          key: file.index,
+                          title: file.path,
+                          detail: readableSize(file.length),
+                          selected: torrentFiles.has(file.index),
+                        }))}
+                        onToggle={(index, checked) =>
+                          setTorrentFiles((previous) => {
+                            const next = new Set(previous);
+                            if (checked) next.add(index);
+                            else next.delete(index);
+                            return next;
+                          })
+                        }
+                      />
+                    </section>
+                  )}
+                  {!saveTorrentFile &&
+                    !sourceInfo?.files.length &&
+                    url.startsWith("magnet:") && (
+                      <p className="form-hint">
+                        {t("torrent_magnet_selection")}
+                      </p>
+                    )}
+                  <label>
+                    {t("torrent_folder")}
+                    <input
+                      required
+                      value={name}
+                      maxLength={200}
+                      onChange={(event) => setName(event.target.value)}
+                    />
+                  </label>
+                </Tabs.Content>
+                {["single", "media"].map((tab) => (
+                  <Tabs.Content key={tab} value={tab}>
+                    <label
+                      className="download-source"
+                      hidden={compact && !expanded && !!proposal}
+                    >
+                      {t("source_url")}
+                      <input
+                        name="url"
+                        type="url"
+                        required={mode !== "batch" && !segments.trim()}
+                        value={url}
+                        readOnly={!!proposal}
+                        onChange={(event) => {
+                          setUrl(event.target.value);
+                          inspectionGeneration.current++;
+                          setInspecting(false);
+                          setName(
+                            filename(event.target.value, mode === "media"),
+                          );
+                          setStreams(null);
+                          setResolved(null);
+                          setVideo("auto");
+                          setAudio("auto");
+                          setAudioTrack("auto");
+                          if (torrentSource(event.target.value))
+                            setMode("torrent");
+                          if (
+                            mode === "single" &&
+                            (providerSource(event.target.value) ||
+                              /\.(m3u8|mpd)(?:\?|$)/i.test(event.target.value))
+                          ) {
+                            setMode("media");
+                            setName(filename(event.target.value, true));
+                          }
+                        }}
+                        placeholder="https://"
+                      />
+                    </label>
+                    <label className="download-extra">
+                      {t("filename_prefix")}
+                      <input
+                        value={prefix}
+                        onChange={(event) => setPrefix(event.target.value)}
+                        list={`${prefixList}-${tab}`}
+                        maxLength={512}
+                        disabled={busy}
+                        autoComplete="off"
+                        placeholder="Courses/lesson-"
+                        aria-describedby={`${prefixList}-${tab}-hint`}
+                      />
+                      <datalist id={`${prefixList}-${tab}`}>
+                        {prefixes.map((value) => (
+                          <option key={value} value={value} />
+                        ))}
+                      </datalist>
+                    </label>
+                    <p
+                      className="form-hint download-extra"
+                      id={`${prefixList}-${tab}-hint`}
+                    >
+                      {t("filename_prefix_hint")}
+                    </p>
+                    {prefixPreview && (
+                      <p className="form-hint prefix-preview download-extra">
+                        {t("filename_prefix_preview", { path: prefixPreview })}
+                      </p>
+                    )}
+                    {provider && (
+                      <button
+                        type="button"
+                        className={`secondary download-resolve-button ${resolved ? "download-extra" : ""}`}
+                        disabled={inspecting}
+                        onClick={() => void inspect()}
+                      >
+                        {t(inspecting ? "inspecting" : "inspect")}
+                      </button>
+                    )}
+                    {resolved && (
+                      <label className="download-quality">
+                        {t("quality")}
+                        <Choice
+                          label={t("quality")}
+                          value={format}
+                          onChange={(value) => {
+                            setFormat(value);
+                          }}
+                          options={resolved.formats.map((value) => ({
+                            value: mediaFormatKey(value),
+                            label: `${value.audio_only ? t("audio_only") : value.height ? `${value.height}p` : t("automatic")}${value.fps ? ` · ${value.fps} fps` : ""} · ${value.container.toUpperCase()}${value.size ? ` · ${(value.size / 1048576).toFixed(1)} MB` : ""}`,
+                          }))}
+                        />
+                      </label>
+                    )}
+                    {!!resolved?.audio_tracks?.length && (
+                      <label className="download-extra">
+                        {t("audio_track")}
+                        <Choice
+                          label={t("audio_track")}
+                          value={audioTrack}
+                          onChange={setAudioTrack}
+                          options={[
+                            { value: "auto", label: t("automatic") },
+                            ...resolved.audio_tracks.map((track) => ({
+                              value: track.id,
+                              label: `${track.language || t("audio_only")} · ${track.codec}${track.bitrate ? ` · ${Math.round(track.bitrate)} kb/s` : ""}`,
+                            })),
+                          ]}
+                        />
+                      </label>
+                    )}
+                    {resolved && (
+                      <label className="download-extra">
+                        {t("container")}
                         <Choice
                           label={t("container")}
                           value={container}
@@ -877,7 +902,8 @@ export function DownloadModal({
                             setContainer(value);
                             setName(
                               name.replace(/\.(mp4|mkv|mp3|mka)$/i, "") +
-                                `.${value}`,
+                                "." +
+                                value,
                             );
                           }}
                           options={[
@@ -887,301 +913,368 @@ export function DownloadModal({
                             { value: "mka", label: t("lossless_audio") },
                           ]}
                         />
-                      </div>
-                      {streams && (
-                        <div className="form-grid">
-                          <label>
-                            {t("quality")}
-                            <Choice
-                              label={t("quality")}
-                              value={video}
-                              onChange={setVideo}
-                              options={[
-                                { value: "auto", label: t("automatic") },
-                                ...streams.streams
-                                  .filter(
-                                    (stream) => stream.codec_type === "video",
-                                  )
-                                  .map((stream) => ({
-                                    value: String(stream.index),
-                                    label: `${stream.height ? `${stream.height}p · ` : ""}${stream.codec_name}`,
-                                  })),
-                              ]}
-                            />
-                          </label>
+                      </label>
+                    )}
+                    {tab === "media" && !resolved && !provider && (
+                      <>
+                        <div className="media-inspect download-inline-format">
+                          <button
+                            type="button"
+                            disabled={!desktop || !url || inspecting}
+                            onClick={() => void inspect()}
+                          >
+                            {t(inspecting ? "inspecting" : "inspect")}
+                          </button>
+                          <Choice
+                            label={t("container")}
+                            value={container}
+                            onChange={(value) => {
+                              setContainer(value);
+                              setName(
+                                name.replace(/\.(mp4|mkv|mp3|mka)$/i, "") +
+                                  `.${value}`,
+                              );
+                            }}
+                            options={[
+                              { value: "mp4", label: "MP4" },
+                              { value: "mkv", label: "MKV" },
+                              { value: "mp3", label: "MP3" },
+                              { value: "mka", label: t("lossless_audio") },
+                            ]}
+                          />
+                        </div>
+                        {streams && (
+                          <div className="form-grid download-extra">
+                            <label>
+                              {t("quality")}
+                              <Choice
+                                label={t("quality")}
+                                value={video}
+                                onChange={setVideo}
+                                options={[
+                                  { value: "auto", label: t("automatic") },
+                                  ...streams.streams
+                                    .filter(
+                                      (stream) => stream.codec_type === "video",
+                                    )
+                                    .map((stream) => ({
+                                      value: String(stream.index),
+                                      label: `${stream.height ? `${stream.height}p · ` : ""}${stream.codec_name}`,
+                                    })),
+                                ]}
+                              />
+                            </label>
+                            <label>
+                              {t("audio_url")}
+                              <Choice
+                                label={t("audio_url")}
+                                value={audio}
+                                onChange={setAudio}
+                                options={[
+                                  { value: "auto", label: t("automatic") },
+                                  ...streams.streams
+                                    .filter(
+                                      (stream) => stream.codec_type === "audio",
+                                    )
+                                    .map((stream) => ({
+                                      value: String(stream.index),
+                                      label: `${stream.language ?? ""} ${stream.codec_name}`,
+                                    })),
+                                ]}
+                              />
+                            </label>
+                          </div>
+                        )}
+                        <details className="download-advanced download-extra">
+                          <summary>{t("media_processing")}</summary>
                           <label>
                             {t("audio_url")}
-                            <Choice
-                              label={t("audio_url")}
-                              value={audio}
-                              onChange={setAudio}
-                              options={[
-                                { value: "auto", label: t("automatic") },
-                                ...streams.streams
-                                  .filter(
-                                    (stream) => stream.codec_type === "audio",
-                                  )
-                                  .map((stream) => ({
-                                    value: String(stream.index),
-                                    label: `${stream.language ?? ""} ${stream.codec_name}`,
-                                  })),
-                              ]}
+                            <input
+                              name="audio_url"
+                              type="url"
+                              placeholder="https://"
                             />
                           </label>
-                        </div>
-                      )}
-                      <details className="download-advanced">
-                        <summary>{t("media_processing")}</summary>
-                        <label>
-                          {t("audio_url")}
-                          <input
-                            name="audio_url"
-                            type="url"
-                            placeholder="https://"
-                          />
-                        </label>
-                        <label>
-                          {t("segment_urls")}
-                          <textarea
-                            value={segments}
-                            onChange={(event) =>
-                              setSegments(event.target.value)
-                            }
-                            rows={3}
-                            placeholder="https://example.com/segment-001.ts"
-                          />
-                        </label>
-                        <label>
-                          {t("duration_seconds")}
-                          <input
-                            name="duration"
-                            type="number"
-                            min={1}
-                            max={86400}
-                          />
-                        </label>
-                      </details>
-                    </>
-                  )}
-                </Tabs.Content>
-              ))}
-            </Tabs.Root>
-            {mode === "media" && (
-              <MediaExtras
-                tracks={
-                  streams?.subtitles ||
-                  resolved?.subtitles ||
-                  proposal?.request.media?.subtitles ||
-                  []
-                }
-                chapterCount={
-                  (
-                    streams?.chapters ||
-                    resolved?.chapters ||
-                    proposal?.request.media?.chapters ||
-                    []
-                  ).length
-                }
-                value={extras}
-                onChange={setExtras}
-                audioOnly={["mp3", "mka"].includes(container)}
-                lossless={container === "mka"}
-              />
-            )}
-            <label>
-              {t("download_directory")}
-              <div className="folder-field">
-                <input
-                  value={directory}
-                  onChange={(event) => {
-                    setDirectoryEdited(true);
-                    setDirectory(event.target.value);
-                  }}
-                  required={!!proposal}
-                />
-                <button
-                  type="button"
-                  aria-label={t("choose_folder")}
-                  onClick={async () => {
-                    try {
-                      const path = await open({
-                        directory: true,
-                        multiple: false,
-                        defaultPath: directory || undefined,
-                      });
-                      if (typeof path === "string") {
-                        setDirectoryEdited(true);
-                        setDirectory(path);
-                      }
-                    } catch (error) {
-                      setLocalError(String(error));
+                          <label>
+                            {t("segment_urls")}
+                            <textarea
+                              value={segments}
+                              onChange={(event) =>
+                                setSegments(event.target.value)
+                              }
+                              rows={3}
+                              placeholder="https://example.com/segment-001.ts"
+                            />
+                          </label>
+                          <label>
+                            {t("duration_seconds")}
+                            <input
+                              name="duration"
+                              type="number"
+                              min={1}
+                              max={86400}
+                            />
+                          </label>
+                        </details>
+                      </>
+                    )}
+                  </Tabs.Content>
+                ))}
+              </Tabs.Root>
+              {mode === "media" && (
+                <div className="download-extra">
+                  <MediaExtras
+                    tracks={
+                      streams?.subtitles ||
+                      resolved?.subtitles ||
+                      proposal?.request.media?.subtitles ||
+                      []
                     }
-                  }}
-                >
-                  <FolderOpen size={17} />
-                </button>
-              </div>
-            </label>
-            <div className="source-summary" aria-live="polite">
-              <span>{t("download_size")}</span>
-              <strong>
-                {sourceChecking
-                  ? t("inspecting")
-                  : sourceSize != null
-                    ? `${mode === "media" ? "≈ " : ""}${readableSize(sourceSize)}`
-                    : t("unknown_size")}
-              </strong>
-              {sourceSize == null && !sourceChecking && (
-                <small>{t("size_source_hint")}</small>
-              )}
-            </div>
-            <div className="form-grid">
-              {mode !== "torrent" && (
-                <label>
-                  {t("connections")}
-                  <Choice
-                    label={t("connections")}
-                    value={connections}
-                    onChange={(value) => {
-                      connectionsEdited.current = true;
-                      setConnections(value);
-                    }}
-                    options={[
-                      { value: "0", label: t("automatic") },
-                      ...Array.from({ length: 32 }, (_, index) => ({
-                        value: String(index + 1),
-                        label: String(index + 1),
-                      })),
-                    ]}
+                    chapterCount={
+                      (
+                        streams?.chapters ||
+                        resolved?.chapters ||
+                        proposal?.request.media?.chapters ||
+                        []
+                      ).length
+                    }
+                    value={extras}
+                    onChange={setExtras}
+                    audioOnly={["mp3", "mka"].includes(container)}
+                    lossless={container === "mka"}
                   />
-                </label>
+                </div>
               )}
-              <label>
-                {t("speed_limit")}
-                <input
-                  name="limit"
-                  type="number"
-                  min={0}
-                  defaultValue={proposal?.request.speed_limit ?? 0}
-                  required
-                />
-              </label>
-            </div>
-            {mode === "torrent" && (
-              <div className="form-grid">
-                <label>
-                  {t("upload_limit")}
+              <label className="download-destination">
+                {t("download_directory")}
+                <div className="folder-field">
                   <input
-                    name="upload_limit"
+                    value={directory}
+                    onChange={(event) => {
+                      setDirectoryEdited(true);
+                      setDirectory(event.target.value);
+                    }}
+                    required={!!proposal}
+                  />
+                  <button
+                    type="button"
+                    aria-label={t("choose_folder")}
+                    onClick={async () => {
+                      try {
+                        const path = await open({
+                          directory: true,
+                          multiple: false,
+                          defaultPath: directory || undefined,
+                        });
+                        if (typeof path === "string") {
+                          setDirectoryEdited(true);
+                          setDirectory(path);
+                        }
+                      } catch (error) {
+                        setLocalError(String(error));
+                      }
+                    }}
+                  >
+                    <FolderOpen size={17} />
+                  </button>
+                </div>
+              </label>
+              {!compact && (
+                <div className="source-summary" aria-live="polite">
+                  <span>{t("download_size")}</span>
+                  <strong>
+                    {sourceSize != null
+                      ? `${mode === "media" || sourceInfo?.estimated ? "≈ " : ""}${readableSize(sourceSize)}`
+                      : sourceChecking
+                        ? t("inspecting")
+                        : t("unknown_size")}
+                  </strong>
+                  {sourceSize == null && !sourceChecking && (
+                    <small>{t("size_source_hint")}</small>
+                  )}
+                </div>
+              )}
+              <div className="form-grid download-extra">
+                {mode !== "torrent" && (
+                  <label>
+                    {t("connections")}
+                    <Choice
+                      label={t("connections")}
+                      value={connections}
+                      onChange={(value) => {
+                        connectionsEdited.current = true;
+                        setConnections(value);
+                      }}
+                      options={[
+                        { value: "0", label: t("automatic") },
+                        ...Array.from({ length: 32 }, (_, index) => ({
+                          value: String(index + 1),
+                          label: String(index + 1),
+                        })),
+                      ]}
+                    />
+                  </label>
+                )}
+                <label>
+                  {t("speed_limit")}
+                  <input
+                    name="limit"
                     type="number"
                     min={0}
-                    defaultValue={proposal?.request.torrent?.upload_limit || 0}
-                    required
-                  />
-                </label>
-                <label>
-                  {t("peer_limit")}
-                  <input
-                    name="peer_limit"
-                    type="number"
-                    min={1}
-                    max={500}
-                    defaultValue={proposal?.request.torrent?.peer_limit || 80}
+                    defaultValue={proposal?.request.speed_limit ?? 0}
                     required
                   />
                 </label>
               </div>
-            )}
-            <details className="download-advanced">
-              <summary>{t("details")}</summary>
-              {mode !== "torrent" && (
-                <label>
-                  {t("network_transport")}
-                  <Choice
-                    label={t("network_transport")}
-                    value={transport}
-                    onChange={setTransport}
-                    options={[
-                      { value: "auto", label: t("transport_auto") },
-                      { value: "http3", label: t("transport_quic") },
-                      { value: "tcp", label: t("transport_tcp") },
-                    ]}
-                  />
-                </label>
-              )}
               {mode === "torrent" && (
-                <label>
-                  {t("initial_peers")}
-                  <textarea
-                    name="initial_peers"
-                    rows={2}
-                    defaultValue={
-                      proposal?.request.torrent?.initial_peers.join("\n") || ""
-                    }
-                    placeholder="127.0.0.1:6881"
-                  />
-                </label>
+                <div className="form-grid">
+                  <label>
+                    {t("upload_limit")}
+                    <input
+                      name="upload_limit"
+                      type="number"
+                      min={0}
+                      defaultValue={
+                        proposal?.request.torrent?.upload_limit || 0
+                      }
+                      required
+                    />
+                  </label>
+                  <label>
+                    {t("peer_limit")}
+                    <input
+                      name="peer_limit"
+                      type="number"
+                      min={1}
+                      max={500}
+                      defaultValue={proposal?.request.torrent?.peer_limit || 80}
+                      required
+                    />
+                  </label>
+                </div>
               )}
-              <div className="form-grid">
-                <label>
-                  {t("start_at")}
-                  <input name="start_at" type="datetime-local" />
-                </label>
-                <label>
-                  {t("stop_at")}
-                  <input name="stop_at" type="datetime-local" />
-                </label>
+              <details className="download-advanced download-extra">
+                <summary>{t("details")}</summary>
+                {mode !== "torrent" && (
+                  <label>
+                    {t("network_transport")}
+                    <Choice
+                      label={t("network_transport")}
+                      value={transport}
+                      onChange={setTransport}
+                      options={[
+                        { value: "auto", label: t("transport_auto") },
+                        { value: "http3", label: t("transport_quic") },
+                        { value: "tcp", label: t("transport_tcp") },
+                      ]}
+                    />
+                  </label>
+                )}
+                {mode === "torrent" && (
+                  <label>
+                    {t("initial_peers")}
+                    <textarea
+                      name="initial_peers"
+                      rows={2}
+                      defaultValue={
+                        proposal?.request.torrent?.initial_peers.join("\n") ||
+                        ""
+                      }
+                      placeholder="127.0.0.1:6881"
+                    />
+                  </label>
+                )}
+                <div className="form-grid">
+                  <label>
+                    {t("start_at")}
+                    <input name="start_at" type="datetime-local" />
+                  </label>
+                  <label>
+                    {t("stop_at")}
+                    <input name="stop_at" type="datetime-local" />
+                  </label>
+                </div>
+                <div className="form-grid">
+                  <label>
+                    {t("priority")}
+                    <input
+                      name="priority"
+                      type="number"
+                      min={-10}
+                      max={10}
+                      defaultValue={0}
+                      required
+                    />
+                  </label>
+                  <label>
+                    {t("expected_hash")}
+                    <input
+                      name="hash"
+                      pattern="[a-fA-F0-9]{64}"
+                      disabled={["batch", "collection", "torrent"].includes(
+                        mode,
+                      )}
+                    />
+                  </label>
+                </div>
+              </details>
+              {localError && (
+                <p className="form-error" role="alert">
+                  {localError}
+                </p>
+              )}
+              <div className="download-actions">
+                {compact && (
+                  <button
+                    type="button"
+                    className="download-details-button secondary"
+                    aria-expanded={expanded}
+                    onClick={() => setExpanded((value) => !value)}
+                  >
+                    <SlidersHorizontal size={15} />
+                    {t("details")}
+                    {expanded ? (
+                      <ChevronUp size={13} />
+                    ) : (
+                      <ChevronDown size={13} />
+                    )}
+                  </button>
+                )}
+                <span className="toolbar-spacer" />
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => onClose(false)}
+                >
+                  {t("close")}
+                </button>
+                <button
+                  className="primary"
+                  disabled={
+                    busy ||
+                    collectionBusy ||
+                    !desktop ||
+                    (["single", "media"].includes(mode) &&
+                      provider &&
+                      !resolved) ||
+                    (mode === "collection" && !collectionEntries.length)
+                  }
+                  type="submit"
+                >
+                  <Download size={16} />
+                  {t(busy ? "starting" : "start")}
+                </button>
               </div>
-              <div className="form-grid">
-                <label>
-                  {t("priority")}
-                  <input
-                    name="priority"
-                    type="number"
-                    min={-10}
-                    max={10}
-                    defaultValue={0}
-                    required
-                  />
-                </label>
-                <label>
-                  {t("expected_hash")}
-                  <input
-                    name="hash"
-                    pattern="[a-fA-F0-9]{64}"
-                    disabled={["batch", "collection", "torrent"].includes(mode)}
-                  />
-                </label>
-              </div>
-            </details>
-            {localError && (
-              <p className="form-error" role="alert">
-                {localError}
-              </p>
-            )}
-            <button
-              className="primary"
-              disabled={
-                busy ||
-                collectionBusy ||
-                !desktop ||
-                (["single", "media"].includes(mode) && provider && !resolved) ||
-                (mode === "collection" && !collectionEntries.length)
-              }
-              type="submit"
-            >
-              <Download size={16} />
-              {t(busy ? "starting" : "start")}
-            </button>
-            <label className="queue-later">
-              <input
-                type="checkbox"
-                checked={later}
-                onChange={(event) => setLater(event.target.checked)}
-              />
-              {t("download_later")}
-            </label>
-          </form>
+              <label className="queue-later download-extra">
+                <input
+                  type="checkbox"
+                  checked={later}
+                  onChange={(event) => setLater(event.target.checked)}
+                />
+                {t("download_later")}
+              </label>
+            </form>
+          </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

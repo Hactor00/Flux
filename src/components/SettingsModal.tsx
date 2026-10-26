@@ -6,7 +6,6 @@ import {
   Download,
   FolderOpen,
   Globe2,
-  Search,
   X,
   SlidersHorizontal,
   RefreshCw,
@@ -16,6 +15,8 @@ import {
   Moon,
   Sun,
   Save,
+  Monitor,
+  BarChart3,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { open } from "@tauri-apps/plugin-dialog";
@@ -27,6 +28,7 @@ import { Updater } from "./Updater";
 import { SeedingRules } from "./SeedingRules";
 import { BrowserIntegrationSettings } from "./BrowserIntegration";
 import { TorrentWatchSettings } from "./TorrentWatchSettings";
+import { UsageStatistics } from "./UsageStatistics";
 export function SettingsModal({
   visible,
   onClose,
@@ -40,7 +42,6 @@ export function SettingsModal({
 }) {
   const { t, i18n } = useTranslation();
   const [settings, setSettings] = useState<Settings>(defaultSettings);
-  const [query, setQuery] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [section, setSection] = useState("language");
@@ -67,6 +68,7 @@ export function SettingsModal({
       icon: <Shield size={17} />,
     },
     { key: "updates", title: "updates", icon: <RefreshCw size={17} /> },
+    { key: "usage", title: "usage_statistics", icon: <BarChart3 size={17} /> },
     { key: "seeding", title: "seeding", icon: <Network size={17} /> },
     {
       key: "watch_title",
@@ -172,6 +174,9 @@ export function SettingsModal({
               <Tabs.Content value="updates">
                 <Updater />
               </Tabs.Content>
+              <Tabs.Content value="usage">
+                <UsageStatistics />
+              </Tabs.Content>
               <Tabs.Content value="seeding">
                 <SeedingRules
                   value={settings.seeding}
@@ -200,7 +205,7 @@ export function SettingsModal({
                     role="group"
                     aria-label={t("theme")}
                   >
-                    {(["dark", "light"] as const).map((theme) => (
+                    {(["system", "light", "dark"] as const).map((theme) => (
                       <button
                         key={theme}
                         type="button"
@@ -217,7 +222,9 @@ export function SettingsModal({
                           </span>
                         </span>
                         <span className="theme-option-label">
-                          {theme === "dark" ? (
+                          {theme === "system" ? (
+                            <Monitor size={15} />
+                          ) : theme === "dark" ? (
                             <Moon size={15} />
                           ) : (
                             <Sun size={15} />
@@ -229,51 +236,29 @@ export function SettingsModal({
                     ))}
                   </div>
                 </div>
-                <div className="language-heading">
-                  <Globe2 size={18} />
-                  <h3>{t("language")}</h3>
-                  <span>20</span>
-                </div>
-                <label className="search language-search">
-                  <Search size={16} />
-                  <input
-                    aria-label={t("search_languages")}
-                    placeholder={t("search_languages")}
-                    value={query}
-                    onChange={(event) => setQuery(event.target.value)}
+                <div className="language-setting">
+                  <label>
+                    <Globe2 size={16} />
+                    {t("language")} <small>20</small>
+                  </label>
+                  <Choice
+                    label={t("language")}
+                    value={i18n.language}
+                    onChange={(value) => {
+                      void i18n.changeLanguage(value);
+                      update("locale", value);
+                    }}
+                    options={languages.map((language) => ({
+                      value: language.code,
+                      label: `${language.native} · ${language.name}`,
+                    }))}
                   />
-                </label>
-                <div className="languages">
-                  {languages
-                    .filter((language) =>
-                      `${language.name} ${language.native} ${language.code}`
-                        .toLocaleLowerCase()
-                        .includes(query.toLocaleLowerCase()),
-                    )
-                    .map((language) => (
-                      <button
-                        key={language.code}
-                        data-locale={language.code}
-                        className={
-                          i18n.language === language.code ? "chosen" : ""
-                        }
-                        onClick={() => {
-                          void i18n.changeLanguage(language.code);
-                          update("locale", language.code);
-                        }}
-                      >
-                        <span>
-                          {language.native}
-                          <small>{language.name}</small>
-                        </span>
-                        {i18n.language === language.code ? (
-                          <Check size={16} />
-                        ) : (
-                          <span className="locale-code">{language.code}</span>
-                        )}
-                      </button>
-                    ))}
                 </div>
+                <Toggle
+                  checked={settings.compact_list}
+                  onChange={(value) => update("compact_list", value)}
+                  label={t("compact_list")}
+                />
               </Tabs.Content>
               <Tabs.Content value="downloads">
                 <div className="form-grid settings-fields">

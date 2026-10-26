@@ -166,7 +166,11 @@
   width: 64px;
   height: 64px;
   border-radius: 20px;
-  background: linear-gradient(135deg, var(--flux-palette-a58ce232), var(--flux-palette-a58ce208));
+  background: linear-gradient(
+    135deg,
+    var(--flux-palette-a58ce232),
+    var(--flux-palette-a58ce208)
+  );
   border: 1px solid var(--flux-palette-bfa6ff22);
   font-size: 40px;
   color: var(--flux-palette-b99de9);
@@ -525,7 +529,11 @@ h1 {
   margin-bottom: 38px;
 }
 .metrics article {
-  background: linear-gradient(130deg, var(--flux-palette-ffffff04), transparent);
+  background: linear-gradient(
+    130deg,
+    var(--flux-palette-ffffff04),
+    transparent
+  );
   border: 1px solid var(--flux-palette-ffffff0c);
   border-radius: 10px;
   padding: 22px;
@@ -639,7 +647,11 @@ input::placeholder {
   color: var(--flux-palette-a394c2);
   border-radius: 18px;
   border: 1px solid var(--flux-palette-b19ed01a);
-  background: radial-gradient(at top, var(--flux-palette-a599bc15), var(--flux-palette-ffffff02));
+  background: radial-gradient(
+    at top,
+    var(--flux-palette-a599bc15),
+    var(--flux-palette-ffffff02)
+  );
   margin-bottom: 20px;
 }
 .empty h3 {

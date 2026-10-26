@@ -49,6 +49,21 @@ pub fn open_release_page(app: tauri::AppHandle) -> Result<(), String> {
         .map_err(error)
 }
 #[tauri::command]
+pub fn open_extension_store(app: tauri::AppHandle, browser: String) -> Result<(), String> {
+    let url = match browser.as_str() {
+        "chrome" => "https://chromewebstore.google.com/detail/flux-download-manager/okimieponfbegjhmfdnnefnddofooipk",
+        "firefox" => "https://addons.mozilla.org/firefox/addon/flux-download-manager/",
+        _ => return Err("Unsupported browser store".into()),
+    };
+    app.opener().open_url(url, None::<&str>).map_err(error)
+}
+#[tauri::command]
+pub fn open_usage_privacy(app: tauri::AppHandle) -> Result<(), String> {
+    app.opener()
+        .open_url("https://fluxdownload.org/privacy/", None::<&str>)
+        .map_err(error)
+}
+#[tauri::command]
 pub async fn latest_release_version() -> Result<String, String> {
     flux_core::release::latest_version().await.map_err(error)
 }
@@ -261,6 +276,8 @@ pub async fn save_settings(
             Some("settings")
         } else if label.starts_with("power-") {
             Some("completion_action")
+        } else if label.starts_with("complete-") {
+            Some("download_finished")
         } else {
             None
         };
@@ -405,6 +422,8 @@ struct LocalizedMenu {
 pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     app.manage(crate::power::PowerState::default());
     let data = flux_core::default_data_directory()?;
+    let first_install = !data.join("tasks.sqlite").exists();
+    app.manage(crate::statistics::Statistics::open(data.clone())?);
     let integration = crate::integration::BrowserIntegration::new(data.clone());
     app.manage(integration.clone());
     if !std::env::args().any(|argument| argument == "--shutdown-request") {
@@ -425,7 +444,20 @@ pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let engine = tauri::async_runtime::block_on(tauri::async_runtime::spawn(async move {
         Engine::open_with_category_root(engine_data, downloads, category_root).await
     }))??;
-    let settings = tauri::async_runtime::block_on(engine.settings())?;
+    let mut settings = tauri::async_runtime::block_on(engine.settings())?;
+    if let Ok(executable) = std::env::current_exe() {
+        if let Some(directory) = executable.parent() {
+            let seed = directory.join("installer-locale.txt");
+            if let Ok(locale) = std::fs::read_to_string(&seed) {
+                let locale = locale.trim();
+                if first_install && crate::localization::supported(locale) {
+                    settings.locale = locale.into();
+                    tauri::async_runtime::block_on(engine.save_settings(settings.clone()))?;
+                }
+                let _ = std::fs::remove_file(seed);
+            }
+        }
+    }
     let cancel = CancellationToken::new();
     let scheduler_engine = engine.clone();
     let scheduler_cancel = cancel.clone();
@@ -518,9 +550,20 @@ pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                     shown_proposals.insert(task.id.clone());
                 }
                 if task.status == Status::Complete
-                    && completed.insert(task.id)
+                    && completed.insert(task.id.clone())
                     && settings.notifications
                 {
+                    let completion_handle = handle.clone();
+                    let id = task.id.clone();
+                    match tauri::async_runtime::spawn_blocking(move || {
+                        crate::windows::show(&completion_handle, "complete", Some(&id), None)
+                    })
+                    .await
+                    {
+                        Ok(Ok(())) => {}
+                        Ok(Err(error)) => eprintln!("Cannot open completion window: {error}"),
+                        Err(error) => eprintln!("Cannot open completion window: {error}"),
+                    }
                     let _ = handle
                         .notification()
                         .builder()

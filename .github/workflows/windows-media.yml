@@ -1,0 +1,29 @@
+name: Build pinned Windows media tools
+on:
+  workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  media:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y make pkg-config
+      - name: Cross-compile pinned LGPL tools
+        run: bash scripts/build-windows-media.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pinned-windows-media
+          path: .tools/media-artifact/*
+          if-no-files-found: error
+      - name: Save build diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-media-diagnostics
+          path: |
+            .tools/media-work/*.log
+            .tools/media-work/ffmpeg-*/ffbuild/config.log
+          if-no-files-found: warn

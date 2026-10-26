@@ -20,5 +20,5 @@ if(mode==='create') {
  assert.equal(tasks.length,1);assert.equal(tasks[0].id,previous.tasks[0].id);assert.equal(tasks[0].sha256,previous.tasks[0].sha256);assert.equal(tasks[0].destination,previous.tasks[0].destination);
  assert.equal((await readFile(tasks[0].destination)).toString('hex'),previous.payload);
  assert.equal(settings.theme,'light');assert.equal(settings.locale,'tr-TR');assert.equal(settings.connections,7);
- console.log('2.5.0 profile history, file identity and preferences preserved by 2.6.0.');
+ console.log('Previous-version history, file identity and preferences preserved by the current installer.');
 }

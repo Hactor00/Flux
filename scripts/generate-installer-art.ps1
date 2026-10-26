@@ -1,5 +1,6 @@
 Add-Type -AssemblyName System.Drawing
 $assetRoot = Join-Path $PSScriptRoot '../src-tauri/installer-assets'
+$releaseVersion = (Get-Content -LiteralPath (Join-Path $PSScriptRoot '../package.json') -Raw | ConvertFrom-Json).version
 New-Item -ItemType Directory -Force $assetRoot | Out-Null
 function New-BrandImage([int]$width,[int]$height,[string]$name) {
  $bitmap = [System.Drawing.Bitmap]::new($width,$height)
@@ -19,7 +20,7 @@ function New-BrandImage([int]$width,[int]$height,[string]$name) {
   $small = [System.Drawing.Font]::new('Segoe UI',9)
   $graphics.DrawString('Flux',$font,$white,18,84)
   $graphics.DrawString('DOWNLOAD MANAGER',$small,$muted,20,126)
-  $graphics.DrawString('1.4',$small,$accent,22,286)
+  $graphics.DrawString($releaseVersion,$small,$accent,22,286)
   $pen.Dispose();$font.Dispose();$small.Dispose()
  } else {
   $font = [System.Drawing.Font]::new('Segoe UI',21,[System.Drawing.FontStyle]::Bold)

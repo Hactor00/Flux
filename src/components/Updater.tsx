@@ -194,42 +194,44 @@ export function Updater({ startup = false }: { startup?: boolean }) {
               if (busy) event.preventDefault();
             }}
           >
-            <span className="update-symbol" aria-hidden="true">
-              <ArrowDownToLine size={25} />
-            </span>
-            <Dialog.Title>
-              {t("update_available")} ·{" "}
-              {linux || portable ? releaseVersion : update?.version}
-            </Dialog.Title>
-            <Dialog.Description>
-              {installed && (
-                <>
-                  {t("installed_version")} · {installed}
-                  <br />
-                </>
+            <div className="updater-body">
+              <span className="update-symbol" aria-hidden="true">
+                <ArrowDownToLine size={25} />
+              </span>
+              <Dialog.Title>
+                {t("update_available")} ·{" "}
+                {linux || portable ? releaseVersion : update?.version}
+              </Dialog.Title>
+              <Dialog.Description>
+                {installed && (
+                  <>
+                    {t("installed_version")} · {installed}
+                    <br />
+                  </>
+                )}
+                {t(
+                  portable
+                    ? "portable_updates_help"
+                    : linux
+                      ? "rpm_updates_help"
+                      : "update_description",
+                )}
+              </Dialog.Description>
+              <pre className="update-notes">
+                {update?.body?.slice(0, 16384) || t("update_description")}
+              </pre>
+              {busy && (
+                <progress
+                  aria-label={t("downloading_update")}
+                  max={100}
+                  value={progress ?? undefined}
+                />
               )}
-              {t(
-                portable
-                  ? "portable_updates_help"
-                  : linux
-                    ? "rpm_updates_help"
-                    : "update_description",
-              )}
-            </Dialog.Description>
-            <pre className="update-notes">
-              {update?.body?.slice(0, 16384) || t("update_description")}
-            </pre>
-            {busy && (
-              <progress
-                aria-label={t("downloading_update")}
-                max={100}
-                value={progress ?? undefined}
-              />
-            )}
-            <p role="status" className="update-status">
-              {notice}
-              {busy && progress !== null ? ` ${progress.toFixed(0)}%` : ""}
-            </p>
+              <p role="status" className="update-status">
+                {notice}
+                {busy && progress !== null ? ` ${progress.toFixed(0)}%` : ""}
+              </p>
+            </div>
             <div className="dialog-actions">
               <Dialog.Close className="secondary" disabled={busy}>
                 {t("later")}

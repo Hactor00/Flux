@@ -1,0 +1,21 @@
+{
+  "version": "2.6.6",
+  "passed": true,
+  "locales": 20,
+  "portal_resize_attached": true,
+  "compact_footer_visible": true,
+  "expand_collapse_fits": true,
+  "checkbox_size_verified": true,
+  "surfaces": [
+    "download",
+    "details",
+    "complete",
+    "power",
+    "settings",
+    "updater",
+    "consent",
+    "confirm",
+    "main"
+  ],
+  "scope": "Production UI in isolated Chromium with fixture native IPC; native geometry is checked separately."
+}

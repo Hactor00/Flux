@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useTranslation } from "react-i18next";
 import { api, subscribe, type PendingPower } from "../api";
+import { useSurfaceSize } from "../use-surface-size";
 
 export function PowerCountdown() {
   const { t } = useTranslation();
+  const content = useRef<HTMLDivElement>(null);
+  useSurfaceSize(content, true);
   const [pending, setPending] = useState<PendingPower | null>(null);
   const [now, setNow] = useState(Date.now());
   const [error, setError] = useState("");
@@ -43,19 +46,21 @@ export function PowerCountdown() {
           onEscapeKeyDown={cancel}
           onPointerDownOutside={(event) => event.preventDefault()}
         >
-          <Dialog.Title>{t("completion_action")}</Dialog.Title>
-          <Dialog.Description>
-            {t("power_countdown", {
-              action: t(`action_${pending?.action || "none"}`),
-              seconds: pending
-                ? Math.max(0, Math.ceil((pending.deadline - now) / 1000))
-                : 30,
-            })}
-          </Dialog.Description>
-          <p role="alert">{error}</p>
-          <button className="primary" onClick={cancel}>
-            {t("cancel")}
-          </button>
+          <div className="aux-window-content" ref={content}>
+            <Dialog.Title>{t("completion_action")}</Dialog.Title>
+            <Dialog.Description>
+              {t("power_countdown", {
+                action: t(`action_${pending?.action || "none"}`),
+                seconds: pending
+                  ? Math.max(0, Math.ceil((pending.deadline - now) / 1000))
+                  : 30,
+              })}
+            </Dialog.Description>
+            <p role="alert">{error}</p>
+            <button className="primary" onClick={cancel}>
+              {t("cancel")}
+            </button>
+          </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

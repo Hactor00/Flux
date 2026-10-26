@@ -18,6 +18,7 @@ const records = Object.fromEntries(
       "upgrade",
       "daily-use",
       "download-feedback",
+      "surface-layout",
       "statistics-window",
       "windows",
       "desktop-integration",
@@ -48,6 +49,7 @@ for (const [name, record] of Object.entries(records)) {
         "browser-onboarding",
         "upgrade",
         "statistics-window",
+        "surface-layout",
       ].includes(name)) &&
     record.version !== version
   )
@@ -55,9 +57,11 @@ for (const [name, record] of Object.entries(records)) {
 }
 if (
   !records.installer.installed_binary_hashes_verified ||
-  records.upgrade.from_version !== "2.6.0" ||
+  records.upgrade.from_version !== "2.6.5" ||
   !records.upgrade.history_preserved ||
   !records.upgrade.settings_preserved ||
+  !records["surface-layout"].portal_resize_attached ||
+  !records["download-feedback"].native_expand_collapse_fits ||
   records["firefox-157.0.1-store"].extension_id !==
     "firefox@fluxdownload.org" ||
   records["chrome-store-interception"].extension_id !==
@@ -100,8 +104,8 @@ const rustTests = [
   ...rustLog.matchAll(/test result: ok\. (\d+) passed/g),
 ].reduce((sum, match) => sum + Number(match[1]), 0);
 const frontendLog = await readFile(".tools/frontend-tests.log", "utf8");
-const counts = [...frontendLog.matchAll(/ℹ tests (\d+)/g)].map((match) =>
-  Number(match[1]),
+const counts = [...frontendLog.matchAll(/^\S+ tests (\d+)\r?$/gm)].map(
+  (match) => Number(match[1]),
 );
 if (!rustTests || counts.length !== 2 || !counts.every(Boolean))
   throw Error("Required test counts are missing");
@@ -152,9 +156,10 @@ const report = {
   browser_setup: records["browser-onboarding"],
   updater_resource_close_main_and_settings_verified:
     records.windows.updater_resource_close_main_and_settings_verified,
-  upgrade_from_2_6_0: records.upgrade,
+  upgrade_from_2_6_5: records.upgrade,
   usage_statistics: records["statistics-window"],
   download_feedback: records["download-feedback"],
+  window_layout: records["surface-layout"],
   test_evidence: {
     core_run_id:
       process.env.FLUX_CORE_TEST_RUN || process.env.GITHUB_RUN_ID || null,

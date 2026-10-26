@@ -115,6 +115,38 @@ try {
       `document.querySelector('.download-total')?.textContent.includes('2 MB')`,
     ),
   );
+  await until(() =>
+    approval.evaluate(
+      "document.querySelector('.download-actions [type=submit]').getBoundingClientRect().bottom <= innerHeight + 2",
+    ),
+  );
+  const compactHeight = await approval.evaluate("innerHeight");
+  assert.ok(
+    await approval.evaluate(
+      "document.querySelector('.modal').scrollHeight <= innerHeight + 2",
+    ),
+    "Compact download must fit without scrolling",
+  );
+  await approval.evaluate(
+    "document.querySelector('.download-details-button').click(); true",
+  );
+  await until(() => approval.evaluate(`innerHeight > ${compactHeight + 60}`));
+  assert.ok(
+    await approval.evaluate(
+      "document.querySelector('.queue-later input').getBoundingClientRect().height <= 20",
+    ),
+    "Queue checkbox must keep its native size",
+  );
+  await approval.evaluate(
+    "document.querySelector('.download-details-button').click(); true",
+  );
+  await until(() => approval.evaluate(`innerHeight <= ${compactHeight + 2}`));
+  assert.ok(
+    await approval.evaluate(
+      "document.querySelector('.download-actions [type=submit]').getBoundingClientRect().bottom <= innerHeight + 2",
+    ),
+    "Collapsing details must restore the visible action row",
+  );
   await approval.evaluate(
     `setTimeout(() => document.querySelector('.modal-close').click(), 50); true`,
   );
@@ -137,6 +169,11 @@ try {
   const popupText = await popup.evaluate("document.body.textContent");
   for (const text of ["Open file", "Show in folder", "Close"])
     assert.ok(popupText.includes(text));
+  await until(() =>
+    popup.evaluate(
+      "document.querySelector('.download-complete .details-actions').getBoundingClientRect().bottom <= innerHeight + 2",
+    ),
+  );
   await mkdir("output/260-refresh", { recursive: true });
   const shot = await popup.call("Page.captureScreenshot", { format: "png" });
   await writeFile(
@@ -199,6 +236,8 @@ try {
       {
         version: JSON.parse(await readFile("package.json", "utf8")).version,
         media_source_size_before_approval: true,
+        native_expand_collapse_fits: true,
+        compact_controls_verified: true,
         completion_window_once: true,
         completion_file_actions_visible: true,
         history_does_not_reopen: true,

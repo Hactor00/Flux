@@ -40,10 +40,9 @@
 .desktop-columns,
 .desktop-row {
   min-width: 0;
-  grid-template-columns: minmax(190px, 1.9fr) 80px minmax(
-      108px,
-      1fr
-    ) 100px 82px 76px 130px;
+  grid-template-columns:
+    minmax(190px, 1.9fr) 80px minmax(108px, 1fr)
+    100px 82px 76px 130px;
 }
 .desktop-columns {
   height: 32px;
@@ -139,8 +138,25 @@
   line-height: 1.65;
 }
 .surface-window .modal.download-modal,
-.surface-window .modal.compact-transfer {
+.surface-window .modal.compact-transfer,
+.surface-window .modal.download-complete,
+.surface-window .modal.power-countdown {
   padding: 0;
+}
+.aux-window-content {
+  padding: 20px 24px;
+}
+.download-complete .details-actions {
+  align-items: center;
+  flex-wrap: wrap;
+}
+.download-complete .details-actions > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  min-height: 36px;
+  padding: 8px 12px;
 }
 .download-window-content,
 .transfer-window-content {
@@ -306,6 +322,26 @@
 .download-actions .primary {
   min-width: 145px;
 }
+.modal.download-modal .download-actions > .primary {
+  width: auto;
+  flex: 0 0 auto;
+}
+.modal label.queue-later,
+.modal label.transfer-auto-close {
+  flex-direction: row !important;
+}
+.modal label input[type="checkbox"],
+.surface-window .modal label input[type="checkbox"] {
+  appearance: auto;
+  width: 15px;
+  min-width: 15px;
+  height: 15px;
+  min-height: 15px;
+  flex: 0 0 15px;
+  padding: 0;
+  margin: 0;
+  accent-color: var(--ui-accent);
+}
 .download-destination .folder-field {
   display: flex;
   gap: 7px;
@@ -460,10 +496,9 @@
 @media (max-width: 1120px) {
   .desktop-columns,
   .desktop-row {
-    grid-template-columns: minmax(160px, 1.7fr) 75px minmax(
-        100px,
-        1fr
-      ) 98px 76px 70px;
+    grid-template-columns:
+      minmax(160px, 1.7fr) 75px minmax(100px, 1fr)
+      98px 76px 70px;
   }
   .desktop-columns > :nth-child(7),
   .desktop-row > :nth-child(7) {
@@ -487,10 +522,9 @@
   }
   .desktop-columns,
   .desktop-row {
-    grid-template-columns: minmax(155px, 1.8fr) 72px minmax(
-        100px,
-        1fr
-      ) 98px 76px;
+    grid-template-columns:
+      minmax(155px, 1.8fr) 72px minmax(100px, 1fr)
+      98px 76px;
   }
   .desktop-columns > :nth-child(6),
   .desktop-row > :nth-child(6) {

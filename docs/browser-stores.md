@@ -5,7 +5,7 @@
 - **Chrome, Edge and Brave:** [Install Flux from the Chrome Web Store](https://chromewebstore.google.com/detail/flux-download-manager/okimieponfbegjhmfdnnefnddofooipk).
 - **Firefox:** [Flux on Mozilla Add-ons](https://addons.mozilla.org/firefox/addon/flux-download-manager/).
 
-Status checked on **26 October 2026**: Chrome 2.6.0 is public. Firefox 2.6.0 is awaiting Mozilla review; its public listing and installation may not be available until approval. The 2.6.5 update has a separate review cycle in each store. Use Flux desktop **2.6.0 or later** with the Firefox store extension. The [desktop app and manual ZIP packages](https://github.com/Hactor00/Flux/releases/latest) remain available for Windows and Linux.
+Status checked on **26 October 2026**: Chrome 2.6.0 is public. Firefox 2.6.0 is awaiting Mozilla review; its public listing and installation may not be available until approval. The 2.6.6 update has a separate review cycle in each store. Use Flux desktop **2.6.0 or later** with the Firefox store extension. The [desktop app and manual ZIP packages](https://github.com/Hactor00/Flux/releases/latest) remain available for Windows and Linux.
 
 Store installations receive approved updates through the browser. GitHub ZIP installations are updated manually. The extension requires the desktop app; start Flux once to register the local bridge, enable the extension's required permissions and check its popup connection status.
 

@@ -915,9 +915,48 @@ button svg {
 }
 .updater-modal {
   padding: 28px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+}
+.updater-body {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.updater-body > p {
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.7;
+  margin: 10px 0 18px;
+}
+.updater-modal .dialog-actions {
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding-top: 16px;
+}
+.updater-modal .dialog-actions > button {
+  margin: 0;
 }
 .surface-window .modal-overlay.update-overlay {
   display: block;
+}
+.surface-window .modal.confirm-modal {
+  inset: auto;
+  inset-inline-start: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(480px, calc(100vw - 24px));
+  height: auto;
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+}
+[dir="rtl"] .surface-window .modal.confirm-modal {
+  transform: translate(50%, -50%);
 }
 .surface-window .modal.updater-modal {
   inset: auto;
@@ -927,7 +966,7 @@ button svg {
   width: min(560px, calc(100vw - 32px));
   height: auto;
   max-height: calc(100dvh - 32px);
-  overflow: auto;
+  overflow: hidden;
   padding: 28px;
   border: 1px solid var(--ui-border);
   border-radius: 16px;

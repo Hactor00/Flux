@@ -10,9 +10,9 @@ $root = Join-Path ([IO.Path]::GetTempPath()) ('flux-published-update-' + [guid]:
 $installed = Join-Path $root 'installed'
 $downloads = Join-Path $root 'downloads'
 New-Item -ItemType Directory -Force $root,$downloads | Out-Null
-$old = Join-Path $root 'Flux_2.6.0_x64-setup.exe'
-Invoke-WebRequest 'https://github.com/Hactor00/Flux/releases/download/v2.6.0/Flux_2.6.0_x64-setup.exe' -OutFile $old
-if ((Get-FileHash -LiteralPath $old).Hash.ToLowerInvariant() -ne '5e72c44b3010f3a613356c3c1b6ce4320b2e7cf45ac4c386ae29bc4c266898f4') { throw 'Previous installer identity mismatch.' }
+$old = Join-Path $root 'Flux_2.6.5_x64-setup.exe'
+Invoke-WebRequest 'https://github.com/Hactor00/Flux/releases/download/v2.6.5/Flux_2.6.5_x64-setup.exe' -OutFile $old
+if ((Get-FileHash -LiteralPath $old).Hash.ToLowerInvariant() -ne '06e7a8d9a353fe9f182b259aa0a3a9dcb06c7bcf9ffc15ccffaf7d9788658978') { throw 'Previous installer identity mismatch.' }
 try {
     $process = Start-Process -FilePath $old -ArgumentList "/S /D=$installed" -WindowStyle Hidden -PassThru -Wait
     if ($process.ExitCode -ne 0) { throw 'Previous version installation failed.' }
@@ -41,7 +41,7 @@ try {
     }
     node "$PSScriptRoot/upgrade-profile.mjs" verify $installed $data $downloads (Join-Path $root 'profile.json')
     if ($LASTEXITCODE -ne 0) { throw 'Published updater did not preserve the profile.' }
-    @{version=$version;from_version='2.6.0';passed=$true;startup_notice=$true;repeated_manual_checks=$true;download_signature_verified_by_previous_app=$true;in_app_install=$true;history_preserved=$true;settings_preserved=$true;file_hash_preserved=$true;desktop_sha256=(Get-FileHash -LiteralPath "$installed/flux-desktop.exe").Hash.ToLowerInvariant()} | ConvertTo-Json | Set-Content "$workspace/docs/validation/published-upgrade.json" -Encoding utf8
+    @{version=$version;from_version='2.6.5';passed=$true;startup_notice=$true;repeated_manual_checks=$true;download_signature_verified_by_previous_app=$true;in_app_install=$true;history_preserved=$true;settings_preserved=$true;file_hash_preserved=$true;desktop_sha256=(Get-FileHash -LiteralPath "$installed/flux-desktop.exe").Hash.ToLowerInvariant()} | ConvertTo-Json | Set-Content "$workspace/docs/validation/published-upgrade.json" -Encoding utf8
 } finally {
     if (Test-Path -LiteralPath "$installed/flux-desktop.exe") { Start-Process -FilePath "$installed/flux-desktop.exe" -ArgumentList '--shutdown' -WindowStyle Hidden -Wait }
     if (Test-Path -LiteralPath "$installed/uninstall.exe") { Start-Process -FilePath "$installed/uninstall.exe" -ArgumentList '/S' -WindowStyle Hidden -Wait }

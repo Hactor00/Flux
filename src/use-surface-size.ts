@@ -8,22 +8,43 @@ export function useSurfaceSize(
 ) {
   useEffect(() => {
     if (!enabled || !isTauri() || !location.search.includes("view=")) return;
-    const element = ref.current;
-    if (!element) return;
     let timer: ReturnType<typeof setTimeout>;
+    let frame = 0;
+    let disposed = false;
     let previous = 0;
-    const observer = new ResizeObserver(() => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        const height = Math.ceil(element.getBoundingClientRect().height);
-        if (Math.abs(previous - height) <= 1) return;
-        previous = height;
-        void api.resizeSurface(height).catch(() => {});
-      }, 50);
-    });
-    observer.observe(element);
+    let observer: ResizeObserver | undefined;
+    const attach = () => {
+      if (disposed) return;
+      // Radix mounts portal contents after the parent's first effect.
+      const element = ref.current;
+      if (!element) {
+        frame = requestAnimationFrame(attach);
+        return;
+      }
+      const measure = () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          if (disposed) return;
+          const height = Math.ceil(
+            Math.max(
+              element.scrollHeight,
+              element.getBoundingClientRect().height,
+            ),
+          );
+          if (Math.abs(previous - height) <= 1) return;
+          previous = height;
+          void api.resizeSurface(height).catch(() => {});
+        }, 50);
+      };
+      observer = new ResizeObserver(measure);
+      observer.observe(element);
+      measure();
+    };
+    attach();
     return () => {
-      observer.disconnect();
+      disposed = true;
+      cancelAnimationFrame(frame);
+      observer?.disconnect();
       clearTimeout(timer);
     };
   }, [ref, enabled]);

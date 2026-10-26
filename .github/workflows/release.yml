@@ -97,6 +97,8 @@ jobs:
           npm test *> .tools/frontend-tests.log
           Get-Content .tools/frontend-tests.log
           if ($LASTEXITCODE -ne 0) { throw 'Frontend tests failed.' }
+          node scripts/test-surface-layout.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Window layout checks failed.' }
           npm audit --omit=dev --json > .tools/production-audit.json
           if ($LASTEXITCODE -ne 0) { throw 'Production dependency audit failed.' }
           npx --yes web-ext@10.7.0 lint --source-dir extension-firefox-modern --output json > .tools/firefox-lint-modern.json
@@ -208,12 +210,29 @@ jobs:
           ./scripts/prepare-firefox-tests.ps1
           $legacyGecko = ./scripts/prepare-gecko-isolation.ps1 -Version '120.0'
           $modernGecko = ./scripts/prepare-gecko-isolation.ps1 -Version '157.0.1'
-          node ./scripts/test-firefox.mjs target/release $legacyGecko .tools/firefox/geckodriver.exe
-          if ($LASTEXITCODE -ne 0) { throw 'Firefox 120 integration failed.' }
-          node ./scripts/test-firefox.mjs target/release $modernGecko .tools/firefox/geckodriver.exe --modern
-          if ($LASTEXITCODE -ne 0) { throw 'Modern Firefox integration failed.' }
-          node ./scripts/test-firefox.mjs target/release $modernGecko .tools/firefox/geckodriver.exe --modern --store
-          if ($LASTEXITCODE -ne 0) { throw 'Mozilla store identity integration failed.' }
+          function Test-Gecko([string]$Runtime, [switch]$Modern, [switch]$Store) {
+            $testArguments = @('./scripts/test-firefox.mjs','target/release',$Runtime,'.tools/firefox/geckodriver.exe')
+            if ($Modern) { $testArguments += '--modern' }
+            if ($Store) { $testArguments += '--store' }
+            $label = if ($Store) { 'store' } elseif ($Modern) { 'modern' } else { 'legacy' }
+            for ($attempt = 1; $attempt -le 3; $attempt++) {
+              $logPath = ".tools/firefox-$label-$attempt.log"
+              node @testArguments *> $logPath
+              $testExit = $LASTEXITCODE
+              Get-Content -LiteralPath $logPath
+              if ($testExit -eq 0) { return }
+              $logText = Get-Content -LiteralPath $logPath -Raw
+              $beforeReady = $logText.Contains('{"reports":[],"controlRequests":0,"pending":[]}')
+              $subprocessFailure = $logText -match 'Failed to launch .+subprocess|frameLoader\.remoteTab is null'
+              if ($attempt -eq 3 -or -not $beforeReady -or -not $subprocessFailure) {
+                throw "Firefox $label integration failed."
+              }
+              Write-Output "Gecko could not start its test subprocesses; retrying with a fresh profile (attempt $($attempt + 1) of 3)."
+            }
+          }
+          Test-Gecko -Runtime $legacyGecko
+          Test-Gecko -Runtime $modernGecko -Modern
+          Test-Gecko -Runtime $modernGecko -Modern -Store
           ./scripts/test-installer.ps1
           ./scripts/test-upgrade.ps1
           node ./scripts/test-daily-use.mjs target/release
@@ -287,6 +306,7 @@ jobs:
           path: |
             .tools/core-tests.log
             .tools/frontend-tests.log
+            .tools/firefox-*.log
           if-no-files-found: warn
   publish:
     if: inputs.publish || github.ref_type == 'tag'

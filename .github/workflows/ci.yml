@@ -58,6 +58,7 @@ jobs:
       - run: ./scripts/build-torrent-runtime.ps1
       - run: npm ci
       - run: npm test
+      - run: node scripts/test-surface-layout.mjs
       - run: node scripts/test-chrome-hud.mjs
       - run: cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
       - run: cargo test --locked -p flux-desktop

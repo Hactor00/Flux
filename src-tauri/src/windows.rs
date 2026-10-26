@@ -104,11 +104,18 @@ pub fn show(
 }
 #[tauri::command]
 pub fn resize_surface(window: tauri::WebviewWindow, height: f64) -> Result<(), String> {
-    if !window.label().starts_with("download-") && !window.label().starts_with("details-") {
-        return Err("Only download and progress windows can fit their contents".into());
+    if !["download-", "details-", "complete-", "power-"]
+        .iter()
+        .any(|prefix| window.label().starts_with(prefix))
+    {
+        return Err("Only transfer and completion windows can fit their contents".into());
     }
     if !height.is_finite() {
         return Err("Invalid window height".into());
+    }
+    // A maximized window belongs to the user until it is restored.
+    if window.is_maximized().map_err(|e| e.to_string())? {
+        return Ok(());
     }
     let monitor = window.current_monitor().map_err(|e| e.to_string())?;
     let maximum = monitor

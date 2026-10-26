@@ -7,7 +7,7 @@ on:
         type: boolean
         default: false
       verify_published_upgrade:
-        description: Test the published signed update through the real Flux 2.6.0 application
+        description: Test the published signed update through the real Flux 2.6.5 application
         type: boolean
         default: false
 permissions:
@@ -29,7 +29,7 @@ jobs:
         run: ./scripts/package-browser-stores.ps1
       - name: Verify runtime-only package contents
         run: ./scripts/verify-browser-stores.ps1
-      - name: Verify published in-app update from 2.6.0
+      - name: Verify published in-app update from 2.6.5
         if: inputs.verify_published_upgrade
         run: ./scripts/test-published-upgrade.ps1
       - name: Sign Firefox for self-distribution

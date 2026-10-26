@@ -1,6 +1,6 @@
 # Current validation
 
-The current source version is **Flux 2.6.5**. See [2.6.5 validation](validation-2.6.5.md) for the version-specific release workflow results and scope. The [2.3 validation report](validation-2.3.md) and its machine-readable package evidence remain historical.
+The current source version is **Flux 2.6.6**. See [2.6.6 validation](validation-2.6.6.md) for the version-specific release workflow results and scope. The [2.3 validation report](validation-2.3.md) and its machine-readable package evidence remain historical.
 
 Release reports record exact test counts, workflow identities and tested binary/package hashes. Prior-version test results are never presented as fresh evidence for a newer release.
 

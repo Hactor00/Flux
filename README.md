@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Hactor00/Flux/releases/tag/v2.6.6"><img alt="Flux 2.6.6" src="https://img.shields.io/badge/release-2.6.6-bda8ff"></a>
+  <a href="https://github.com/Hactor00/Flux/releases/tag/v2.7.0"><img alt="Flux 2.7.0" src="https://img.shields.io/badge/release-2.7.0-bda8ff"></a>
   <a href="https://github.com/Hactor00/Flux/actions/workflows/ci.yml"><img alt="Validation" src="https://github.com/Hactor00/Flux/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <img alt="Windows and Linux" src="https://img.shields.io/badge/platform-Windows_%7C_Linux-0078D4">
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-84d6ba"></a>
@@ -18,7 +18,7 @@
 
 <p align="center">
   <strong>English</strong> · <a href="README.tr.md">Türkçe</a><br>
-  <a href="#download">Download</a> · <a href="#whats-new-in-266">What's new</a> · <a href="#features">Features</a> · <a href="#installation">Installation</a> · <a href="#validation">Validation</a> · <a href="#development">Development</a>
+  <a href="#download">Download</a> · <a href="#whats-new-in-270">What's new</a> · <a href="#features">Features</a> · <a href="#installation">Installation</a> · <a href="#validation">Validation</a> · <a href="#development">Development</a>
 </p>
 
 Flux combines segmented HTTP transfers, accessible video/audio capture, native BitTorrent, a persistent local history and separate desktop approval windows. It is built with Tauri 2, React 19, Tokio and SQLite WAL. The name refers to flow: files and media moving from your browser into your download queue.
@@ -27,7 +27,7 @@ Flux combines segmented HTTP transfers, accessible video/audio capture, native B
 
 ## Download
 
-**Current release: [Flux 2.6.6](https://github.com/Hactor00/Flux/releases/tag/v2.6.6), Windows x64 and Linux x86_64 (RPM).**
+**Current release: [Flux 2.7.0](https://github.com/Hactor00/Flux/releases/tag/v2.7.0), Windows x64 and Linux x86_64 (RPM).**
 
 [Code signing policy](docs/code-signing-policy.md) · [Privacy policy](docs/browser-stores.md#privacy-disclosure-for-store-listings)
 
@@ -46,28 +46,27 @@ Store-installed extensions receive approved updates through the browser. The ZIP
 
 | Package | Purpose |
 | --- | --- |
-| **[Windows installer](https://github.com/Hactor00/Flux/releases/download/v2.6.6/Flux_2.6.6_x64-setup.exe)** | Recommended; per-user installation and automatic native-host registration |
-| **[Linux RPM](https://github.com/Hactor00/Flux/releases/download/v2.6.6/Flux-2.6.6-linux-x86_64.rpm)** | Fedora x86_64; installs desktop, native host and torrent bridge; media dependencies are resolved by dnf |
-| [Portable application](https://github.com/Hactor00/Flux/releases/download/v2.6.6/Flux-2.6.6-windows-x64.zip) | Desktop application, extensions and bundled media tools |
-| [PortableApps layout](https://github.com/Hactor00/Flux/releases/download/v2.6.6/Flux-2.6.6-portableapps.zip) | Portable App/Data/Other layout; not certified by PortableApps.com |
-| [Chromium extension](https://github.com/Hactor00/Flux/releases/download/v2.6.6/Flux-2.6.6-chrome.zip) | Chrome, Edge, Brave and compatible Chromium browsers |
-| [Firefox 140+ extension](https://github.com/Hactor00/Flux/releases/download/v2.6.6/Flux-2.6.6-firefox.zip) | Modern Firefox |
-| [Firefox 120–139 extension](https://github.com/Hactor00/Flux/releases/download/v2.6.6/Flux-2.6.6-firefox-120.zip) | Older supported Firefox versions |
-| [Source archive](https://github.com/Hactor00/Flux/releases/download/v2.6.6/Flux-2.6.6-source.zip) | Source, build scripts, tests and release documentation |
-| [SHA-256 checksums](https://github.com/Hactor00/Flux/releases/download/v2.6.6/SHA256SUMS.txt) | Verify downloaded package identity |
+| **[Windows installer](https://github.com/Hactor00/Flux/releases/download/v2.7.0/Flux_2.7.0_x64-setup.exe)** | Recommended; per-user installation and automatic native-host registration |
+| **[Linux RPM](https://github.com/Hactor00/Flux/releases/download/v2.7.0/Flux-2.7.0-linux-x86_64.rpm)** | Fedora x86_64; installs desktop, native host and torrent bridge; media dependencies are resolved by dnf |
+| [Portable application](https://github.com/Hactor00/Flux/releases/download/v2.7.0/Flux-2.7.0-windows-x64.zip) | Desktop application, extensions and bundled media tools |
+| [PortableApps layout](https://github.com/Hactor00/Flux/releases/download/v2.7.0/Flux-2.7.0-portableapps.zip) | Portable App/Data/Other layout; not certified by PortableApps.com |
+| [Chromium extension](https://github.com/Hactor00/Flux/releases/download/v2.7.0/Flux-2.7.0-chrome.zip) | Chrome, Edge, Brave and compatible Chromium browsers |
+| [Firefox 140+ extension](https://github.com/Hactor00/Flux/releases/download/v2.7.0/Flux-2.7.0-firefox.zip) | Modern Firefox |
+| [Firefox 120–139 extension](https://github.com/Hactor00/Flux/releases/download/v2.7.0/Flux-2.7.0-firefox-120.zip) | Older supported Firefox versions |
+| [Source archive](https://github.com/Hactor00/Flux/releases/download/v2.7.0/Flux-2.7.0-source.zip) | Source, build scripts, tests and release documentation |
+| [SHA-256 checksums](https://github.com/Hactor00/Flux/releases/download/v2.7.0/SHA256SUMS.txt) | Verify downloaded package identity |
 
 Application update packages carry a signature checked against Flux's embedded verification key. The Windows installer and executables **do not have an Authenticode publisher certificate**; Windows may display a publisher or SmartScreen warning. Firefox ZIPs are unsigned and require Mozilla signing for permanent installation. See [release and signing](docs/release.md) and [browser distribution](docs/browser-stores.md).
 
 Previous [2.3.0](https://github.com/Hactor00/Flux/releases/tag/v2.3.0), [2.2.0](https://github.com/Hactor00/Flux/releases/tag/v2.2.0), [2.0.0](https://github.com/Hactor00/Flux/releases/tag/v2.0.0) and [1.7.0](https://github.com/Hactor00/Flux/releases/tag/v1.7.0) packages remain available.
 
-## What's new in 2.6.6
+## What's new in 2.7.0
 
-- **Window sizing:** download and progress windows now measure their contents after the dialog opens. Expanding Details grows the window; collapsing it restores the compact layout.
-- **Consistent controls:** download buttons keep their natural width, checkboxes stay compact and completion actions align on one row when space permits.
-- **Small screens:** update and confirmation dialogs keep their actions accessible. Completion and countdown windows fit their contents, while maximized windows retain the user's chosen size.
-- All existing 2.6.5 features, twenty languages, optional statistics and browser identities are retained. Windows updates use the existing verification key; the release workflow checks an installed 2.6.5 upgrade.
-
-Read the [2.6.6 release notes](docs/releases/v2.6.6.md) and [validation](docs/validation-2.6.6.md).
+- **Downloads start after Pause all:** explicit Start/Resume re-enables scheduling while unrelated paused downloads remain paused.
+- **Restrictive servers:** automatic connection reduction, preserved verified offsets, Retry-After handling and single-stream fallback for rejected range probes.
+- **Stable transfers and estimates:** normal short pauses no longer force reconnects; speed and ETA use a rolling measurement.
+- **Desktop polish:** consistent removal confirmation buttons, optional transparent appearance and foreground reopening after an installed update.
+- Chrome, Firefox, Windows and Linux packages share version 2.7.0. The installed updater keeps the existing verification key and is checked from 2.6.6.
 
 ## Features
 
@@ -136,7 +135,7 @@ Screenshots of the actual 2.4.2 interface from an isolated Windows profile.
 
 ### Windows desktop
 
-1. Run `Flux_2.6.6_x64-setup.exe`; installation is per-user.
+1. Run `Flux_2.7.0_x64-setup.exe`; installation is per-user.
 2. FFmpeg, FFprobe, yt-dlp, Node and torrent runtimes are bundled. Missing WebView2 is installed using Microsoft's bootstrapper, which needs internet access.
 3. Native Messaging is registered for **Chrome, Edge, Brave, Chromium and Firefox**. Host registration does not install a browser extension.
 4. Launch Flux once after installing the extension. Both installed and portable editions register/repair the bridge automatically at startup. **Settings → Browser integration → Repair browser bridge** remains available if permissions or files prevent automatic registration.
@@ -150,7 +149,7 @@ Upgrade from older packages by running the current installer manually. Existing 
 Install or upgrade on Fedora x86_64:
 
 ```bash
-sudo dnf install ./Flux-2.6.6-linux-x86_64.rpm
+sudo dnf install ./Flux-2.7.0-linux-x86_64.rpm
 flux-desktop
 ```
 
@@ -175,7 +174,7 @@ Open **Settings → Torrent watch folders**, add one or more folders, enable mon
 
 ### Firefox
 
-**Store installation:** [Flux on Mozilla Add-ons](https://addons.mozilla.org/firefox/addon/flux-download-manager/). The 2.6.6 submission is awaiting review as of 25 October 2026; installation from the store becomes available after approval. Use Flux desktop **2.6.6 or later** for this store identity. Firefox delivers approved store updates automatically.
+**Store installation:** [Flux on Mozilla Add-ons](https://addons.mozilla.org/firefox/addon/flux-download-manager/). Check the listing for the currently approved version. Flux desktop **2.6.0 or later** supports both Firefox extension identities. Firefox delivers approved store updates automatically.
 
 **Manual ZIP installation:** use the matching **140+** or **120–139** package. Open `about:debugging#/runtime/this-firefox`, select **Load Temporary Add-on**, and choose the extracted `manifest.json`. Enable local Flux data transfer in extension settings and grant site access when requested.
 
@@ -200,7 +199,7 @@ New desktop profiles use the OS locale; extensions use the browser UI locale. Un
 
 ## Privacy and security
 
-No remote Flux account is required. The extension sends no usage statistics. Desktop 2.6.6 offers optional first-party usage measurement only after acceptance; [the notice and server documentation](docs/usage-statistics.md) explain its fields, retention and withdrawal. The extension sends selected URLs, titles, bounded manifests and required origin-scoped session headers to the **local** application. Firefox native transfer requires consent. Credentials are encrypted before durable storage; public task responses omit them. Consent can be withdrawn in settings.
+No remote Flux account is required. The extension sends no usage statistics. Desktop 2.7.0 offers optional first-party usage measurement only after acceptance; [the notice and server documentation](docs/usage-statistics.md) explain its fields, retention and withdrawal. The extension sends selected URLs, titles, bounded manifests and required origin-scoped session headers to the **local** application. Firefox native transfer requires consent. Credentials are encrypted before durable storage; public task responses omit them. Consent can be withdrawn in settings.
 
 Downloads contact their source; torrents contact peers/trackers/DHT. Enabled Debrid accounts contact their APIs; update checks contact GitHub. Native Messaging uses caller checks, bounded frames and an authenticated user-scoped loopback broker. See [Security](SECURITY.md), [IPC](docs/protocol.md) and [privacy disclosure](docs/browser-stores.md#privacy-disclosure-for-store-listings).
 
@@ -239,7 +238,7 @@ For required media tests, configure FFmpeg/FFprobe and the pinned fixture encode
 
 | Document | Contents |
 | --- | --- |
-| [2.4 release notes](docs/releases/v2.6.6.md) | English/Turkish release overview |
+| [2.4 release notes](docs/releases/v2.7.0.md) | English/Turkish release overview |
 | [2.4 build and platform guide](docs/release-2.4.md) | Release packaging and platform differences |
 | [Architecture](docs/architecture.md) · [IPC](docs/protocol.md) | Engine ownership, persistence and browser protocol |
 | [Validation](docs/validation.md) | Current and historical evidence |
@@ -257,6 +256,6 @@ Flux's owned code is [MIT](LICENSE). FFmpeg/LAME use LGPL, libxml2 uses MIT, yt-
 
 The acknowledgment for approved SignPath-signed releases is: **“This project uses SignPath Foundation for code signing.”**
 
-Flux is preparing free code signing through [SignPath.io](https://signpath.io), with a certificate provided by [SignPath Foundation](https://signpath.org). Foundation approval and production signing configuration are pending; current 2.6.6 Windows packages do not carry an Authenticode publisher certificate. The existing updater signature is separate.
+Flux is preparing free code signing through [SignPath.io](https://signpath.io), with a certificate provided by [SignPath Foundation](https://signpath.org). Foundation approval and production signing configuration are pending; current 2.7.0 Windows packages do not carry an Authenticode publisher certificate. The existing updater signature is separate.
 
 See the [code signing policy](docs/code-signing-policy.md) for signing scope, maintainer/approver roles and release verification. **Privacy Policy URL:** [Flux privacy disclosure](https://github.com/Hactor00/Flux/blob/main/docs/browser-stores.md#privacy-disclosure-for-store-listings).

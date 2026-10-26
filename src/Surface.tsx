@@ -6,7 +6,7 @@ import { SettingsModal } from "./components/SettingsModal";
 import { TaskDetails } from "./components/TaskDetails";
 import { PowerCountdown } from "./components/PowerCountdown";
 import { DownloadComplete } from "./components/DownloadComplete";
-import { applyTheme } from "./theme";
+import { applyTheme, applyTransparency } from "./theme";
 
 export default function Surface() {
   const { i18n, t } = useTranslation();
@@ -25,6 +25,7 @@ export default function Surface() {
       .settings()
       .then((settings) => {
         applyTheme(settings.theme);
+        applyTransparency(settings.transparency);
         void i18n.changeLanguage(settings.locale);
       })
       .catch((error) => setError(String(error)));
@@ -35,6 +36,7 @@ export default function Surface() {
         .catch((error) => setError(String(error)));
     const preferences = subscribe<Settings>("settings-changed", (event) => {
       applyTheme(event.payload.theme);
+      applyTransparency(event.payload.transparency);
       void i18n.changeLanguage(event.payload.locale);
     });
     return () => {

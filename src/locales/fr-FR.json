@@ -282,5 +282,6 @@
   "usage_pending": "En attente du service de statistiques. Les téléchargements ne sont pas affectés.",
   "usage_deletion_pending": "Le partage est désactivé. Les anciens enregistrements seront supprimés dès la connexion.",
   "usage_privacy": "Quelles données sont partagées ?",
-  "usage_privacy_text": "Pendant l’utilisation, un identifiant aléatoire d’installation, la date UTC, la version de l’application, le système et la version de l’avis sont envoyés à fluxdownload.org au maximum une fois par jour. Aucun lien, nom de fichier, contenu, nom ou e-mail. Conservation : 35 jours. L’hébergeur reçoit l’adresse IP et peut la journaliser. Désactiver demande l’effacement. Ce sont des installations consentantes, pas un nombre exact de personnes. Détails et contact dans l’avis de confidentialité."
+  "usage_privacy_text": "Pendant l’utilisation, un identifiant aléatoire d’installation, la date UTC, la version de l’application, le système et la version de l’avis sont envoyés à fluxdownload.org au maximum une fois par jour. Aucun lien, nom de fichier, contenu, nom ou e-mail. Conservation : 35 jours. L’hébergeur reçoit l’adresse IP et peut la journaliser. Désactiver demande l’effacement. Ce sont des installations consentantes, pas un nombre exact de personnes. Détails et contact dans l’avis de confidentialité.",
+  "transparency": "Apparence transparente"
 }

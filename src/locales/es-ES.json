@@ -282,5 +282,6 @@
   "usage_pending": "Esperando al servicio de estadísticas. Las descargas no se ven afectadas.",
   "usage_deletion_pending": "El envío está desactivado. Los datos anteriores se borrarán cuando haya conexión.",
   "usage_privacy": "¿Qué se comparte?",
-  "usage_privacy_text": "Durante el uso se envían a fluxdownload.org, como máximo una vez al día, un identificador aleatorio de instalación, fecha UTC, versión de la app, sistema operativo y versión del aviso. No se envían enlaces, nombres de archivo, contenidos, nombres ni correos. Se conservan 35 días. El alojamiento recibe tu IP y puede registrarla. Al desactivar se solicita el borrado. Se cuentan instalaciones que aceptan, no personas exactas. Detalles y contacto en el aviso de privacidad."
+  "usage_privacy_text": "Durante el uso se envían a fluxdownload.org, como máximo una vez al día, un identificador aleatorio de instalación, fecha UTC, versión de la app, sistema operativo y versión del aviso. No se envían enlaces, nombres de archivo, contenidos, nombres ni correos. Se conservan 35 días. El alojamiento recibe tu IP y puede registrarla. Al desactivar se solicita el borrado. Se cuentan instalaciones que aceptan, no personas exactas. Detalles y contacto en el aviso de privacidad.",
+  "transparency": "Apariencia transparente"
 }

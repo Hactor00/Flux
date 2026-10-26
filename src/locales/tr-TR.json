@@ -282,5 +282,6 @@
   "usage_pending": "İstatistik sunucusu bekleniyor. İndirmeler etkilenmez.",
   "usage_deletion_pending": "Paylaşım kapalı. Önceki kayıtların silinmesi için internet bağlantısı bekleniyor.",
   "usage_privacy": "Neler paylaşılıyor?",
-  "usage_privacy_text": "Yalnızca rastgele kurulum kimliği, UTC etkinlik günü, uygulama sürümü, işletim sistemi ve bilgilendirme sürümü, uygulama kullanımdayken günde en fazla bir kez fluxdownload.org’a gönderilir. İndirme bağlantısı, dosya adı, içerik, ad veya e-posta gönderilmez. Kayıtlar 35 gün saklanır. Barındırma sunucusu IP adresini alır ve günlüğe kaydedebilir. Paylaşımı kapatınca silme isteği gönderilir. Bu, izin veren kurulumların ölçümüdür; kesin kişi sayısı değildir. Ayrıntılar ve iletişim gizlilik metnindedir."
+  "usage_privacy_text": "Yalnızca rastgele kurulum kimliği, UTC etkinlik günü, uygulama sürümü, işletim sistemi ve bilgilendirme sürümü, uygulama kullanımdayken günde en fazla bir kez fluxdownload.org’a gönderilir. İndirme bağlantısı, dosya adı, içerik, ad veya e-posta gönderilmez. Kayıtlar 35 gün saklanır. Barındırma sunucusu IP adresini alır ve günlüğe kaydedebilir. Paylaşımı kapatınca silme isteği gönderilir. Bu, izin veren kurulumların ölçümüdür; kesin kişi sayısı değildir. Ayrıntılar ve iletişim gizlilik metnindedir.",
+  "transparency": "Şeffaf görünüm"
 }

@@ -15,7 +15,7 @@ use std::{
     collections::{HashMap, HashSet, VecDeque},
     path::{Path, PathBuf},
     sync::{
-        atomic::{AtomicBool, AtomicU64, Ordering},
+        atomic::{AtomicBool, AtomicU64, AtomicU8, Ordering},
         Arc,
     },
     time::Duration,
@@ -98,6 +98,9 @@ struct TransferContext {
     progress: Arc<AtomicU64>,
     local: Arc<AtomicU64>,
     streaming: Arc<AtomicBool>,
+    slots: Arc<Semaphore>,
+    connection_limit: Arc<AtomicU8>,
+    capacity: u32,
 }
 
 impl Engine {
@@ -674,7 +677,17 @@ impl Engine {
             task.request.stop_at = None;
         }
         self.0.store.save(task.clone()).await?;
+        drop(active);
+        self.enable_queue().await?;
         Ok(task)
+    }
+    async fn enable_queue(&self) -> Result<()> {
+        let mut settings = self.settings().await?;
+        if !settings.queue_enabled {
+            settings.queue_enabled = true;
+            self.save_settings(settings).await?;
+        }
+        Ok(())
     }
     pub async fn set_priority(&self, id: &str, priority: i8) -> Result<Task> {
         ensure!(
@@ -957,17 +970,22 @@ impl Engine {
             .context("Missing imported torrent ID")?
             .to_owned();
         request.url = source;
-        self.insert_request(
-            id,
-            &mut request,
-            if start {
-                Status::Queued
-            } else {
-                Status::Paused
-            },
-            directory,
-        )
-        .await
+        let task = self
+            .insert_request(
+                id,
+                &mut request,
+                if start {
+                    Status::Queued
+                } else {
+                    Status::Paused
+                },
+                directory,
+            )
+            .await?;
+        if start {
+            self.enable_queue().await?;
+        }
+        Ok(task)
     }
     pub async fn set_torrent_options(
         &self,
@@ -1058,7 +1076,11 @@ impl Engine {
         directory: PathBuf,
         start: bool,
     ) -> Result<Vec<Task>> {
-        self.insert_batch(requests, Some(directory), start).await
+        let tasks = self.insert_batch(requests, Some(directory), start).await?;
+        if start {
+            self.enable_queue().await?;
+        }
+        Ok(tasks)
     }
     async fn insert_batch(
         &self,
@@ -1205,17 +1227,22 @@ impl Engine {
         directory: Option<PathBuf>,
         start: bool,
     ) -> Result<Task> {
-        self.insert_request(
-            uuid::Uuid::new_v4().to_string(),
-            &mut request,
-            if start {
-                Status::Queued
-            } else {
-                Status::Paused
-            },
-            directory,
-        )
-        .await
+        let task = self
+            .insert_request(
+                uuid::Uuid::new_v4().to_string(),
+                &mut request,
+                if start {
+                    Status::Queued
+                } else {
+                    Status::Paused
+                },
+                directory,
+            )
+            .await?;
+        if start {
+            self.enable_queue().await?;
+        }
+        Ok(task)
     }
     async fn insert_request(
         &self,
@@ -1362,6 +1389,10 @@ impl Engine {
             Status::Paused
         };
         self.0.store.save(task.clone()).await?;
+        drop(_gate);
+        if start {
+            self.enable_queue().await?;
+        }
         Ok(task)
     }
     pub async fn reject(&self, id: &str) -> Result<Task> {
@@ -1837,7 +1868,7 @@ impl Engine {
                 let ticker = tokio::spawn(async move {
                     let mut validated = false;
                     let mut interval = tokio::time::interval(Duration::from_millis(250));
-                    let mut previous = 0;
+                    let mut rate = crate::watchdog::Rate::new(0);
                     let mut estimator = crate::media_progress::Estimator::default();
                     let mut checkpoint = tokio::time::Instant::now();
                     let mut time = tokio::time::Instant::now();
@@ -1848,9 +1879,7 @@ impl Engine {
                         {
                             validated = validation_store.source_validated(id.clone()).await.is_ok();
                         }
-                        let speed = (received.saturating_sub(previous) as f64
-                            / time.elapsed().as_secs_f64().max(0.001))
-                            as u64;
+                        let speed = rate.sample(tokio::time::Instant::now(), received);
                         let stats = tracker.snapshot()?;
                         let (total, total_estimated, media) = estimator.update(
                             &stats,
@@ -1874,7 +1903,6 @@ impl Engine {
                             checkpoint = tokio::time::Instant::now();
                         }
                         let _ = sender.send(progress);
-                        previous = received;
                         time = tokio::time::Instant::now();
                     }
                     let stats = tracker.snapshot()?;
@@ -2103,17 +2131,15 @@ impl Engine {
             let validation_store = self.0.store.clone();
             tokio::spawn(async move {
                 let mut interval = tokio::time::interval(Duration::from_millis(250));
-                let mut last = progress.load(Ordering::Relaxed);
+                let mut rate = crate::watchdog::Rate::new(progress.load(Ordering::Relaxed));
                 let mut validated = false;
-                let mut at = tokio::time::Instant::now();
                 loop {
                     tokio::select! { _ = ticker_cancel.cancelled() => break, _ = interval.tick() => {
                         let now = tokio::time::Instant::now();
                         let completed = progress.load(Ordering::Relaxed);
                         if completed > 0 && !validated { validated = validation_store.source_validated(id.clone()).await.is_ok(); }
-                        let speed = (completed.saturating_sub(last) as f64 / now.duration_since(at).as_secs_f64().max(0.001)) as u64;
+                        let speed = rate.sample(now, completed);
                         let _ = events.send(Progress { id: id.clone(), total, completed, bytes_per_second: speed, total_estimated: false, media: None });
-                        last = completed; at = now;
                     }}
                 }
             })
@@ -2124,6 +2150,8 @@ impl Engine {
                     || (part.end + 1).is_multiple_of(crate::disk_writer::ALIGNMENT))
         });
         let stop = cancel.child_token();
+        let slots = Arc::new(Semaphore::new(worker_limit as usize));
+        let connection_limit = Arc::new(AtomicU8::new(worker_limit));
         let mut next_index = parts.iter().map(|p| p.index).max().unwrap_or(0) + 1;
         let mut pending: VecDeque<_> = parts
             .into_iter()
@@ -2156,6 +2184,9 @@ impl Engine {
                         progress: progress.clone(),
                         local,
                         streaming,
+                        slots: slots.clone(),
+                        connection_limit: connection_limit.clone(),
+                        capacity: worker_limit as u32,
                     },
                 ));
             }
@@ -2252,6 +2283,9 @@ impl Engine {
                             progress: progress.clone(),
                             local,
                             streaming,
+                            slots: slots.clone(),
+                            connection_limit: connection_limit.clone(),
+                            capacity: worker_limit as u32,
                         },
                     ));
                 }
@@ -2449,15 +2483,19 @@ impl Engine {
             {
                 break;
             }
-            if stalled && task.ranged {
+            // Restrictive servers keep verified offsets while retries reduce concurrency.
+            let limit = context.connection_limit.load(Ordering::Relaxed);
+            context
+                .connection_limit
+                .fetch_min((limit / 2).max(1), Ordering::Relaxed);
+            file.sync_data().await?;
+            part.digest = Some(hex::encode(hash.clone().finalize()));
+            self.0
+                .store
+                .checkpoint(task.id.clone(), part.clone())
+                .await?;
+            if stalled {
                 self.0.client.reset_tcp_pool().await?;
-                file.sync_data().await?;
-                part.digest = Some(hex::encode(hash.clone().finalize()));
-                self.0
-                    .store
-                    .checkpoint(task.id.clone(), part.clone())
-                    .await?;
-                continue;
             }
             let seconds = result
                 .as_ref()
@@ -2494,6 +2532,22 @@ impl Engine {
             streaming,
             ..
         } = context;
+        let _slot = loop {
+            let weight = context
+                .capacity
+                .div_ceil(context.connection_limit.load(Ordering::Relaxed) as u32);
+            let permit = tokio::select! {
+                _ = cancel.cancelled() => bail!("Cancelled"),
+                permit = context.slots.acquire_many(weight) => permit?,
+            };
+            if weight
+                == context
+                    .capacity
+                    .div_ceil(context.connection_limit.load(Ordering::Relaxed) as u32)
+            {
+                break permit;
+            }
+        };
         if task.ranged && part.done == part.len() {
             return Ok(());
         }
@@ -2587,9 +2641,7 @@ impl Engine {
         let mut replay_remaining = if task.ranged { 0 } else { part.done };
         let expected_prefix = hash.clone().finalize();
         let mut replay_hash = Sha256::new();
-        let mut watchdog = crate::watchdog::Monitor::default();
         loop {
-            let waiting = tokio::time::Instant::now();
             let next = tokio::select! {
                 _ = cancel.cancelled() => bail!("Cancelled"),
                 result = tokio::time::timeout(crate::watchdog::IDLE_TIMEOUT, stream.next()) => {
@@ -2623,9 +2675,6 @@ impl Engine {
                 if bytes.is_empty() {
                     continue;
                 }
-            }
-            if task.ranged && watchdog.record(bytes.len(), waiting.elapsed()) {
-                return Err(crate::watchdog::Stalled.into());
             }
             let remaining = if task.ranged {
                 Some(part.len() - part.done)

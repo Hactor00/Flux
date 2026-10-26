@@ -46,7 +46,12 @@ import { SpeedGraph } from "./components/SpeedGraph";
 import { BrowserIntegrationNotice } from "./components/BrowserIntegration";
 import "./desktop.css";
 import { transferView, formatDuration } from "./transfer";
-import { applyTheme, storedTheme, type Theme } from "./theme";
+import {
+  applyTheme,
+  storedTheme,
+  applyTransparency,
+  type Theme,
+} from "./theme";
 
 function bytes(value: number, locale: string) {
   const units = ["B", "KB", "MB", "GB", "TB"];
@@ -158,6 +163,7 @@ export default function App() {
       .settings()
       .then((s) => {
         setTheme(s.theme);
+        applyTransparency(s.transparency);
         setCompactList(s.compact_list);
         void i18n.changeLanguage(s.locale);
       })
@@ -172,6 +178,7 @@ export default function App() {
     const preferences = subscribe<Settings>("settings-changed", (event) => {
       if (alive) {
         setTheme(event.payload.theme);
+        applyTransparency(event.payload.transparency);
         setCompactList(event.payload.compact_list);
         void i18n.changeLanguage(event.payload.locale);
       }
@@ -853,10 +860,10 @@ export default function App() {
           <Alert.Content className="modal confirm-modal">
             <Alert.Title>{t("remove")}</Alert.Title>
             <Alert.Description>{t("remove_description")}</Alert.Description>
-            <div className="confirm-actions">
+            <div className="dialog-actions">
               <Alert.Cancel className="secondary">{t("close")}</Alert.Cancel>
               <Alert.Action
-                className="danger-button"
+                className="secondary danger"
                 onClick={() =>
                   void run(async () => {
                     for (const task of selectedTasks) await api.remove(task.id);

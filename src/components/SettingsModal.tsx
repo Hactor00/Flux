@@ -255,6 +255,11 @@ export function SettingsModal({
                   />
                 </div>
                 <Toggle
+                  checked={settings.transparency}
+                  onChange={(value) => update("transparency", value)}
+                  label={t("transparency")}
+                />
+                <Toggle
                   checked={settings.compact_list}
                   onChange={(value) => update("compact_list", value)}
                   label={t("compact_list")}

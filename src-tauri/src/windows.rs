@@ -3,6 +3,20 @@ use flux_core::{DownloadRequest, Status, Task};
 use std::path::PathBuf;
 use tauri::{Manager, State};
 
+pub fn appearance(window: &tauri::WebviewWindow, transparent: bool) {
+    let color = tauri::window::Color(20, 22, 28, if transparent { 0 } else { 255 });
+    let _ = window.set_background_color(Some(color));
+    #[cfg(target_os = "windows")]
+    {
+        use tauri::window::{Effect, EffectsBuilder};
+        let effects = transparent.then(|| EffectsBuilder::new().effect(Effect::Acrylic).build());
+        if let Err(error) = window.set_effects(effects) {
+            eprintln!("Window backdrop is unavailable: {error}");
+            let _ = window.set_background_color(Some(tauri::window::Color(20, 22, 28, 255)));
+        }
+    }
+}
+
 pub fn show(
     app: &tauri::AppHandle,
     view: &str,
@@ -93,11 +107,18 @@ pub fn show(
             440.0
         },
     )
+    .transparent(true)
     .background_color(tauri::window::Color(20, 22, 28, 255))
     .focused(true)
     .center()
     .build()
     .map_err(|e| e.to_string())?;
+    appearance(
+        &window,
+        app.state::<Backend>()
+            .transparency
+            .load(std::sync::atomic::Ordering::SeqCst),
+    );
     window.show().map_err(|e| e.to_string())?;
     window.set_focus().map_err(|e| e.to_string())?;
     Ok(())

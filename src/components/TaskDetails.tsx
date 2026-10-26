@@ -460,7 +460,7 @@ export function TaskDetails({
                         <AlertDialog.Description>
                           {t("remove_description")}
                         </AlertDialog.Description>
-                        <div className="details-actions">
+                        <div className="dialog-actions">
                           <AlertDialog.Cancel asChild>
                             <button className="secondary">{t("close")}</button>
                           </AlertDialog.Cancel>

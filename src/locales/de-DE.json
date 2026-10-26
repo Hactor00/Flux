@@ -282,5 +282,6 @@
   "usage_pending": "Warten auf den Statistikdienst. Downloads sind nicht betroffen.",
   "usage_deletion_pending": "Teilen ist aus. Frühere Daten werden bei Internetverbindung gelöscht.",
   "usage_privacy": "Was wird geteilt?",
-  "usage_privacy_text": "Während der Nutzung werden höchstens einmal täglich eine zufällige Installationskennung, UTC-Datum, App-Version, Betriebssystem und Hinweisversion an fluxdownload.org gesendet. Keine Downloadlinks, Dateinamen, Inhalte, Namen oder E-Mails. Aufbewahrung: 35 Tage. Der Hoster empfängt die IP-Adresse und kann sie protokollieren. Abschalten fordert die Löschung an. Gezählt werden zustimmende Installationen, keine exakten Personen. Details und Kontakt stehen im Datenschutzhinweis."
+  "usage_privacy_text": "Während der Nutzung werden höchstens einmal täglich eine zufällige Installationskennung, UTC-Datum, App-Version, Betriebssystem und Hinweisversion an fluxdownload.org gesendet. Keine Downloadlinks, Dateinamen, Inhalte, Namen oder E-Mails. Aufbewahrung: 35 Tage. Der Hoster empfängt die IP-Adresse und kann sie protokollieren. Abschalten fordert die Löschung an. Gezählt werden zustimmende Installationen, keine exakten Personen. Details und Kontakt stehen im Datenschutzhinweis.",
+  "transparency": "Transparente Darstellung"
 }

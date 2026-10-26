@@ -8,9 +8,10 @@ import "./design.css";
 import "./modern.css";
 import { Updater } from "./components/Updater";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
-import { applyTheme, storedTheme } from "./theme";
+import { applyTheme, storedTheme, applyTransparency } from "./theme";
 import { UsageStatistics } from "./components/UsageStatistics";
 applyTheme(storedTheme());
+applyTransparency(localStorage.getItem("flux-transparency") === "true");
 matchMedia("(prefers-color-scheme: light)").addEventListener("change", () =>
   applyTheme(storedTheme()),
 );

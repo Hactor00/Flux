@@ -600,3 +600,21 @@
     transition: none !important;
   }
 }
+:root[data-transparency="true"] {
+  --ui-bg: #15161cc7;
+  --ui-panel: #1c1d25d9;
+  --ui-raised: #23242ee6;
+}
+:root[data-theme="light"][data-transparency="true"] {
+  --ui-bg: #f5f6fbc7;
+  --ui-panel: #ffffffe0;
+  --ui-raised: #f0f1f7e6;
+}
+html[data-transparency="true"],
+html[data-transparency="true"] body {
+  background: transparent;
+}
+html[data-transparency="true"] .desktop-shell,
+html[data-transparency="true"] .modal {
+  backdrop-filter: blur(24px);
+}

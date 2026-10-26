@@ -47,7 +47,7 @@ async fn stalled_range_reconnects_from_written_offset_without_waiting_for_server
                             1,
                         ))
                     } else if step == 1 {
-                        tokio::time::sleep(Duration::from_secs(20)).await;
+                        tokio::time::sleep(Duration::from_secs(60)).await;
                         Some((Ok(Bytes::copy_from_slice(&bytes[start + 65536..=end])), 2))
                     } else {
                         None
@@ -97,12 +97,12 @@ async fn stalled_range_reconnects_from_written_offset_without_waiting_for_server
         .unwrap();
     let started = tokio::time::Instant::now();
     engine.start(&task.id).await.unwrap();
-    let task = tokio::time::timeout(Duration::from_secs(8), engine.wait(&task.id))
+    let task = tokio::time::timeout(Duration::from_secs(40), engine.wait(&task.id))
         .await
         .unwrap()
         .unwrap();
     assert_eq!(task.status, Status::Complete, "{:?}", task.error);
-    assert!(started.elapsed() >= Duration::from_secs(3));
+    assert!(started.elapsed() >= Duration::from_secs(30));
     assert_eq!(
         tokio::fs::read(&task.destination).await.unwrap(),
         *fixture.bytes

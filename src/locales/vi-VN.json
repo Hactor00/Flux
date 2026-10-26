@@ -282,5 +282,6 @@
   "usage_pending": "Đang chờ dịch vụ thống kê. Tải xuống không bị ảnh hưởng.",
   "usage_deletion_pending": "Đã tắt chia sẻ. Bản ghi cũ sẽ được xóa khi có kết nối mạng.",
   "usage_privacy": "Dữ liệu nào được chia sẻ?",
-  "usage_privacy_text": "Khi dùng ứng dụng, mã cài đặt ngẫu nhiên, ngày UTC, phiên bản ứng dụng, hệ điều hành và phiên bản thông báo được gửi đến fluxdownload.org tối đa một lần mỗi ngày. Không gửi liên kết tải, tên tệp, nội dung, tên hay email. Lưu 35 ngày. Nhà cung cấp máy chủ nhận IP và có thể ghi nhật ký. Tắt chia sẻ sẽ yêu cầu xóa. Đây là số bản cài đặt đồng ý, không phải số người chính xác. Chi tiết và liên hệ trong thông báo quyền riêng tư."
+  "usage_privacy_text": "Khi dùng ứng dụng, mã cài đặt ngẫu nhiên, ngày UTC, phiên bản ứng dụng, hệ điều hành và phiên bản thông báo được gửi đến fluxdownload.org tối đa một lần mỗi ngày. Không gửi liên kết tải, tên tệp, nội dung, tên hay email. Lưu 35 ngày. Nhà cung cấp máy chủ nhận IP và có thể ghi nhật ký. Tắt chia sẻ sẽ yêu cầu xóa. Đây là số bản cài đặt đồng ý, không phải số người chính xác. Chi tiết và liên hệ trong thông báo quyền riêng tư.",
+  "transparency": "Giao diện trong suốt"
 }

@@ -258,6 +258,12 @@ pub async fn save_settings(
     state
         .tray
         .store(settings.minimize_to_tray, Ordering::SeqCst);
+    state
+        .transparency
+        .store(settings.transparency, Ordering::SeqCst);
+    for window in app.webview_windows().values() {
+        crate::windows::appearance(window, settings.transparency);
+    }
     *state.locale.lock().map_err(error)? = settings.locale.clone();
     let words = crate::localization::words(&settings.locale);
     let menu = app.state::<LocalizedMenu>();
@@ -579,6 +585,7 @@ pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
         cancel,
         closing: AtomicBool::new(false),
         tray: AtomicBool::new(settings.minimize_to_tray),
+        transparency: AtomicBool::new(settings.transparency),
         locale: std::sync::Mutex::new(settings.locale.clone()),
     });
     use tauri::{
@@ -602,6 +609,9 @@ pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     )?;
     let menu = Menu::with_items(app, &[&open, &exit])?;
     app.manage(LocalizedMenu { open, quit: exit });
+    for window in app.webview_windows().values() {
+        crate::windows::appearance(window, settings.transparency);
+    }
     TrayIconBuilder::new()
         .icon(
             app.default_window_icon()
@@ -631,6 +641,7 @@ pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                 }
             ) {
                 if let Some(window) = tray.app_handle().get_webview_window("main") {
+                    let _ = window.unminimize();
                     let _ = window.show();
                     let _ = window.set_focus();
                 }
@@ -639,7 +650,9 @@ pub fn setup(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
         .build(app)?;
     if !std::env::args().any(|arg| arg == "--background" || arg == "--shutdown-request") {
         if let Some(window) = app.get_webview_window("main") {
+            window.unminimize()?;
             window.show()?;
+            window.set_focus()?;
         }
     }
     Ok(())

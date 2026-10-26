@@ -282,5 +282,6 @@
   "usage_pending": "We dey wait for statistics service. Downloads no get problem.",
   "usage_deletion_pending": "Sharing don stop. Old records go delete when internet connect.",
   "usage_privacy": "Wetin we dey share?",
-  "usage_privacy_text": "When you dey use di app, na random installation ID, UTC day, app version, operating system and notice version we send to fluxdownload.org, no more than once per day. We no send download links, filenames, contents, your name or email. Records stay for 35 days. Hosting company go see your IP and fit log am. If you turn sharing off, we go request deletion. Na installations wey agree we count, no be exact number of people. Details and contact dey for privacy notice."
+  "usage_privacy_text": "When you dey use di app, na random installation ID, UTC day, app version, operating system and notice version we send to fluxdownload.org, no more than once per day. We no send download links, filenames, contents, your name or email. Records stay for 35 days. Hosting company go see your IP and fit log am. If you turn sharing off, we go request deletion. Na installations wey agree we count, no be exact number of people. Details and contact dey for privacy notice.",
+  "transparency": "Transparent look"
 }

@@ -12,7 +12,7 @@ const reserve = createServer();
 await new Promise((r) => reserve.listen(0, "127.0.0.1", r));
 const port = reserve.address().port;
 await new Promise((r) => reserve.close(r));
-const app = spawn(join(installed, "flux-desktop.exe"), [], {
+const app = spawn(join(installed, "flux-desktop.exe"), ["--background"], {
   windowsHide: true,
   stdio: "ignore",
   env: {
@@ -32,6 +32,11 @@ async function until(check, timeout = 60000) {
 }
 try {
   const main = await driver.connect("main");
+  // Open an existing tray instance without changing its original launch arguments.
+  spawn(join(installed, "flux-desktop.exe"), [], {
+    windowsHide: true,
+    stdio: "ignore",
+  });
   await until(() =>
     main.evaluate(
       `document.querySelector('.updater-modal h2')?.textContent.includes(${JSON.stringify(expected)})`,

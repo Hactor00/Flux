@@ -1,4 +1,8 @@
 export type Theme = "system" | "dark" | "light";
+export function applyTransparency(enabled: boolean) {
+  document.documentElement.dataset.transparency = String(enabled);
+  localStorage.setItem("flux-transparency", String(enabled));
+}
 export function applyTheme(theme: Theme) {
   const light =
     theme === "light" ||

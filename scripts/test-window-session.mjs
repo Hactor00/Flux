@@ -169,6 +169,28 @@ try {
   if (automatic) {
     const main = await driver.connect("main"),
       download = await driver.connect("download");
+    for (const enabled of [true, false]) {
+      await main.evaluate(
+        `(async()=>{const input=await window.__TAURI_INTERNALS__.invoke('get_settings');input.transparency=${enabled};await window.__TAURI_INTERNALS__.invoke('save_settings',{input});return true})()`,
+      );
+      const deadline = Date.now() + 5000;
+      while (
+        (await main.evaluate(
+          `document.documentElement.dataset.transparency!==${JSON.stringify(String(enabled))}`,
+        )) ||
+        (await download.evaluate(
+          `document.documentElement.dataset.transparency!==${JSON.stringify(String(enabled))}`,
+        ))
+      ) {
+        if (Date.now() > deadline)
+          throw Error("Appearance setting did not reach the transfer window");
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      assert.equal(
+        await main.evaluate("document.documentElement.dataset.transparency"),
+        String(enabled),
+      );
+    }
     const uiDeadline = Date.now() + 10000;
     while (
       !(await download.evaluate(

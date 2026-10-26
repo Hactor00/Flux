@@ -164,7 +164,7 @@ window.__TAURI_INTERNALS__={metadata:{currentWindow:{label:view?view+'-new':'mai
  if(command==='runtime_platform')return 'windows';
  if(command==='installation_mode')return 'installed';
  if(command==='plugin:app|version'||command==='latest_release_version')return '${manifest.version}';
- if(command==='plugin:updater|check')return params.has('update')?{rid:7,currentVersion:'${manifest.version}',version:'2.6.7',body:'Window layout verification. '.repeat(100)}:null;
+ if(command==='plugin:updater|check')return params.has('update')?{rid:7,currentVersion:'${manifest.version}',version:'${manifest.version.split(".").slice(0, 2).join(".")}.999',body:'Window layout verification. '.repeat(100)}:null;
  if(command==='browser_integration')return {registered:true,connected:false,extension_versions:[],extension_id:null,error:null,reminder_dismissed:true};
  if(command==='statistics_status')return {choice:params.has('consent')?'unasked':'never',enabled:false,prompt_due:params.has('consent'),remind_after:0,last_success:null,deletion_pending:false,notice_version:'2026-10-26'};
  if(command==='torrent_watch_report')return {imported:0,error:null};
@@ -310,7 +310,7 @@ try {
   );
   await click(".transfer-actions .danger");
   await until(() => evaluate("!!document.querySelector('.confirm-modal')"));
-  await assertFooter(".confirm-modal .details-actions");
+  await assertFooter(".confirm-modal .dialog-actions");
   assert.ok(
     await evaluate(
       "document.querySelector('.confirm-modal').getBoundingClientRect().bottom<=innerHeight+2",

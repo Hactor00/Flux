@@ -105,8 +105,13 @@ pub(crate) async fn probe(
     // A successful plain GET is still safe; it forces a single-stream transfer.
     if matches!(
         response.status(),
-        StatusCode::BAD_REQUEST | StatusCode::FORBIDDEN | StatusCode::METHOD_NOT_ALLOWED
-    ) {
+        StatusCode::BAD_REQUEST
+            | StatusCode::FORBIDDEN
+            | StatusCode::METHOD_NOT_ALLOWED
+            | StatusCode::NOT_IMPLEMENTED
+    ) || (response.status() == StatusCode::SERVICE_UNAVAILABLE
+        && !response.headers().contains_key(header::RETRY_AFTER))
+    {
         let mut plain = authenticate(
             client.get(url).header(header::ACCEPT_ENCODING, "identity"),
             url,

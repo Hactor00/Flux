@@ -79,6 +79,120 @@ struct Server {
     requests: Arc<Mutex<Vec<String>>>,
     changed: Arc<AtomicBool>,
     failures: Arc<AtomicUsize>,
+    active: Arc<AtomicUsize>,
+}
+#[tokio::test]
+async fn explicit_start_resumes_after_pause_all_without_resuming_other_paused_tasks() {
+    let f = Fixture::new("normal", 65536).await;
+    let old = f.engine.enqueue(f.input()).await.unwrap();
+    f.engine.pause_all().await.unwrap();
+    assert!(!f.engine.settings().await.unwrap().queue_enabled);
+    let mut new = f.input();
+    new.filename = "new.bin".into();
+    let task = f
+        .engine
+        .enqueue_with_directory(new, None, true)
+        .await
+        .unwrap();
+    assert!(f.engine.settings().await.unwrap().queue_enabled);
+    let stop = tokio_util::sync::CancellationToken::new();
+    let scheduler = tokio::spawn({
+        let engine = f.engine.clone();
+        let stop = stop.clone();
+        async move { engine.run_scheduler(stop).await }
+    });
+    tokio::time::timeout(Duration::from_secs(5), async {
+        while f.engine.task(&task.id).await.unwrap().status != Status::Complete {
+            tokio::time::sleep(Duration::from_millis(30)).await;
+        }
+    })
+    .await
+    .unwrap();
+    f.assert_file(&f.engine.task(&task.id).await.unwrap()).await;
+    assert_eq!(f.engine.task(&old.id).await.unwrap().status, Status::Paused);
+    f.engine.pause_all().await.unwrap();
+    f.engine.queue(&old.id).await.unwrap();
+    assert!(f.engine.settings().await.unwrap().queue_enabled);
+    stop.cancel();
+    scheduler.await.unwrap().unwrap();
+    f.engine.pause_all().await.unwrap();
+}
+
+#[tokio::test]
+async fn restrictive_servers_reduce_connections_and_finish_with_matching_hash() {
+    let f = Fixture::new("single-connection", 12 * 1024 * 1024).await;
+    let mut input = f.input();
+    input.connections = 0;
+    let task = f.engine.enqueue(input).await.unwrap();
+    f.engine.start(&task.id).await.unwrap();
+    let task = tokio::time::timeout(Duration::from_secs(45), f.engine.wait(&task.id))
+        .await
+        .unwrap_or_else(|_| {
+            panic!(
+                "restrictive server timed out: active={}, failures={}, requests={}",
+                f.server.active.load(Ordering::SeqCst),
+                f.server.failures.load(Ordering::SeqCst),
+                f.server.requests.lock().unwrap().len()
+            )
+        })
+        .unwrap();
+    f.assert_file(&task).await;
+    assert!(f.server.failures.load(Ordering::SeqCst) > 0);
+}
+
+#[tokio::test]
+async fn explicit_batch_and_browser_approval_restart_a_disabled_queue() {
+    let f = Fixture::new("normal", 65536).await;
+    f.engine.pause_all().await.unwrap();
+    let tasks = f
+        .engine
+        .enqueue_batch_to(vec![f.input()], f.root.path().join("output"), true)
+        .await
+        .unwrap();
+    assert!(f.engine.settings().await.unwrap().queue_enabled);
+    f.engine.pause_all().await.unwrap();
+    let mut input = f.input();
+    input.filename = "approved.bin".into();
+    let proposal = f
+        .engine
+        .propose_id(uuid::Uuid::new_v4().to_string(), input.clone())
+        .await
+        .unwrap();
+    f.engine
+        .approve(&proposal.id, input, f.root.path().join("output"), true)
+        .await
+        .unwrap();
+    assert!(f.engine.settings().await.unwrap().queue_enabled);
+    assert_eq!(
+        f.engine.task(&tasks[0].id).await.unwrap().status,
+        Status::Paused
+    );
+}
+
+#[tokio::test]
+async fn ordinary_bursts_and_non_range_reconnects_keep_verified_bytes() {
+    for mode in ["slow-burst", "no-range-disconnect", "reject-range-503"] {
+        let f = Fixture::new(mode, 256 * 1024).await;
+        let task = tokio::time::timeout(Duration::from_secs(15), f.download())
+            .await
+            .unwrap();
+        f.assert_file(&task).await;
+        if mode == "slow-burst" {
+            assert_eq!(
+                f.server.requests.lock().unwrap().len(),
+                2,
+                "a healthy four-second pause must not reconnect"
+            );
+        } else {
+            assert!(!task.ranged);
+        }
+    }
+}
+struct ActiveRequest(Arc<AtomicUsize>);
+impl Drop for ActiveRequest {
+    fn drop(&mut self) {
+        self.0.fetch_sub(1, Ordering::SeqCst);
+    }
 }
 async fn handler(State(server): State<Server>, headers: HeaderMap) -> Response<Body> {
     if server.mode == "forbidden-range" && headers.contains_key("range") {
@@ -108,6 +222,8 @@ async fn handler(State(server): State<Server>, headers: HeaderMap) -> Response<B
     let ranged = !range.is_empty()
         && server.mode != "no-range"
         && server.mode != "unknown"
+        && server.mode != "no-range-disconnect"
+        && server.mode != "reject-range-503"
         && !(server.mode == "range-disappears" && server.changed.load(Ordering::SeqCst));
     let (start, end) = if ranged {
         let (start, end) = range
@@ -123,6 +239,23 @@ async fn handler(State(server): State<Server>, headers: HeaderMap) -> Response<B
         (0, server.bytes.len() - 1)
     };
     let probe = range == "bytes=0-0";
+    if server.mode == "reject-range-503" && !range.is_empty() {
+        return Response::builder().status(503).body(Body::empty()).unwrap();
+    }
+    let guard = if !probe && server.mode == "single-connection" {
+        let active = ActiveRequest(server.active.clone());
+        if server.active.fetch_add(1, Ordering::SeqCst) > 0 {
+            server.failures.fetch_add(1, Ordering::SeqCst);
+            return Response::builder()
+                .status(503)
+                .header("retry-after", "1")
+                .body(Body::empty())
+                .unwrap();
+        }
+        Some(active)
+    } else {
+        None
+    };
     if ((!probe && server.mode == "rate-limit") || (probe && server.mode == "probe-rate-limit"))
         && server.failures.fetch_add(1, Ordering::SeqCst) == 0
     {
@@ -180,33 +313,41 @@ async fn handler(State(server): State<Server>, headers: HeaderMap) -> Response<B
         server.bytes.clone()
     };
     let mode = server.mode;
-    let fail_stream = mode == "disconnect" && server.failures.fetch_add(1, Ordering::SeqCst) == 0;
+    let fail_stream = matches!(mode, "disconnect" | "no-range-disconnect")
+        && !probe
+        && server.failures.fetch_add(1, Ordering::SeqCst) == 0;
     let stall_stream = mode == "stall" && server.failures.fetch_add(1, Ordering::SeqCst) == 0;
-    let stream = futures_util::stream::unfold((start, false), move |(offset, failed)| {
-        let bytes = bytes.clone();
-        async move {
-            if offset > end || failed {
-                return None;
+    let stream =
+        futures_util::stream::unfold((start, false, guard), move |(offset, failed, guard)| {
+            let bytes = bytes.clone();
+            async move {
+                if offset > end || failed {
+                    return None;
+                }
+                if stall_stream && offset >= start + 65536 {
+                    tokio::time::sleep(Duration::from_secs(10)).await;
+                }
+                if mode == "slow-burst" && offset == start + 65536 {
+                    tokio::time::sleep(Duration::from_secs(4)).await;
+                }
+                if matches!(mode, "slow" | "single-connection")
+                    || (mode == "tail-slow" && start >= 4 * 1024 * 1024)
+                {
+                    tokio::time::sleep(Duration::from_millis(3)).await;
+                }
+                if fail_stream && offset >= start + 65536 {
+                    return Some((
+                        Err(std::io::Error::other("Injected disconnect")),
+                        (offset, true, guard),
+                    ));
+                }
+                let next = (offset + 16384).min(end + 1);
+                Some((
+                    Ok(Bytes::copy_from_slice(&bytes[offset..next])),
+                    (next, false, guard),
+                ))
             }
-            if stall_stream && offset >= start + 65536 {
-                tokio::time::sleep(Duration::from_secs(10)).await;
-            }
-            if mode == "slow" || (mode == "tail-slow" && start >= 4 * 1024 * 1024) {
-                tokio::time::sleep(Duration::from_millis(3)).await;
-            }
-            if fail_stream && offset >= start + 65536 {
-                return Some((
-                    Err(std::io::Error::other("Injected disconnect")),
-                    (offset, true),
-                ));
-            }
-            let next = (offset + 16384).min(end + 1);
-            Some((
-                Ok(Bytes::copy_from_slice(&bytes[offset..next])),
-                (next, false),
-            ))
-        }
-    });
+        });
     response.body(Body::from_stream(stream)).unwrap()
 }
 struct Fixture {
@@ -224,6 +365,7 @@ impl Fixture {
             requests: Default::default(),
             changed: Default::default(),
             failures: Default::default(),
+            active: Default::default(),
         };
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
         let url = format!("http://{}/file", listener.local_addr().unwrap());

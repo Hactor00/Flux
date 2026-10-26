@@ -282,5 +282,6 @@
   "usage_pending": "Waiting for the statistics service. Downloads are unaffected.",
   "usage_deletion_pending": "Sharing is off. Removal of previous records is pending an internet connection.",
   "usage_privacy": "What is shared?",
-  "usage_privacy_text": "Only a random installation ID, UTC activity date, app version, operating system and notice version are sent to fluxdownload.org while the app is in use, at most once per day. No download links, filenames, contents, name or email are sent. Records are kept for 35 days. The host receives your IP and may log it. Turning sharing off requests deletion. This measures consenting installations, not exact people. Details and contact are in the privacy notice."
+  "usage_privacy_text": "Only a random installation ID, UTC activity date, app version, operating system and notice version are sent to fluxdownload.org while the app is in use, at most once per day. No download links, filenames, contents, name or email are sent. Records are kept for 35 days. The host receives your IP and may log it. Turning sharing off requests deletion. This measures consenting installations, not exact people. Details and contact are in the privacy notice.",
+  "transparency": "Transparent appearance"
 }

@@ -117,6 +117,7 @@ export interface Settings {
   locale: string;
   theme: Theme;
   compact_list: boolean;
+  transparency: boolean;
   download_directory: string | null;
   completion_action: ShutdownAction;
   auto_categorize: boolean;
@@ -197,6 +198,7 @@ export const defaultSettings: Settings = {
   locale: "en-US",
   theme: "system",
   compact_list: false,
+  transparency: false,
   download_directory: null,
   completion_action: "none",
   auto_categorize: false,

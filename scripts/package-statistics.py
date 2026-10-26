@@ -5,14 +5,14 @@ import secrets
 import zipfile
 
 ROOT = Path(__file__).resolve().parent.parent
-DEST = ROOT / 'output' / '2.6.6'
+DEST = ROOT / 'output' / '2.7.0'
 DEST.mkdir(parents=True, exist_ok=True)
 token_file = DEST / 'statistics-setup-key.txt'
 if not token_file.exists():
     token_file.write_text(secrets.token_hex(32), encoding='utf-8')
-archive = DEST / 'Flux-2.6.6-statistics-plesk-private.zip'
+archive = DEST / 'Flux-2.7.0-statistics-plesk-private.zip'
 public = ['lib.php','collect.php','index.php','setup.php','prune.php','panel.css','.htaccess']
-instructions = '''Flux 2.6.6 · İstatistik sunucusu kurulumu
+instructions = '''Flux 2.7.0 · İstatistik sunucusu kurulumu
 
 Bu ZIP özeldir, GitHub'a veya herkese açık bir yere yüklemeyin.
 httpdocs/usage klasörünü alan adının httpdocs klasörüne, private klasörünü

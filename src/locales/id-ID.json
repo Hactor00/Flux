@@ -282,5 +282,6 @@
   "usage_pending": "Menunggu layanan statistik. Unduhan tidak terpengaruh.",
   "usage_deletion_pending": "Berbagi dinonaktifkan. Catatan lama akan dihapus saat terhubung ke internet.",
   "usage_privacy": "Apa yang dibagikan?",
-  "usage_privacy_text": "Saat aplikasi digunakan, ID instalasi acak, tanggal UTC, versi aplikasi, sistem operasi dan versi pemberitahuan dikirim ke fluxdownload.org maksimal sekali sehari. Tidak ada tautan unduhan, nama berkas, isi, nama atau email yang dikirim. Disimpan 35 hari. Penyedia hosting menerima IP dan mungkin mencatatnya. Menonaktifkan meminta penghapusan. Ini menghitung instalasi yang menyetujui, bukan jumlah orang pasti. Detail dan kontak ada di pemberitahuan privasi."
+  "usage_privacy_text": "Saat aplikasi digunakan, ID instalasi acak, tanggal UTC, versi aplikasi, sistem operasi dan versi pemberitahuan dikirim ke fluxdownload.org maksimal sekali sehari. Tidak ada tautan unduhan, nama berkas, isi, nama atau email yang dikirim. Disimpan 35 hari. Penyedia hosting menerima IP dan mungkin mencatatnya. Menonaktifkan meminta penghapusan. Ini menghitung instalasi yang menyetujui, bukan jumlah orang pasti. Detail dan kontak ada di pemberitahuan privasi.",
+  "transparency": "Tampilan transparan"
 }

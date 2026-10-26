@@ -1,7 +1,17 @@
 Options -Indexes
+DirectoryIndex disabled
+DirectoryIndex index.php
+Require all granted
 <Files "lib.php">
   Require all denied
 </Files>
 <FilesMatch "\.(json|sqlite|sqlite3|txt|log|bak)$">
   Require all denied
 </FilesMatch>
+
+# Keep the dashboard's form policy separate from the static website's policy.
+<IfModule mod_headers.c>
+  Header onsuccess unset Content-Security-Policy
+  Header always unset Content-Security-Policy
+  Header always set Content-Security-Policy "default-src 'none'; style-src 'self'; form-action 'self'; base-uri 'self'; frame-ancestors 'none'"
+</IfModule>
